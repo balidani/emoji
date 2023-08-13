@@ -1,0 +1,48 @@
+body {
+  font-size: 24pt;
+}
+
+a {
+  text-decoration: none;
+}
+
+.container {
+  width: 400pt;
+  margin: auto;
+}
+
+.combat-grid {
+  display: grid;
+  grid-template-columns: max-content max-content;
+}
+
+.combat-grid-item {
+  max-width: 200pt;
+  width: 200pt;
+  padding-bottom: 12pt;
+}
+
+.combat-control {
+  grid-column-start: 1;
+  grid-column-end: 3;
+  padding-top: 12pt;
+  padding-bottom: 16pt;
+}
+
+.combat-progress {
+  padding-top: 12pt;
+  letter-spacing: -5pt;
+  font-size: 12pt;
+}
+
+.combat-detail-grid {
+  display: grid;
+  grid-template-columns: 32pt auto;
+}
+
+.combat-detail-item {
+}
+
+.template {
+  display: none;
+}
