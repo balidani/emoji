@@ -8,6 +8,8 @@ export class CombatSim {
     };
 
     this.view = new CombatView(this.model);
+    this.model.hero.bindView(this.view.makeCallback('hero'));
+    this.model.enemy.bindView(this.view.makeCallback('enemy'));
   }
   step() {
     this.model.hero.step(this.model.enemy);

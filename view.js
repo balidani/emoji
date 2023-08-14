@@ -68,4 +68,9 @@ export class CombatView {
   update(selector, value) {
     this.valueSpanMap[selector].innerText = Emoji.convertInt(value);
   }
+  makeCallback(characterName) {
+    return (selector, value) => {
+      this.update([characterName, selector].join('.'), value);
+    };
+  }
 }

@@ -14,7 +14,7 @@ export class Character {
     return newCharacter;
   }
   step(enemy) {
-    const values = computeValues();
+    const values = this.computeValues();
     const enemyValues = enemy.computeValues();
 
     if (!('sleep' in this.statuses)) {
@@ -28,14 +28,17 @@ export class Character {
 
     // Apply any bleed, poison
     if ('bleed' in this.statuses) {
-
+      this.attribs.hp -= 1;
+      this.updateValue('hp', this.attribs.hp); 
     }
     if ('poison' in this.statuses) {
-      
+      this.attribs.hp -= this.statuses['poison'];
+      this.updateValue('hp', this.attribs.hp);
     }
 
     for (const status of Object.keys(this.statuses)) {
       this.statuses[status] -= 1;
+      this.updateValue(status, this.statuses[status]);
     }
 
   }
@@ -80,4 +83,11 @@ export class Character {
 
     return values;
   }
+  bindView(callback) {
+    this.viewUpdater = callback;
+  }
+  updateValue(selector, value) {
+    this.viewUpdater(selector, value);
+  }
 }
+
