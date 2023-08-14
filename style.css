@@ -22,17 +22,19 @@ a {
   padding-bottom: 12pt;
 }
 
+.combat-grid-item.log {
+  padding-top: 16pt;
+  font-size: 12pt;
+}
+
 .combat-control {
-  grid-column-start: 1;
-  grid-column-end: 3;
   padding-top: 12pt;
   padding-bottom: 16pt;
 }
 
-.combat-progress {
-  padding-top: 12pt;
-  letter-spacing: -5pt;
-  font-size: 12pt;
+.full-width-item {
+  grid-column-start: 1;
+  grid-column-end: 3;
 }
 
 .combat-detail-grid {
@@ -44,5 +46,9 @@ a {
 }
 
 .template {
+  display: none;
+}
+
+.hidden {
   display: none;
 }

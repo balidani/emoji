@@ -13,15 +13,15 @@ export class CombatView {
 
     const templateDiv = this.template.cloneNode(true);
     this.containerDiv.appendChild(templateDiv);
-    this.renderSingle(templateDiv, 'hero');
-    this.renderSingle(templateDiv, 'enemy');
+    this.render(templateDiv, 'hero');
+    this.render(templateDiv, 'enemy');
   }
-  renderSingle(div, selector) {
+  render(div, selector) {
     const character = this.model[selector];
     const characterDiv = div.querySelector(`.character.${selector}`);
     characterDiv.querySelector('.char').innerText = Emoji.map(character.name);
 
-    const renderIntValue = (div, selector, key, value) => {
+    const renderIntValue = (div, key, valueRef, hideEmpty=false) => {
       const detailDiv = this.templateDetail.cloneNode(true);
       div.appendChild(detailDiv);
 
@@ -32,18 +32,25 @@ export class CombatView {
       const valueSpan = document.createElement('span');
       valueDiv.appendChild(valueSpan);
       valueSpan.className = 'char';
-      valueSpan.innerText = Emoji.convertInt(value);
 
-      this.valueSpanMap[[selector, key].join('.')] = valueSpan;
+      valueSpan.innerText = Emoji.convertInt(valueRef.value);
+
+      valueRef.detail = detailDiv;
+      valueRef.span = valueSpan;
+      if (hideEmpty && valueRef.value === 0) {
+        valueRef.hide();
+      }
     };
 
     const attribsDiv = div.querySelector(`.attribs.${selector}`);
-    for (const [key, value] of Object.entries(character.attribs)) {
-      renderIntValue(attribsDiv, selector, key, value);
+    for (const [key, ref] of Object.entries(character.attribs)) {
+      renderIntValue(attribsDiv, key, ref);
     }
+
+    // For statuses, generate all divs/spans, but hide values that are 0.
     const statusesDiv = div.querySelector(`.statuses.${selector}`);
-    for (const [key, value] of Object.entries(character.statuses)) {
-      renderIntValue(statusesDiv, selector, key, value);
+    for (const [key, ref] of Object.entries(character.statuses)) {
+      renderIntValue(statusesDiv, key, ref, /*hideEmpty=*/true);
     }
 
     const equipsDiv = div.querySelector(`.equips.${selector}`);
@@ -61,16 +68,29 @@ export class CombatView {
 
       const valueDiv = detailDiv.querySelector('.values');
       for (const [key, value] of Object.entries(equip.attribs)) {
-        renderIntValue(valueDiv, [selector, equipName].join('.'), key, value);
+        renderIntValue(valueDiv, key, value);
       }
     }
   }
-  update(selector, value) {
-    this.valueSpanMap[selector].innerText = Emoji.convertInt(value);
-  }
-  makeCallback(characterName) {
-    return (selector, value) => {
-      this.update([characterName, selector].join('.'), value);
-    };
+  addLog(logs, selector, opponent) {
+    const logDiv = this.containerDiv.querySelector(`.log.${selector}`);
+    const prefix = Emoji.map(this.model[selector].name) 
+      + Emoji.map('damage') 
+      + Emoji.map(this.model[opponent].name);
+    for (const logEntry of Object.values(logs)) {
+      let logString = '';
+      if (logEntry.type === 'miss' || logEntry.type === 'dodge') {
+        logString = Emoji.map('miss');
+      } else if (logEntry.type === 'hit') {
+        logString = Emoji.map('hp') + Emoji.convertInt(logEntry.value);
+        if (logEntry.crit === true) {
+          logString += Emoji.map('crit');
+        }
+        if (logEntry.multi === true) {
+          logString += Emoji.map('multi') + Emoji.convertInt(logEntry.count);
+        }
+      }
+      logDiv.innerHTML += prefix + logString + '<br>'; 
+    }
   }
 }

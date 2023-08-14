@@ -65,9 +65,15 @@ const MAP = {
   wand: '🪄',
   trident: '🔱',
 
+  // Combat log
+  miss: '🚫',
+  crit: '💥',
+
   // Misc
   minus: '➖',
-
+  multi: '✖️',
+  book_open: '📖',
+  book_closed: '📕',
 };
 
 const NUM = ['0️⃣', '1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
@@ -77,6 +83,9 @@ export class Emoji {
     return MAP[char];
   }
   static convertInt(num) {
+    if (num === 0) {
+      return NUM[0];
+    }
     const sign = num < 0 ? Emoji.map('minus') : '';
     num = Math.abs(num);
     num = num | 0;

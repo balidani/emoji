@@ -1,52 +1,36 @@
+import { IntRef } from './ui.js';
+
 export class Character {
-  constructor(name, attribs) {
+  static statusOrder = ['fear', 'weak', 'slow', 'dizzy', 'sleep', 'poison', 'bleed'];
+
+  constructor(name, attribs, baseStatuses) {
     this.name = name;
-    this.attribs = attribs;
+    this.baseAttribs = attribs;
+    this.attribs = {};
+    for (const [key, value] of Object.entries(this.baseAttribs)) {
+      this.attribs[key] = new IntRef(value);
+    }
+
     this.statuses = {};
+    for (const status of Object.values(Character.statusOrder)) {
+      this.statuses[status] = new IntRef(0);
+    }
+
     this.equips = {};
   }
   copy() {
-    const newCharacter = new Character(this.name, {...this.attribs});
-    newCharacter.statuses = {...this.statuses};
+    const newCharacter = new Character(this.name, {...this.baseAttribs});
     for (const [slot, equip] of Object.entries(this.equips)) {
       newCharacter.equips[slot] = equip.copy();
     }
     return newCharacter;
   }
-  step(enemy) {
-    const values = this.computeValues();
-    const enemyValues = enemy.computeValues();
-
-    if (!('sleep' in this.statuses)) {
-      // Special attack, etc.
-      // Attack count.
-      const attackCount = (0.9 + (this.attribs.speed) * 0.16) | 0;
-
-
-
-    }
-
-    // Apply any bleed, poison
-    if ('bleed' in this.statuses) {
-      this.attribs.hp -= 1;
-      this.updateValue('hp', this.attribs.hp); 
-    }
-    if ('poison' in this.statuses) {
-      this.attribs.hp -= this.statuses['poison'];
-      this.updateValue('hp', this.attribs.hp);
-    }
-
-    for (const status of Object.keys(this.statuses)) {
-      this.statuses[status] -= 1;
-      this.updateValue(status, this.statuses[status]);
-    }
-
-  }
   applyStatus(status, value) {
-    if (status in this.statuses) {
-      this.statuses[status] += value;
+    if (this.statuses[status].value > 0) {
+      this.statuses[status].add(value); 
     } else {
-      this.statuses[status] = value;
+      this.statuses[status].set(value);
+      this.statuses[status].show();
     }
   }
   equip(slot, item) {
@@ -57,37 +41,31 @@ export class Character {
       'armor': 0,
       'damage': 0,
     };
-    for (const [key, value] of Object.entries(this.attribs)) {
-      values[key] = value;
+    for (const [key, ref] of Object.entries(this.attribs)) {
+      values[key] = ref.value;
     }
     // Apply items.
     for (const [slot, equip] of Object.entries(this.equips)) {
-      for (const [key, value] of Object.entries(equip.attribs)) {
-        values[key] += value;
+      for (const [key, ref] of Object.entries(equip.attribs)) {
+        values[key] += ref.value;
       }
     }
 
     // Check statuses.
-    if ('fear' in this.statuses) {
+    if (this.statuses['fear'].value > 0) {
       values['fencing'] = Math.ceil(values['fencing'] * 0.5);
     }
-    if ('weak' in this.statuses) {
+    if (this.statuses['weak'].value > 0) {
       values['strength'] = Math.ceil(values['strength'] * 0.5);
     }
-    if ('slow' in this.statuses) {
+    if (this.statuses['slow'].value > 0) {
       values['speed'] = Math.ceil(values['speed'] * 0.5);
     }
-    if ('dizzy' in this.statuses) {
+    if (this.statuses['dizzy'].value > 0) {
       values['accuracy'] = Math.ceil(values['accuracy'] * 0.5);
     }
 
     return values;
-  }
-  bindView(callback) {
-    this.viewUpdater = callback;
-  }
-  updateValue(selector, value) {
-    this.viewUpdater(selector, value);
   }
 }
 
