@@ -8,6 +8,7 @@ export class CombatSim {
     };
     this.view = new CombatView(this.model);
     this.checkFirst();
+    this.done = false;
   }
   checkFirst() {
     const heroValues = this.model.hero.computeValues();
@@ -31,19 +32,23 @@ export class CombatSim {
     if (this.heroFirst) {
       stepHero();
       if (this.model.enemy.attribs.hp.value <= 0) {
+        this.done = true;
         return 'win';
       }
       stepEnemy();
       if (this.model.hero.attribs.hp.value <= 0) {
+        this.done = true;
         return 'loss';
       }
     } else {
       stepEnemy();
       if (this.model.hero.attribs.hp.value <= 0) {
+        this.done = true;
         return 'loss';
       }
       stepHero();
       if (this.model.enemy.attribs.hp.value <= 0) {
+        this.done = true;
         return 'win';
       }
     }
@@ -107,12 +112,12 @@ export class CombatSim {
 
     // Apply any bleed, poison.
     if (hero.statuses['bleed'].value > 0) {
-      hero.attribs.hp.add(-1);
-      log.push({type: 'bleed', value: 1});
+      hero.attribs.hp.add(-hero.statuses['bleed'].value);
+      log.push({type: 'status', status: 'bleed', value: hero.statuses['bleed'].value});
     }
     if (hero.statuses['poison'].value > 0) {
-      hero.attribs.hp.add(-hero.statuses['poison'].value);
-      log.push({type: 'poison', value: hero.statuses['poison'].value});
+      hero.attribs.hp.add(-1);
+      log.push({type: 'status', status: 'poison', value: 1});
     }
 
     // Decrease all statuses.
@@ -128,7 +133,7 @@ export class CombatSim {
     return log;
   }
   
-  done() {
-    return false;
+  isDone() {
+    return this.done;
   }
 }

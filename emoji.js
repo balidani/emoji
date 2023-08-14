@@ -40,13 +40,16 @@ const MAP = {
 
   // Items
   cap: '🧢',
+  hardhat: '⛑️'
   helmet: '🪖',
   tophat: '🎩',
   crown: '👑',
   coat: '🥼',
+  vest: '🦺',
   robe: '🥋',
   glove: '🧤',
   boxing_glove: '🥊',
+  socks: '🧦',
   sneaker: '👟',
   boot: '🥾',
   ring: '💍',
@@ -68,10 +71,11 @@ const MAP = {
   // Combat log
   miss: '🚫',
   crit: '💥',
+  backpack: '🎒',
 
   // Misc
   minus: '➖',
-  multi: '✖️',
+  multi: '❌',
   book_open: '📖',
   book_closed: '📕',
 };

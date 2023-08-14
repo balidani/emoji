@@ -74,10 +74,18 @@ export class CombatView {
   }
   addLog(logs, selector, opponent) {
     const logDiv = this.containerDiv.querySelector(`.log.${selector}`);
-    const prefix = Emoji.map(this.model[selector].name) 
+    const combatPrefix = Emoji.map(this.model[selector].name) 
       + Emoji.map('damage') 
       + Emoji.map(this.model[opponent].name);
+    const statusPrefix = Emoji.map(this.model[selector].name);
     for (const logEntry of Object.values(logs)) {
+      if (logEntry.type === 'status') {
+        logDiv.innerHTML += statusPrefix 
+          + Emoji.map(logEntry.status) 
+          + Emoji.convertInt(logEntry.value) + '<br>';
+        continue;
+      }
+
       let logString = '';
       if (logEntry.type === 'miss' || logEntry.type === 'dodge') {
         logString = Emoji.map('miss');
@@ -90,7 +98,7 @@ export class CombatView {
           logString += Emoji.map('multi') + Emoji.convertInt(logEntry.count);
         }
       }
-      logDiv.innerHTML += prefix + logString + '<br>'; 
+      logDiv.innerHTML += combatPrefix + logString + '<br>'; 
     }
   }
 }

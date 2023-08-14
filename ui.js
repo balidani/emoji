@@ -1,12 +1,12 @@
 import { Emoji } from './emoji.js';
 
 export class IntRef {
-  constructor(value, span=null, detail=null) {
+  constructor(value) {
     this.value = value;
     // The span displaying the text value held within the `IntRef`.
-    this.span = span;
+    this.span = null;
     // The detail div that can be hidden/shown.
-    this.detail = detail;
+    this.detail = null;
   }
   update() {
     if (this.span === null) {

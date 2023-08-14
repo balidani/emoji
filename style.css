@@ -26,6 +26,9 @@ a {
   padding-top: 16pt;
   font-size: 12pt;
 }
+.combat-grid-item.character {
+  font-size: 56pt;
+}
 
 .combat-control {
   padding-top: 12pt;

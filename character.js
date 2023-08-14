@@ -2,6 +2,7 @@ import { IntRef } from './ui.js';
 
 export class Character {
   static statusOrder = ['fear', 'weak', 'slow', 'dizzy', 'sleep', 'poison', 'bleed'];
+  // static xp = (lvl) => lvl + Math.pow(lvl * 1.8, 2) * 1.2 +  Math.exp(lvl * 0.18);
 
   constructor(name, attribs, baseStatuses) {
     this.name = name;
