@@ -1,6 +1,6 @@
 body {
   font-size: 24pt;
-  letter-spacing: 2pt;
+  letter-spacing: 1pt;
 }
 
 a {
@@ -14,7 +14,7 @@ a {
 
 .header-grid {
   display: grid;
-  grid-template-columns: 56pt auto;
+  grid-template-columns: 62pt auto;
 }
 
 .header-profile {
