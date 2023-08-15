@@ -1,5 +1,6 @@
 body {
   font-size: 24pt;
+  letter-spacing: 2pt;
 }
 
 a {
@@ -9,6 +10,15 @@ a {
 .container {
   width: 400pt;
   margin: auto;
+}
+
+.header-grid {
+  display: grid;
+  grid-template-columns: 56pt auto;
+}
+
+.header-profile {
+  font-size: 48pt;
 }
 
 .combat-grid {

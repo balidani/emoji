@@ -3,6 +3,7 @@ import { CombatSim } from './combat.js';
 import { Item } from './item.js';
 import { Emoji } from './emoji.js';
 
+/*
 const hero = new Character('hero', 
   {hp: 300, fencing: 8, strength: 10, speed: 10, accuracy: 7});
 hero.equip('head', new Item('cap', {armor: 4, accuracy: -1}));
@@ -43,3 +44,5 @@ document.querySelector('.play-button').addEventListener('click', () => {
     }
   }, 300);
 });
+*/
+

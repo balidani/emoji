@@ -40,7 +40,7 @@ const MAP = {
 
   // Items
   cap: '🧢',
-  hardhat: '⛑️'
+  hardhat: '⛑️',
   helmet: '🪖',
   tophat: '🎩',
   crown: '👑',
