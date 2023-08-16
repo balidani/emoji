@@ -8,8 +8,8 @@ a {
 }
 
 .container {
-  width: 400pt;
-  margin: auto;
+  padding-top: 16pt;
+  padding-left: 16pt;
 }
 
 .header-grid {
@@ -18,7 +18,30 @@ a {
 }
 
 .header-profile {
-  font-size: 48pt;
+  font-size: 50pt;
+}
+
+.attribute-key {
+  padding-right: 6pt;  /* like .attributes-grid-item */
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 62pt auto;
+  padding-top: 16pt;
+}
+
+.main-menu {
+  font-size: 40pt;
+}
+
+.attributes-grid {
+  display: grid;
+  grid-template-columns: min-content min-content  auto;
+}
+
+.attributes-grid-item {
+  padding-right: 6pt;  /* like .attribute-key */
 }
 
 .combat-grid {
