@@ -8,7 +8,7 @@ export class CombatView {
     this.valueSpanMap = {};
 
     this.containerDiv = document.querySelector('.container');
-    this.template = document.querySelector('.template .combat-grid');
+    this.template = document.querySelector('.template .combat');
     this.templateDetail = document.querySelector('.template .combat-detail-grid');
 
     const templateDiv = this.template.cloneNode(true);

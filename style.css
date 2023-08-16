@@ -12,7 +12,7 @@ a {
   padding-left: 16pt;
 }
 
-.header-grid {
+.header {
   display: grid;
   grid-template-columns: 62pt auto;
 }
@@ -21,11 +21,10 @@ a {
   font-size: 50pt;
 }
 
-.attribute-key {
-  padding-right: 6pt;  /* like .attributes-grid-item */
+.key-pad {
 }
 
-.main-grid {
+.main {
   display: grid;
   grid-template-columns: 62pt auto;
   padding-top: 16pt;
@@ -35,25 +34,27 @@ a {
   font-size: 40pt;
 }
 
-.attributes-grid {
+.attributes {
   display: grid;
   grid-template-columns: min-content min-content auto;
 }
 
-.attributes-grid-item {
-  padding-right: 6pt;  /* like .attribute-key */
-}
-
-.equips-grid {
+.equips-row {
   display: grid;
-  grid-template-columns: min-content min-content min-content auto;
+  grid-template-columns: min-content min-content 140pt min-content;
 }
 
-.equips-grid-item {
-  padding-right: 6pt;  /* like .attribute-key */
+.inventory-row {
+  display: grid;
+  grid-template-columns: min-content 140pt 80pt;
 }
 
-.combat-grid {
+.enemy-select-row {
+  display: grid;
+  grid-template-columns: min-content 140pt 80pt;
+}
+
+.combat {
   display: grid;
   grid-template-columns: max-content max-content;
 }
