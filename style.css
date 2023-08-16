@@ -37,10 +37,19 @@ a {
 
 .attributes-grid {
   display: grid;
-  grid-template-columns: min-content min-content  auto;
+  grid-template-columns: min-content min-content auto;
 }
 
 .attributes-grid-item {
+  padding-right: 6pt;  /* like .attribute-key */
+}
+
+.equips-grid {
+  display: grid;
+  grid-template-columns: min-content min-content min-content auto;
+}
+
+.equips-grid-item {
   padding-right: 6pt;  /* like .attribute-key */
 }
 
