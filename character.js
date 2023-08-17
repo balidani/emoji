@@ -2,10 +2,13 @@ import { IntRef } from './ui.js';
 
 export class Character {
   static statusOrder = ['fear', 'weak', 'slow', 'dizzy', 'sleep', 'poison', 'bleed'];
-  // static xp = (lvl) => lvl + Math.pow(lvl * 1.8, 2) * 1.2 +  Math.exp(lvl * 0.18);
 
-  constructor(name, attribs, baseStatuses) {
+  constructor(name, level, attribs, baseStatuses) {
     this.name = name;
+    this.level = new IntRef(level);
+    this.skillPoints = new IntRef(3);
+
+    // TODO(): remove baseAttribs.
     this.baseAttribs = attribs;
     this.attribs = {};
     for (const [key, value] of Object.entries(this.baseAttribs)) {
@@ -19,8 +22,16 @@ export class Character {
 
     this.equips = {};
   }
-  copy() {
-    const newCharacter = new Character(this.name, {...this.baseAttribs});
+  levelUp() {
+    this.level.add(1);
+    this.skillPoints.add(1);
+  }
+  assignPoint(attrib) {
+    this.skillPoints.add(-1);
+    this.attribs[attrib].add(1);
+  }
+  combatCopy() {
+    const newCharacter = new Character(this.name, this.level, {...this.baseAttribs});
     for (const [slot, equip] of Object.entries(this.equips)) {
       newCharacter.equips[slot] = equip.copy();
     }

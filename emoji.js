@@ -54,6 +54,14 @@ const MAP = {
   boot: '🥾',
   ring: '💍',
 
+  // Body parts
+  head: '🧑',
+  body: '👕',
+  hands: '✋',
+  feet: '🦶',
+  finger: '☝️',
+  weapon: '⚔️',
+
   // Weapons
   spoon: '🥄',
   screwdriver: '🪛',

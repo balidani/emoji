@@ -3,8 +3,8 @@ import { CombatView } from './view.js';
 export class CombatSim {
   constructor(hero, enemy) {
     this.model = {
-      hero: hero.copy(),
-      enemy: enemy.copy(),
+      hero: hero.combatCopy(),
+      enemy: enemy.combatCopy(),
     };
     this.view = new CombatView(this.model);
     this.checkFirst();

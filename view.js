@@ -1,4 +1,64 @@
 import { Emoji } from './emoji.js';
+import { IntRef } from './ui.js';
+
+export class AttribsView {
+  static levelableAttribs = ['fencing', 'strength', 'speed', 'accuracy'];
+  static allAttribs = ['hp', ...AttribsView.levelableAttribs];
+
+  constructor(containerDiv) {
+    this.containerDiv = containerDiv;
+    this.rowTemplate = document.querySelector('.template .attribs-row');
+    this.rows = {};
+    this.levelButtons = [];
+  }
+  render(hero) {
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'attribs-view';
+    this.containerDiv.replaceChildren();
+    this.containerDiv.appendChild(contentDiv);
+
+    for (const attrib of Object.values(AttribsView.allAttribs)) {
+      const row = this.rowTemplate.cloneNode(true);
+      contentDiv.appendChild(row);
+      this.rows[attrib] = row;
+
+      row.querySelector('.attrib-key').textContent = Emoji.map(attrib);
+      const valueSpan = row.querySelector('.attrib-value');
+      const ref = hero.attribs[attrib];
+      ref.bindTo(valueSpan);
+
+      row.querySelector('.attribs-add').classList.add('hidden');
+    }
+
+    const skillPointsRow = this.rowTemplate.cloneNode(true);
+    contentDiv.appendChild(skillPointsRow);
+    const pointsSpan = skillPointsRow.querySelector('.attribs-skill-points');
+    hero.skillPoints.bindTo(pointsSpan, pointsSpan);
+
+    for (const attrib of Object.values(AttribsView.levelableAttribs)) {
+      const row = this.rows[attrib];
+      const button = row.querySelector('.attribs-add');
+
+      if (hero.skillPoints.value > 0) {
+        button.classList.remove('hidden');
+      }
+
+      button.addEventListener('click', () => {
+        hero.assignPoint(attrib);
+        if (hero.skillPoints.value === 0) {
+          this.removeButtons();
+          hero.skillPoints.hide();
+        }
+      });
+    }
+  }
+  removeButtons() {
+    for (const [key, row] of Object.entries(this.rows)) {
+      row.querySelector('.attribs-add').classList.add('hidden');
+    }
+
+  }
+}
 
 export class CombatView {
   static eqipOrder = ['head', 'torso', 'hand', 'foot', 'weapon'];
@@ -8,7 +68,7 @@ export class CombatView {
     this.valueSpanMap = {};
 
     this.containerDiv = document.querySelector('.container');
-    this.template = document.querySelector('.template .combat');
+    this.template = document.querySelector('.template .combat-view');
     this.templateDetail = document.querySelector('.template .combat-detail-grid');
 
     const templateDiv = this.template.cloneNode(true);
@@ -19,24 +79,20 @@ export class CombatView {
   render(div, selector) {
     const character = this.model[selector];
     const characterDiv = div.querySelector(`.character.${selector}`);
-    characterDiv.querySelector('.char').innerText = Emoji.map(character.name);
+    characterDiv.querySelector('.char').textContent = Emoji.map(character.name);
 
     const renderIntValue = (div, key, valueRef, hideEmpty=false) => {
       const detailDiv = this.templateDetail.cloneNode(true);
       div.appendChild(detailDiv);
 
       const keyDiv = detailDiv.querySelector('.key .char');
-      keyDiv.innerText = Emoji.map(key);
+      keyDiv.textContent = Emoji.map(key);
 
       const valueDiv = detailDiv.querySelector('.values');
       const valueSpan = document.createElement('span');
       valueDiv.appendChild(valueSpan);
       valueSpan.className = 'char';
-
-      valueSpan.innerText = Emoji.convertInt(valueRef.value);
-
-      valueRef.detail = detailDiv;
-      valueRef.span = valueSpan;
+      valueRef.bindTo(valueSpan, /*hider=*/detailDiv);
       if (hideEmpty && valueRef.value === 0) {
         valueRef.hide();
       }
@@ -64,7 +120,7 @@ export class CombatView {
       equipsDiv.appendChild(detailDiv);
 
       const keyDiv = detailDiv.querySelector('.key .char');
-      keyDiv.innerText = Emoji.map(equip.name);
+      keyDiv.textContent = Emoji.map(equip.name);
 
       const valueDiv = detailDiv.querySelector('.values');
       for (const [key, value] of Object.entries(equip.attribs)) {

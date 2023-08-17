@@ -21,9 +21,6 @@ a {
   font-size: 50pt;
 }
 
-.key-pad {
-}
-
 .main {
   display: grid;
   grid-template-columns: 62pt auto;
@@ -34,9 +31,9 @@ a {
   font-size: 40pt;
 }
 
-.attributes {
+.attribs-row {
   display: grid;
-  grid-template-columns: min-content min-content auto;
+  grid-template-columns: 34pt 140pt 80pt;
 }
 
 .equips-row {
@@ -54,7 +51,12 @@ a {
   grid-template-columns: min-content 140pt 80pt;
 }
 
-.combat {
+.shop-row {
+  display: grid;
+  grid-template-columns: min-content 200pt 80pt;
+}
+
+.combat-view {
   display: grid;
   grid-template-columns: max-content max-content;
 }
