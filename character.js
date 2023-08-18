@@ -3,17 +3,17 @@ import { IntRef } from './ui.js';
 export class Character {
   static statusOrder = ['fear', 'weak', 'slow', 'dizzy', 'sleep', 'poison', 'bleed'];
 
-  constructor(name, level, attribs, baseStatuses) {
+  constructor(name, level, attribs) {
     this.name = name;
     this.level = new IntRef(level);
     this.skillPoints = new IntRef(3);
 
-    // TODO(): remove baseAttribs.
-    this.baseAttribs = attribs;
     this.attribs = {};
-    for (const [key, value] of Object.entries(this.baseAttribs)) {
+    for (const [key, value] of Object.entries(attribs)) {
       this.attribs[key] = new IntRef(value);
     }
+    this.attribs.hp = new IntRef(0);
+    this.updateHp();
 
     this.statuses = {};
     for (const status of Object.values(Character.statusOrder)) {
@@ -21,21 +21,42 @@ export class Character {
     }
 
     this.equips = {};
+    this.inventory = [];
+  }
+  combatCopy() {
+    const flatAttribs = {};
+    for (const [attrib, ref] of Object.entries(this.attribs)) {
+      flatAttribs[attrib] = ref.value;
+    }
+    const newCharacter = new Character(this.name, this.level.value, flatAttribs);
+    for (const [slot, equip] of Object.entries(this.equips)) {
+      newCharacter.equips[slot] = equip.combatCopy();
+    }
+    return newCharacter;
   }
   levelUp() {
     this.level.add(1);
+    this.updateHp();
     this.skillPoints.add(1);
   }
   assignPoint(attrib) {
     this.skillPoints.add(-1);
     this.attribs[attrib].add(1);
+    this.updateHp();
   }
-  combatCopy() {
-    const newCharacter = new Character(this.name, this.level, {...this.baseAttribs});
-    for (const [slot, equip] of Object.entries(this.equips)) {
-      newCharacter.equips[slot] = equip.copy();
-    }
-    return newCharacter;
+  updateHp() {
+    const newHp = Math.pow(this.level.value, 2) * 0.75 - 9 
+      + Math.pow(this.attribs.fencing.value, 2) * 0.25
+      + Math.pow(this.attribs.strength.value, 2) * 0.45;
+    this.attribs.hp.set(newHp | 0);
+  }
+  equip(item) {
+    this.equips[item.slot] = item;
+  }
+  unequip(slot) {
+    const item = this.equips[slot];
+    delete this.equips[slot];
+    this.inventory.push(item);
   }
   applyStatus(status, value) {
     if (this.statuses[status].value > 0) {
@@ -44,9 +65,6 @@ export class Character {
       this.statuses[status].set(value);
       this.statuses[status].show();
     }
-  }
-  equip(slot, item) {
-    this.equips[slot] = item;
   }
   computeValues() {
     const values = {

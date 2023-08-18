@@ -23,7 +23,7 @@ export class CombatSim {
   }
   step() {
     const stepCharacter = (characterName, opponent) => {
-      const log = this.stepOne(this.model[characterName], this.model[opponent]);
+      const log = this.simulateAttack(this.model[characterName], this.model[opponent]);
       this.view.addLog(log, characterName, opponent);
     };
     const stepHero = () => stepCharacter('hero', 'enemy');
@@ -54,7 +54,7 @@ export class CombatSim {
     }
     return 'continue';
   }
-  stepOne(hero, enemy) {
+  simulateAttack(hero, enemy) {
     const values = hero.computeValues();
     const enemyValues = enemy.computeValues();
 

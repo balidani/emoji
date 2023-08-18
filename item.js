@@ -1,15 +1,19 @@
 import { IntRef } from './ui.js';
 
 export class Item {
-  constructor(name, attribs) {
+  constructor(slot, name, attribs) {
+    this.slot = slot;
     this.name = name;
-    this.baseAttribs = attribs;
     this.attribs = {};
-    for (const [key, value] of Object.entries(this.baseAttribs)) {
+    for (const [key, value] of Object.entries(attribs)) {
       this.attribs[key] = new IntRef(value);
     }
   }
-  copy() {
-    return new Item(this.name, {...this.baseAttribs});
+  combatCopy() {
+    const flatAttribs = {};
+    for (const [key, ref] of Object.entries(this.attribs)) {
+      flatAttribs[key] = ref.value;
+    }
+    return new Item(this.slot, this.name, flatAttribs);
   }
 }

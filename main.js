@@ -2,24 +2,29 @@ import { Character } from './character.js';
 import { CombatSim } from './combat.js';
 import { Emoji } from './emoji.js';
 import { Item } from './item.js';
-import { AttribsView } from './view.js';
+import { AttribsView, EquipsView } from './view.js';
 
 // Hero starts with lvl 5 and one free skill point.
 const hero = new Character('hero', 4,
-  {hp: 10, fencing: 1, strength: 1, speed: 1, accuracy: 1});
+  {fencing: 1, strength: 1, speed: 1, accuracy: 1});
 hero.levelUp();
 
-hero.equip('feet', new Item('socks', {armor: 1}));
-hero.equip('weapon', new Item('spoon', {damage: 1}));
+hero.equip(new Item('feet', 'socks', {armor: 1}));
+hero.equip(new Item('weapon', 'spoon', {damage: 1, speed: 1}));
+
+console.log(hero.combatCopy());
 
 const contentDiv = document.querySelector('.main-content');
+
 const attribsView = new AttribsView(contentDiv);
-attribsView.render(hero);
+const equipsView = new EquipsView(contentDiv);
+// attribsView.render(hero);
+equipsView.render(hero);
 
 // const enemy = new Character('troll', 36, 
-//   {hp: 420, fencing: 7, strength: 12, speed: 9, accuracy: 8});
-// enemy.equip('head', new Item('helmet', {armor: 4}));
-// enemy.equip('weapon', new Item('screwdriver', {damage: 2}));
+//   {fencing: 7, strength: 12, speed: 9, accuracy: 8});
+// enemy.equip(new Item('head', 'helmet', {armor: 4}));
+// enemy.equip(new Item('weapon', 'screwdriver', {damage: 2}));
 
 // const sim = new CombatSim(hero, enemy);
 // // sim.model.hero.applyStatus('bleed', 3);

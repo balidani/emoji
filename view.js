@@ -9,7 +9,6 @@ export class AttribsView {
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .attribs-row');
     this.rows = {};
-    this.levelButtons = [];
   }
   render(hero) {
     const contentDiv = document.createElement('div');
@@ -56,12 +55,61 @@ export class AttribsView {
     for (const [key, row] of Object.entries(this.rows)) {
       row.querySelector('.attribs-add').classList.add('hidden');
     }
+  }
+}
 
+export class EquipsView {
+  static slotOrder = ['head', 'body', 'hands', 'feet', 'ring', 'weapon'];
+
+  constructor(containerDiv) {
+    this.containerDiv = containerDiv;
+    this.rowTemplate = document.querySelector('.template .equips-row');
+  }
+  render(hero) {
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'equips-view';
+    this.containerDiv.replaceChildren();
+    this.containerDiv.appendChild(contentDiv);
+
+    for (const slot of Object.values(EquipsView.slotOrder)) {
+      const row = this.rowTemplate.cloneNode(true);
+      contentDiv.appendChild(row);
+
+      row.querySelector('.equip-slot').textContent = Emoji.map(slot);
+
+      if (!(slot in hero.equips)) {
+        row.querySelector('.equips-remove').classList.add('hidden');
+        continue;
+      }
+
+      const equip = hero.equips[slot];
+      const equipName = row.querySelector('.equip-name');
+      equipName.textContent = Emoji.map(equip.name);
+
+      const description = row.querySelector('.equip-description');
+      for (const [key, ref] of Object.entries(equip.attribs)) {
+        const line = document.createElement('div');
+        description.appendChild(line);
+        line.textContent = 
+          Emoji.map(key) + Emoji.convertInt(ref.value);
+      }
+      
+      const unequipButton = row.querySelector('.equips-remove');
+      unequipButton.addEventListener('click', () => {
+        hero.unequip(slot);
+        equipName.classList.add('hidden');
+        description.classList.add('hidden');
+        unequipButton.classList.add('hidden');
+
+        console.log(hero);
+      });
+    }
   }
 }
 
 export class CombatView {
-  static eqipOrder = ['head', 'torso', 'hand', 'foot', 'weapon'];
+  static attribOrder = ['hp', 'fencing', 'strength', 'speed', 'accuracy'];
+  static eqipOrder = ['head', 'body', 'hands', 'feet', 'ring', 'weapon'];
 
   constructor(model) {
     this.model = model;
@@ -99,8 +147,8 @@ export class CombatView {
     };
 
     const attribsDiv = div.querySelector(`.attribs.${selector}`);
-    for (const [key, ref] of Object.entries(character.attribs)) {
-      renderIntValue(attribsDiv, key, ref);
+    for (const attrib of Object.values(CombatView.attribOrder)) {
+      renderIntValue(attribsDiv, attrib, character.attribs[attrib]);
     }
 
     // For statuses, generate all divs/spans, but hide values that are 0.

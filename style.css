@@ -14,7 +14,7 @@ a {
 
 .header {
   display: grid;
-  grid-template-columns: 62pt auto;
+  grid-template-columns: 80pt auto;
 }
 
 .header-profile {
@@ -23,7 +23,7 @@ a {
 
 .main {
   display: grid;
-  grid-template-columns: 62pt auto;
+  grid-template-columns: 80pt auto;
   padding-top: 16pt;
 }
 
@@ -39,6 +39,9 @@ a {
 .equips-row {
   display: grid;
   grid-template-columns: min-content min-content 140pt min-content;
+}
+
+.equips-item {
 }
 
 .inventory-row {
