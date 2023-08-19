@@ -1,10 +1,8 @@
+import { Constants } from './constants.js';
 import { Emoji } from './emoji.js';
 import { IntRef } from './ui.js';
 
 export class AttribsView {
-  static levelableAttribs = ['fencing', 'strength', 'speed', 'accuracy'];
-  static allAttribs = ['hp', ...AttribsView.levelableAttribs];
-
   constructor(containerDiv) {
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .attribs-row');
@@ -16,7 +14,7 @@ export class AttribsView {
     this.containerDiv.replaceChildren();
     this.containerDiv.appendChild(contentDiv);
 
-    for (const attrib of Object.values(AttribsView.allAttribs)) {
+    for (const attrib of Object.values(Constants.attribOrder)) {
       const row = this.rowTemplate.cloneNode(true);
       contentDiv.appendChild(row);
       this.rows[attrib] = row;
@@ -33,8 +31,11 @@ export class AttribsView {
     contentDiv.appendChild(skillPointsRow);
     const pointsSpan = skillPointsRow.querySelector('.attribs-skill-points');
     hero.skillPoints.bindTo(pointsSpan, pointsSpan);
+    if (hero.skillPoints.value === 0) {
+      hero.skillPoints.hide();
+    }
 
-    for (const attrib of Object.values(AttribsView.levelableAttribs)) {
+    for (const attrib of Object.values(Constants.levelableAttribs)) {
       const row = this.rows[attrib];
       const button = row.querySelector('.attribs-add');
 
@@ -59,8 +60,6 @@ export class AttribsView {
 }
 
 export class EquipsView {
-  static slotOrder = ['head', 'body', 'hands', 'feet', 'ring', 'weapon'];
-
   constructor(containerDiv) {
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .equips-row');
@@ -71,7 +70,7 @@ export class EquipsView {
     this.containerDiv.replaceChildren();
     this.containerDiv.appendChild(contentDiv);
 
-    for (const slot of Object.values(EquipsView.slotOrder)) {
+    for (const slot of Object.values(Constants.equipOrder)) {
       const row = this.rowTemplate.cloneNode(true);
       contentDiv.appendChild(row);
 
@@ -100,17 +99,88 @@ export class EquipsView {
         equipName.classList.add('hidden');
         description.classList.add('hidden');
         unequipButton.classList.add('hidden');
-
-        console.log(hero);
       });
     }
   }
 }
 
-export class CombatView {
-  static attribOrder = ['hp', 'fencing', 'strength', 'speed', 'accuracy'];
-  static eqipOrder = ['head', 'body', 'hands', 'feet', 'ring', 'weapon'];
+export class InventoryView {
+  constructor(containerDiv) {
+    this.containerDiv = containerDiv;
+    this.rowTemplate = document.querySelector('.template .inventory-row');
+  }
+  render(hero) {
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'inventory-view';
+    this.containerDiv.replaceChildren();
+    this.containerDiv.appendChild(contentDiv);
 
+    for (const item of Object.values(hero.inventory)) {
+      const row = this.rowTemplate.cloneNode(true);
+      contentDiv.appendChild(row);
+
+      row.querySelector('.item-name').textContent = Emoji.map(item.name);
+
+      const description = row.querySelector('.item-description');
+      for (const [key, ref] of Object.entries(item.attribs)) {
+        const line = document.createElement('div');
+        description.appendChild(line);
+        line.textContent = 
+          Emoji.map(key) + Emoji.convertInt(ref.value);
+      }
+
+      const equipButton = row.querySelector('.item-equip');
+      equipButton.addEventListener('click', () => {
+        hero.equip(item);
+        this.render(hero);
+      });
+
+      const sellButton = row.querySelector('.item-sell');
+      // TODO(): Implement item sale.
+    }
+  }
+}
+
+export class EnemySelectView {
+  constructor(containerDiv) {
+    this.containerDiv = containerDiv;
+    this.rowTemplate = document.querySelector('.template .enemy-select-row');
+  }
+  render(hero) {
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'enemy-select-view';
+    this.containerDiv.replaceChildren();
+    this.containerDiv.appendChild(contentDiv);
+
+    // Which enemies are unlocked?
+    
+    for (const item of Object.values(hero.inventory)) {
+      const row = this.rowTemplate.cloneNode(true);
+      contentDiv.appendChild(row);
+
+      row.querySelector('.item-name').textContent = Emoji.map(item.name);
+
+      const description = row.querySelector('.item-description');
+      for (const [key, ref] of Object.entries(item.attribs)) {
+        const line = document.createElement('div');
+        description.appendChild(line);
+        line.textContent = 
+          Emoji.map(key) + Emoji.convertInt(ref.value);
+      }
+
+      const equipButton = row.querySelector('.item-equip');
+      equipButton.addEventListener('click', () => {
+        hero.equip(item);
+        this.render(hero);
+      });
+
+      const sellButton = row.querySelector('.item-sell');
+      // TODO(): Implement item sale.
+    }
+  }
+}
+
+export class CombatView {
   constructor(model) {
     this.model = model;
     this.valueSpanMap = {};
@@ -147,7 +217,7 @@ export class CombatView {
     };
 
     const attribsDiv = div.querySelector(`.attribs.${selector}`);
-    for (const attrib of Object.values(CombatView.attribOrder)) {
+    for (const attrib of Object.values(Constants.attribOrder)) {
       renderIntValue(attribsDiv, attrib, character.attribs[attrib]);
     }
 
@@ -158,7 +228,7 @@ export class CombatView {
     }
 
     const equipsDiv = div.querySelector(`.equips.${selector}`);
-    for (const equipName of Object.values(CombatView.eqipOrder)) {
+    for (const equipName of Object.values(Constants.equipOrder)) {
       if (!(equipName in character.equips)) {
         continue;
       }

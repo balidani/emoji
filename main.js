@@ -2,29 +2,50 @@ import { Character } from './character.js';
 import { CombatSim } from './combat.js';
 import { Emoji } from './emoji.js';
 import { Item } from './item.js';
-import { AttribsView, EquipsView } from './view.js';
+import { AttribsView, EnemySelectView, EquipsView, InventoryView } from './view.js';
 
 // Hero starts with lvl 5 and one free skill point.
 const hero = new Character('hero', 4,
   {fencing: 1, strength: 1, speed: 1, accuracy: 1});
 hero.levelUp();
 
-hero.equip(new Item('feet', 'socks', {armor: 1}));
-hero.equip(new Item('weapon', 'spoon', {damage: 1, speed: 1}));
+hero.addEquip(new Item('feet', 'socks', {armor: 1}));
+hero.addEquip(new Item('weapon', 'spoon', {damage: 1, speed: 1}));
+hero.inventory.push(new Item('finger', 'ring', {armor: 1}));
 
-console.log(hero.combatCopy());
-
+// Main menu
 const contentDiv = document.querySelector('.main-content');
-
 const attribsView = new AttribsView(contentDiv);
 const equipsView = new EquipsView(contentDiv);
-// attribsView.render(hero);
-equipsView.render(hero);
+const inventoryView = new InventoryView(contentDiv);
+const enemySelectView = new EnemySelectView(contentDiv);
+
+const attribsButton = document.querySelector('.menu-attribs-button');
+attribsButton.addEventListener('click', () => {
+	attribsView.render(hero);
+});
+
+const equipsButton = document.querySelector('.menu-equips-button');
+equipsButton.addEventListener('click', () => {
+	equipsView.render(hero);
+});
+
+const inventoryButton = document.querySelector('.menu-inventory-button');
+inventoryButton.addEventListener('click', () => {
+	inventoryView.render(hero);
+});
+
+const enemySelectButton = document.querySelector('.menu-enemy-select-button');
+enemySelectButton.addEventListener('click', () => {
+	enemySelectView.render(hero);
+});
+
+attribsView.render(hero);
 
 // const enemy = new Character('troll', 36, 
 //   {fencing: 7, strength: 12, speed: 9, accuracy: 8});
-// enemy.equip(new Item('head', 'helmet', {armor: 4}));
-// enemy.equip(new Item('weapon', 'screwdriver', {damage: 2}));
+// enemy.addEquip(new Item('head', 'helmet', {armor: 4}));
+// enemy.addEquip(new Item('weapon', 'screwdriver', {damage: 2}));
 
 // const sim = new CombatSim(hero, enemy);
 // // sim.model.hero.applyStatus('bleed', 3);

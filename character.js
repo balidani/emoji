@@ -1,3 +1,4 @@
+import { Constants } from './constants.js';
 import { IntRef } from './ui.js';
 
 export class Character {
@@ -51,7 +52,24 @@ export class Character {
     this.attribs.hp.set(newHp | 0);
   }
   equip(item) {
-    this.equips[item.slot] = item;
+    for (let i = 0; i < this.inventory.length; ++i) {
+      if (item != this.inventory[i]) {
+        continue;
+      }
+      if (item.slot in this.equips) {
+        const oldEquip = this.equips[item.slot];
+        delete this.equips[item.slot];
+        this.inventory.push(oldEquip);
+      }
+      this.equips[item.slot] = item;
+      this.inventory.splice(i, 1);
+      return;
+    }
+    throw new Error('trying to equip item not owned');
+  }
+  addEquip(item) {
+    this.inventory.push(item);
+    this.equip(item);
   }
   unequip(slot) {
     const item = this.equips[slot];
