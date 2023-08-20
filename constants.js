@@ -1,4 +1,7 @@
 export class Constants {
+  static screenWidth = 950;
+  static combatSpeed = 300;
+
   static statusOrder = ['fear', 'weak', 'slow', 'dizzy', 'sleep', 'poison', 'bleed'];
   static enemyOrder = ['slime', 'ghost', 'robot', 'clown', 'goblin', 'ogre', 'alien', 'skeleton', 
     'troll', 'zombie', 'elf', 'djinn', 'mermaid', 'vampire', 'fairy', 'mage', 'villain'];

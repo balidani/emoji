@@ -3,22 +3,29 @@ import { Emoji } from './emoji.js';
 import { IntRef } from './ui.js';
 
 export class HeaderView {
-  constructor(containerDiv) {
+  constructor(game, containerDiv) {
+    this.game = game;
     this.containerDiv = containerDiv;
+    this.render();
   }
-  render(character) {
+  render() {
+    const character = this.game.hero;
     character.level.bindTo(this.containerDiv.querySelector('.header-level'));
     character.gold.bindTo(this.containerDiv.querySelector('.header-gold'));
   }
 }
 
 export class AttribsView {
-  constructor(containerDiv) {
+  constructor(game, containerDiv) {
+    this.game = game;
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .attribs-row');
     this.rows = {};
   }
-  render(character) {
+  render() {
+    this.renderFor(this.game.hero);
+  }
+  renderFor(character) {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'attribs-view';
     this.containerDiv.replaceChildren();
@@ -70,11 +77,15 @@ export class AttribsView {
 }
 
 export class EquipsView {
-  constructor(containerDiv) {
+  constructor(game, containerDiv) {
+    this.game = game;
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .equips-row');
   }
-  render(character, inventory, isEnemy=false) {
+  render() {
+    this.renderFor(this.game.hero);
+  }
+  renderFor(character, isEnemy=false) {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'equips-view';
     this.containerDiv.replaceChildren();
@@ -112,25 +123,25 @@ export class EquipsView {
 
       if (isEnemy) {
         unequipButton.classList.add('hidden');
+      } else {
+        unequipButton.addEventListener('click', () => {
+          character.unequip(slot);
+          this.renderFor(character, isEnemy);
+          this.game.views['inventory'].render();
+        });
       }
-
-      unequipButton.addEventListener('click', () => {
-        character.unequip(slot);
-        this.render(character, inventory, isEnemy);
-        if (inventory !== null) {
-          inventory.render(character, this);
-        }
-      });
     }
   }
 }
 
 export class InventoryView {
-  constructor(containerDiv) {
+  constructor(game, containerDiv) {
+    this.game = game;
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .inventory-row');
   }
-  render(character, equips) {
+  render() {
+    const character = this.game.hero;
     const contentDiv = document.createElement('div');
     contentDiv.className = 'inventory-view';
     this.containerDiv.replaceChildren();
@@ -153,8 +164,8 @@ export class InventoryView {
       const equipButton = row.querySelector('.item-equip');
       equipButton.addEventListener('click', () => {
         character.equip(item);
-        this.render(character, equips);
-        equips.render(character, this);
+        this.render();
+        this.game.views['equips'].render();
       });
 
       const sellButton = row.querySelector('.item-sell');
@@ -164,28 +175,32 @@ export class InventoryView {
 }
 
 export class EnemySelectView {
-  constructor(containerDiv) {
+  constructor(game, containerDiv) {
+    this.game = game;
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .enemy-select-row');
   }
-  render(hero, enemies) {
+  render() {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'enemy-select-view';
     this.containerDiv.replaceChildren();
     this.containerDiv.appendChild(contentDiv);
 
-    // TODO(): Only show unlocked enemies.
-    
     for (const enemyName of Object.values(Constants.enemyOrder)) {
       const row = this.rowTemplate.cloneNode(true);
       contentDiv.appendChild(row);
 
       row.querySelector('.enemy-name').textContent = Emoji.map(enemyName);
 
-      const enemy = enemies[enemyName];
+      const enemy = this.game.enemies[enemyName];
 
       row.querySelector('.enemy-level').textContent = 
         Emoji.map('level') + Emoji.convertInt(enemy.level.value);
+
+      const fightButton = row.querySelector('.enemy-fight');
+      fightButton.addEventListener('click', () => {
+        this.game.fight(enemy);
+      });
 
       const detailsButton = row.querySelector('.enemy-details');
       let detailsClicked = false;
@@ -198,31 +213,76 @@ export class EnemySelectView {
           return;
         }
 
-        const attribsView = new AttribsView(attribsDiv);
-        attribsView.render(enemy);
-        const equipsView = new EquipsView(equipsDiv);
-        equipsView.render(enemy, null, /*isEnemy=*/true);
+        const attribsView = new AttribsView({}, attribsDiv);
+        attribsView.renderFor(enemy);
+        const equipsView = new EquipsView({}, equipsDiv);
+        equipsView.renderFor(enemy, /*isEnemy=*/true);
         detailsClicked = true;
       });
+
+      // The first enemy that is higher level than the hero is unlocked.
+      if (enemy.level.value > this.game.hero.level.value) {
+        break;
+      }
     }
   }
 }
 
 export class CombatView {
-  constructor(model) {
+  static logsVisible = false;
+
+  constructor(game, model) {
+    this.game = game;
     this.model = model;
-    this.valueSpanMap = {};
 
     this.containerDiv = document.querySelector('.combat');
     this.template = document.querySelector('.template .combat-view');
     this.templateDetail = document.querySelector('.template .combat-detail-grid');
-
-    const templateDiv = this.template.cloneNode(true);
-    this.containerDiv.appendChild(templateDiv);
-    this.render(templateDiv, 'hero');
-    this.render(templateDiv, 'enemy');
+    this.render();
   }
-  render(div, selector) {
+  render() {
+    this.containerDiv.replaceChildren();
+    const combatDiv = this.template.cloneNode(true);
+    this.containerDiv.appendChild(combatDiv);
+
+    const backButton = combatDiv.querySelector('.back-button');
+    backButton.addEventListener('click', () => {
+      this.game.endFight(this.game.sim.won);
+    });
+
+    combatDiv.querySelector('.next-button').addEventListener('click', () => {
+      this.game.sim.step();
+    });
+    combatDiv.querySelector('.play-button').addEventListener('click', () => {
+      const timer = setInterval(() => {
+        this.game.sim.step();
+        if (this.game.sim.done) {
+          clearInterval(timer);
+        }
+      }, Constants.combatSpeed);
+    });
+    combatDiv.querySelector('.log-button').addEventListener('click', () => {
+      const button = document.querySelector('.log-button');
+      const nodes = document.querySelectorAll('.combat-grid-item.log');
+      for (const node of Object.values(nodes)) {
+        node.classList.toggle('hidden');
+        CombatView.logsVisible = !node.classList.contains('hidden');
+      }
+      this.updateLogButton();
+    });
+    this.updateLogButton();
+    this.renderSingle(combatDiv, 'hero');
+    this.renderSingle(combatDiv, 'enemy');
+  }
+  updateLogButton() {
+    const button = document.querySelector('.log-button');
+    if (CombatView.logsVisible) {
+      button.textContent = Emoji.map('book_open');
+    } else {
+      button.textContent = Emoji.map('book_closed');
+    }
+  }
+  renderSingle(div, selector) {
     const character = this.model[selector];
     const characterDiv = div.querySelector(`.character.${selector}`);
     characterDiv.querySelector('.char').textContent = Emoji.map(character.name);
@@ -274,6 +334,13 @@ export class CombatView {
       }
     }
   }
+  showWinner(selector) {
+    const characterDiv = this.containerDiv.querySelector(`.character.${selector}`);
+    characterDiv.querySelector('.trophy').classList.remove('hidden');
+
+    this.containerDiv.querySelector('.next-button').classList.add('hidden');
+    this.containerDiv.querySelector('.play-button').classList.add('hidden');
+  }
   addLog(logs, selector, opponent) {
     const logDiv = this.containerDiv.querySelector(`.log.${selector}`);
     const combatPrefix = Emoji.map(this.model[selector].name) 
@@ -302,5 +369,8 @@ export class CombatView {
       }
       logDiv.innerHTML += combatPrefix + logString + '<br>'; 
     }
+  }
+  destruct() {
+    this.containerDiv.replaceChildren();
   }
 }

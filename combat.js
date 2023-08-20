@@ -1,14 +1,17 @@
 import { CombatView } from './view.js';
 
 export class CombatSim {
-  constructor(hero, enemy) {
+  constructor(game, enemy) {
+    this.game = game;
     this.model = {
-      hero: hero.combatCopy(),
+      hero: this.game.hero.combatCopy(),
       enemy: enemy.combatCopy(),
     };
-    this.view = new CombatView(this.model);
+    this.view = new CombatView(this.game, this.model);
     this.checkFirst();
+
     this.done = false;
+    this.won = false;
   }
   checkFirst() {
     const heroValues = this.model.hero.computeValues();
@@ -22,6 +25,10 @@ export class CombatSim {
     }
   }
   step() {
+    if (this.done) {
+      return;
+    }
+
     const stepCharacter = (characterName, opponent) => {
       const log = this.simulateAttack(this.model[characterName], this.model[opponent]);
       this.view.addLog(log, characterName, opponent);
@@ -33,26 +40,33 @@ export class CombatSim {
       stepHero();
       if (this.model.enemy.attribs.hp.value <= 0) {
         this.done = true;
-        return 'win';
+        this.won = true;
+        this.view.showWinner('hero');
+        return;
       }
       stepEnemy();
       if (this.model.hero.attribs.hp.value <= 0) {
         this.done = true;
-        return 'loss';
+        this.won = false;
+        this.view.showWinner('enemy');
+        return;
       }
     } else {
       stepEnemy();
       if (this.model.hero.attribs.hp.value <= 0) {
         this.done = true;
-        return 'loss';
+        this.won = false;
+        this.view.showWinner('enemy');
+        return;
       }
       stepHero();
       if (this.model.enemy.attribs.hp.value <= 0) {
         this.done = true;
-        return 'win';
+        this.won = true;
+        this.view.showWinner('hero');
+        return;
       }
     }
-    return 'continue';
   }
   simulateAttack(hero, enemy) {
     const values = hero.computeValues();
@@ -132,8 +146,7 @@ export class CombatSim {
 
     return log;
   }
-  
-  isDone() {
-    return this.done;
+  end() {
+    this.view.destruct();
   }
 }

@@ -1,6 +1,7 @@
 body {
   font-size: 24pt;
   letter-spacing: 1pt;
+  overflow-x: hidden;
 }
 
 a {
@@ -9,6 +10,8 @@ a {
 
 .container {
   transform-origin: top left;
+  width: 950px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: min-content min-content;
 }
@@ -16,6 +19,20 @@ a {
 .content {
   display: grid;
   grid-template-columns: 50pt auto;
+}
+
+.content-key {
+  font-size: 38pt;
+}
+
+.overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 240pt;
+  height: 240pt;
+  pointer-events: none;
+  backdrop-filter: blur(3px);
 }
 
 .attribs-row {
@@ -35,7 +52,7 @@ a {
 
 .enemy-select-row {
   display: grid;
-  grid-template-columns: min-content 174pt 80pt;
+  grid-template-columns: min-content 140pt 80pt;
 }
 
 .combat-view {
@@ -55,6 +72,9 @@ a {
 }
 .combat-grid-item.character {
   font-size: 56pt;
+}
+.combat-grid-item.character .trophy {
+  font-size: 24pt;
 }
 
 .combat-control {
