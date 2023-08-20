@@ -8,8 +8,9 @@ a {
 }
 
 .container {
+  transform-origin: top left;
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: min-content min-content;
 }
 
 .content {

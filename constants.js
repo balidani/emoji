@@ -3,7 +3,7 @@ export class Constants {
   static enemyOrder = ['slime', 'ghost', 'robot', 'clown', 'goblin', 'ogre', 'alien', 'skeleton', 
     'troll', 'zombie', 'elf', 'djinn', 'mermaid', 'vampire', 'fairy', 'mage', 'villain'];
   static attribOrder = ['hp', 'fencing', 'strength', 'speed', 'accuracy'];
-  static levelableAttribs = ['hp', 'fencing', 'strength', 'speed', 'accuracy'];
+  static levelableAttribs = ['fencing', 'strength', 'speed', 'accuracy'];
   static equipOrder = ['head', 'body', 'hands', 'feet', 'finger', 'weapon'];
 
   static enemies = {

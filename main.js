@@ -70,3 +70,12 @@ document.querySelector('.play-button').addEventListener('click', () => {
     }
   }, 300);
 });
+
+function scalePage() {
+  const scale = window.innerWidth / 960;
+  const container = document.querySelector('.container');
+  container.style.transform = 'scale(' + scale + ')';
+}
+
+window.onresize = scalePage;
+scalePage();
