@@ -7,7 +7,8 @@ export class Character {
   constructor(name, level, attribs) {
     this.name = name;
     this.level = new IntRef(level);
-    this.skillPoints = new IntRef(3);
+    this.gold = new IntRef(0);
+    this.skillPoints = new IntRef(0);
 
     this.attribs = {};
     for (const [key, value] of Object.entries(attribs)) {

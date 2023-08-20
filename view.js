@@ -2,13 +2,23 @@ import { Constants } from './constants.js';
 import { Emoji } from './emoji.js';
 import { IntRef } from './ui.js';
 
+export class HeaderView {
+  constructor(containerDiv) {
+    this.containerDiv = containerDiv;
+  }
+  render(character) {
+    character.level.bindTo(this.containerDiv.querySelector('.header-level'));
+    character.gold.bindTo(this.containerDiv.querySelector('.header-gold'));
+  }
+}
+
 export class AttribsView {
   constructor(containerDiv) {
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .attribs-row');
     this.rows = {};
   }
-  render(hero) {
+  render(character) {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'attribs-view';
     this.containerDiv.replaceChildren();
@@ -21,7 +31,7 @@ export class AttribsView {
 
       row.querySelector('.attrib-key').textContent = Emoji.map(attrib);
       const valueSpan = row.querySelector('.attrib-value');
-      const ref = hero.attribs[attrib];
+      const ref = character.attribs[attrib];
       ref.bindTo(valueSpan);
 
       row.querySelector('.attribs-add').classList.add('hidden');
@@ -30,24 +40,24 @@ export class AttribsView {
     const skillPointsRow = this.rowTemplate.cloneNode(true);
     contentDiv.appendChild(skillPointsRow);
     const pointsSpan = skillPointsRow.querySelector('.attribs-skill-points');
-    hero.skillPoints.bindTo(pointsSpan, pointsSpan);
-    if (hero.skillPoints.value === 0) {
-      hero.skillPoints.hide();
+    character.skillPoints.bindTo(pointsSpan, pointsSpan);
+    if (character.skillPoints.value === 0) {
+      character.skillPoints.hide();
     }
 
     for (const attrib of Object.values(Constants.levelableAttribs)) {
       const row = this.rows[attrib];
       const button = row.querySelector('.attribs-add');
 
-      if (hero.skillPoints.value > 0) {
+      if (character.skillPoints.value > 0) {
         button.classList.remove('hidden');
       }
 
       button.addEventListener('click', () => {
-        hero.assignPoint(attrib);
-        if (hero.skillPoints.value === 0) {
+        character.assignPoint(attrib);
+        if (character.skillPoints.value === 0) {
           this.removeButtons();
-          hero.skillPoints.hide();
+          character.skillPoints.hide();
         }
       });
     }
@@ -64,24 +74,29 @@ export class EquipsView {
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .equips-row');
   }
-  render(hero) {
+  render(character, inventory, isEnemy=false) {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'equips-view';
     this.containerDiv.replaceChildren();
     this.containerDiv.appendChild(contentDiv);
 
     for (const slot of Object.values(Constants.equipOrder)) {
+      // In enemy mode, don't show empty slots.
+      if (isEnemy && !(slot in character.equips)) {
+        continue;
+      }
+
       const row = this.rowTemplate.cloneNode(true);
       contentDiv.appendChild(row);
 
       row.querySelector('.equip-slot').textContent = Emoji.map(slot);
 
-      if (!(slot in hero.equips)) {
+      if (!(slot in character.equips)) {
         row.querySelector('.equips-remove').classList.add('hidden');
         continue;
       }
 
-      const equip = hero.equips[slot];
+      const equip = character.equips[slot];
       const equipName = row.querySelector('.equip-name');
       equipName.textContent = Emoji.map(equip.name);
 
@@ -94,11 +109,17 @@ export class EquipsView {
       }
       
       const unequipButton = row.querySelector('.equips-remove');
-      unequipButton.addEventListener('click', () => {
-        hero.unequip(slot);
-        equipName.classList.add('hidden');
-        description.classList.add('hidden');
+
+      if (isEnemy) {
         unequipButton.classList.add('hidden');
+      }
+
+      unequipButton.addEventListener('click', () => {
+        character.unequip(slot);
+        this.render(character, inventory, isEnemy);
+        if (inventory !== null) {
+          inventory.render(character, this);
+        }
       });
     }
   }
@@ -109,13 +130,13 @@ export class InventoryView {
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .inventory-row');
   }
-  render(hero) {
+  render(character, equips) {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'inventory-view';
     this.containerDiv.replaceChildren();
     this.containerDiv.appendChild(contentDiv);
 
-    for (const item of Object.values(hero.inventory)) {
+    for (const item of Object.values(character.inventory)) {
       const row = this.rowTemplate.cloneNode(true);
       contentDiv.appendChild(row);
 
@@ -131,8 +152,9 @@ export class InventoryView {
 
       const equipButton = row.querySelector('.item-equip');
       equipButton.addEventListener('click', () => {
-        hero.equip(item);
-        this.render(hero);
+        character.equip(item);
+        this.render(character, equips);
+        equips.render(character, this);
       });
 
       const sellButton = row.querySelector('.item-sell');
@@ -146,36 +168,42 @@ export class EnemySelectView {
     this.containerDiv = containerDiv;
     this.rowTemplate = document.querySelector('.template .enemy-select-row');
   }
-  render(hero) {
+  render(hero, enemies) {
     const contentDiv = document.createElement('div');
     contentDiv.className = 'enemy-select-view';
     this.containerDiv.replaceChildren();
     this.containerDiv.appendChild(contentDiv);
 
-    // Which enemies are unlocked?
+    // TODO(): Only show unlocked enemies.
     
-    for (const item of Object.values(hero.inventory)) {
+    for (const enemyName of Object.values(Constants.enemyOrder)) {
       const row = this.rowTemplate.cloneNode(true);
       contentDiv.appendChild(row);
 
-      row.querySelector('.item-name').textContent = Emoji.map(item.name);
+      row.querySelector('.enemy-name').textContent = Emoji.map(enemyName);
 
-      const description = row.querySelector('.item-description');
-      for (const [key, ref] of Object.entries(item.attribs)) {
-        const line = document.createElement('div');
-        description.appendChild(line);
-        line.textContent = 
-          Emoji.map(key) + Emoji.convertInt(ref.value);
-      }
+      const enemy = enemies[enemyName];
 
-      const equipButton = row.querySelector('.item-equip');
-      equipButton.addEventListener('click', () => {
-        hero.equip(item);
-        this.render(hero);
+      row.querySelector('.enemy-level').textContent = 
+        Emoji.map('level') + Emoji.convertInt(enemy.level.value);
+
+      const detailsButton = row.querySelector('.enemy-details');
+      let detailsClicked = false;
+      detailsButton.addEventListener('click', () => {
+        const attribsDiv = row.querySelector('.enemy-attribs');
+        const equipsDiv = row.querySelector('.enemy-equips');
+        if (detailsClicked) {
+          attribsDiv.classList.toggle('hidden');
+          equipsDiv.classList.toggle('hidden');
+          return;
+        }
+
+        const attribsView = new AttribsView(attribsDiv);
+        attribsView.render(enemy);
+        const equipsView = new EquipsView(equipsDiv);
+        equipsView.render(enemy, null, /*isEnemy=*/true);
+        detailsClicked = true;
       });
-
-      const sellButton = row.querySelector('.item-sell');
-      // TODO(): Implement item sale.
     }
   }
 }
@@ -185,7 +213,7 @@ export class CombatView {
     this.model = model;
     this.valueSpanMap = {};
 
-    this.containerDiv = document.querySelector('.container');
+    this.containerDiv = document.querySelector('.combat');
     this.template = document.querySelector('.template .combat-view');
     this.templateDetail = document.querySelector('.template .combat-detail-grid');
 

@@ -9,28 +9,26 @@
 </head>
 <body>
   <div class="container">
-    <div class="main-view">
-      <div class="header">
-        <div class="header-profile">🦸</div>
-        <div class="header-stats">
-          <span>📶</span><span class="header-level"></span><br>
-          <span>💰</span><span class="header-gold"></span>
-        </div>
+    <div class="content">
+      <div class="content-row">🦸</div>
+      <div class="content-row content-header">
+        <div>📶<span class="header-level"></span></div>
+        <div>💰<span class="header-gold"></span></div>
       </div>
-      <div class="main">
-        <div class="main-menu">
-          <span><a class="menu-attribs-button" href="javascript:void(0)">📊</a></span><br>
-          <span><a class="menu-equips-button" href="javascript:void(0)">👕</a></span><br>
-          <span><a class="menu-inventory-button" href="javascript:void(0)">🎒</a></span><br>
-          <span><a class="menu-enemy-select-button" href="javascript:void(0)">⚔️</a></span><br>
-          <span><a class="menu-shop-button" href="javascript:void(0)">🛒</a></span><br>
-        </div>
-        <div class="main-content">
-        </div>
-      </div>
+      <div class="content-row">📊</div>
+      <div class="content-row content-attribs"></div>
+      <div class="content-row">👕</div>
+      <div class="content-row content-equips"></div>
+      <div class="content-row">🎒</div>
+      <div class="content-row content-inventory"></div>
+      <div class="content-row">🛒</div>
+      <div class="content-row content-shop"></div>
+      <div class="content-row">⚔️</div>
+      <div class="content-row content-enemy-select"></div>
     </div>
+    <div class="combat"></div>
   </div>
-  <div class="template">
+  <div class="template hidden">
     <div class="attribs-row">
       <div class="attribs-item attrib-key"></div>
       <div class="attribs-item attrib-value">
@@ -52,16 +50,18 @@
       <div class="inventory-item item-name"></div>
       <div class="inventory-item item-description"></div>
       <div class="inventory-item item-actions">
-        <a class="item-equip" href="javascript:void(0)">🔼</a>
-        <a class="item-sell" href="javascript:void(0)">💰</a>
+        <a class="item-equip" href="javascript:void(0)">🔼</a><a class="item-sell" href="javascript:void(0)">💰</a>
       </div>
     </div>
     <div class="enemy-select-row">
       <div class="enemy-select-item enemy-name"></div>
-      <div class="enemy-select-item enemy-level"></div>
+      <div class="enemy-select-item enemy-info">
+        <div class="enemy-level"></div>
+        <div class="enemy-attribs"></div>
+        <div class="enemy-equips"></div>
+      </div>
       <div class="enemy-select-item enemy-actions">
-        <a class="enemy-fight" href="javascript:void(0)">⚔️</a>
-        <a class="enemy-details" href="javascript:void(0)">🔍</a>
+        <a class="enemy-fight" href="javascript:void(0)">⚔️</a><a class="enemy-details" href="javascript:void(0)">🔍</a>
       </div>
     </div>
     <div class="shop-view">
@@ -71,17 +71,6 @@
         </div>
         <div class="shop-item">
           💰5️⃣0️⃣
-        </div>
-        <div class="shop-item">
-          🛒
-        </div>
-      </div>
-      <div class="shop-row">
-        <div class="shop-item">
-          📦
-        </div>
-        <div class="shop-item">
-          💰2️⃣5️⃣0️⃣
         </div>
         <div class="shop-item">
           🛒

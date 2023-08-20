@@ -8,55 +8,33 @@ a {
 }
 
 .container {
-  padding-top: 16pt;
-  padding-left: 16pt;
-}
-
-.header {
   display: grid;
-  grid-template-columns: 80pt auto;
+  grid-template-columns: auto auto;
 }
 
-.header-profile {
-  font-size: 50pt;
-}
-
-.main {
+.content {
   display: grid;
-  grid-template-columns: 80pt auto;
-  padding-top: 16pt;
-}
-
-.main-menu {
-  font-size: 40pt;
+  grid-template-columns: 50pt auto;
 }
 
 .attribs-row {
   display: grid;
-  grid-template-columns: 34pt 140pt 80pt;
+  grid-template-columns: 34pt 174pt 80pt;
 }
 
 .equips-row {
   display: grid;
-  grid-template-columns: min-content min-content 140pt min-content;
-}
-
-.equips-item {
+  grid-template-columns: min-content min-content 140pt 80pt;
 }
 
 .inventory-row {
   display: grid;
-  grid-template-columns: min-content 140pt 80pt;
+  grid-template-columns: min-content 174pt 80pt;
 }
 
 .enemy-select-row {
   display: grid;
-  grid-template-columns: min-content 140pt 80pt;
-}
-
-.shop-row {
-  display: grid;
-  grid-template-columns: min-content 200pt 80pt;
+  grid-template-columns: min-content 174pt 80pt;
 }
 
 .combat-view {
@@ -65,8 +43,8 @@ a {
 }
 
 .combat-grid-item {
-  max-width: 200pt;
-  width: 200pt;
+  max-width: 174pt;
+  width: 174pt;
   padding-bottom: 12pt;
 }
 
@@ -79,8 +57,7 @@ a {
 }
 
 .combat-control {
-  padding-top: 12pt;
-  padding-bottom: 16pt;
+  padding-bottom: 12pt;
 }
 
 .full-width-item {
@@ -91,13 +68,6 @@ a {
 .combat-detail-grid {
   display: grid;
   grid-template-columns: 32pt auto;
-}
-
-.combat-detail-item {
-}
-
-.template {
-  display: none;
 }
 
 .hidden {

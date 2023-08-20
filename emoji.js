@@ -82,6 +82,7 @@ const MAP = {
   backpack: '🎒',
 
   // Misc
+  level: '📶',
   minus: '➖',
   multi: '❌',
   book_open: '📖',
