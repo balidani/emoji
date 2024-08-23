@@ -54,26 +54,35 @@ button {
 /* Animations */
 
 @keyframes startSpin {
-  0% { transform: scaleY(1) translateY(0pt); }
+  0% { transform: scaleY(1) translateY(0); }
   100% { transform: scaleY(0.5) translateY(54pt); }
 }
 
 @keyframes spin {
   0% { transform: scaleY(0.25) translateY(-42pt); }
-  50% { transform: scaleY(1.4) translateY(0pt); }
+  50% { transform: scaleY(1.4) translateY(0); }
   100% { transform: scaleY(0.5) translateY(54pt); }
 }
 
 @keyframes endSpin {
   0% { transform: scaleY(0.5) translateY(-54pt); }
-  100% { transform: scaleY(1) translateY(0pt); }
+  100% { transform: scaleY(1) translateY(0); }
 }
 
 @keyframes endSpinBounce {
   0% { transform: translateY(0); }
   50% { transform: translateY(-4pt); }
-  100% { transform: translateY(0pt); }
+  100% { transform: translateY(0); }
 }
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(2pt); }
+  50% { transform: translateX(0); }
+  75% { transform: translateX(-2pt); }
+  100% { transform: translateX(0); }
+}
+
 
 /* Misc */
 

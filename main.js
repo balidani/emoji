@@ -13,11 +13,11 @@ const chance = (percent) => Math.random() < percent;
 const randomChoose = (arr) => arr[random(arr.length)];
 const randomRemove = (arr) => arr.splice(random(arr.length), 1)[0];
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-const animate = (element, animation, duration) => {
+const animate = (element, animation, duration, repeat=1) => {
   return new Promise((resolve) => {
     element.style.animation = 'none';
     element.offsetWidth;  // lmao
-    element.style.animation = `${animation} ${duration}s linear 1`;
+    element.style.animation = `${animation} ${duration}s linear ${repeat}`;
     element.addEventListener('animationend', resolve, { once: true });
   });
 };
@@ -33,10 +33,26 @@ const onTop = (cells, x, y, name) => inBounds(y - 1)
 const onBottom = (cells, x, y, name) => inBounds(y + 1) 
   && cells[y + 1][x].name === name;
 const nextTo = (cells, x, y, name) => 
-    onLeft(cells, x, y, name) ||
-    onRight(cells, x, y, name) ||
-    onTop(cells, x, y, name) ||
-    onBottom(cells, x, y, name);
+  onLeft(cells, x, y, name) ||
+  onRight(cells, x, y, name) ||
+  onTop(cells, x, y, name) ||
+  onBottom(cells, x, y, name);
+const nextToCoords = (cells, x, y, name) => {
+  const coords = [];
+  if (onLeft(cells, x, y, name)) {
+    coords.push([x - 1, y]);
+  }
+  if (onRight(cells, x, y, name)) {
+    coords.push([x + 1, y]);
+  }
+  if (onTop(cells, x, y, name)) {
+    coords.push([x, y - 1]);
+  }
+  if (onBottom(cells, x, y, name)) {
+    coords.push([x, y + 1]);
+  }
+  return coords;
+};
 const rowOf = (cells, x, y, name, count) => {
   for (let i = 0; i < count - 1; ++i) {
     if (!onRight(cells, x + i, y, name)) {
@@ -62,7 +78,10 @@ class Symbol {
     return this.name;
   }
   evaluate() {
-    return {score: 0};
+    return [];
+  }
+  score() {
+    return 0;
   }
 }
 
@@ -98,8 +117,8 @@ class Coin extends Symbol {
   constructor() {
     super('🪙');
   }
-  evaluate() {
-    return {score: 1};
+  score() {
+    return 1;
   }
 }
 
@@ -107,20 +126,41 @@ class Cherry extends Symbol {
   constructor() {
     super('🍒');
   }
-  evaluate(cells, x, y) {
-    let score = 0;
+  score(cells, x, y) {
+    let total = 0;
     if (rowOf(cells, x, y, this.name, 5)) {
-      score = 18;
+      total = 18;
     } else if (rowOf(cells, x, y, this.name, 4)) {
-      score = 6;
+      total = 6;
     } else if (rowOf(cells, x, y, this.name, 3)) {
-      score = 3;
+      total = 3;
     } else if (rowOf(cells, x, y, this.name, 2)) {
-      score = 2;
+      total = 2;
     } else { 
-      score = 1;
+      total = 1;
     }
-    return {score: score};
+    return total;
+  }
+}
+
+class MusicalNote extends Symbol {
+  constructor() {
+    super('🎵');
+    this.timeToLive = 3;
+  }
+  score() {
+    return 3;
+  }
+  evaluate(cells, x, y) {
+    this.timeToLive--;
+    if (this.timeToLive === 0) {
+      return [(async (game) => {
+        game.inventory.remove(this);
+        game.board.cells[y][x] = Empty.instance();
+        await game.board.spinDivOnce(x, y);
+      })];
+    }
+    return [];
   }
 }
 
@@ -128,8 +168,26 @@ class Bell extends Symbol {
   constructor() {
     super('🔔');
   }
-  evaluate() {
-    return {score: 2};
+  score() {
+    return 2;
+  }
+  evaluate(cells, x, y) {
+    if (chance(0.5)) {
+      return [async (game) => {
+        console.log(game);
+        const note = new MusicalNote();
+        const coords = nextToCoords(cells, x, y, Empty.instance().name);
+        if (coords.length === 0) {
+          return;
+        }
+        const [newX, newY] = randomChoose(coords);
+        cells[newY][newX] = note;
+        game.inventory.add(note);
+        await animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 3);
+        await game.board.spinDivOnce(newX, newY);
+      }];
+    }
+    return [];
   }
 }
 
@@ -137,8 +195,8 @@ class Diamond extends Symbol {
   constructor() {
     super('💎');
   }
-  evaluate() {
-    return {score: 3};
+  score() {
+    return 3;
   }
 }
 
@@ -146,8 +204,8 @@ class Rock extends Symbol {
   constructor() {
     super('🪨');
   }
-  evaluate() {
-    return {score: 1};
+  score() {
+    return 3;
   }
 }
 
@@ -156,14 +214,19 @@ class Volcano extends Symbol {
     super('🌋');
   }
   evaluate(cells, x, y) {
-    if (chance(1.1)) {
-      return {score: 0, sideEffects: [
-        async (game) => {
-          await game.board.spinDivOnce(
-            random(BOARD_SIZE), random(BOARD_SIZE), new Rock());
-        }]};
+    if (chance(0.1)) {
+      return [async (game) => {
+        const rock = new Rock();
+        const newX = random(BOARD_SIZE);
+        const newY = random(BOARD_SIZE);
+        game.inventory.remove(cells[newY][newX]);
+        cells[newY][newX] = rock;
+        game.inventory.add(rock);
+        await animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 3);
+        await game.board.spinDivOnce(newX, newY);
+      }];
     }
-    return {score: 0};
+    return [];
   }
 }
 
@@ -193,6 +256,15 @@ class Inventory {
       this.symbolsDiv.appendChild(symbolDiv);
     });
   }
+  remove(symbol) {
+    const index = this.symbols.indexOf(symbol);
+    if (index >= 0) {
+      this.symbols.splice(index, 1);
+    }
+  }
+  add(symbol) {
+    this.symbols.push(symbol);
+  }
 }
 
 class Board {
@@ -212,37 +284,31 @@ class Board {
     return this.gridDiv.children[y].children[x].children[0];
   }
   async spinDiv(x, y, symbol) {
-    return new Promise(async (resolve) => {
-      await delay(random(600));
-      const div = this.getSymbolDiv(x, y);
-      const randomSymbol = () => {
-        const set = new Set();
-        set.add(Empty.instance().name);
-        for (const symbol of Object.values(game.inventory.symbols)) {
-          set.add(symbol.name);
-        }
-        div.innerText = randomChoose([...set]);
+    await delay(random(600));
+    const div = this.getSymbolDiv(x, y);
+    const randomSymbol = () => {
+      const set = new Set();
+      set.add(Empty.instance().name);
+      for (const symbol of Object.values(game.inventory.symbols)) {
+        set.add(symbol.name);
       }
-      await animate(div, 'startSpin', 0.1);
-      for (let i = 0; i < 8; ++i) {
-        randomSymbol();
-        await animate(div, 'spin', 0.12 + i * 0.02);
-      }
-      div.innerText = symbol.name;
-      await animate(div, 'endSpin', 0.3);
-      await animate(div, 'endSpinBounce', 0.2);
-      resolve();
-    });
+      div.innerText = randomChoose([...set]);
+    }
+    await animate(div, 'startSpin', 0.1);
+    for (let i = 0; i < 8; ++i) {
+      randomSymbol();
+      await animate(div, 'spin', 0.12 + i * 0.02);
+    }
+    div.innerText = symbol.name;
+    await animate(div, 'endSpin', 0.3);
+    await animate(div, 'endSpinBounce', 0.2);
   }
-  async spinDivOnce(x, y, symbol) {
-    return new Promise(async (resolve) => {
-      const div = this.getSymbolDiv(x, y);
-      await animate(div, 'startSpin', 0.1);
-      div.innerText = symbol.name;
-      await animate(div, 'endSpin', 0.3);
-      await animate(div, 'endSpinBounce', 0.2);
-      resolve();
-    });
+  async spinDivOnce(x, y) {
+    const div = this.getSymbolDiv(x, y);
+    await animate(div, 'startSpin', 0.1);
+    div.innerText = this.cells[y][x].name;
+    await animate(div, 'endSpin', 0.3);
+    await animate(div, 'endSpinBounce', 0.2);
   }
   async roll(inventory) {
     const symbols = [...inventory.symbols];
@@ -271,18 +337,23 @@ class Board {
     await Promise.all(tasks);
   }
   evaluate() {
-    let score = 0;
     const sideEffects = [];
     this.cells.forEach((row, y) => {
       row.forEach((cell, x) => {
-        const result = cell.evaluate(this.cells, x, y);
-        score += result.score;
-        if ('sideEffects' in result) {
-          sideEffects.push(...result.sideEffects);
-        }
+        sideEffects.push(...cell.evaluate(this.cells, x, y));
       });
     });
-    return {score: score, sideEffects: sideEffects};
+    return sideEffects;
+  }
+  score() {
+    let total = 0;
+    this.cells.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        const cellScore = cell.score(this.cells, x, y);
+        total += cellScore;
+      });
+    });
+    return total;
   }
 }
 
@@ -303,9 +374,9 @@ class Game {
     if (this.money > 0) {
       this.money -= 1;
       await this.board.roll(this.inventory);
-      const result = this.board.evaluate();
-      result.sideEffects.forEach(async (effect) => await effect(game));
-      this.money += result.score;
+      await this.board.evaluate().forEach(
+        async (effect) => await effect(game));
+      this.money += this.board.score();
       this.inventory.update(this);
     }
   }
