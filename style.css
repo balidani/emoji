@@ -3,23 +3,31 @@ body {
   font-family: monospace;
 }
 button {
-  font-size: 32pt;
 }
 
 .wrapper {
   display: flex;
   justify-content: center;
+  padding: 10pt;
+}
+
+#roll {
+  font-size: 24pt;
 }
 
 /* Inventory */
 
 .inventory {
-  position: absolute;
-  left: 4pt;
-  bottom: 4pt;
+  position: fixed;
+  left: 0pt;
+  bottom: 0pt;
+  width: 100%;
   letter-spacing: 4pt;
-  padding-top: 24pt;
-  font-size: 24pt;
+  padding-top: 4pt;
+  padding-left: 4pt;
+  padding-bottom: 4pt;
+  font-size: 16pt;
+  background: white;
 }
 .inventoryEntry {
   display: inline-block;
@@ -27,8 +35,29 @@ button {
 .inventoryEntryCount {
   position: relative;
   left: -2pt;
-  font-size: 12pt;
+  font-size: 8pt;
   letter-spacing: 0pt;
+}
+
+/* Shop */
+
+.shop {
+  width: 256pt;
+  overflow: hidden;
+}
+.shopItem {
+  display: flex;
+  padding-bottom: 8pt;
+}
+.description {
+  font-size: 12pt;
+  width: 180pt;
+}
+.buy {
+  margin-left: auto;
+}
+.buyButton {
+  font-size: 24pt;
 }
 
 /* Grid */
@@ -37,10 +66,9 @@ button {
   display: flex;
   justify-content: center;
   width: 170pt;
-  padding: 20pt;
-  font-size: 24pt;
 }
 .cell {
+  font-size: 24pt;
   width: 32pt;
   height: 28pt;
   display: inline-block;
@@ -55,24 +83,32 @@ button {
 
 @keyframes startSpin {
   0% { transform: scaleY(1) translateY(0); }
-  100% { transform: scaleY(0.5) translateY(54pt); }
+  100% { transform: scaleY(0.5) translateY(54pt); filter: blur(0.5px); }
 }
 
 @keyframes spin {
-  0% { transform: scaleY(0.25) translateY(-42pt); }
-  50% { transform: scaleY(1.4) translateY(0); }
-  100% { transform: scaleY(0.5) translateY(54pt); }
+  0% { transform: scaleY(0.25) translateY(-42pt); filter: blur(0.5px); }
+  50% { transform: scaleY(1.4) translateY(0); filter: blur(1px); }
+  100% { transform: scaleY(0.5) translateY(54pt); filter: blur(0.5px); }
 }
 
 @keyframes endSpin {
-  0% { transform: scaleY(0.5) translateY(-54pt); }
+  0% { transform: scaleY(0.5) translateY(-54pt); filter: blur(0.5px); }
   100% { transform: scaleY(1) translateY(0); }
 }
 
-@keyframes endSpinBounce {
+@keyframes bounce {
   0% { transform: translateY(0); }
   50% { transform: translateY(-4pt); }
   100% { transform: translateY(0); }
+}
+
+@keyframes flip {
+  0% { transform: scaleX(1); filter: blur(0); }
+  25% { transform: scaleX(0); filter: blur(0.5px); }
+  50% { transform: scaleX(-1); filter: blur(1px); }
+  75% { transform: scaleX(0); filter: blur(0.5px); }
+  100% { transform: scaleX(1); filter: blur(0); }
 }
 
 @keyframes shake {
@@ -83,6 +119,17 @@ button {
   100% { transform: translateX(0); }
 }
 
+@keyframes openShop {
+  0% { transform: translateY(500pt); }
+  80% { transform: translateY(0); }
+  90% { transform: translateY(4pt); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes closeShop {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(500pt); }
+}
 
 /* Misc */
 

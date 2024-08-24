@@ -32,11 +32,17 @@ const onTop = (cells, x, y, name) => inBounds(y - 1)
   && cells[y - 1][x].name === name;
 const onBottom = (cells, x, y, name) => inBounds(y + 1) 
   && cells[y + 1][x].name === name;
+const onTopLeft = (cells, x, y, name) => inBounds(x - 1) && inBounds(y - 1)
+  && cells[y - 1][x - 1].name === name;
+const onTopRight = (cells, x, y, name) => inBounds(x + 1) && inBounds(y - 1)
+  && cells[y - 1][x + 1].name === name;
+const onBottomLeft = (cells, x, y, name) => inBounds(x - 1) && inBounds(y + 1)
+  && cells[y + 1][x - 1].name === name;
+const onBottomRight = (cells, x, y, name) => inBounds(x + 1) && inBounds(y + 1)
+  && cells[y + 1][x + 1].name === name;
 const nextTo = (cells, x, y, name) => 
-  onLeft(cells, x, y, name) ||
-  onRight(cells, x, y, name) ||
-  onTop(cells, x, y, name) ||
-  onBottom(cells, x, y, name);
+  [onLeft, onRight, onTop, onBottom, 
+    onTopLeft, onTopRight, onBottomLeft, onBottomRight].some((f) => f(cells, x, y, name));
 const nextToCoords = (cells, x, y, name) => {
   const coords = [];
   if (onLeft(cells, x, y, name)) {
@@ -50,6 +56,18 @@ const nextToCoords = (cells, x, y, name) => {
   }
   if (onBottom(cells, x, y, name)) {
     coords.push([x, y + 1]);
+  }
+  if (onTopLeft(cells, x, y, name)) {
+    coords.push([x - 1, y - 1]);
+  }
+  if (onTopRight(cells, x, y, name)) {
+    coords.push([x + 1, y - 1]);
+  }
+  if (onBottomLeft(cells, x, y, name)) {
+    coords.push([x - 1, y + 1]);
+  }
+  if (onBottomRight(cells, x, y, name)) {
+    coords.push([x + 1, y + 1]);
   }
   return coords;
 };
@@ -80,8 +98,9 @@ class Symbol {
   evaluate() {
     return [];
   }
-  score() {
-    return 0;
+  async score(x, y) {}
+  description() {
+    throw new Error("What the hell?");
   }
 }
 
@@ -117,8 +136,13 @@ class Coin extends Symbol {
   constructor() {
     super('🪙');
   }
-  score() {
-    return 1;
+  async score(x, y) {
+    await Promise.all([
+      animate(game.board.getSymbolDiv(x, y), 'bounce', 0.2),
+      game.inventory.addMoney(1)]);
+  }
+  description() {
+    return "💵1";
   }
 }
 
@@ -126,20 +150,17 @@ class Cherry extends Symbol {
   constructor() {
     super('🍒');
   }
-  score(cells, x, y) {
-    let total = 0;
-    if (rowOf(cells, x, y, this.name, 5)) {
-      total = 18;
-    } else if (rowOf(cells, x, y, this.name, 4)) {
-      total = 6;
-    } else if (rowOf(cells, x, y, this.name, 3)) {
-      total = 3;
-    } else if (rowOf(cells, x, y, this.name, 2)) {
-      total = 2;
-    } else { 
-      total = 1;
+  async score(x, y) {
+    const coords = nextToCoords(game.board.cells, x, y, this.name);
+    for (const coord of coords) {
+      await Promise.all([
+        animate(game.board.getSymbolDiv(x, y), 'flip', 0.2),
+        game.inventory.addMoney(2),
+      ]);
     }
-    return total;
+  }
+  description() {
+    return "💵2 for each neighboring 🍒";
   }
 }
 
@@ -148,10 +169,12 @@ class MusicalNote extends Symbol {
     super('🎵');
     this.timeToLive = 3;
   }
-  score() {
-    return 3;
+  async score(x, y) {
+    await Promise.all([
+      animate(game.board.getSymbolDiv(x, y), 'bounce', 0.2),
+      game.inventory.addMoney(1)]);
   }
-  evaluate(cells, x, y) {
+  evaluate(x, y) {
     this.timeToLive--;
     if (this.timeToLive === 0) {
       return [(async (game) => {
@@ -162,26 +185,30 @@ class MusicalNote extends Symbol {
     }
     return [];
   }
+  description() {
+    return "💵1<br>disappear after 3 turns";
+  }
 }
 
 class Bell extends Symbol {
   constructor() {
     super('🔔');
   }
-  score() {
-    return 2;
+  async score(x, y) {
+    await Promise.all([
+      animate(game.board.getSymbolDiv(x, y), 'bounce', 0.2),
+      game.inventory.addMoney(2)]);
   }
-  evaluate(cells, x, y) {
-    if (chance(0.5)) {
+  evaluate(x, y) {
+    if (chance(0.2)) {
       return [async (game) => {
-        console.log(game);
         const note = new MusicalNote();
-        const coords = nextToCoords(cells, x, y, Empty.instance().name);
+        const coords = nextToCoords(game.board.cells, x, y, Empty.instance().name);
         if (coords.length === 0) {
           return;
         }
         const [newX, newY] = randomChoose(coords);
-        cells[newY][newX] = note;
+        game.board.cells[newY][newX] = note;
         game.inventory.add(note);
         await animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 3);
         await game.board.spinDivOnce(newX, newY);
@@ -189,14 +216,22 @@ class Bell extends Symbol {
     }
     return [];
   }
+  description() {
+    return "💵2<br>20%: replace neighboring empty tile with 🎵";
+  }
 }
 
 class Diamond extends Symbol {
   constructor() {
     super('💎');
   }
-  score() {
-    return 3;
+  async score(x, y) {
+    await Promise.all([
+      animate(game.board.getSymbolDiv(x, y), 'bounce', 0.2),
+      game.inventory.addMoney(3)]);
+  }
+  description() {
+    return "💵3";
   }
 }
 
@@ -204,8 +239,13 @@ class Rock extends Symbol {
   constructor() {
     super('🪨');
   }
-  score() {
-    return 3;
+  async score(x, y) {
+    await Promise.all([
+      animate(game.board.getSymbolDiv(x, y), 'bounce', 0.2),
+      game.inventory.addMoney(3)]);
+  }
+  description() {
+    return "💵3";
   }
 }
 
@@ -213,14 +253,14 @@ class Volcano extends Symbol {
   constructor() {
     super('🌋');
   }
-  evaluate(cells, x, y) {
+  evaluate(x, y) {
     if (chance(0.1)) {
       return [async (game) => {
         const rock = new Rock();
         const newX = random(BOARD_SIZE);
         const newY = random(BOARD_SIZE);
-        game.inventory.remove(cells[newY][newX]);
-        cells[newY][newX] = rock;
+        game.inventory.remove(game.board.cells[newY][newX]);
+        game.board.cells[newY][newX] = rock;
         game.inventory.add(rock);
         await animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 3);
         await game.board.spinDivOnce(newX, newY);
@@ -228,17 +268,21 @@ class Volcano extends Symbol {
     }
     return [];
   }
+  description() {
+    return "10%: replace random tile with 🪨"
+  }
 }
 
 class Inventory {
   constructor(symbols) {
     this.symbols = symbols;
     this.symbolsDiv = document.querySelector('.inventory');
+    this.money = 100;
   }
   update(game) {
     this.symbolsDiv.replaceChildren();
     const map = new Map();
-    map.set(Dollar.instance().name, game.money);
+    map.set(Dollar.instance().name, game.inventory.money);
     this.symbols.forEach((symbol) => {
       if (!map.has(symbol.name)) {
         map.set(symbol.name, 0);
@@ -265,6 +309,65 @@ class Inventory {
   add(symbol) {
     this.symbols.push(symbol);
   }
+  async addMoney(value) {
+    this.money += value;
+    this.update(game);
+  }
+}
+
+class Shop {
+  constructor() {
+    this.shopDiv = document.querySelector('.shop');
+    this.catalog = [
+      new Coin(), new Cherry(), new Bell(), new Volcano(), new Diamond()
+    ];
+    this.isOpen = false;
+  }
+  async open(game) {
+    if (this.isOpen) {
+      return;
+    }
+    this.isOpen = true;
+    this.shopDiv.replaceChildren();
+    const newCatalog = [...this.catalog];
+    for (let i = 0; i < 3; ++i) {
+      const symbol = randomRemove(newCatalog);
+      const shopItemDiv = document.createElement('div');
+      shopItemDiv.classList.add('shopItem');
+      const symbolDiv = document.createElement('div');
+      symbolDiv.classList.add('cell');
+      symbolDiv.innerText = symbol.name;
+      shopItemDiv.appendChild(symbolDiv);
+      const descriptionDiv = document.createElement('div');
+      descriptionDiv.classList.add('description');
+      descriptionDiv.innerHTML = symbol.description();
+      shopItemDiv.appendChild(descriptionDiv);
+      const buyDiv = document.createElement('div');
+      buyDiv.classList.add('buy');
+      const buyButton = document.createElement('button');
+      buyButton.classList.add('buyButton');
+      buyButton.innerText = '✅';
+      buyButton.addEventListener('click', async () => {
+        game.inventory.add(symbol);
+        game.inventory.update(game);
+        await game.shop.close();
+      });
+      buyDiv.appendChild(buyButton);
+      shopItemDiv.appendChild(buyDiv);
+      this.shopDiv.appendChild(shopItemDiv);
+    }
+    await animate(this.shopDiv, 'openShop', 0.6);
+  }
+  async close() {
+    if (!this.isOpen) {
+      return;
+    }
+    await animate(this.shopDiv, 'closeShop', 0.3);
+    this.shopDiv
+    this.shopDiv.replaceChildren();
+    this.isOpen = false;
+  }
+
 }
 
 class Board {
@@ -288,7 +391,7 @@ class Board {
     const div = this.getSymbolDiv(x, y);
     const randomSymbol = () => {
       const set = new Set();
-      set.add(Empty.instance().name);
+      // set.add(Empty.instance().name);
       for (const symbol of Object.values(game.inventory.symbols)) {
         set.add(symbol.name);
       }
@@ -301,14 +404,14 @@ class Board {
     }
     div.innerText = symbol.name;
     await animate(div, 'endSpin', 0.3);
-    await animate(div, 'endSpinBounce', 0.2);
+    await animate(div, 'bounce', 0.2);
   }
   async spinDivOnce(x, y) {
     const div = this.getSymbolDiv(x, y);
     await animate(div, 'startSpin', 0.1);
     div.innerText = this.cells[y][x].name;
     await animate(div, 'endSpin', 0.3);
-    await animate(div, 'endSpinBounce', 0.2);
+    await animate(div, 'bounce', 0.2);
   }
   async roll(inventory) {
     const symbols = [...inventory.symbols];
@@ -340,45 +443,61 @@ class Board {
     const sideEffects = [];
     this.cells.forEach((row, y) => {
       row.forEach((cell, x) => {
-        sideEffects.push(...cell.evaluate(this.cells, x, y));
+        sideEffects.push(...cell.evaluate(x, y));
       });
     });
     return sideEffects;
   }
-  score() {
+  async score() {
     let total = 0;
+    const tasks = [];
     this.cells.forEach((row, y) => {
       row.forEach((cell, x) => {
-        const cellScore = cell.score(this.cells, x, y);
-        total += cellScore;
+        tasks.push(async () => {
+          const cellScore = await cell.score(x, y);
+          total += cellScore;
+        });
       });
     });
+    for (const task of tasks) {
+      await task();
+    }
     return total;
   }
 }
 
 class Game {
   constructor() {
-    this.money = 100;
     this.inventory = new Inventory([
       new Coin(), new Coin(), new Coin(),
       new Cherry(), new Cherry(), new Cherry(), new Cherry(), new Cherry(),
       new Bell(),
       new Diamond(),
       new Volcano(),
+      new Rock(),
+      new MusicalNote(),
     ]);
     this.inventory.update(this);
     this.board = new Board();
+    this.shop = new Shop();
+    this.rolling = false;
   }
   async roll() {
-    if (this.money > 0) {
-      this.money -= 1;
-      await this.board.roll(this.inventory);
-      await this.board.evaluate().forEach(
-        async (effect) => await effect(game));
-      this.money += this.board.score();
-      this.inventory.update(this);
+    if (this.rolling) {
+      return;
     }
+    this.rolling = true;
+    if (this.inventory.money > 0) {
+      this.inventory.money -= 1;
+      await this.shop.close();
+      await this.board.roll(this.inventory);
+      for (const effect of this.board.evaluate()) {
+        await effect(game);
+      }
+      await this.board.score();
+      await this.shop.open(this);
+    }
+    this.rolling = false;
   }
 }
 
