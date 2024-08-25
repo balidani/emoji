@@ -1,9 +1,13 @@
 import {
-  Symbol, Empty, Dollar, Coin,
+  Symbol, Empty, Dollar,
+  Coin, MoneyBag, CreditCard, Bank,
   Clover, CrystalBall, BullsEye,
   Egg, Chick, Chicken, Dragon, Fox,
-  Cherry, Diamond, Bell, MusicalNote,
-  Volcano, Rock, Worker
+  Cherry, Diamond, 
+  Bell, MusicalNote, Dancer,
+  Volcano, Rock, Worker,
+  Bomb, Multiplier,
+
 } from './symbol.js';
 import * as Util from './util.js'
 
@@ -53,11 +57,13 @@ class Shop {
   constructor() {
     this.shopDiv = document.querySelector('.shop');
     this.catalog = [
-      new Coin(),
-      new Cherry(), new Bell(), new Diamond(), 
+      new Coin(), new MoneyBag(), new CreditCard(), new Bank(),
+      new Cherry(), new Diamond(), 
+      new Bell(), new MusicalNote(), new Dancer(),
       new Volcano(), new Rock(), new Worker(),
       new Egg(), new Chicken(), new Fox(),
-      new Clover(), new CrystalBall(), new BullsEye()
+      new Clover(), new CrystalBall(), new BullsEye(),
+      new Bomb(), new Multiplier(),
     ];
     this.isOpen = false;
   }
@@ -67,7 +73,12 @@ class Shop {
     }
     this.isOpen = true;
     this.shopDiv.replaceChildren();
-    const newCatalog = [...this.catalog];
+    const newCatalog = [];
+    for (const item of this.catalog) {
+      if (Math.random() < item.rarity) {
+        newCatalog.push(item);
+      }
+    }
     for (let i = 0; i < 3; ++i) {
       const symbol = Util.randomRemove(newCatalog);
       const shopItemDiv = document.createElement('div');
@@ -217,12 +228,15 @@ class Game {
     this.board = new Board();
     this.shop = new Shop();
     this.rolling = false;
+    this.turns = 0;
   }
   async roll() {
     if (this.rolling) {
       return;
     }
     this.rolling = true;
+    this.turns++;
+    console.log(this.turns);
     if (this.inventory.money > 0) {
       this.inventory.addMoney(-1);
       await this.shop.close();

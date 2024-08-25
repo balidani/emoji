@@ -32,31 +32,30 @@ const onBottomRight = (cells, x, y, name) => inBounds(x + 1) && inBounds(y + 1)
 const nextTo = (cells, x, y, name) => 
   [onLeft, onRight, onTop, onBottom, 
     onTopLeft, onTopRight, onBottomLeft, onBottomRight].some((f) => f(cells, x, y, name));
-export const nextToCoords = (cells, x, y, name) => {
+export const nextToCoords = (cells, x, y) => {
   const coords = [];
-  if (onLeft(cells, x, y, name)) {
-    coords.push([x - 1, y]);
-  }
-  if (onRight(cells, x, y, name)) {
-    coords.push([x + 1, y]);
-  }
-  if (onTop(cells, x, y, name)) {
-    coords.push([x, y - 1]);
-  }
-  if (onBottom(cells, x, y, name)) {
-    coords.push([x, y + 1]);
-  }
-  if (onTopLeft(cells, x, y, name)) {
-    coords.push([x - 1, y - 1]);
-  }
-  if (onTopRight(cells, x, y, name)) {
-    coords.push([x + 1, y - 1]);
-  }
-  if (onBottomLeft(cells, x, y, name)) {
-    coords.push([x - 1, y + 1]);
-  }
-  if (onBottomRight(cells, x, y, name)) {
-    coords.push([x + 1, y + 1]);
-  }
+  const add = (x, y) => {
+    if (inBounds(x) && inBounds(y)) {
+      coords.push([x, y]);
+    }
+  };
+  add(x - 1, y);
+  add(x + 1, y);
+  add(x, y - 1);
+  add(x, y + 1);
+  add(x - 1, y - 1);
+  add(x + 1, y - 1);
+  add(x - 1, y + 1);
+  add(x + 1, y + 1);
+  return coords;
+};
+export const nextToSymbol = (cells, x, y, name) => {
+  const coords = [];
+  nextToCoords(cells, x, y).forEach((coord) => {
+    const [neighborX, neighborY] = coord;
+    if (cells[neighborY][neighborX].name === name) {
+      coords.push([neighborX, neighborY]);
+    }
+  });
   return coords;
 };
