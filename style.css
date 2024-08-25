@@ -50,7 +50,8 @@ button {
   padding-bottom: 8pt;
 }
 .description {
-  font-size: 12pt;
+  padding-left: 8pt;
+  font-size: 10pt;
   width: 180pt;
 }
 .buy {
