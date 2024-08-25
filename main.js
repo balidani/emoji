@@ -11,16 +11,27 @@ import {
 } from './symbol.js';
 import * as Util from './util.js'
 
+const makeCatalog = () => [
+  new Coin(), new MoneyBag(), new CreditCard(), new Bank(),
+  new Cherry(), new Diamond(), 
+  new Bell(), new Dancer(),
+  new Volcano(), new Rock(), new Worker(),
+  new Egg(), new Chicken(), new Fox(),
+  new Clover(), new CrystalBall(), new BullsEye(),
+  new Bomb(), new Multiplier(),
+];
+
 class Inventory {
   constructor(symbols) {
     this.symbols = symbols;
     this.symbolsDiv = document.querySelector('.inventory');
+    this.moneyDiv = document.querySelector('.money');
     this.money = 10;
+    this.updateMoney();
   }
-  update(game) {
+  update() {
     this.symbolsDiv.replaceChildren();
     const map = new Map();
-    map.set(Dollar.instance().name, game.inventory.money);
     this.symbols.forEach((symbol) => {
       if (!map.has(symbol.name)) {
         map.set(symbol.name, 0);
@@ -46,25 +57,28 @@ class Inventory {
   }
   add(symbol) {
     this.symbols.push(symbol);
+    this.update();
   }
   async addMoney(value) {
     this.money += value;
-    this.update(game);
+    this.updateMoney();
+  }
+  updateMoney() {
+    this.moneyDiv.replaceChildren();
+    const symbolDiv = document.createElement('div');
+    symbolDiv.classList.add('inventoryEntry');
+    symbolDiv.innerText = new Dollar().name;
+    const countSpan = document.createElement('span');
+    countSpan.classList.add('inventoryEntryCount');
+    countSpan.innerText = this.money;
+    symbolDiv.appendChild(countSpan);
+    this.moneyDiv.appendChild(symbolDiv);
   }
 }
 
 class Shop {
   constructor() {
     this.shopDiv = document.querySelector('.shop');
-    this.catalog = [
-      new Coin(), new MoneyBag(), new CreditCard(), new Bank(),
-      new Cherry(), new Diamond(), 
-      new Bell(), new MusicalNote(), new Dancer(),
-      new Volcano(), new Rock(), new Worker(),
-      new Egg(), new Chicken(), new Fox(),
-      new Clover(), new CrystalBall(), new BullsEye(),
-      new Bomb(), new Multiplier(),
-    ];
     this.isOpen = false;
   }
   async open(game) {
@@ -73,10 +87,13 @@ class Shop {
     }
     this.isOpen = true;
     this.shopDiv.replaceChildren();
+    this.catalog = makeCatalog();
     const newCatalog = [];
-    for (const item of this.catalog) {
-      if (Math.random() < item.rarity) {
-        newCatalog.push(item);
+    while (newCatalog.length < 3) {
+      for (const item of this.catalog) {
+        if (Math.random() < item.rarity) {
+          newCatalog.push(item);
+        }
       }
     }
     for (let i = 0; i < 3; ++i) {
@@ -98,7 +115,6 @@ class Shop {
       buyButton.innerText = '✅';
       buyButton.addEventListener('click', async () => {
         game.inventory.add(symbol);
-        game.inventory.update(game);
         await game.shop.close();
       });
       buyDiv.appendChild(buyButton);
@@ -224,7 +240,7 @@ class Game {
     this.inventory = new Inventory([
       new Coin(), new Cherry(), new Cherry(), new Cherry(),
     ]);
-    this.inventory.update(this);
+    this.inventory.update();
     this.board = new Board();
     this.shop = new Shop();
     this.rolling = false;
@@ -236,7 +252,7 @@ class Game {
     }
     this.rolling = true;
     this.turns++;
-    console.log(this.turns);
+    console.log('turn', this.turns);
     if (this.inventory.money > 0) {
       this.inventory.addMoney(-1);
       await this.shop.close();

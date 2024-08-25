@@ -26,7 +26,7 @@ button {
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
-  font-size: 16pt;
+  font-size: 24pt;
   background: white;
 }
 .inventoryEntry {
@@ -35,8 +35,21 @@ button {
 .inventoryEntryCount {
   position: relative;
   left: -2pt;
-  font-size: 8pt;
+  font-size: 12pt;
   letter-spacing: 0pt;
+}
+
+.money {
+  position: fixed;
+  left: 0pt;
+  top: 0pt;
+  width: 80pt;
+  letter-spacing: 4pt;
+  padding-top: 4pt;
+  padding-left: 4pt;
+  padding-bottom: 4pt;
+  font-size: 24pt;
+  background: white;
 }
 
 /* Shop */
@@ -56,6 +69,7 @@ button {
 }
 .buy {
   margin-left: auto;
+  padding-left: 4pt;
 }
 .buyButton {
   font-size: 24pt;

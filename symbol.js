@@ -151,15 +151,15 @@ export class Bank extends Symbol {
     if (this.turn % 3 === 0) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, 15)]);
+        this.addMoney(game, 30)]);
     } else {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, -5)]);
+        this.addMoney(game, -10)]);
     }
   }
   description() {
-    return '-💵5<br>every third turn: 💵15 instead';
+    return '-💵10<br>every third turn: 💵30 instead';
   }
 }
 
@@ -201,7 +201,7 @@ export class Egg extends Symbol {
   }
   async evaluate(game, x, y) {
     this.timeToHatch--;
-    if (this.timeToHatch === 0) {
+    if (this.timeToHatch <= 0) {
       game.inventory.remove(this);
       let newSymbol = new Chick();
       if (chance(game, 0.01, x, y)) {
@@ -374,7 +374,7 @@ export class Bell extends Symbol {
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 2)]);
+      this.addMoney(game, 1)]);
   }
   async evaluate(game, x, y) {
     if (chance(game, 0.2, x, y)) {
@@ -391,20 +391,37 @@ export class Bell extends Symbol {
     }
   }
   description() {
-    return '💵2<br>20%: replace neighboring empty tile with 🎵';
+    return '💵1<br>20%: make 🎵';
+  }
+}
+
+export class Drums extends Symbol {
+  constructor() {
+    super('🥁');
+  }
+  async evaluate(game, x, y) {
+    if (game.turns % 3  == 0) {
+      const note = new MusicalNote();
+      const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.instance().name);
+      if (coords.length === 0) {
+        return;
+      }
+      const [newX, newY] = Util.randomChoose(coords);
+      game.board.cells[newY][newX] = note;
+      game.inventory.add(note);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1, 3);
+      await game.board.spinDivOnce(newX, newY);
+    }
+  }
+  description() {
+    return 'every 3 turns: make 🎵';
   }
 }
 
 export class MusicalNote extends Symbol {
   constructor() {
     super('🎵');
-    this.rarity = 0.3;
     this.timeToLive = 3;
-  }
-  async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 1)]);
   }
   async evaluate(game, x, y) {
     this.timeToLive--;
@@ -415,7 +432,7 @@ export class MusicalNote extends Symbol {
     }
   }
   description() {
-    return '💵1<br>disappear after 3 turns';
+    return 'disappear after 3 turns';
   }
 }
 
@@ -429,8 +446,7 @@ export class Dancer extends Symbol {
     if (this.musicScore > 0) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.musicScore)]);      
-      this.musicScore = 3;
+        this.addMoney(game, this.musicScore)]);
     }
   }
   async evaluate(game, x, y) {
@@ -450,6 +466,15 @@ export class Dancer extends Symbol {
   }
   description() {
     return 'remove neighboring 🎵 for 💵10';
+  }
+}
+
+export class Record extends Symbol {
+  constructor() {
+    super('📀');
+  }
+  description() {
+    return '';
   }
 }
 
