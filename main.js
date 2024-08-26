@@ -1,28 +1,33 @@
 import {
   Symbol, Empty, Dollar,
-  Bank, 
-  Bell, 
-  Bomb, 
-  BullsEye, 
+  Bank,
+  Bell,
+  Bomb,
+  BullsEye,
   Cherry,
-  Chick, 
-  Chicken, 
-  Clover, 
-  Coin, 
-  CreditCard, 
-  CrystalBall, 
-  Dancer, 
-  Diamond, 
-  Dragon, 
+  Chick,
+  Chicken,
+  Clover,
+  Coin,
+  Corn,
+  CreditCard,
+  CrystalBall,
+  Dancer,
+  Diamond,
+  Dragon,
   Drums,
-  Egg, 
-  Fox, 
-  MoneyBag, 
-  Multiplier, 
-  MusicalNote, 
-  Record, 
-  Rock, 
-  Volcano, 
+  Egg,
+  Fox,
+  MoneyBag,
+  Multiplier,
+  MusicalNote,
+  Popcorn,
+  Record,
+  Refresh,
+  Rock,
+  Tree,
+  Volcano,
+  Wine,
   Worker,
 } from './symbol.js';
 import * as Util from './util.js'
@@ -37,6 +42,7 @@ const makeCatalog = () => [
   new Chicken(),
   new Clover(),
   new Coin(),
+  new Corn(),
   new CreditCard(),
   new CrystalBall(),
   new Dancer(),
@@ -49,8 +55,11 @@ const makeCatalog = () => [
   new Multiplier(),
   new MusicalNote(),
   new Record(),
+  new Refresh(),
   new Rock(),
+  new Tree(),
   new Volcano(),
+  new Wine(),
   new Worker(),
 ];
 
@@ -58,7 +67,7 @@ const startingSet = () => [
   new Coin(),
   new Cherry(),
   new Cherry(),
-  new Cherry()
+  new Cherry(),
 ];
 
 class Inventory {
@@ -120,6 +129,8 @@ class Shop {
   constructor() {
     this.shopDiv = document.querySelector('.shop');
     this.isOpen = false;
+    this.refreshCost = 1;
+    this.refreshable = false;
   }
   async open(game) {
     if (this.isOpen) {
@@ -161,12 +172,43 @@ class Shop {
       shopItemDiv.appendChild(buyDiv);
       this.shopDiv.appendChild(shopItemDiv);
     }
+
+    if (this.refreshable) {
+      const shopItemDiv = document.createElement('div');
+      shopItemDiv.classList.add('shopItem');
+      const symbolDiv = document.createElement('div');
+      symbolDiv.classList.add('cell');
+      shopItemDiv.appendChild(symbolDiv);
+      const descriptionDiv = document.createElement('div');
+      descriptionDiv.classList.add('description');
+      descriptionDiv.classList.add('refreshDescription');
+      descriptionDiv.innerText = '💵' + this.refreshCost;
+      shopItemDiv.appendChild(descriptionDiv);
+      const buyDiv = document.createElement('div');
+      buyDiv.classList.add('buy');
+      const refreshButton = document.createElement('button');
+      refreshButton.classList.add('refreshButton');
+      refreshButton.innerText = '🔀';
+      refreshButton.addEventListener('click', async () => {
+        if (game.inventory.money > 0) {
+          game.inventory.addMoney(-this.refreshCost);
+          this.refreshCost *= 2;
+          this.isOpen = false;
+          this.open(game);
+        }
+      });
+      buyDiv.appendChild(refreshButton);
+      shopItemDiv.appendChild(buyDiv);
+      this.shopDiv.appendChild(shopItemDiv);
+    }
+
     await Util.animate(this.shopDiv, 'openShop', 0.4);
   }
   async close() {
     if (!this.isOpen) {
       return;
     }
+    this.refreshable = false;
     await Util.animate(this.shopDiv, 'closeShop', 0.2);
     this.shopDiv
     this.shopDiv.replaceChildren();
@@ -290,7 +332,9 @@ class Game {
     }
     this.rolling = true;
     this.turns++;
-    console.log('turn', this.turns);
+    if (this.turns % 10 === 0) {
+      console.log('turn', this.turns, 'money', this.inventory.money);
+    }
     if (this.inventory.money > 0) {
       this.inventory.addMoney(-1);
       await this.shop.close();
@@ -304,7 +348,51 @@ class Game {
 }
 
 const game = new Game();
-
 document.getElementById('roll')
   .addEventListener('click', () => game.roll());
+
+// class AutoGame {
+// constructor() {
+//     this.inventory = new Inventory(startingSet());
+//     this.inventory.update();
+//     this.board = new Board();
+//     this.shop = new Shop();
+//     this.rolling = false;
+//     this.turns = 0;
+//     this.scores = [];
+//   }
+//   async roll() {
+//     if (this.rolling) {
+//       return;
+//     }
+//     this.rolling = true;
+//     this.turns++;
+//     if (this.turns % 10 === 0) {
+//       this.scores.push(this.inventory.money);
+//       console.log(this.scores);
+//     }
+//     if (this.inventory.money > 0) {
+//       this.inventory.addMoney(-1);
+//       await this.shop.close();
+//       await this.board.roll(this.inventory);
+//       await this.board.evaluate();
+//       await this.board.score();
+//       await this.shop.open(this);
+
+//       // Buy random item
+//       if (this.inventory.symbols.length < 25) {
+//         const buttons = document.getElementsByClassName('buyButton');
+//         Util.randomChoose(buttons).click();
+//       }
+//     }
+//     this.rolling = false;
+//   }
+//   async simulate() {
+//     while (this.turns < 100) {
+//       await this.roll();
+//     }
+//   }
+// }
+// const game = new AutoGame();
+// game.simulate();
 

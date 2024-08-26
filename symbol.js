@@ -26,6 +26,7 @@ export class Symbol {
   constructor(name) {
     this.name = name;
     this.multiplier = 1;
+    this.rarity = 0;
   }
   toString() {
     return this.name;
@@ -251,6 +252,37 @@ export class Coin extends Symbol {
   }
 }
 
+export class Corn extends Symbol {
+  constructor() {
+    super('🌽');
+    this.rarity = 0.2;
+  }
+  async score(game, x, y) {
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, 1)]);
+  }
+  async evaluate(game, x, y) {
+    if (chance(game, 0.1, x, y)) {
+      const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.instance().name);
+      if (coords.length === 0) {
+        return;
+      }
+      for (let i = 0; i < coords.length; ++i) {
+        const [newX, newY] = coords[i];
+        const popcorn = new Popcorn();
+        game.board.cells[newY][newX] = popcorn;
+        game.inventory.add(popcorn);
+        await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+        await game.board.spinDivOnce(newX, newY);
+      }
+    }
+  }
+  description() {
+    return '💵1<br>10%: pop 🍿'
+  }
+}
+
 export class CreditCard extends Symbol {
   constructor() {
     super('💳');
@@ -356,6 +388,7 @@ export class Dragon extends Symbol {
 export class Drums extends Symbol {
   constructor() {
     super('🥁');
+    this.rarity = 0.2;
   }
   async evaluate(game, x, y) {
     if (game.turns % 3  == 0) {
@@ -501,15 +534,39 @@ export class MusicalNote extends Symbol {
     this.timeToLive = 3;
   }
   async evaluate(game, x, y) {
-    this.timeToLive--;
     if (this.timeToLive === 0) {
       game.inventory.remove(this);
       game.board.cells[y][x] = Empty.instance();
       await game.board.spinDivOnce(x, y);
     }
+    this.timeToLive--;
   }
   description() {
     return 'disappear after 3 turns';
+  }
+}
+
+export class Popcorn extends Symbol {
+  constructor() {
+    super('🍿');
+    this.rarity = 0.1;
+    this.timeToLive = 1 + Util.random(3);
+  }
+  async score(game, x, y) {
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, 3)]);
+  }
+  async evaluate(game, x, y) {
+    if (this.timeToLive === 0) {
+      game.inventory.remove(this);
+      game.board.cells[y][x] = Empty.instance();
+      await game.board.spinDivOnce(x, y);
+    }
+    this.timeToLive--;
+  }
+  description() {
+    return '💵3<br>disappear after 1-3 turns'
   }
 }
 
@@ -521,6 +578,7 @@ export class Record extends Symbol {
   }
   async score(game, x, y) {
     if (this.notes > 0) {
+      console.log('worth', this.notes);
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
         this.addMoney(game, this.notes)]);
@@ -546,6 +604,21 @@ export class Record extends Symbol {
   }
 }
 
+export class Refresh extends Symbol {
+  constructor() {
+    super('🔀');
+    this.rarity = 0.05;
+  }
+  async evaluate(game, x, y) {
+    await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.1, 2);
+    game.shop.refreshable = true;
+    game.shop.refreshCost = 1 + (game.inventory.money * 0.01) | 0;
+  }
+  description() {
+    return 'allows refreshing in the shop';
+  }
+}
+
 export class Rock extends Symbol {
   constructor() {
     super('🪨');
@@ -558,6 +631,32 @@ export class Rock extends Symbol {
   }
   description() {
     return '💵1';
+  }
+}
+
+export class Tree extends Symbol {
+  constructor() {
+    super('🌳');
+    this.rarity = 0.4;
+    this.turns = 0;
+  }
+  async evaluate(game, x, y) {
+    this.turns++;
+    if (this.turns % 3 === 0) {
+      const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.instance().name);
+      if (coords.length === 0) {
+        return;
+      }
+      const [newX, newY] = Util.randomRemove(coords);
+      const cherry = new Cherry();
+      game.board.cells[newY][newX] = cherry;
+      game.inventory.add(cherry);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+      await game.board.spinDivOnce(newX, newY);
+    }
+  }
+  description() {
+    return 'every 3 turns: grow 🍒';
   }
 }
 
@@ -580,6 +679,40 @@ export class Volcano extends Symbol {
   }
   description() {
     return '10%: replace random tile with 🪨'
+  }
+}
+
+export class Wine extends Symbol {
+  constructor() {
+    super('🍷');
+    this.rarity = 0.2;
+    this.cherryScore = 0;
+  }
+  async score(game, x, y) {
+    if (this.cherryScore > 0) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+        this.addMoney(game, this.cherryScore)]);
+    }
+    this.cherryScore = 0;
+  }
+  async evaluate(game, x, y) {
+    const coords = Util.nextToSymbol(game.board.cells, x, y, new Cherry().name);
+    if (coords.length === 0) {
+      return;
+    }
+    const empty = Empty.instance();
+    for (const coord of coords) {
+      this.cherryScore += 5;
+      const [deleteX, deleteY] = coord;
+      game.inventory.remove(game.board.cells[deleteY][deleteX]);
+      game.board.cells[deleteY][deleteX] = empty;
+      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15);
+      await game.board.spinDivOnce(deleteX, deleteY);
+    }
+  }
+  description() {
+    return 'remove neighboring 🍒 for 💵5'
   }
 }
 

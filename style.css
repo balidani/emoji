@@ -67,11 +67,17 @@ button {
   font-size: 10pt;
   width: 180pt;
 }
+.refreshDescription {
+  text-align: right;
+}
 .buy {
   margin-left: auto;
   padding-left: 4pt;
 }
 .buyButton {
+  font-size: 24pt;
+}
+.refreshButton {
   font-size: 24pt;
 }
 
