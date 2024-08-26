@@ -1,24 +1,64 @@
 import {
   Symbol, Empty, Dollar,
-  Coin, MoneyBag, CreditCard, Bank,
-  Clover, CrystalBall, BullsEye,
-  Egg, Chick, Chicken, Dragon, Fox,
-  Cherry, Diamond, 
-  Bell, Drums, MusicalNote, Dancer, Record,
-  Volcano, Rock, Worker,
-  Bomb, Multiplier,
-
+  Bank, 
+  Bell, 
+  Bomb, 
+  BullsEye, 
+  Cherry,
+  Chick, 
+  Chicken, 
+  Clover, 
+  Coin, 
+  CreditCard, 
+  CrystalBall, 
+  Dancer, 
+  Diamond, 
+  Dragon, 
+  Drums,
+  Egg, 
+  Fox, 
+  MoneyBag, 
+  Multiplier, 
+  MusicalNote, 
+  Record, 
+  Rock, 
+  Volcano, 
+  Worker,
 } from './symbol.js';
 import * as Util from './util.js'
 
 const makeCatalog = () => [
-  new Coin(), new MoneyBag(), new CreditCard(), new Bank(),
-  new Cherry(), new Diamond(), 
-  new Bell(), new Drums(), new Dancer(), new Record(),
-  new Volcano(), new Rock(), new Worker(),
-  new Egg(), new Chicken(), new Fox(),
-  new Clover(), new CrystalBall(), new BullsEye(),
-  new Bomb(), new Multiplier(),
+  new Bank(),
+  new Bell(),
+  new Bomb(),
+  new BullsEye(),
+  new Cherry(),
+  new Chick(),
+  new Chicken(),
+  new Clover(),
+  new Coin(),
+  new CreditCard(),
+  new CrystalBall(),
+  new Dancer(),
+  new Diamond(),
+  new Dragon(),
+  new Drums(),
+  new Egg(),
+  new Fox(),
+  new MoneyBag(),
+  new Multiplier(),
+  new MusicalNote(),
+  new Record(),
+  new Rock(),
+  new Volcano(),
+  new Worker(),
+];
+
+const startingSet = () => [
+  new Coin(),
+  new Cherry(),
+  new Cherry(),
+  new Cherry()
 ];
 
 class Inventory {
@@ -67,7 +107,7 @@ class Inventory {
     this.moneyDiv.replaceChildren();
     const symbolDiv = document.createElement('div');
     symbolDiv.classList.add('inventoryEntry');
-    symbolDiv.innerText = new Dollar().name;
+    symbolDiv.innerText = Dollar.name;
     const countSpan = document.createElement('span');
     countSpan.classList.add('inventoryEntryCount');
     countSpan.innerText = this.money;
@@ -237,9 +277,7 @@ class Board {
 
 class Game {
   constructor() {
-    this.inventory = new Inventory([
-      new Coin(), new Cherry(), new Cherry(), new Cherry(),
-    ]);
+    this.inventory = new Inventory(startingSet());
     this.inventory.update();
     this.board = new Board();
     this.shop = new Shop();

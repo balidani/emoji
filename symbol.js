@@ -54,91 +54,11 @@ export class Empty extends Symbol {
   }
 }
 
-// Special symbol, only used to display the amount of money the
-// player has.
-export class Dollar extends Symbol {
-  static dollar = null;
-  constructor() {
-    super('💵') ;
-  }
-  static instance() {
-    if (!Dollar.dollar) {
-      Dollar.dollar = new Dollar();
-    }
-    return Dollar.dollar;
-  }
+export class Dollar {
+  static name = '💵';
 }
 
-export class Coin extends Symbol {
-  constructor() {
-    super('🪙');
-    this.rarity = 1;
-  }
-  async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 1)]);
-  }
-  description() {
-    return '💵1';
-  }
-}
-
-export class MoneyBag extends Symbol {
-  constructor() {
-    super('💰');
-    this.coins = 0;
-    this.rarity = 0.4;
-  }
-  async score(game, x, y) {
-    if (this.coins > 0) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.coins)]);
-    }
-  }
-  async evaluate(game, x, y) {
-    const coords = Util.nextToSymbol(game.board.cells, x, y, new Coin().name);
-    if (coords.length === 0) {
-      return;
-    }
-    const empty = Empty.instance();
-    for (const coord of coords) {
-      this.coins += 1;
-      const [deleteX, deleteY] = coord;
-      game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      game.board.cells[deleteY][deleteX] = empty;
-      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.1, 2);
-      await game.board.spinDivOnce(deleteX, deleteY);
-    }
-  }
-  description() {
-    return '💵1 for each 🪙 bagged<br>bag neighboring 🪙'
-  }
-}
-
-export class CreditCard extends Symbol {
-  constructor() {
-    super('💳');
-    this.turn = 0;
-    this.rarity = 0.3;
-  }
-  async score(game, x, y) {
-    this.turn += 1;
-    if (this.turn === 1) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, 100)]);
-    } else {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, -5)]);
-    }
-  }
-  description() {
-    return '💵100 on turn 1, -💵5 after'
-  }
-}
+/* Gameplay symbols. */
 
 export class Bank extends Symbol {
   constructor() {
@@ -163,23 +83,59 @@ export class Bank extends Symbol {
   }
 }
 
-export class Clover extends Symbol {
+export class Bell extends Symbol {
   constructor() {
-    super('🍀');
-    this.rarity = 0.3;
+    super('🔔');
+    this.rarity = 0.4;
+  }
+  async score(game, x, y) {
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, 1)]);
+  }
+  async evaluate(game, x, y) {
+    if (chance(game, 0.2, x, y)) {
+      const note = new MusicalNote();
+      const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.instance().name);
+      if (coords.length === 0) {
+        return;
+      }
+      const [newX, newY] = Util.randomChoose(coords);
+      game.board.cells[newY][newX] = note;
+      game.inventory.add(note);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+      await game.board.spinDivOnce(newX, newY);
+    }
   }
   description() {
-    return '+1% luck';
+    return '💵1<br>20%: make 🎵';
   }
 }
 
-export class CrystalBall extends Symbol {
+export class Bomb extends Symbol {
   constructor() {
-    super('🔮');
-    this.rarity = 0.1;
+    super('💣');
+    this.rarity = 0.2;
+  }
+  async evaluate(game, x, y) {
+    const coords = Util.nextToCoords(game.board.cells, x, y);
+    const empty = Empty.instance();
+    const filteredCoords = coords.filter((coord) => {
+      const [x, y] = coord;
+      return game.board.cells[y][x].name !== empty.name;
+    });
+    if (filteredCoords.length === 0) {
+      return;
+    }
+    const coord = Util.randomChoose(filteredCoords);
+    const [deleteX, deleteY] = coord;
+    game.inventory.remove(game.board.cells[deleteY][deleteX]);
+    game.board.cells[deleteY][deleteX] = empty;
+    await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.1, 2);
+    await game.board.spinDivOnce(deleteX, deleteY);
   }
   description() {
-    return '+5% luck';
+    return 'destroy random neighboring symbol';
   }
 }
 
@@ -193,27 +149,22 @@ export class BullsEye extends Symbol {
   }
 }
 
-export class Egg extends Symbol {
+export class Cherry extends Symbol {
   constructor() {
-    super('🥚');
-    this.rarity = 0.5;
-    this.timeToHatch = 3 + Util.random(3);
+    super('🍒');
+    this.rarity = 1;
   }
-  async evaluate(game, x, y) {
-    this.timeToHatch--;
-    if (this.timeToHatch <= 0) {
-      game.inventory.remove(this);
-      let newSymbol = new Chick();
-      if (chance(game, 0.01, x, y)) {
-        newSymbol = new Dragon();
-      }
-      game.inventory.add(newSymbol);
-      game.board.cells[y][x] = newSymbol;
-      await game.board.spinDivOnce(x, y);
+  async score(game, x, y) {
+    const coords = Util.nextToSymbol(game.board.cells, x, y, this.name);
+    const animSpeed = Math.max(0.02, 0.15 - 0.01 * coords.length);
+    for (const coord of coords) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'flip', animSpeed),
+        this.addMoney(game, 2)]);
     }
   }
   description() {
-    return 'after 3-5 turns: hatch 🐣<br>1%: hatch 🐉'
+    return '💵2 for each neighboring 🍒';
   }
 }
 
@@ -275,6 +226,118 @@ export class Chicken extends Symbol {
   }
 }
 
+export class Clover extends Symbol {
+  constructor() {
+    super('🍀');
+    this.rarity = 0.3;
+  }
+  description() {
+    return '+1% luck';
+  }
+}
+
+export class Coin extends Symbol {
+  constructor() {
+    super('🪙');
+    this.rarity = 1;
+  }
+  async score(game, x, y) {
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, 1)]);
+  }
+  description() {
+    return '💵1';
+  }
+}
+
+export class CreditCard extends Symbol {
+  constructor() {
+    super('💳');
+    this.turn = 0;
+    this.rarity = 0.3;
+  }
+  async score(game, x, y) {
+    this.turn += 1;
+    if (this.turn === 1) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+        this.addMoney(game, 100)]);
+    } else {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+        this.addMoney(game, -5)]);
+    }
+  }
+  description() {
+    return '💵100 on turn 1, -💵5 after'
+  }
+}
+
+export class CrystalBall extends Symbol {
+  constructor() {
+    super('🔮');
+    this.rarity = 0.1;
+  }
+  description() {
+    return '+5% luck';
+  }
+}
+
+export class Dancer extends Symbol {
+  constructor() {
+    super('💃');
+    this.rarity = 0.3;
+    this.musicScore = 0;
+  }
+  async score(game, x, y) {
+    if (this.musicScore > 0) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+        this.addMoney(game, this.musicScore)]);
+    }
+  }
+  async evaluate(game, x, y) {
+    const coords = Util.nextToSymbol(game.board.cells, x, y, new MusicalNote().name);
+    if (coords.length === 0) {
+      return;
+    }
+    const empty = Empty.instance();
+    for (const coord of coords) {
+      this.musicScore += 10;
+      const [deleteX, deleteY] = coord;
+      game.inventory.remove(game.board.cells[deleteY][deleteX]);
+      game.board.cells[deleteY][deleteX] = empty;
+      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15);
+      await game.board.spinDivOnce(deleteX, deleteY);
+    }
+  }
+  description() {
+    return 'remove neighboring 🎵 for 💵10';
+  }
+}
+
+export class Diamond extends Symbol {
+  constructor() {
+    super('💎');
+    this.rarity = 0.3;
+  }
+  async score(game, x, y) {
+    await this.addMoney(game, 3);
+    const coords = Util.nextToSymbol(game.board.cells, x, y, this.name);
+    const animSpeed = Math.max(0.02, 0.15 - 0.01 * coords.length);
+    for (const coord of coords) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'flip', animSpeed),
+        this.addMoney(game, 5),
+      ]);
+    }
+  }
+  description() {
+    return '💵3<br>💵5 for each neighboring 💎';
+  }
+}
+
 export class Dragon extends Symbol {
   constructor() {
     super('🐉');
@@ -287,6 +350,53 @@ export class Dragon extends Symbol {
   }
   description() {
     return '💵12';
+  }
+}
+
+export class Drums extends Symbol {
+  constructor() {
+    super('🥁');
+  }
+  async evaluate(game, x, y) {
+    if (game.turns % 3  == 0) {
+      const note = new MusicalNote();
+      const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.instance().name);
+      if (coords.length === 0) {
+        return;
+      }
+      const [newX, newY] = Util.randomChoose(coords);
+      game.board.cells[newY][newX] = note;
+      game.inventory.add(note);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1, 3);
+      await game.board.spinDivOnce(newX, newY);
+    }
+  }
+  description() {
+    return 'every 3 turns: make 🎵';
+  }
+}
+
+export class Egg extends Symbol {
+  constructor() {
+    super('🥚');
+    this.rarity = 0.5;
+    this.timeToHatch = 3 + Util.random(3);
+  }
+  async evaluate(game, x, y) {
+    this.timeToHatch--;
+    if (this.timeToHatch <= 0) {
+      game.inventory.remove(this);
+      let newSymbol = new Chick();
+      if (chance(game, 0.01, x, y)) {
+        newSymbol = new Dragon();
+      }
+      game.inventory.add(newSymbol);
+      game.board.cells[y][x] = newSymbol;
+      await game.board.spinDivOnce(x, y);
+    }
+  }
+  description() {
+    return 'after 3-5 turns: hatch 🐣<br>1%: hatch 🐉'
   }
 }
 
@@ -326,95 +436,62 @@ export class Fox extends Symbol {
   }
 }
 
-export class Cherry extends Symbol {
+export class MoneyBag extends Symbol {
   constructor() {
-    super('🍒');
-    this.rarity = 1;
-  }
-  async score(game, x, y) {
-    const coords = Util.nextToSymbol(game.board.cells, x, y, this.name);
-    const animSpeed = Math.max(0.02, 0.15 - 0.01 * coords.length);
-    for (const coord of coords) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'flip', animSpeed),
-        this.addMoney(game, 2)]);
-    }
-  }
-  description() {
-    return '💵2 for each neighboring 🍒';
-  }
-}
-
-export class Diamond extends Symbol {
-  constructor() {
-    super('💎');
-    this.rarity = 0.3;
-  }
-  async score(game, x, y) {
-    await this.addMoney(game, 3);
-    const coords = Util.nextToSymbol(game.board.cells, x, y, this.name);
-    const animSpeed = Math.max(0.02, 0.15 - 0.01 * coords.length);
-    for (const coord of coords) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'flip', animSpeed),
-        this.addMoney(game, 5),
-      ]);
-    }
-  }
-  description() {
-    return '💵3<br>💵5 for each neighboring 💎';
-  }
-}
-
-export class Bell extends Symbol {
-  constructor() {
-    super('🔔');
+    super('💰');
+    this.coins = 0;
     this.rarity = 0.4;
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 1)]);
+    if (this.coins > 0) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+        this.addMoney(game, this.coins)]);
+    }
   }
   async evaluate(game, x, y) {
-    if (chance(game, 0.2, x, y)) {
-      const note = new MusicalNote();
-      const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.instance().name);
-      if (coords.length === 0) {
-        return;
-      }
-      const [newX, newY] = Util.randomChoose(coords);
-      game.board.cells[newY][newX] = note;
-      game.inventory.add(note);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
-      await game.board.spinDivOnce(newX, newY);
+    const coords = Util.nextToSymbol(game.board.cells, x, y, new Coin().name);
+    if (coords.length === 0) {
+      return;
+    }
+    const empty = Empty.instance();
+    for (const coord of coords) {
+      this.coins += 1;
+      const [deleteX, deleteY] = coord;
+      game.inventory.remove(game.board.cells[deleteY][deleteX]);
+      game.board.cells[deleteY][deleteX] = empty;
+      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.1, 2);
+      await game.board.spinDivOnce(deleteX, deleteY);
     }
   }
   description() {
-    return '💵1<br>20%: make 🎵';
+    return '💵1 for each 🪙 bagged<br>bag neighboring 🪙'
   }
 }
 
-export class Drums extends Symbol {
+export class Multiplier extends Symbol {
   constructor() {
-    super('🥁');
+    super('❎');
+    this.rarity = 0.05;
   }
   async evaluate(game, x, y) {
-    if (game.turns % 3  == 0) {
-      const note = new MusicalNote();
-      const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.instance().name);
-      if (coords.length === 0) {
-        return;
-      }
-      const [newX, newY] = Util.randomChoose(coords);
-      game.board.cells[newY][newX] = note;
-      game.inventory.add(note);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1, 3);
-      await game.board.spinDivOnce(newX, newY);
+    const coords = Util.nextToCoords(game.board.cells, x, y);
+    const empty = Empty.instance();
+    const filteredCoords = coords.filter((coord) => {
+      const [neighborX, neighborY] = coord;
+      return game.board.cells[neighborY][neighborX].name !== empty.name;
+    });
+    if (filteredCoords.length === 0) {
+      return;
+    }
+    for (const coord of filteredCoords) {
+      const [neighborX, neighborY] = coord;
+      await Util.animate(game.board.getSymbolDiv(neighborX, neighborY), 'shake', 0.1, 2);
+      game.board.cells[neighborY][neighborX].multiplier *= 2;
     }
   }
   description() {
-    return 'every 3 turns: make 🎵';
+    return 'x2 to all neighbors';
   }
 }
 
@@ -433,39 +510,6 @@ export class MusicalNote extends Symbol {
   }
   description() {
     return 'disappear after 3 turns';
-  }
-}
-
-export class Dancer extends Symbol {
-  constructor() {
-    super('💃');
-    this.rarity = 0.3;
-    this.musicScore = 0;
-  }
-  async score(game, x, y) {
-    if (this.musicScore > 0) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.musicScore)]);
-    }
-  }
-  async evaluate(game, x, y) {
-    const coords = Util.nextToSymbol(game.board.cells, x, y, new MusicalNote().name);
-    if (coords.length === 0) {
-      return;
-    }
-    const empty = Empty.instance();
-    for (const coord of coords) {
-      this.musicScore += 10;
-      const [deleteX, deleteY] = coord;
-      game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      game.board.cells[deleteY][deleteX] = empty;
-      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15);
-      await game.board.spinDivOnce(deleteX, deleteY);
-    }
-  }
-  description() {
-    return 'remove neighboring 🎵 for 💵10';
   }
 }
 
@@ -489,7 +533,7 @@ export class Record extends Symbol {
     }
     const empty = Empty.instance();
     for (const coord of coords) {
-      this.notes += 2;
+      this.notes += 3;
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
       game.board.cells[deleteY][deleteX] = empty;
@@ -498,7 +542,22 @@ export class Record extends Symbol {
     }
   }
   description() {
-    return '💵2 for each 🎵 recorded<br>record neighboring 🎵';
+    return 'record neighboring 🎵<br>💵3 for each 🎵 recorded';
+  }
+}
+
+export class Rock extends Symbol {
+  constructor() {
+    super('🪨');
+    this.rarity = 0.7;
+  }
+  async score(game, x, y) {
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, 1)]);
+  }
+  description() {
+    return '💵1';
   }
 }
 
@@ -521,21 +580,6 @@ export class Volcano extends Symbol {
   }
   description() {
     return '10%: replace random tile with 🪨'
-  }
-}
-
-export class Rock extends Symbol {
-  constructor() {
-    super('🪨');
-    this.rarity = 0.7;
-  }
-  async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 1)]);
-  }
-  description() {
-    return '💵1';
   }
 }
 
@@ -568,58 +612,5 @@ export class Worker extends Symbol {
   }
   description() {
     return 'destroy neighboring 🪨 for 💵3, 10%: 💎'
-  }
-}
-
-export class Bomb extends Symbol {
-  constructor() {
-    super('💣');
-    this.rarity = 0.2;
-  }
-  async evaluate(game, x, y) {
-    const coords = Util.nextToCoords(game.board.cells, x, y);
-    const empty = Empty.instance();
-    const filteredCoords = coords.filter((coord) => {
-      const [x, y] = coord;
-      return game.board.cells[y][x].name !== empty.name;
-    });
-    if (filteredCoords.length === 0) {
-      return;
-    }
-    const coord = Util.randomChoose(filteredCoords);
-    const [deleteX, deleteY] = coord;
-    game.inventory.remove(game.board.cells[deleteY][deleteX]);
-    game.board.cells[deleteY][deleteX] = empty;
-    await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.1, 2);
-    await game.board.spinDivOnce(deleteX, deleteY);
-  }
-  description() {
-    return 'destroy random neighboring symbol';
-  }
-}
-
-export class Multiplier extends Symbol {
-  constructor() {
-    super('❎');
-    this.rarity = 0.05;
-  }
-  async evaluate(game, x, y) {
-    const coords = Util.nextToCoords(game.board.cells, x, y);
-    const empty = Empty.instance();
-    const filteredCoords = coords.filter((coord) => {
-      const [neighborX, neighborY] = coord;
-      return game.board.cells[neighborY][neighborX].name !== empty.name;
-    });
-    if (filteredCoords.length === 0) {
-      return;
-    }
-    for (const coord of filteredCoords) {
-      const [neighborX, neighborY] = coord;
-      await Util.animate(game.board.getSymbolDiv(neighborX, neighborY), 'shake', 0.1, 2);
-      game.board.cells[neighborY][neighborX].multiplier *= 2;
-    }
-  }
-  description() {
-    return 'x2 to all neighbors';
   }
 }
