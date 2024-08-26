@@ -4,7 +4,7 @@ import {
   Clover, CrystalBall, BullsEye,
   Egg, Chick, Chicken, Dragon, Fox,
   Cherry, Diamond, 
-  Bell, MusicalNote, Dancer,
+  Bell, Drums, MusicalNote, Dancer, Record,
   Volcano, Rock, Worker,
   Bomb, Multiplier,
 
@@ -14,7 +14,7 @@ import * as Util from './util.js'
 const makeCatalog = () => [
   new Coin(), new MoneyBag(), new CreditCard(), new Bank(),
   new Cherry(), new Diamond(), 
-  new Bell(), new Dancer(),
+  new Bell(), new Drums(), new Dancer(), new Record(),
   new Volcano(), new Rock(), new Worker(),
   new Egg(), new Chicken(), new Fox(),
   new Clover(), new CrystalBall(), new BullsEye(),

@@ -472,9 +472,33 @@ export class Dancer extends Symbol {
 export class Record extends Symbol {
   constructor() {
     super('📀');
+    this.rarity = 0.1;
+    this.notes = 0;
+  }
+  async score(game, x, y) {
+    if (this.notes > 0) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+        this.addMoney(game, this.notes)]);
+    }
+  }
+  async evaluate(game, x, y) {
+    const coords = Util.nextToSymbol(game.board.cells, x, y, new MusicalNote().name);
+    if (coords.length === 0) {
+      return;
+    }
+    const empty = Empty.instance();
+    for (const coord of coords) {
+      this.notes += 2;
+      const [deleteX, deleteY] = coord;
+      game.inventory.remove(game.board.cells[deleteY][deleteX]);
+      game.board.cells[deleteY][deleteX] = empty;
+      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.1, 2);
+      await game.board.spinDivOnce(deleteX, deleteY);
+    }
   }
   description() {
-    return '';
+    return '💵2 for each 🎵 recorded<br>record neighboring 🎵';
   }
 }
 
