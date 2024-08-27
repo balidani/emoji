@@ -17,6 +17,7 @@ import {
   Dragon,
   Drums,
   Egg,
+  Firefighter,
   Fox,
   MagicWand,
   MoneyBag,
@@ -51,6 +52,7 @@ const makeCatalog = () => [
   new Dragon(),
   new Drums(),
   new Egg(),
+  new Firefighter(),
   new Fox(),
   new MagicWand(),
   new MoneyBag(),
@@ -70,7 +72,8 @@ const startingSet = () => [
   new Cherry(),
   new Cherry(),
   new Cherry(),
-  new MagicWand(),
+  new Bomb(),
+  new Firefighter(),
 ];
 
 class Inventory {
@@ -85,15 +88,16 @@ class Inventory {
     this.symbolsDiv.replaceChildren();
     const map = new Map();
     this.symbols.forEach((symbol) => {
-      if (!map.has(symbol.name)) {
-        map.set(symbol.name, 0);
+      const name = symbol.name();
+      if (!map.has(name)) {
+        map.set(name, 0);
       }
-      map.set(symbol.name, map.get(symbol.name) + 1);
+      map.set(name, map.get(name) + 1);
     });
-    map.forEach((count, symbol) => {
+    map.forEach((count, name) => {
       const symbolDiv = document.createElement('div');
       symbolDiv.classList.add('inventoryEntry');
-      symbolDiv.innerText = symbol;
+      symbolDiv.innerText = name;
       const countSpan = document.createElement('span');
       countSpan.classList.add('inventoryEntryCount');
       countSpan.innerText = count;
@@ -156,7 +160,7 @@ class Shop {
       shopItemDiv.classList.add('shopItem');
       const symbolDiv = document.createElement('div');
       symbolDiv.classList.add('cell');
-      symbolDiv.innerText = symbol.name;
+      symbolDiv.innerText = symbol.name();
       shopItemDiv.appendChild(symbolDiv);
       const descriptionDiv = document.createElement('div');
       descriptionDiv.classList.add('description');
@@ -223,11 +227,10 @@ class Shop {
 class Board {
   constructor() {
     this.cells = [];
-    const empty = Empty.instance();
     for (let i = 0; i < Util.BOARD_SIZE; ++i) {
       const row = [];
       for (let j = 0; j < Util.BOARD_SIZE; ++j) {
-        row.push(empty);
+        row.push(new Empty());
       }
       this.cells.push(row);
     }
@@ -241,9 +244,8 @@ class Board {
     const div = this.getSymbolDiv(x, y);
     const randomSymbol = () => {
       const set = new Set();
-      // set.add(Empty.instance().name);
       for (const symbol of Object.values(game.inventory.symbols)) {
-        set.add(symbol.name);
+        set.add(symbol.name());
       }
       div.innerText = Util.randomChoose([...set]);
     }
@@ -252,14 +254,14 @@ class Board {
       randomSymbol();
       await Util.animate(div, 'spin', 0.12 + i * 0.02);
     }
-    div.innerText = symbol.name;
+    div.innerText = symbol.name();
     await Util.animate(div, 'endSpin', 0.3);
     await Util.animate(div, 'bounce', 0.1);
   }
   async spinDivOnce(x, y) {
     const div = this.getSymbolDiv(x, y);
     await Util.animate(div, 'startSpin', 0.1);
-    div.innerText = this.cells[y][x].name;
+    div.innerText = this.cells[y][x].name();
     await Util.animate(div, 'endSpin', 0.3);
     await Util.animate(div, 'bounce', 0.1);
   }
@@ -269,7 +271,7 @@ class Board {
     for (let i = 0; i < Util.BOARD_SIZE; ++i) {
       for (let j = 0; j < Util.BOARD_SIZE; ++j) {
         empties.push([j, i]);
-        this.cells[i][j] = Empty.instance();
+        this.cells[i][j] = new Empty();
       }
     }
     for (let i = 0; i < Util.BOARD_SIZE * Util.BOARD_SIZE; ++i) {
