@@ -578,7 +578,6 @@ export class Record extends Symbol {
   }
   async score(game, x, y) {
     if (this.notes > 0) {
-      console.log('worth', this.notes);
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
         this.addMoney(game, this.notes)]);

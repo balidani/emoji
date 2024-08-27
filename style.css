@@ -1,5 +1,5 @@
 body {
-  overflow-x: hidden;
+  overflow: hidden;
   font-family: monospace;
 }
 button {
@@ -9,6 +9,7 @@ button {
   display: flex;
   justify-content: center;
   padding: 10pt;
+  font-size: 22pt;
 }
 
 #roll {
@@ -26,7 +27,6 @@ button {
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
-  font-size: 24pt;
   background: white;
 }
 .inventoryEntry {
@@ -48,7 +48,6 @@ button {
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
-  font-size: 24pt;
   background: white;
 }
 
@@ -75,10 +74,8 @@ button {
   padding-left: 4pt;
 }
 .buyButton {
-  font-size: 24pt;
 }
 .refreshButton {
-  font-size: 24pt;
 }
 
 /* Grid */
@@ -89,7 +86,6 @@ button {
   width: 170pt;
 }
 .cell {
-  font-size: 24pt;
   width: 32pt;
   height: 28pt;
   display: inline-block;
@@ -141,15 +137,15 @@ button {
 }
 
 @keyframes openShop {
-  0% { transform: translateY(500pt); }
-  80% { transform: translateY(0); }
+  0% { transform: translateY(500pt); opacity: 0; }
+  80% { transform: translateY(0); opacity: 1; }
   90% { transform: translateY(4pt); }
   100% { transform: translateY(0); }
 }
 
 @keyframes closeShop {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(500pt); }
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(500pt); opacity: 0; }
 }
 
 /* Misc */
