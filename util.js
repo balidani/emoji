@@ -60,3 +60,13 @@ export const nextToSymbol = (cells, x, y, name) => {
   });
   return coords;
 };
+export const nextToExpr = (cells, x, y, expr) => {
+  const coords = [];
+  nextToCoords(cells, x, y).forEach((coord) => {
+    const [neighborX, neighborY] = coord;
+    if (expr(cells[neighborY][neighborX].name)) {
+      coords.push([neighborX, neighborY]);
+    }
+  });
+  return coords;
+};

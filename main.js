@@ -18,6 +18,7 @@ import {
   Drums,
   Egg,
   Fox,
+  MagicWand,
   MoneyBag,
   Multiplier,
   MusicalNote,
@@ -51,6 +52,7 @@ const makeCatalog = () => [
   new Drums(),
   new Egg(),
   new Fox(),
+  new MagicWand(),
   new MoneyBag(),
   new Multiplier(),
   new MusicalNote(),
@@ -68,6 +70,7 @@ const startingSet = () => [
   new Cherry(),
   new Cherry(),
   new Cherry(),
+  new MagicWand(),
 ];
 
 class Inventory {

@@ -28,13 +28,16 @@ export class Symbol {
     this.multiplier = 1;
     this.rarity = 0;
   }
+  copy() {
+    throw new Error('Trying to get copy of base class.');
+  }
   toString() {
     return this.name;
   }
   async evaluate() {}
   async score(game, x, y) {}
   description() {
-    throw new Error('What the hell?');
+    throw new Error('Trying to get description of base class.');
   }
   async addMoney(game, score) {
     await game.inventory.addMoney(score * this.multiplier);
@@ -46,6 +49,9 @@ export class Empty extends Symbol {
   static empty = null;
   constructor() {
     super('⬜');
+  }
+  copy() {
+    throw new Error('Trying to get copy of Empty.');
   }
   static instance() {
     if (!Empty.empty) {
@@ -67,6 +73,7 @@ export class Bank extends Symbol {
     this.turn = 0;
     this.rarity = 0.5;
   }
+  copy() { return new Bank(); }
   async score(game, x, y) {
     this.turn += 1;
     if (this.turn % 3 === 0) {
@@ -89,6 +96,7 @@ export class Bell extends Symbol {
     super('🔔');
     this.rarity = 0.4;
   }
+  copy() { return new Bell(); }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -118,6 +126,7 @@ export class Bomb extends Symbol {
     super('💣');
     this.rarity = 0.2;
   }
+  copy() { return new Bomb(); }
   async evaluate(game, x, y) {
     const coords = Util.nextToCoords(game.board.cells, x, y);
     const empty = Empty.instance();
@@ -145,6 +154,7 @@ export class BullsEye extends Symbol {
     super('🎯');
     this.rarity = 0.05;
   }
+  copy() { return new BullsEye(); }
   description() {
     return 'neighboring roll always succeeds';
   }
@@ -155,6 +165,7 @@ export class Cherry extends Symbol {
     super('🍒');
     this.rarity = 1;
   }
+  copy() { return new Cherry(); }
   async score(game, x, y) {
     const coords = Util.nextToSymbol(game.board.cells, x, y, this.name);
     const animSpeed = Math.max(0.02, 0.15 - 0.01 * coords.length);
@@ -170,11 +181,12 @@ export class Cherry extends Symbol {
 }
 
 export class Chick extends Symbol {
-  constructor() {
+  constructor(timeToGrow = 3) {
     super('🐣');
     this.rarity = 0.3;
-    this.timeToGrow = 3;
+    this.timeToGrow = timeToGrow;
   }
+  copy() { return new Chick(this.timeToGrow); }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -182,7 +194,7 @@ export class Chick extends Symbol {
   }
   async evaluate(game, x, y) {
     this.timeToGrow--;
-    if (this.timeToGrow === 0) {
+    if (this.timeToGrow <= 0) {
       game.inventory.remove(this);
       const chicken = new Chicken();
       game.inventory.add(chicken);
@@ -200,6 +212,7 @@ export class Chicken extends Symbol {
     super('🐔');
     this.rarity = 0.15;
   }
+  copy() { return new Chicken(); }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -232,6 +245,7 @@ export class Clover extends Symbol {
     super('🍀');
     this.rarity = 0.3;
   }
+  copy() { return new Clover(); }
   description() {
     return '+1% luck';
   }
@@ -242,6 +256,7 @@ export class Coin extends Symbol {
     super('🪙');
     this.rarity = 1;
   }
+  copy() { return new Coin(); }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -257,6 +272,7 @@ export class Corn extends Symbol {
     super('🌽');
     this.rarity = 0.2;
   }
+  copy() { return new Corn(); }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -284,11 +300,12 @@ export class Corn extends Symbol {
 }
 
 export class CreditCard extends Symbol {
-  constructor() {
+  constructor(turn=0) {
     super('💳');
-    this.turn = 0;
+    this.turn = turn;
     this.rarity = 0.3;
   }
+  copy() { return new CreditCard(this.turn); }
   async score(game, x, y) {
     this.turn += 1;
     if (this.turn === 1) {
@@ -311,6 +328,7 @@ export class CrystalBall extends Symbol {
     super('🔮');
     this.rarity = 0.1;
   }
+  copy() { return new CrystalBall(); }
   description() {
     return '+5% luck';
   }
@@ -322,6 +340,7 @@ export class Dancer extends Symbol {
     this.rarity = 0.3;
     this.musicScore = 0;
   }
+  copy() { return new Dancer(); }
   async score(game, x, y) {
     if (this.musicScore > 0) {
       await Promise.all([
@@ -354,6 +373,7 @@ export class Diamond extends Symbol {
     super('💎');
     this.rarity = 0.3;
   }
+  copy() { return new Diamond(); }
   async score(game, x, y) {
     await this.addMoney(game, 3);
     const coords = Util.nextToSymbol(game.board.cells, x, y, this.name);
@@ -375,6 +395,7 @@ export class Dragon extends Symbol {
     super('🐉');
     this.rarity = 0.01;
   }
+  copy() { return new Dragon(); }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -390,6 +411,7 @@ export class Drums extends Symbol {
     super('🥁');
     this.rarity = 0.2;
   }
+  copy() { return new Drums(); }
   async evaluate(game, x, y) {
     if (game.turns % 3  == 0) {
       const note = new MusicalNote();
@@ -410,11 +432,12 @@ export class Drums extends Symbol {
 }
 
 export class Egg extends Symbol {
-  constructor() {
+  constructor(timeToHatch=3 + Util.random(3)) {
     super('🥚');
     this.rarity = 0.5;
-    this.timeToHatch = 3 + Util.random(3);
+    this.timeToHatch = timeToHatch;
   }
+  copy() { return new Egg(this.timeToHatch); }
   async evaluate(game, x, y) {
     this.timeToHatch--;
     if (this.timeToHatch <= 0) {
@@ -439,6 +462,7 @@ export class Fox extends Symbol {
     this.rarity = 0.2;
     this.eatenScore = 3;
   }
+  copy() { return new Fox(); }
   async evaluate(game, x, y) {
     const eatNeighbor = async (neighborClass, reward) => {
       const coords = Util.nextToSymbol(game.board.cells, x, y, new neighborClass().name);
@@ -469,12 +493,42 @@ export class Fox extends Symbol {
   }
 }
 
-export class MoneyBag extends Symbol {
+export class MagicWand extends Symbol {
   constructor() {
+    super('🪄');
+  }
+  copy() { return new MagicWand(); }
+  async evaluate(game, x, y) {
+    if (chance(game, 0.1, x, y)) {
+      const emptyCoords = Util.nextToSymbol(game.board.cells, x, y, Empty.instance().name);
+      if (emptyCoords.length === 0) {
+        return;
+      }
+      const nonEmptyCoords = Util.nextToExpr(game.board.cells, x, y, (name) => name !== Empty.instance().name);
+      if (nonEmptyCoords.length === 0) {
+        return;
+      }
+      const [copyX, copyY] = Util.randomChoose(nonEmptyCoords);
+      const [newX, newY] = Util.randomChoose(emptyCoords);
+      const newSymbol = game.board.cells[copyY][copyX].copy();
+      game.board.cells[newY][newX] = newSymbol;
+      game.inventory.add(newSymbol);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+      await game.board.spinDivOnce(newX, newY);
+    }
+  }  
+  description() {
+    return '10%: duplicate neighboring symbol';
+  }
+}
+
+export class MoneyBag extends Symbol {
+  constructor(coins=0) {
     super('💰');
-    this.coins = 0;
+    this.coins = coins;
     this.rarity = 0.4;
   }
+  copy() { return new MoneyBag(this.coins); }
   async score(game, x, y) {
     if (this.coins > 0) {
       await Promise.all([
@@ -507,6 +561,7 @@ export class Multiplier extends Symbol {
     super('❎');
     this.rarity = 0.05;
   }
+  copy() { return new Multiplier(); }
   async evaluate(game, x, y) {
     const coords = Util.nextToCoords(game.board.cells, x, y);
     const empty = Empty.instance();
@@ -529,10 +584,11 @@ export class Multiplier extends Symbol {
 }
 
 export class MusicalNote extends Symbol {
-  constructor() {
+  constructor(timeToLive=3) {
     super('🎵');
-    this.timeToLive = 3;
+    this.timeToLive = timeToLive;
   }
+  copy() { return new MusicalNote(this.timeToLive); }
   async evaluate(game, x, y) {
     if (this.timeToLive === 0) {
       game.inventory.remove(this);
@@ -547,11 +603,12 @@ export class MusicalNote extends Symbol {
 }
 
 export class Popcorn extends Symbol {
-  constructor() {
+  constructor(timeToLive=1 + Util.random(3)) {
     super('🍿');
     this.rarity = 0.1;
-    this.timeToLive = 1 + Util.random(3);
+    this.timeToLive = timeToLive;
   }
+  copy() { return new Popcorn(this.timeToLive); }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -571,11 +628,12 @@ export class Popcorn extends Symbol {
 }
 
 export class Record extends Symbol {
-  constructor() {
+  constructor(notes=0) {
     super('📀');
     this.rarity = 0.1;
-    this.notes = 0;
+    this.notes = notes;
   }
+  copy() { return new Record(this.notes); }
   async score(game, x, y) {
     if (this.notes > 0) {
       await Promise.all([
@@ -608,6 +666,7 @@ export class Refresh extends Symbol {
     super('🔀');
     this.rarity = 0.05;
   }
+  copy() { return new Refresh(); }
   async evaluate(game, x, y) {
     await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.1, 2);
     game.shop.refreshable = true;
@@ -623,6 +682,7 @@ export class Rock extends Symbol {
     super('🪨');
     this.rarity = 0.7;
   }
+  copy() { return new Rock(); }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -639,6 +699,7 @@ export class Tree extends Symbol {
     this.rarity = 0.4;
     this.turns = 0;
   }
+  copy() { return new Tree(); }
   async evaluate(game, x, y) {
     this.turns++;
     if (this.turns % 3 === 0) {
@@ -664,6 +725,7 @@ export class Volcano extends Symbol {
     super('🌋');
     this.rarity = 0.5;
   }
+  copy() { return new Volcano(); }
   async evaluate(game, x, y) {
     if (chance(game, 0.1, x, y)) {
       const rock = new Rock();
@@ -687,6 +749,7 @@ export class Wine extends Symbol {
     this.rarity = 0.2;
     this.cherryScore = 0;
   }
+  copy() { return new Wine(); }
   async score(game, x, y) {
     if (this.cherryScore > 0) {
       await Promise.all([
@@ -720,6 +783,7 @@ export class Worker extends Symbol {
     super('👷');
     this.rarity = 0.5;
   }
+  copy() { return new Worker(); }
   async evaluate(game, x, y) {
     const coords = Util.nextToSymbol(game.board.cells, x, y, new Rock().name);
     if (coords.length === 0) {
