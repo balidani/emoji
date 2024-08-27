@@ -72,8 +72,6 @@ const startingSet = () => [
   new Cherry(),
   new Cherry(),
   new Cherry(),
-  new Bomb(),
-  new Firefighter(),
 ];
 
 class Inventory {
