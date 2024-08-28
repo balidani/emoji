@@ -3,6 +3,7 @@ import {
   Bank,
   Bell,
   Bomb,
+  Bug,
   BullsEye,
   Cherry,
   Chick,
@@ -19,6 +20,7 @@ import {
   Egg,
   Firefighter,
   Fox,
+  Grave,
   MagicWand,
   MoneyBag,
   Multiplier,
@@ -38,6 +40,7 @@ const makeCatalog = () => [
   new Bank(),
   new Bell(),
   new Bomb(),
+  new Bug(),
   new BullsEye(),
   new Cherry(),
   new Chick(),
@@ -54,10 +57,10 @@ const makeCatalog = () => [
   new Egg(),
   new Firefighter(),
   new Fox(),
+  new Grave(),
   new MagicWand(),
   new MoneyBag(),
   new Multiplier(),
-  new MusicalNote(),
   new Record(),
   new Refresh(),
   new Rock(),
@@ -81,6 +84,7 @@ class Inventory {
     this.moneyDiv = document.querySelector('.money');
     this.money = 1;
     this.updateMoney();
+    this.graveyard = [];
   }
   update() {
     this.symbolsDiv.replaceChildren();
@@ -109,6 +113,7 @@ class Inventory {
       this.symbols.splice(index, 1);
     }
     this.update();
+    this.graveyard.push(symbol);
   }
   add(symbol) {
     this.symbols.push(symbol);
@@ -185,6 +190,7 @@ class Shop {
       const buyDiv = document.createElement('div');
       buyDiv.classList.add('buy');
       const buyButton = document.createElement('button');
+      buyButton.classList.add('buyButton');
       buyButton.innerText = refresh ? '🔀' : '✅';
       buyButton.addEventListener('click', handler);
       buyDiv.appendChild(buyButton);
@@ -405,4 +411,3 @@ document.getElementById('roll')
 // }
 // const game = new AutoGame();
 // game.simulate();
-

@@ -98,12 +98,12 @@ export class Bell extends Symbol {
       this.addMoney(game, 1)]);
   }
   async evaluate(game, x, y) {
+    const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
+    if (coords.length === 0) {
+      return;
+    }
     if (chance(game, 0.2, x, y)) {
       const note = new MusicalNote();
-      const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
-      if (coords.length === 0) {
-        return;
-      }
       const [newX, newY] = Util.randomChoose(coords);
       game.board.cells[newY][newX] = note;
       game.inventory.add(note);
@@ -138,6 +138,50 @@ export class Bomb extends Symbol {
   }
   description() {
     return 'destroy random neighboring symbol';
+  }
+}
+
+export class Bug extends Symbol {
+  static name = '🐛';
+  constructor() {
+    super();
+    this.rarity = 0.2;
+    this.foodScore = 0;
+    this.timeToLive = 3;
+  }
+  copy() { return new Bug(); }
+  async score(game, x, y) {
+    if (this.foodScore > 0) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+        this.addMoney(game, this.foodScore)]);
+    }
+    this.foodScore = 0;
+  }
+  async evaluate(game, x, y) {
+    const coords = Util.nextToExpr(game.board.cells, x, y, 
+      (sym) => [Cherry.name, Corn.name].includes(sym.name()));
+    if (coords.length === 0) {
+      this.timeToLive--;
+      if (this.timeToLive <= 0) {
+        game.inventory.remove(this);
+        game.board.cells[y][x] = new Empty();
+        await game.board.spinDivOnce(x, y);
+      }
+    } else {
+      this.timeToLive = 3;
+      for (const coord of coords) {
+        this.foodScore += 5;
+        const [deleteX, deleteY] = coord;
+        game.inventory.remove(game.board.cells[deleteY][deleteX]);
+        game.board.cells[deleteY][deleteX] = new Empty();
+        await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15);
+        await game.board.spinDivOnce(deleteX, deleteY);
+      }
+    }
+  }
+  description() {
+    return 'eat neighboring fruit and vegetables for 💵5<br>die after 3 turns with no food';
   }
 }
 
@@ -215,11 +259,11 @@ export class Chicken extends Symbol {
       this.addMoney(game, 3)]);
   }
   async evaluate(game, x, y) {
+    const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
+    if (coords.length === 0) {
+      return;
+    }
     if (chance(game, 0.1, x, y)) {
-      const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
-      if (coords.length === 0) {
-        return;
-      }
       const eggCount = 1 + Util.random(3);
       for (let i = 0; i < Math.min(coords.length, eggCount); ++i) {
         const [newX, newY] = Util.randomRemove(coords);
@@ -278,11 +322,11 @@ export class Corn extends Symbol {
       this.addMoney(game, 1)]);
   }
   async evaluate(game, x, y) {
+    const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
+    if (coords.length === 0) {
+      return;
+    }
     if (chance(game, 0.1, x, y)) {
-      const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
-      if (coords.length === 0) {
-        return;
-      }
       for (let i = 0; i < coords.length; ++i) {
         const [newX, newY] = coords[i];
         const popcorn = new Popcorn();
@@ -481,7 +525,7 @@ export class Firefighter extends Symbol {
       await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.1, 2);
       await game.board.spinDivOnce(deleteX, deleteY);
     }
-    game.inventory.remove(game.board.cells[y][x]);
+    game.inventory.remove(this);
     game.board.cells[y][x] = new Empty();
     await game.board.spinDivOnce(x, y);
   }
@@ -527,6 +571,35 @@ export class Fox extends Symbol {
   }
 }
 
+export class Grave extends Symbol {
+  static name = '🪦';
+  constructor() {
+    super();
+    this.rarity = 0.1;
+  }
+  copy() { return new Grave(); }
+  async evaluate(game, x, y) {
+    const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
+    if (coords.length === 0) {
+      return;
+    }
+    if (game.inventory.graveyard.length === 0) {
+      return;
+    }
+    if (chance(game, 0.1, x, y)) {
+      const [newX, newY] = Util.randomRemove(coords);
+      const oldSymbol = Util.randomRemove(game.inventory.graveyard).copy();
+      game.board.cells[newY][newX] = oldSymbol;
+      game.inventory.add(oldSymbol);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+      await game.board.spinDivOnce(newX, newY);
+    }
+  }
+  description() {
+    return '10%: add random symbol removed this game';
+  }
+}
+
 export class MagicWand extends Symbol {
   static name = '🪄';
   constructor() {
@@ -535,16 +608,16 @@ export class MagicWand extends Symbol {
   }
   copy() { return new MagicWand(); }
   async evaluate(game, x, y) {
+    const emptyCoords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
+    if (emptyCoords.length === 0) {
+      return;
+    }
+    const nonEmptyCoords = Util.nextToExpr(game.board.cells, x, y,
+      (sym) => sym.name() !== Empty.name);
+    if (nonEmptyCoords.length === 0) {
+      return;
+    }
     if (chance(game, 0.1, x, y)) {
-      const emptyCoords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
-      if (emptyCoords.length === 0) {
-        return;
-      }
-      const nonEmptyCoords = Util.nextToExpr(game.board.cells, x, y,
-        (sym) => sym.name() !== Empty.name);
-      if (nonEmptyCoords.length === 0) {
-        return;
-      }
       const [copyX, copyY] = Util.randomChoose(nonEmptyCoords);
       const [newX, newY] = Util.randomChoose(emptyCoords);
       const newSymbol = game.board.cells[copyY][copyX].copy();
