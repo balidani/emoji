@@ -3,6 +3,7 @@ body {
   font-family: monospace;
 }
 button {
+  font-size: 24pt;
 }
 
 .wrapper {
@@ -10,10 +11,6 @@ button {
   justify-content: center;
   padding: 10pt;
   font-size: 22pt;
-}
-
-#roll {
-  font-size: 24pt;
 }
 
 /* Inventory */
@@ -71,10 +68,6 @@ button {
 .buy {
   margin-left: auto;
   padding-left: 4pt;
-}
-.buyButton {
-}
-.refreshButton {
 }
 
 /* Grid */

@@ -79,7 +79,7 @@ class Inventory {
     this.symbols = symbols;
     this.symbolsDiv = document.querySelector('.inventory');
     this.moneyDiv = document.querySelector('.money');
-    this.money = 10;
+    this.money = 1;
     this.updateMoney();
   }
   update() {
@@ -108,6 +108,7 @@ class Inventory {
     if (index >= 0) {
       this.symbols.splice(index, 1);
     }
+    this.update();
   }
   add(symbol) {
     this.symbols.push(symbol);
@@ -142,68 +143,74 @@ class Shop {
       return;
     }
     this.isOpen = true;
+
+    const checkLuckyItem = (name, percent) => {
+      let total = 0;
+      game.board.forAllCells((cell, x, y) => {
+        if (cell.name() === name) {
+          total += percent;
+        }
+      });
+      return total;
+    };
+    let luck = 0;
+    luck += checkLuckyItem(Clover.name, 0.01);
+    luck += checkLuckyItem(CrystalBall.name, 0.05);
+
     this.shopDiv.replaceChildren();
     this.catalog = makeCatalog();
     const newCatalog = [];
     while (newCatalog.length < 3) {
       for (const item of this.catalog) {
-        if (Math.random() < item.rarity) {
+        if (Math.random() < item.rarity + luck) {
           newCatalog.push(item);
         }
       }
     }
-    for (let i = 0; i < 3; ++i) {
-      const symbol = Util.randomRemove(newCatalog);
+
+    const makeShopItem = (symbol, description, handler, refresh=false) => {
       const shopItemDiv = document.createElement('div');
       shopItemDiv.classList.add('shopItem');
       const symbolDiv = document.createElement('div');
       symbolDiv.classList.add('cell');
-      symbolDiv.innerText = symbol.name();
+      symbolDiv.innerText = symbol;
       shopItemDiv.appendChild(symbolDiv);
       const descriptionDiv = document.createElement('div');
       descriptionDiv.classList.add('description');
-      descriptionDiv.innerHTML = symbol.description();
+      if (refresh) {
+        descriptionDiv.classList.add('refreshDescription');
+      }
+      descriptionDiv.innerHTML = description;
       shopItemDiv.appendChild(descriptionDiv);
       const buyDiv = document.createElement('div');
       buyDiv.classList.add('buy');
       const buyButton = document.createElement('button');
-      buyButton.classList.add('buyButton');
-      buyButton.innerText = '✅';
-      buyButton.addEventListener('click', async () => {
-        game.inventory.add(symbol);
-        await game.shop.close();
-      });
+      buyButton.innerText = refresh ? '🔀' : '✅';
+      buyButton.addEventListener('click', handler);
       buyDiv.appendChild(buyButton);
       shopItemDiv.appendChild(buyDiv);
+      return shopItemDiv;
+    }
+    for (let i = 0; i < 3; ++i) {
+      const symbol = Util.randomRemove(newCatalog);
+      const shopItemDiv = makeShopItem(symbol.name(), symbol.description(),
+        async () => {
+          game.inventory.add(symbol);
+          await game.shop.close();
+      });
       this.shopDiv.appendChild(shopItemDiv);
     }
 
     if (this.refreshable) {
-      const shopItemDiv = document.createElement('div');
-      shopItemDiv.classList.add('shopItem');
-      const symbolDiv = document.createElement('div');
-      symbolDiv.classList.add('cell');
-      shopItemDiv.appendChild(symbolDiv);
-      const descriptionDiv = document.createElement('div');
-      descriptionDiv.classList.add('description');
-      descriptionDiv.classList.add('refreshDescription');
-      descriptionDiv.innerText = '💵' + this.refreshCost;
-      shopItemDiv.appendChild(descriptionDiv);
-      const buyDiv = document.createElement('div');
-      buyDiv.classList.add('buy');
-      const refreshButton = document.createElement('button');
-      refreshButton.classList.add('refreshButton');
-      refreshButton.innerText = '🔀';
-      refreshButton.addEventListener('click', async () => {
+      const shopItemDiv = makeShopItem('', '💵' + this.refreshCost,
+        async () => {
         if (game.inventory.money > 0) {
           game.inventory.addMoney(-this.refreshCost);
           this.refreshCost *= 2;
           this.isOpen = false;
           this.open(game);
         }
-      });
-      buyDiv.appendChild(refreshButton);
-      shopItemDiv.appendChild(buyDiv);
+      }, /*refresh=*/true);
       this.shopDiv.appendChild(shopItemDiv);
     }
 

@@ -8,7 +8,7 @@ const luckyChance = (game, chance, x, y) => {
   const check = (name, percent) => {
     let total = 0;
     game.board.forAllCells((cell, x, y) => {
-      if (cell.name === name) {
+      if (cell.name() === name) {
         total += percent;
       }
     });
@@ -125,7 +125,7 @@ export class Bomb extends Symbol {
   copy() { return new Bomb(); }
   async evaluate(game, x, y) {
     const coords = Util.nextToExpr(game.board.cells, x, y,
-      (sym) => sym.name() !== Empty.name && sym.name() !== Firefighter.name);
+      (sym) => ![Empty.name, Firefighter.name].includes(sym.name()));
     if (coords.length === 0) {
       return;
     }
@@ -305,7 +305,7 @@ export class CreditCard extends Symbol {
     this.turn = turn;
     this.rarity = 0.3;
   }
-  copy() { return new CreditCard(this.turn); }
+  copy() { return new CreditCard(); }
   async score(game, x, y) {
     this.turn += 1;
     if (this.turn === 1) {
@@ -348,6 +348,7 @@ export class Dancer extends Symbol {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
         this.addMoney(game, this.musicScore)]);
+      this.musicScore = 0;
     }
   }
   async evaluate(game, x, y) {
@@ -539,7 +540,8 @@ export class MagicWand extends Symbol {
       if (emptyCoords.length === 0) {
         return;
       }
-      const nonEmptyCoords = Util.nextToExpr(game.board.cells, x, y, (sym) => sym.name !== Empty.name);
+      const nonEmptyCoords = Util.nextToExpr(game.board.cells, x, y,
+        (sym) => sym.name() !== Empty.name);
       if (nonEmptyCoords.length === 0) {
         return;
       }
@@ -599,15 +601,12 @@ export class Multiplier extends Symbol {
   }
   copy() { return new Multiplier(); }
   async evaluate(game, x, y) {
-    const coords = Util.nextToCoords(game.board.cells, x, y);
-    const filteredCoords = coords.filter((coord) => {
-      const [neighborX, neighborY] = coord;
-      return game.board.cells[neighborY][neighborX].name !== Empty.name;
-    });
-    if (filteredCoords.length === 0) {
+    const coords = Util.nextToExpr(game.board.cells, x, y,
+      (sym) => sym.name() !== Empty.name);
+    if (coords.length === 0) {
       return;
     }
-    for (const coord of filteredCoords) {
+    for (const coord of coords) {
       const [neighborX, neighborY] = coord;
       await Util.animate(game.board.getSymbolDiv(neighborX, neighborY), 'shake', 0.1, 2);
       game.board.cells[neighborY][neighborX].multiplier *= 2;
@@ -839,7 +838,7 @@ export class Worker extends Symbol {
       }
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      if (newSymbol.name !== Empty.name) {
+      if (newSymbol.name() !== Empty.name) {
         game.inventory.add(newSymbol);
       }
       game.board.cells[deleteY][deleteX] = newSymbol;
