@@ -530,6 +530,7 @@ export class MagicWand extends Symbol {
   static name = '🪄';
   constructor() {
     super();
+    this.rarity = 0.1;
   }
   copy() { return new MagicWand(); }
   async evaluate(game, x, y) {
