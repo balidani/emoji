@@ -69,19 +69,27 @@ export class Bank extends Symbol {
   }
   copy() { return new Bank(); }
   async score(game, x, y) {
-    this.turn += 1;
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, 3)]);
+  }
+  async evaluate(game, x, y) {
+    const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
+    if (coords.length === 0) {
+      return;
+    }
+    this.turn++;
     if (this.turn % 3 === 0) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, 30)]);
-    } else {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, -10)]);
+      const coin = new Coin();
+      const [newX, newY] = Util.randomChoose(coords);
+      game.board.cells[newY][newX] = coin;
+      game.inventory.add(coin);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+      await game.board.spinDivOnce(newX, newY);
     }
   }
   description() {
-    return '-💵10<br>every third turn: 💵30 instead';
+    return '💵3<br>every third turn: mint 🪙';
   }
 }
 
