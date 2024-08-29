@@ -15,7 +15,7 @@ const luckyChance = (game, chance, x, y) => {
     return total;
   };
   let total = 0;
-  total += check(Clover.name, 0.01);
+  total += check(Clover.name, 0.02);
   total += check(CrystalBall.name, 0.05);
   return chance + total;
 }
@@ -120,7 +120,7 @@ export class Bomb extends Symbol {
   static name = '💣';
   constructor() {
     super();
-    this.rarity = 0.2;
+    this.rarity = 0.15;
   }
   copy() { return new Bomb(); }
   async evaluate(game, x, y) {
@@ -145,7 +145,7 @@ export class Bug extends Symbol {
   static name = '🐛';
   constructor() {
     super();
-    this.rarity = 0.2;
+    this.rarity = 0.3;
     this.foodScore = 0;
     this.timeToLive = 3;
   }
@@ -222,7 +222,7 @@ export class Chick extends Symbol {
   static name = '🐣';
   constructor(timeToGrow = 3) {
     super();
-    this.rarity = 0.3;
+    this.rarity = 0.2;
     this.timeToGrow = timeToGrow;
   }
   copy() { return new Chick(this.timeToGrow); }
@@ -288,7 +288,7 @@ export class Clover extends Symbol {
   }
   copy() { return new Clover(); }
   description() {
-    return '+1% luck';
+    return '+2% luck';
   }
 }
 
@@ -313,7 +313,7 @@ export class Corn extends Symbol {
   static name = '🌽';
   constructor() {
     super();
-    this.rarity = 0.2;
+    this.rarity = 0.25;
   }
   copy() { return new Corn(); }
   async score(game, x, y) {
@@ -347,7 +347,7 @@ export class CreditCard extends Symbol {
   constructor(turn=0) {
     super();
     this.turn = turn;
-    this.rarity = 0.3;
+    this.rarity = 0.35;
   }
   copy() { return new CreditCard(); }
   async score(game, x, y) {
@@ -418,7 +418,7 @@ export class Diamond extends Symbol {
   static name = '💎';
   constructor() {
     super();
-    this.rarity = 0.3;
+    this.rarity = 0.32;
   }
   copy() { return new Diamond(); }
   async score(game, x, y) {
@@ -458,11 +458,11 @@ export class Drums extends Symbol {
   static name = '🥁';
   constructor() {
     super();
-    this.rarity = 0.2;
+    this.rarity = 0.25;
   }
   copy() { return new Drums(); }
   async evaluate(game, x, y) {
-    if (game.turns % 3  == 0) {
+    if (game.inventory.turns % 3  == 0) {
       const note = new MusicalNote();
       const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
       if (coords.length === 0) {
@@ -484,7 +484,7 @@ export class Egg extends Symbol {
   static name = '🥚';
   constructor(timeToHatch=3 + Util.random(3)) {
     super();
-    this.rarity = 0.5;
+    this.rarity = 0.6;
     this.timeToHatch = timeToHatch;
   }
   copy() { return new Egg(this.timeToHatch); }
@@ -510,7 +510,7 @@ export class Firefighter extends Symbol {
   static name = '🧑‍🚒';
   constructor() {
     super();
-    this.rarity = 0.1;
+    this.rarity = 0.15;
   }
   copy() { return new Firefighter(); }
   async evaluate(game, x, y) {
@@ -538,7 +538,7 @@ export class Fox extends Symbol {
   static name = '🦊';
   constructor() {
     super();
-    this.rarity = 0.2;
+    this.rarity = 0.25;
     this.eatenScore = 3;
   }
   copy() { return new Fox(); }
@@ -575,7 +575,7 @@ export class Grave extends Symbol {
   static name = '🪦';
   constructor() {
     super();
-    this.rarity = 0.1;
+    this.rarity = 0.12;
   }
   copy() { return new Grave(); }
   async evaluate(game, x, y) {
@@ -632,12 +632,36 @@ export class MagicWand extends Symbol {
   }
 }
 
+export class Mango extends Symbol {
+  static name = '🥭';
+  constructor() {
+    super();
+    this.rarity = 0.06;
+  }
+  copy() { return new Mango(); }
+  async evaluate(game, x, y) {
+    const coords = Util.nextToExpr(game.board.cells, x, y,
+      (sym) => [Cherry.name].includes(sym.name()));
+    if (coords.length === 0) {
+      return;
+    }
+    for (const coord of coords) {
+      const [neighborX, neighborY] = coord;
+      await Util.animate(game.board.getSymbolDiv(neighborX, neighborY), 'shake', 0.1, 2);
+      game.board.cells[neighborY][neighborX].multiplier *= 2;
+    }
+  }
+  description() {
+    return 'x2 to neighboring fruit';
+  }
+}
+
 export class MoneyBag extends Symbol {
   static name = '💰';
   constructor(coins=0) {
     super();
     this.coins = coins;
-    this.rarity = 0.4;
+    this.rarity = 0.45;
   }
   copy() { return new MoneyBag(this.coins); }
   async score(game, x, y) {
@@ -670,7 +694,7 @@ export class Multiplier extends Symbol {
   static name = '❎';
   constructor() {
     super();
-    this.rarity = 0.05;
+    this.rarity = 0.04;
   }
   copy() { return new Multiplier(); }
   async evaluate(game, x, y) {
@@ -694,6 +718,7 @@ export class MusicalNote extends Symbol {
   static name = '🎵';
   constructor(timeToLive=3) {
     super();
+    this.rarity = 0;
     this.timeToLive = timeToLive;
   }
   copy() { return new MusicalNote(this.timeToLive); }
@@ -714,7 +739,7 @@ export class Popcorn extends Symbol {
   static name = '🍿';
   constructor(timeToLive=1 + Util.random(3)) {
     super();
-    this.rarity = 0.1;
+    this.rarity = 0;
     this.timeToLive = timeToLive;
   }
   copy() { return new Popcorn(this.timeToLive); }
@@ -740,7 +765,7 @@ export class Record extends Symbol {
   static name = '📀';
   constructor(notes=0) {
     super();
-    this.rarity = 0.1;
+    this.rarity = 0.12;
     this.notes = notes;
   }
   copy() { return new Record(this.notes); }
@@ -836,7 +861,7 @@ export class Volcano extends Symbol {
   static name = '🌋';
   constructor() {
     super();
-    this.rarity = 0.5;
+    this.rarity = 0.4;
   }
   copy() { return new Volcano(); }
   async evaluate(game, x, y) {
@@ -860,7 +885,7 @@ export class Wine extends Symbol {
   static name = '🍷';
   constructor() {
     super();
-    this.rarity = 0.2;
+    this.rarity = 0.22;
     this.cherryScore = 0;
   }
   copy() { return new Wine(); }
@@ -895,7 +920,7 @@ export class Worker extends Symbol {
   static name = '👷';
   constructor() {
     super();
-    this.rarity = 0.5;
+    this.rarity = 0.45;
   }
   copy() { return new Worker(); }
   async evaluate(game, x, y) {

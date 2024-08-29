@@ -22,6 +22,7 @@ import {
   Fox,
   Grave,
   MagicWand,
+  Mango,
   MoneyBag,
   Multiplier,
   MusicalNote,
@@ -59,6 +60,7 @@ const makeCatalog = () => [
   new Fox(),
   new Grave(),
   new MagicWand(),
+  new Mango(),
   new MoneyBag(),
   new Multiplier(),
   new Record(),
@@ -81,9 +83,10 @@ class Inventory {
   constructor(symbols) {
     this.symbols = symbols;
     this.symbolsDiv = document.querySelector('.inventory');
-    this.moneyDiv = document.querySelector('.money');
+    this.uiDiv = document.querySelector('.ui');
     this.money = 1;
-    this.updateMoney();
+    this.turns = 0;
+    this.updateUi();
     this.graveyard = [];
   }
   update() {
@@ -121,18 +124,28 @@ class Inventory {
   }
   async addMoney(value) {
     this.money += value;
-    this.updateMoney();
+    this.updateUi();
   }
-  updateMoney() {
-    this.moneyDiv.replaceChildren();
-    const symbolDiv = document.createElement('div');
-    symbolDiv.classList.add('inventoryEntry');
-    symbolDiv.innerText = Dollar.name;
-    const countSpan = document.createElement('span');
-    countSpan.classList.add('inventoryEntryCount');
-    countSpan.innerText = this.money;
-    symbolDiv.appendChild(countSpan);
-    this.moneyDiv.appendChild(symbolDiv);
+  updateUi() {
+    this.uiDiv.replaceChildren();
+    {
+      const symbolDiv = document.createElement('div');
+      symbolDiv.innerText = '⏰';
+      const countSpan = document.createElement('span');
+      countSpan.classList.add('inventoryEntryCount');
+      countSpan.innerText = this.turns;
+      symbolDiv.appendChild(countSpan);
+      this.uiDiv.appendChild(symbolDiv);
+    }
+    {
+      const symbolDiv = document.createElement('div');
+      symbolDiv.innerText = Dollar.name;
+      const countSpan = document.createElement('span');
+      countSpan.classList.add('inventoryEntryCount');
+      countSpan.innerText = this.money;
+      symbolDiv.appendChild(countSpan);
+      this.uiDiv.appendChild(symbolDiv);
+    }
   }
 }
 
@@ -159,7 +172,7 @@ class Shop {
       return total;
     };
     let luck = 0;
-    luck += checkLuckyItem(Clover.name, 0.01);
+    luck += checkLuckyItem(Clover.name, 0.02);
     luck += checkLuckyItem(CrystalBall.name, 0.05);
 
     this.shopDiv.replaceChildren();
@@ -340,17 +353,14 @@ class Game {
     this.board = new Board();
     this.shop = new Shop();
     this.rolling = false;
-    this.turns = 0;
   }
   async roll() {
     if (this.rolling) {
       return;
     }
     this.rolling = true;
-    this.turns++;
-    if (this.turns % 10 === 0) {
-      console.log('turn', this.turns, 'money', this.inventory.money);
-    }
+    this.inventory.turns++;
+    this.inventory.updateUi();
     if (this.inventory.money > 0) {
       this.inventory.addMoney(-1);
       await this.shop.close();
@@ -358,6 +368,9 @@ class Game {
       await this.board.evaluate();
       await this.board.score();
       await this.shop.open(this);
+    }
+    if (this.inventory.turns % 10 === 0) {
+      console.log('turn', this.inventory.turns, 'money', this.inventory.money);
     }
     this.rolling = false;
   }
