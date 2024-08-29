@@ -26,6 +26,7 @@ import {
   MoneyBag,
   Multiplier,
   MusicalNote,
+  Pineapple,
   Popcorn,
   Record,
   Refresh,
@@ -63,6 +64,7 @@ const makeCatalog = () => [
   new Mango(),
   new MoneyBag(),
   new Multiplier(),
+  new Pineapple(),
   new Record(),
   new Refresh(),
   new Rock(),
@@ -73,10 +75,16 @@ const makeCatalog = () => [
 ];
 
 const startingSet = () => [
-  new Coin(),
-  new Cherry(),
-  new Cherry(),
-  new Cherry(),
+  // new Coin(),
+  // new Cherry(),
+  // new Cherry(),
+  // new Cherry(),
+  new Pineapple(),
+  new Egg(), new Egg(), new Egg(), new Egg(), new Egg(), 
+  new Egg(), new Egg(), new Egg(), new Egg(), new Egg(), 
+  new Egg(), new Egg(), new Egg(), new Egg(), new Egg(), 
+  new Egg(), new Egg(), new Egg(), new Egg(), new Egg(), 
+  new Egg(), new Egg(), new Egg(), new Egg(), 
 ];
 
 class Inventory {

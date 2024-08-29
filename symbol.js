@@ -155,7 +155,7 @@ export class Bug extends Symbol {
     super();
     this.rarity = 0.3;
     this.foodScore = 0;
-    this.timeToLive = 3;
+    this.timeToLive = 5;
   }
   copy() { return new Bug(); }
   async score(game, x, y) {
@@ -168,7 +168,7 @@ export class Bug extends Symbol {
   }
   async evaluate(game, x, y) {
     const coords = Util.nextToExpr(game.board.cells, x, y, 
-      (sym) => [Cherry.name, Corn.name].includes(sym.name()));
+      (sym) => [...Fruits, ...Vegetables].includes(sym.name()));
     if (coords.length === 0) {
       this.timeToLive--;
       if (this.timeToLive <= 0) {
@@ -177,7 +177,7 @@ export class Bug extends Symbol {
         await game.board.spinDivOnce(x, y);
       }
     } else {
-      this.timeToLive = 3;
+      this.timeToLive = 5;
       for (const coord of coords) {
         this.foodScore += 5;
         const [deleteX, deleteY] = coord;
@@ -189,7 +189,7 @@ export class Bug extends Symbol {
     }
   }
   description() {
-    return 'eat neighboring fruit and vegetables for 💵5<br>die after 3 turns with no food';
+    return 'eat neighboring fruit and vegetables for 💵5<br>die after 5 turns with no food';
   }
 }
 
@@ -649,7 +649,7 @@ export class Mango extends Symbol {
   copy() { return new Mango(); }
   async evaluate(game, x, y) {
     const coords = Util.nextToExpr(game.board.cells, x, y,
-      (sym) => [Cherry.name].includes(sym.name()));
+      (sym) => Fruits.includes(sym.name()));
     if (coords.length === 0) {
       return;
     }
@@ -740,6 +740,25 @@ export class MusicalNote extends Symbol {
   }
   description() {
     return 'disappear after 3 turns';
+  }
+}
+
+export class Pineapple extends Symbol {
+  static name = '🍍';
+  constructor() {
+    super();
+    this.rarity = 0.4;
+  }
+  copy() { return new Pineapple(); }
+  async score(game, x, y) {
+    const coords = Util.nextToExpr(game.board.cells, x, y, 
+      (sym) => sym.name() !== Empty.name);
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, 12 - coords.length)]);
+  }
+  description() {
+    return '💵12<br>-💵1 for all non-empty neighbors';
   }
 }
 
@@ -956,3 +975,6 @@ export class Worker extends Symbol {
     return 'destroy neighboring 🪨 for 💵3, 10%: 💎'
   }
 }
+
+const Fruits = [Cherry.name, Mango.name, Pineapple.name];
+const Vegetables = [Corn.name];
