@@ -75,16 +75,10 @@ const makeCatalog = () => [
 ];
 
 const startingSet = () => [
-  // new Coin(),
-  // new Cherry(),
-  // new Cherry(),
-  // new Cherry(),
-  new Pineapple(),
-  new Egg(), new Egg(), new Egg(), new Egg(), new Egg(), 
-  new Egg(), new Egg(), new Egg(), new Egg(), new Egg(), 
-  new Egg(), new Egg(), new Egg(), new Egg(), new Egg(), 
-  new Egg(), new Egg(), new Egg(), new Egg(), new Egg(), 
-  new Egg(), new Egg(), new Egg(), new Egg(), 
+  new Coin(),
+  new Cherry(),
+  new Cherry(),
+  new Cherry(),
 ];
 
 class Inventory {
