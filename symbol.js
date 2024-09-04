@@ -68,11 +68,6 @@ export class Bank extends Symbol {
     this.rarity = 0.5;
   }
   copy() { return new Bank(); }
-  async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 3)]);
-  }
   async evaluate(game, x, y) {
     const coords = Util.nextToSymbol(game.board.cells, x, y, Empty.name);
     if (coords.length === 0) {
@@ -89,7 +84,7 @@ export class Bank extends Symbol {
     }
   }
   description() {
-    return '💵3<br>every third turn: mint 🪙';
+    return 'every third turn: mint 🪙';
   }
 }
 
@@ -149,6 +144,24 @@ export class Bomb extends Symbol {
   }
 }
 
+export class Briefcase extends Symbol {
+  static name = '💼';
+  constructor() {
+    super();
+    this.rarity = 0.07;
+  }
+  copy() { return new Briefcase(); }
+  async score(game, x, y) {
+    const value = game.inventory.symbols.length;
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, value)]);
+  }
+  description() {
+    return '💵1 per symbol in inventory'
+  }
+}
+
 export class Bug extends Symbol {
   static name = '🐛';
   constructor() {
@@ -189,7 +202,7 @@ export class Bug extends Symbol {
     }
   }
   description() {
-    return 'eat neighboring fruit and vegetables for 💵5<br>die after 5 turns with no food';
+    return 'eat neighboring fruit and vegetables for 💵5<br>leave after 5 turns with no food';
   }
 }
 
@@ -550,6 +563,12 @@ export class Fox extends Symbol {
     this.eatenScore = 3;
   }
   copy() { return new Fox(); }
+  async score(game, x, y) {
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, this.eatenScore)]);      
+    this.eatenScore = 0;
+  }
   async evaluate(game, x, y) {
     const eatNeighbor = async (neighborClass, reward) => {
       const coords = Util.nextToSymbol(game.board.cells, x, y, neighborClass.name);
@@ -557,7 +576,7 @@ export class Fox extends Symbol {
         return;
       }
       for (const coord of coords) {
-        this.eatenScore += 10;
+        this.eatenScore += reward;
         const [deleteX, deleteY] = coord;
         game.inventory.remove(game.board.cells[deleteY][deleteX]);
         game.board.cells[deleteY][deleteX] = new Empty();
@@ -565,17 +584,44 @@ export class Fox extends Symbol {
         await game.board.spinDivOnce(deleteX, deleteY);
       }
     };
-    await eatNeighbor(Chick, 5);
-    await eatNeighbor(Chicken, 10);
-  }
-  async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, this.eatenScore)]);      
-    this.eatenScore = 3;
+    await eatNeighbor(Chick, 10);
+    await eatNeighbor(Chicken, 20);
   }
   description() {
-    return '💵3<br>eats neighboring 🐔 for 💵10<br>eats neighboring 🐣 for 💵5';
+    return 'eat neighboring 🐔 for 💵20<br>eat neighboring 🐣 for 💵10<br>leave after 5 turns with no food';
+  }
+}
+
+export class ShoppingBag extends Symbol {
+  static name = '🛍️';
+  constructor() {
+    super();
+    this.rarity = 0.07;
+  }
+  copy() { return new ShoppingBag(); }
+  async evaluate(game, x, y) {
+    game.shop.buyCount++;
+  }
+  description() {
+    return 'allow picking 1 more item';
+  }
+}
+
+export class Slots extends Symbol {
+  static name ='🎰';
+  constructor() {
+    super();
+    this.rarity = 0.05;
+  }
+  copy() { return new Slots(); }
+  async score(game, x, y) {
+    const value = new Set(game.inventory.symbols.map(s => s.name())).size * 2;
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, value)]);
+  }
+  description() {
+    return '💵2 per different symbol in inventory';
   }
 }
 
@@ -685,7 +731,7 @@ export class MoneyBag extends Symbol {
       return;
     }
     for (const coord of coords) {
-      this.coins += 1;
+      this.coins += 2;
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
       game.board.cells[deleteY][deleteX] = new Empty();
@@ -694,7 +740,7 @@ export class MoneyBag extends Symbol {
     }
   }
   description() {
-    return '💵1 for each 🪙 bagged<br>bag neighboring 🪙'
+    return '💵2 for each 🪙 bagged<br>bag neighboring 🪙'
   }
 }
 
@@ -830,12 +876,11 @@ export class Refresh extends Symbol {
   }
   copy() { return new Refresh(); }
   async evaluate(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.1, 2);
     game.shop.refreshable = true;
     game.shop.refreshCost = 1 + (game.inventory.money * 0.01) | 0;
   }
   description() {
-    return 'allows refreshing in the shop';
+    return 'allow refreshing rewards';
   }
 }
 

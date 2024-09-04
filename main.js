@@ -2,7 +2,8 @@ import {
   Symbol, Empty, Dollar,
   Bank,
   Bell,
-  Bomb,
+  // Bomb,
+  Briefcase,
   Bug,
   BullsEye,
   Cherry,
@@ -18,8 +19,9 @@ import {
   Dragon,
   Drums,
   Egg,
-  Firefighter,
+  // Firefighter,
   Fox,
+  Slots,
   Grave,
   MagicWand,
   Mango,
@@ -31,6 +33,7 @@ import {
   Record,
   Refresh,
   Rock,
+  ShoppingBag,
   Tree,
   Volcano,
   Wine,
@@ -41,7 +44,8 @@ import * as Util from './util.js'
 const makeCatalog = () => [
   new Bank(),
   new Bell(),
-  new Bomb(),
+  // new Bomb(),
+  new Briefcase(),
   new Bug(),
   new BullsEye(),
   new Cherry(),
@@ -57,8 +61,9 @@ const makeCatalog = () => [
   new Dragon(),
   new Drums(),
   new Egg(),
-  new Firefighter(),
+  // new Firefighter(),
   new Fox(),
+  new Slots(),
   new Grave(),
   new MagicWand(),
   new Mango(),
@@ -68,6 +73,7 @@ const makeCatalog = () => [
   new Record(),
   new Refresh(),
   new Rock(),
+  new ShoppingBag(),
   new Tree(),
   new Volcano(),
   new Wine(),
@@ -80,6 +86,9 @@ const startingSet = () => [
   new Cherry(),
   new Cherry(),
 ];
+
+// Test
+makeCatalog().forEach(s => s.copy());
 
 class Inventory {
   constructor(symbols) {
@@ -157,6 +166,7 @@ class Shop {
     this.isOpen = false;
     this.refreshCost = 1;
     this.refreshable = false;
+    this.buyCount = 1;
   }
   async open(game) {
     if (this.isOpen) {
@@ -215,9 +225,16 @@ class Shop {
     for (let i = 0; i < 3; ++i) {
       const symbol = Util.randomRemove(newCatalog);
       const shopItemDiv = makeShopItem(symbol.name(), symbol.description(),
-        async () => {
-          game.inventory.add(symbol);
-          await game.shop.close();
+        async (e) => {
+          if (game.shop.buyCount > 0) {
+            game.shop.buyCount--;
+            game.inventory.add(symbol);
+          }
+          const div = e.srcElement.parentElement.parentElement;
+          div.parentElement.removeChild(div);
+          if (game.shop.buyCount === 0) {
+            await game.shop.close();
+          }
       });
       this.shopDiv.appendChild(shopItemDiv);
     }
@@ -242,6 +259,7 @@ class Shop {
       return;
     }
     this.refreshable = false;
+    this.buyCount = 1;
     await Util.animate(this.shopDiv, 'closeShop', 0.2);
     this.shopDiv
     this.shopDiv.replaceChildren();
