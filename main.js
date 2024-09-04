@@ -290,12 +290,12 @@ class Board {
   getSymbolDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[0];
   }
-  async spinDiv(x, y, symbol) {
+  async spinDiv(inventory, x, y, symbol) {
     await Util.delay(Util.random(600));
     const div = this.getSymbolDiv(x, y);
     const randomSymbol = () => {
       const set = new Set();
-      for (const symbol of Object.values(game.inventory.symbols)) {
+      for (const symbol of Object.values(inventory.symbols)) {
         set.add(symbol.name());
       }
       div.innerText = Util.randomChoose([...set]);
@@ -337,12 +337,12 @@ class Board {
     for (let i = 0; i < Util.BOARD_SIZE; ++i) {
       for (let j = 0; j < Util.BOARD_SIZE; ++j) {
         tasks.push(
-          this.spinDiv(j, i, this.cells[i][j]));
+          this.spinDiv(inventory, j, i, this.cells[i][j]));
       }
     }
     await Promise.all(tasks);
   }
-  async evaluate() {
+  async evaluate(game) {
     const sideEffects = [];
     const tasks = [];
     this.forAllCells((cell, x, y) => tasks.push(async () => { cell.evaluate(game, x, y); } ));
@@ -350,7 +350,7 @@ class Board {
       await task();
     }
   }
-  async score() {
+  async score(game) {
     const tasks = [];
     this.forAllCells((cell, x, y) => {
       tasks.push(async () => {
@@ -393,8 +393,8 @@ class Game {
       this.inventory.symbols.forEach(s => s.reset());
       await this.shop.close();
       await this.board.roll(this.inventory);
-      await this.board.evaluate();
-      await this.board.score();
+      await this.board.evaluate(this);
+      await this.board.score(this);
       await this.shop.open(this);
     }
     if (this.inventory.turns % 10 === 0) {
@@ -409,7 +409,7 @@ document.getElementById('roll')
   .addEventListener('click', () => game.roll());
 
 // class AutoGame {
-// constructor() {
+//   constructor() {
 //     this.inventory = new Inventory(startingSet());
 //     this.inventory.update();
 //     this.board = new Board();
@@ -418,8 +418,9 @@ document.getElementById('roll')
 //     this.turns = 0;
 //     this.scores = [];
 
-//     this.allowed = new Set([Multiplier.name, CrystalBall.name, BullsEye.name, Egg.name, Chicken.name, Fox.name]);
-//     this.buyOnce = [];
+//     this.allowed = new Set([Multiplier, Coin, ]);
+//     this.buyOnce = [MoneyBag, Bank, Bank, Bank, Bank, Bank, Bank, CrystalBall, CrystalBall, Bug];
+//     this.symbolLimit = 20;
 //   }
 //   async roll() {
 //     if (this.rolling) {
@@ -433,42 +434,39 @@ document.getElementById('roll')
 //       this.inventory.symbols.forEach(s => s.reset());
 //       await this.shop.close();
 //       await this.board.roll(this.inventory);
-//       await this.board.evaluate();
-//       await this.board.score();
+//       await this.board.evaluate(this);
+//       await this.board.score(this);
 //       await this.shop.open(this);
 //     }
-//     if (this.inventory.turns % 10 === 0) {
-//       console.log('turn', this.inventory.turns, 'money', this.inventory.money);
-//     }
 
-//     // Buy random item
-//     // Choose from allowed set
-
-//     if (this.inventory.symbols.length < 25) {
+//     // Choose from item to buy
+//     if (this.inventory.symbols.length < this.symbolLimit) {
 //       const buttons = document.getElementsByClassName('buyButton');
-
 //       let bought = false;
 //       const tryBuy = (sym) => {
 //         for (const button of buttons) {
-//           if (button.parentElement.parentElement.children[0].innerText === sym) {
+//           if (button.parentElement.parentElement.children[0].innerText === sym.name) {
 //             if (!bought) {
 //               button.click();
-//               console.log('buying', sym);
 //               bought = true;
+//               console.log('bought', sym.name)
 //             }
 //           }
 //         }
 //       };
 //       for (let i = 0; i < this.buyOnce.length; ++i) {
 //         tryBuy(this.buyOnce[i]);
-//         this.buyOnce.splice(i, 1);
+//         if (bought) {
+//           this.buyOnce.splice(i, 1);
+//         }
 //       }
 //       for (const sym of this.allowed) {
 //         tryBuy(sym);
 //       }
-//       // Util.randomChoose(buttons).click();
 //     }
-
+//     if (this.inventory.turns % 10 === 0) {
+//       console.log('turn', this.inventory.turns, 'money', this.inventory.money);
+//     }
 //     this.rolling = false;
 //   }
 //   async simulate() {
@@ -477,5 +475,15 @@ document.getElementById('roll')
 //     }
 //   }
 // }
+
 // const game = new AutoGame();
-// game.simulate();
+// await game.simulate();
+
+// let total = 0;
+// for (let i = 0; i < 10; ++i) {
+//   const game = new AutoGame();
+//   await game.simulate();
+//   total += game.inventory.money;
+//   console.log(game.inventory.money);
+// }
+// console.log('average', total / 10.0);

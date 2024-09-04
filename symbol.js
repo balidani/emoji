@@ -447,15 +447,15 @@ export class Dancer extends Symbol {
     }
     for (const coord of coords) {
       this.musicScore += 10;
-      const [deleteX, deleteY] = coord;
-      game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      game.board.cells[deleteY][deleteX] = new Empty();
-      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15);
-      await game.board.spinDivOnce(deleteX, deleteY);
+      // const [deleteX, deleteY] = coord;
+      // game.inventory.remove(game.board.cells[deleteY][deleteX]);
+      // game.board.cells[deleteY][deleteX] = new Empty();
+      // await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15);
+      // await game.board.spinDivOnce(deleteX, deleteY);
     }
   }
   description() {
-    return 'remove neighboring 🎵 for 💵10';
+    return '💵10 for each neighboring 🎵';
   }
 }
 
@@ -463,7 +463,7 @@ export class Diamond extends Symbol {
   static name = '💎';
   constructor() {
     super();
-    this.rarity = 0.32;
+    this.rarity = 0.35;
   }
   copy() { return new Diamond(); }
   async score(game, x, y) {
