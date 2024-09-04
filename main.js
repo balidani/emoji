@@ -1,8 +1,9 @@
 import {
   Symbol, Empty, Dollar,
+  Balloon,
   Bank,
   Bell,
-  // Bomb,
+  Bomb,
   Briefcase,
   Bug,
   BullsEye,
@@ -16,10 +17,11 @@ import {
   CrystalBall,
   Dancer,
   Diamond,
+  Dice,
   Dragon,
   Drums,
   Egg,
-  // Firefighter,
+  Firefighter,
   Fox,
   Slots,
   Grave,
@@ -42,6 +44,7 @@ import {
 import * as Util from './util.js'
 
 const makeCatalog = () => [
+  new Balloon(),
   new Bank(),
   new Bell(),
   // new Bomb(),
@@ -58,6 +61,7 @@ const makeCatalog = () => [
   new CrystalBall(),
   new Dancer(),
   new Diamond(),
+  new Dice(),
   new Dragon(),
   new Drums(),
   new Egg(),
@@ -75,9 +79,9 @@ const makeCatalog = () => [
   new Rock(),
   new ShoppingBag(),
   new Tree(),
-  new Volcano(),
+  // new Volcano(),
   new Wine(),
-  new Worker(),
+  // new Worker(),
 ];
 
 const startingSet = () => [
@@ -231,6 +235,7 @@ class Shop {
             game.inventory.add(symbol);
           }
           const div = e.srcElement.parentElement.parentElement;
+          await Util.animate(div, 'closeShop', 0.2);
           div.parentElement.removeChild(div);
           if (game.shop.buyCount === 0) {
             await game.shop.close();
@@ -338,24 +343,24 @@ class Board {
   async evaluate() {
     const sideEffects = [];
     const tasks = [];
-    this.forAllCells((cell, x, y) => tasks.push(cell.evaluate(game, x, y)));
+    this.forAllCells((cell, x, y) => tasks.push(async () => { cell.evaluate(game, x, y); } ));
     for (const task of tasks) {
-      await task;
+      await task();
     }
   }
   async score() {
-    let total = 0;
     const tasks = [];
     this.forAllCells((cell, x, y) => {
       tasks.push(async () => {
-        const cellScore = await cell.score(game, x, y);
-        total += cellScore;
+        // const before = game.inventory.money;
+        await cell.score(game, x, y);
+        // const after = game.inventory.money;
+        // console.log(cell.name(), after - before);
       });
     })
     for (const task of tasks) {
       await task();
     }
-    return total;
   }
   forAllCells(f) {
     this.cells.forEach((row, y) => {
@@ -383,6 +388,7 @@ class Game {
     this.inventory.updateUi();
     if (this.inventory.money > 0) {
       this.inventory.addMoney(-1);
+      this.inventory.symbols.forEach(s => s.reset());
       await this.shop.close();
       await this.board.roll(this.inventory);
       await this.board.evaluate();
@@ -409,35 +415,62 @@ document.getElementById('roll')
 //     this.rolling = false;
 //     this.turns = 0;
 //     this.scores = [];
+
+//     this.allowed = new Set([Multiplier.name, CrystalBall.name, BullsEye.name, Egg.name, Chicken.name, Fox.name]);
+//     this.buyOnce = [];
 //   }
 //   async roll() {
 //     if (this.rolling) {
 //       return;
 //     }
 //     this.rolling = true;
-//     this.turns++;
-//     if (this.turns % 10 === 0) {
-//       this.scores.push(this.inventory.money);
-//       console.log(this.scores);
-//     }
+//     this.inventory.turns++;
+//     this.inventory.updateUi();
 //     if (this.inventory.money > 0) {
 //       this.inventory.addMoney(-1);
+//       this.inventory.symbols.forEach(s => s.reset());
 //       await this.shop.close();
 //       await this.board.roll(this.inventory);
 //       await this.board.evaluate();
 //       await this.board.score();
 //       await this.shop.open(this);
-
-//       // Buy random item
-//       if (this.inventory.symbols.length < 25) {
-//         const buttons = document.getElementsByClassName('buyButton');
-//         Util.randomChoose(buttons).click();
-//       }
 //     }
+//     if (this.inventory.turns % 10 === 0) {
+//       console.log('turn', this.inventory.turns, 'money', this.inventory.money);
+//     }
+
+//     // Buy random item
+//     // Choose from allowed set
+
+//     if (this.inventory.symbols.length < 25) {
+//       const buttons = document.getElementsByClassName('buyButton');
+
+//       let bought = false;
+//       const tryBuy = (sym) => {
+//         for (const button of buttons) {
+//           if (button.parentElement.parentElement.children[0].innerText === sym) {
+//             if (!bought) {
+//               button.click();
+//               console.log('buying', sym);
+//               bought = true;
+//             }
+//           }
+//         }
+//       };
+//       for (let i = 0; i < this.buyOnce.length; ++i) {
+//         tryBuy(this.buyOnce[i]);
+//         this.buyOnce.splice(i, 1);
+//       }
+//       for (const sym of this.allowed) {
+//         tryBuy(sym);
+//       }
+//       // Util.randomChoose(buttons).click();
+//     }
+
 //     this.rolling = false;
 //   }
 //   async simulate() {
-//     while (this.turns < 100) {
+//     while (this.turns++ < 100) {
 //       await this.roll();
 //     }
 //   }

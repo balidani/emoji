@@ -1,10 +1,18 @@
+const NO_ANIMATION = false;
 export const BOARD_SIZE = 5;
 export const random = (lim) => Math.random() * lim | 0;
 export const randomChoose = (arr) => arr[random(arr.length)];
 export const randomRemove = (arr) => arr.splice(random(arr.length), 1)[0];
-export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+export const delay = (ms) => {
+  if (NO_ANIMATION) {
+    return;
+  }
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 export const animate = (element, animation, duration, repeat=1) => {
-  // return;
+  if (NO_ANIMATION) {
+    return;
+  }
   return new Promise((resolve) => {
     element.style.animation = 'none';
     element.offsetWidth;  // lmao

@@ -37,10 +37,12 @@ export class Symbol {
   }
   async addMoney(game, score) {
     await game.inventory.addMoney(score * this.multiplier);
-    this.multiplier = 1;
   }
   name() { 
     return this.constructor.name;
+  }
+  reset() {
+    this.multiplier = 1;
   }
 }
 
@@ -59,6 +61,28 @@ export class Dollar {
 }
 
 /* Gameplay symbols. */
+
+export class Balloon extends Symbol {
+  static name = '🎈';
+  constructor() {
+    super();
+    this.rarity = 0.1;
+  }
+  copy() { return new Balloon(); }
+  async evaluate(game, x, y) {
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, 20)]);
+    if (chance(game, 0.5, x, y)) {
+      game.inventory.remove(this);
+      game.board.cells[y][x] = new Empty();
+      await game.board.spinDivOnce(x, y);
+    }
+  }
+  description() {
+    return '💵20<br>50%: pop';
+  }
+}
 
 export class Bank extends Symbol {
   static name = '🏦';
@@ -458,6 +482,25 @@ export class Diamond extends Symbol {
   }
 }
 
+export class Dice extends Symbol {
+  static name = '🎲';
+  constructor() {
+    super();
+    this.rarity = 0.17;
+  }
+  copy() { return new Dice(); }
+  async score(game, x, y) {
+    if (chance(game, 0.01, x, y)) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1, 2),
+        this.addMoney(game, 60)]);
+    }
+  }
+  description() {
+    return '1%: 💵60';
+  }
+}
+
 export class Dragon extends Symbol {
   static name = '🐉';
   constructor() {
@@ -561,6 +604,7 @@ export class Fox extends Symbol {
     super();
     this.rarity = 0.25;
     this.eatenScore = 3;
+    this.timeToLive = 5;
   }
   copy() { return new Fox(); }
   async score(game, x, y) {
@@ -583,9 +627,17 @@ export class Fox extends Symbol {
         await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.1, 2);
         await game.board.spinDivOnce(deleteX, deleteY);
       }
+      this.timeToLive = 5;
     };
+
+    this.timeToLive--;
     await eatNeighbor(Chick, 10);
     await eatNeighbor(Chicken, 20);
+    if (this.timeToLive <= 0) {
+      game.inventory.remove(this);
+      game.board.cells[y][x] = new Empty();
+      await game.board.spinDivOnce(x, y);
+    }
   }
   description() {
     return 'eat neighboring 🐔 for 💵20<br>eat neighboring 🐣 for 💵10<br>leave after 5 turns with no food';
@@ -776,6 +828,11 @@ export class MusicalNote extends Symbol {
     this.timeToLive = timeToLive;
   }
   copy() { return new MusicalNote(this.timeToLive); }
+  async score(game, x, y) {
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, 4)]);
+  }
   async evaluate(game, x, y) {
     if (this.timeToLive === 0) {
       game.inventory.remove(this);
@@ -785,7 +842,7 @@ export class MusicalNote extends Symbol {
     this.timeToLive--;
   }
   description() {
-    return 'disappear after 3 turns';
+    return '💵4<br>disappear after 3 turns';
   }
 }
 
