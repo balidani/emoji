@@ -234,9 +234,11 @@ class Shop {
             game.shop.buyCount--;
             game.inventory.add(symbol);
           }
-          const div = e.srcElement.parentElement.parentElement;
-          await Util.animate(div, 'closeShop', 0.2);
-          div.parentElement.removeChild(div);
+          if (game.shop.buyCount > 0) {
+            const div = e.srcElement.parentElement.parentElement;
+            await Util.animate(div, 'closeShop', 0.2);
+            div.parentElement.removeChild(div);
+          }
           if (game.shop.buyCount === 0) {
             await game.shop.close();
           }
