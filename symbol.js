@@ -927,7 +927,7 @@ export class Record extends Symbol {
       return;
     }
     for (const coord of coords) {
-      this.notes += 3;
+      this.notes += 4;
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
       game.board.cells[deleteY][deleteX] = new Empty();
@@ -936,7 +936,7 @@ export class Record extends Symbol {
     }
   }
   description() {
-    return 'record neighboring 🎵<br>💵3 for each 🎵 recorded';
+    return 'record neighboring 🎵<br>💵4 for each 🎵 recorded';
   }
 }
 
@@ -1016,11 +1016,11 @@ export class Tree extends Symbol {
 
     this.turns++;
     if (this.turns % 5 === 0) {
-      await grow(); await grow(); await grow();
+      await grow(); await grow(); await grow(); await grow();
     }
   }
   description() {
-    return 'every 5 turns: grow 🍒🍒🍒';
+    return 'every 5 turns: grow 🍒🍒🍒🍒';
   }
 }
 
@@ -1052,7 +1052,7 @@ export class Wine extends Symbol {
   static name = '🍷';
   constructor() {
     super();
-    this.rarity = 0.22;
+    this.rarity = 0.87;
     this.cherryScore = 0;
   }
   copy() { return new Wine(); }
@@ -1062,7 +1062,6 @@ export class Wine extends Symbol {
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
         this.addMoney(game, this.cherryScore)]);
     }
-    this.cherryScore = 0;
   }
   async evaluate(game, x, y) {
     const coords = Util.nextToSymbol(game.board.cells, x, y, Cherry.name);
@@ -1070,7 +1069,7 @@ export class Wine extends Symbol {
       return;
     }
     for (const coord of coords) {
-      this.cherryScore += 5;
+      this.cherryScore += 2;
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
       game.board.cells[deleteY][deleteX] = new Empty();
@@ -1079,7 +1078,7 @@ export class Wine extends Symbol {
     }
   }
   description() {
-    return 'remove neighboring 🍒 for 💵5'
+    return 'remove neighboring 🍒<br>💵2 per 🍒 removed'
   }
 }
 

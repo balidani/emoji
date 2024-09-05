@@ -451,9 +451,13 @@ console.log(game);
 //     this.turns = 0;
 //     this.scores = [];
 
-//     this.allowed = new Set([Multiplier, Coin, Rocket]);
-//     this.buyOnce = [MoneyBag, Bug, MagicWand, BullsEye, Bank, Bank, Bank, Bank,  Bank,CrystalBall, CrystalBall];
-//     this.symbolLimit = 21;
+//     this.allowed = new Set([
+//       Multiplier, Dice, BullsEye, MagicWand
+//     ]);
+//     this.buyOnce = [
+//       MagicWand, Bug, CrystalBall, CrystalBall, CrystalBall, CrystalBall, 
+//     ];
+//     this.symbolLimit = 20;
 //   }
 //   async over() {
 //     await this.board.finalScore(this);
