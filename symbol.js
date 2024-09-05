@@ -1053,12 +1053,12 @@ export class Volcano extends Symbol {
 
 export class Cocktail extends Symbol {
   static name = '🍹';
-  constructor() {
+  constructor(cherryScore = 0) {
     super();
     this.rarity = 0.87;
-    this.cherryScore = 0;
+    this.cherryScore = cherryScore;
   }
-  copy() { return new Cocktail(); }
+  copy() { return new Cocktail(this.cherryScore); }
   async score(game, x, y) {
     if (this.cherryScore > 0) {
       await Promise.all([
