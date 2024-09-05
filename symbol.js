@@ -1055,7 +1055,7 @@ export class Cocktail extends Symbol {
   static name = '🍹';
   constructor(cherryScore = 0) {
     super();
-    this.rarity = 0.87;
+    this.rarity = 0.27;
     this.cherryScore = cherryScore;
   }
   copy() { return new Cocktail(this.cherryScore); }
