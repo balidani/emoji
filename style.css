@@ -5,6 +5,9 @@ body {
 button {
   font-size: 24pt;
 }
+.blur {
+  filter: blur(4px); /* Apply a blur of 5px */
+}
 
 .wrapper {
   display: flex;
@@ -88,7 +91,33 @@ button {
   transform-origin: top;
 }
 
+/* Score */
+.score {
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  left: 0pt;
+  top: 0pt;
+  width: 100%;
+  padding-top: 4pt;
+  padding-left: 4pt;
+  padding-bottom: 4pt;
+  font-size: 120pt;
+}
+
 /* Animations */
+
+@keyframes blurStart {
+  0% { filter: blur(0px); }
+  100% { filter: blur(4px); }
+}
+
+@keyframes scoreIn {
+  0% { transform: translateY(-400pt); }
+  80% { transform: translateY(0pt); }
+  90% { transform: translateY(-8pt); }
+  100% { transform: translateY(0pt); }
+}
 
 @keyframes startSpin {
   0% { transform: scaleY(1) translateY(0); }
@@ -126,6 +155,14 @@ button {
   50% { transform: translateX(0); }
   75% { transform: translateX(-2pt); }
   100% { transform: translateX(0); }
+}
+
+@keyframes shakeRocket {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(2pt, -2pt); }
+  50% { transform: translate(0, 0); }
+  75% { transform: translate(-2pt, 2pt); }
+  100% { transform: translate(0, 0); }
 }
 
 @keyframes openShop {

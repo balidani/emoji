@@ -35,6 +35,7 @@ import {
   Record,
   Refresh,
   Rock,
+  Rocket,
   ShoppingBag,
   Tree,
   Volcano,
@@ -47,7 +48,7 @@ const makeCatalog = () => [
   new Balloon(),
   new Bank(),
   new Bell(),
-  // new Bomb(),
+  new Bomb(),
   new Briefcase(),
   new Bug(),
   new BullsEye(),
@@ -65,7 +66,7 @@ const makeCatalog = () => [
   new Dragon(),
   new Drums(),
   new Egg(),
-  // new Firefighter(),
+  new Firefighter(),
   new Fox(),
   new Slots(),
   new Grave(),
@@ -77,6 +78,7 @@ const makeCatalog = () => [
   new Record(),
   new Refresh(),
   new Rock(),
+  new Rocket(),
   new ShoppingBag(),
   new Tree(),
   // new Volcano(),
@@ -350,6 +352,20 @@ class Board {
       await task();
     }
   }
+  async finalScore(game) {
+    const tasks = [];
+    this.forAllCells((cell, x, y) => {
+      tasks.push(async () => {
+        // const before = game.inventory.money;
+        await cell.finalScore(game, x, y);
+        // const after = game.inventory.money;
+        // console.log(cell.name(), after - before);
+      });
+    })
+    for (const task of tasks) {
+      await task();
+    }
+  }
   async score(game) {
     const tasks = [];
     this.forAllCells((cell, x, y) => {
@@ -381,6 +397,19 @@ class Game {
     this.shop = new Shop();
     this.rolling = false;
   }
+  async over() {
+    await this.board.finalScore(this);
+    const blurDiv = document.querySelector('.blur-me');
+    blurDiv.classList.add('blur');
+    await Util.animate(blurDiv, 'blurStart', 0.4);
+    const scoreDiv = document.createElement('div');
+    scoreDiv.classList.add('score');
+    scoreDiv.innerText = '💵' + this.inventory.money;
+    document.querySelector('body').appendChild(scoreDiv);
+    await Util.animate(scoreDiv, 'scoreIn', 0.4);
+
+    document.getElementById('roll')
+  }
   async roll() {
     if (this.rolling) {
       return;
@@ -401,12 +430,16 @@ class Game {
       console.log('turn', this.inventory.turns, 'money', this.inventory.money);
     }
     this.rolling = false;
+    if (this.inventory.turns === 100) {
+      await this.over();
+    }
   }
 }
 
 const game = new Game();
 document.getElementById('roll')
   .addEventListener('click', () => game.roll());
+console.log(game);
 
 // class AutoGame {
 //   constructor() {
@@ -418,9 +451,22 @@ document.getElementById('roll')
 //     this.turns = 0;
 //     this.scores = [];
 
-//     this.allowed = new Set([Multiplier, Coin, ]);
-//     this.buyOnce = [MoneyBag, Bank, Bank, Bank, Bank, Bank, Bank, CrystalBall, CrystalBall, Bug];
-//     this.symbolLimit = 20;
+//     this.allowed = new Set([Multiplier, Coin, Rocket]);
+//     this.buyOnce = [MoneyBag, Bug, MagicWand, BullsEye, Bank, Bank, Bank, Bank,  Bank,CrystalBall, CrystalBall];
+//     this.symbolLimit = 21;
+//   }
+//   async over() {
+//     await this.board.finalScore(this);
+//     const blurDiv = document.querySelector('.blur-me');
+//     blurDiv.classList.add('blur');
+//     await Util.animate(blurDiv, 'blurStart', 0.4);
+//     const scoreDiv = document.createElement('div');
+//     scoreDiv.classList.add('score');
+//     scoreDiv.innerText = '💵' + this.inventory.money;
+//     document.querySelector('body').appendChild(scoreDiv);
+//     await Util.animate(scoreDiv, 'scoreIn', 0.4);
+
+//     document.getElementById('roll')
 //   }
 //   async roll() {
 //     if (this.rolling) {
@@ -449,7 +495,7 @@ document.getElementById('roll')
 //             if (!bought) {
 //               button.click();
 //               bought = true;
-//               console.log('bought', sym.name)
+//               // console.log('bought', sym.name)
 //             }
 //           }
 //         }
@@ -464,10 +510,13 @@ document.getElementById('roll')
 //         tryBuy(sym);
 //       }
 //     }
-//     if (this.inventory.turns % 10 === 0) {
-//       console.log('turn', this.inventory.turns, 'money', this.inventory.money);
-//     }
+//     // if (this.inventory.turns % 10 === 0) {
+//     //   console.log('turn', this.inventory.turns, 'money', this.inventory.money);
+//     // }
 //     this.rolling = false;
+//     if (this.inventory.turns === 100) {
+//       await this.over();
+//     }
 //   }
 //   async simulate() {
 //     while (this.turns++ < 100) {
@@ -476,8 +525,8 @@ document.getElementById('roll')
 //   }
 // }
 
-// const game = new AutoGame();
-// await game.simulate();
+// // const game = new AutoGame();
+// // await game.simulate();
 
 // let total = 0;
 // for (let i = 0; i < 10; ++i) {
