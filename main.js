@@ -11,6 +11,7 @@ import {
   Chick,
   Chicken,
   Clover,
+  Cocktail,
   Coin,
   Corn,
   CreditCard,
@@ -39,7 +40,6 @@ import {
   ShoppingBag,
   Tree,
   Volcano,
-  Wine,
   Worker,
 } from './symbol.js';
 import * as Util from './util.js'
@@ -56,6 +56,7 @@ const makeCatalog = () => [
   new Chick(),
   new Chicken(),
   new Clover(),
+  new Cocktail(),
   new Coin(),
   new Corn(),
   new CreditCard(),
@@ -82,7 +83,6 @@ const makeCatalog = () => [
   new ShoppingBag(),
   new Tree(),
   // new Volcano(),
-  new Wine(),
   // new Worker(),
 ];
 
@@ -452,12 +452,12 @@ console.log(game);
 //     this.scores = [];
 
 //     this.allowed = new Set([
-//       Multiplier, Dice, BullsEye, MagicWand
+//       Multiplier, Egg, BullsEye
 //     ]);
 //     this.buyOnce = [
-//       MagicWand, Bug, CrystalBall, CrystalBall, CrystalBall, CrystalBall, 
+//       CrystalBall, // Cocktail, Tree, Tree, Rocket, MagicWand, 
 //     ];
-//     this.symbolLimit = 20;
+//     this.symbolLimit = 40;
 //   }
 //   async over() {
 //     await this.board.finalScore(this);

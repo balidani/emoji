@@ -254,7 +254,7 @@ export class Cherry extends Symbol {
   static name = '🍒';
   constructor() {
     super();
-    this.rarity = 1;
+    this.rarity = 0.8;
   }
   copy() { return new Cherry(); }
   async score(game, x, y) {
@@ -514,6 +514,7 @@ export class Dice extends Symbol {
   }
 }
 
+let dragonScore = 0;
 export class Dragon extends Symbol {
   static name = '🐉';
   constructor() {
@@ -524,10 +525,12 @@ export class Dragon extends Symbol {
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 12)]);
+      this.addMoney(game, 24)]);
+    dragonScore += 24 * this.multiplier;
+    console.log(dragonScore);
   }
   description() {
-    return '💵12';
+    return '💵24';
   }
 }
 
@@ -1048,14 +1051,14 @@ export class Volcano extends Symbol {
   }
 }
 
-export class Wine extends Symbol {
-  static name = '🍷';
+export class Cocktail extends Symbol {
+  static name = '🍹';
   constructor() {
     super();
     this.rarity = 0.87;
     this.cherryScore = 0;
   }
-  copy() { return new Wine(); }
+  copy() { return new Cocktail(); }
   async score(game, x, y) {
     if (this.cherryScore > 0) {
       await Promise.all([
@@ -1064,21 +1067,26 @@ export class Wine extends Symbol {
     }
   }
   async evaluate(game, x, y) {
-    const coords = Util.nextToSymbol(game.board.cells, x, y, Cherry.name);
-    if (coords.length === 0) {
-      return;
+    const remove = async (sym, reward) => {
+      const coords = Util.nextToSymbol(game.board.cells, x, y, sym.name);
+      if (coords.length === 0) {
+        return;
+      }
+      for (const coord of coords) {
+        this.cherryScore += reward;
+        const [deleteX, deleteY] = coord;
+        game.inventory.remove(game.board.cells[deleteY][deleteX]);
+        game.board.cells[deleteY][deleteX] = new Empty();
+        await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15);
+        await game.board.spinDivOnce(deleteX, deleteY);
+      }
     }
-    for (const coord of coords) {
-      this.cherryScore += 2;
-      const [deleteX, deleteY] = coord;
-      game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      game.board.cells[deleteY][deleteX] = new Empty();
-      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15);
-      await game.board.spinDivOnce(deleteX, deleteY);
-    }
+    await remove(Cherry, 2);
+    await remove(Pineapple, 4);
+    await remove(Mango, 8);
   }
   description() {
-    return 'remove neighboring 🍒<br>💵2 per 🍒 removed'
+    return '💵2 per 🍒 removed<br>💵4 per 🍍 removed<br>💵8 per 🥭 removed';
   }
 }
 
@@ -1116,4 +1124,4 @@ export class Worker extends Symbol {
 }
 
 const Fruits = [Cherry.name, Mango.name, Pineapple.name];
-const Vegetables = [Corn.name];
+const Vegetables = [Corn.name, Clover.name];
