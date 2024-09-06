@@ -438,8 +438,6 @@ const game = new Game();
 document.getElementById('roll')
   .addEventListener('click', () => game.roll());
 console.log(game);
-game.inventory.money = 261;
-game.over();
 
 document.getElementById('settings')
   .addEventListener('click', () => {
