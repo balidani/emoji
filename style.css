@@ -107,6 +107,24 @@ button {
   font-size: 120pt;
 }
 
+/* Settings */
+
+.settings {
+  position: fixed;
+  right: 0pt;
+  top: 0pt;
+  width: 42pt;
+  letter-spacing: 4pt;
+  padding-top: 8pt;
+  padding-left: 4pt;
+  padding-bottom: 4pt;
+}
+
+.settingsButton {
+  font-size: 12pt;
+  margin-bottom: 4pt; 
+}
+
 /* Animations */
 
 @keyframes blurStart {

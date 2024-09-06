@@ -410,9 +410,6 @@ class Game {
     scoreDiv.innerText = '💵' + this.inventory.money;
     document.querySelector('body').appendChild(scoreDiv);
     await Util.animate(scoreDiv, 'scoreIn', 0.4);
-
-    console.log(totalTurns);
-    // document.getElementById('roll')
   }
   async roll() {
     if (this.rolling) {
@@ -434,7 +431,6 @@ class Game {
     if (this.inventory.turns === 0) {
       await this.over();
     }
-    totalTurns++;
   }
 }
 
@@ -442,6 +438,15 @@ const game = new Game();
 document.getElementById('roll')
   .addEventListener('click', () => game.roll());
 console.log(game);
+
+document.getElementById('settings')
+  .addEventListener('click', () => {
+    document.querySelector('.settings > .settingsContent').classList.toggle('hidden');
+  });
+document.getElementById('animation')
+  .addEventListener('click', () => {
+    Util.toggleAnimation();
+  });
 
 // class AutoGame {
 //   constructor() {
