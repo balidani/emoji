@@ -452,12 +452,12 @@ console.log(game);
 //     this.scores = [];
 
 //     this.allowed = new Set([
-//       Multiplier, Egg, BullsEye
+//       Multiplier, Coin,
 //     ]);
 //     this.buyOnce = [
-//       CrystalBall, // Cocktail, Tree, Tree, Rocket, MagicWand, 
+//        MoneyBag, Bug, MagicWand, BullsEye, Rocket, Bank, Bank, Bank, Bank, CrystalBall, CrystalBall
 //     ];
-//     this.symbolLimit = 40;
+//     this.symbolLimit = 20;
 //   }
 //   async over() {
 //     await this.board.finalScore(this);
@@ -532,11 +532,16 @@ console.log(game);
 // // const game = new AutoGame();
 // // await game.simulate();
 
-// let total = 0;
-// for (let i = 0; i < 10; ++i) {
-//   const game = new AutoGame();
-//   await game.simulate();
-//   total += game.inventory.money;
-//   console.log(game.inventory.money);
-// }
-// console.log('average', total / 10.0);
+// const run = async () => {
+//   const scores = [];
+//   for (let i = 0; i < 20; ++i) {
+//     const game = new AutoGame();
+//     await game.simulate();
+//     scores.push(game.inventory.money);
+//     const avg = scores.reduce((acc, val) => acc + val, 0) / scores.length | 0;
+//     const max = Math.max(...scores);
+//     const min = Math.min(...scores);
+//     console.log(`average ${avg} max ${max} min ${min}`);
+//   }
+// };
+// await run();
