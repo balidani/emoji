@@ -151,17 +151,17 @@ button {
 
 @keyframes startSpin {
   0% { transform: scaleY(1) translateY(0); }
-  100% { transform: scaleY(0.5) translateY(70pt); }
+  100% { transform: scaleY(0.5) translateY(90pt); }
 }
 
 @keyframes spin {
-  0% { transform: scaleY(0.25) translateY(-54pt); }
+  0% { transform: scaleY(0.25) translateY(-70pt); }
   50% { transform: scaleY(1.4) translateY(0); }
-  100% { transform: scaleY(0.5) translateY(70pt); }
+  100% { transform: scaleY(0.5) translateY(90pt); }
 }
 
 @keyframes endSpin {
-  0% { transform: scaleY(0.5) translateY(-70pt); }
+  0% { transform: scaleY(0.5) translateY(-90pt); }
   100% { transform: scaleY(1) translateY(0); }
 }
 
