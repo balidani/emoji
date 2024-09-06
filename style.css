@@ -99,7 +99,7 @@ button {
   justify-content: center;
   position: fixed;
   left: 0pt;
-  top: 0pt;
+  top: 50vh;
   width: 100%;
   padding-top: 4pt;
   padding-left: 4pt;
@@ -133,7 +133,7 @@ button {
 }
 
 @keyframes scoreIn {
-  0% { transform: translateY(-400pt); }
+  0% { transform: translateY(-100vh); }
   80% { transform: translateY(0pt); }
   90% { transform: translateY(-8pt); }
   100% { transform: translateY(0pt); }
