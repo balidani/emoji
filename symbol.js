@@ -187,10 +187,10 @@ export class Briefcase extends Symbol {
     const value = game.inventory.symbols.length;
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, value)]);
+      this.addMoney(game, value * 2)]);
   }
   description() {
-    return '💵1 per symbol in inventory'
+    return '💵2 per symbol in inventory'
   }
 }
 
@@ -703,13 +703,13 @@ export class Slots extends Symbol {
   }
   copy() { return new Slots(); }
   async score(game, x, y) {
-    const value = new Set(game.inventory.symbols.map(s => s.name())).size * 2;
+    const value = new Set(game.inventory.symbols.map(s => s.name())).size;
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, value)]);
+      this.addMoney(game, value * 3)]);
   }
   description() {
-    return '💵2 per different symbol in inventory';
+    return '💵3 per different symbol in inventory';
   }
 }
 

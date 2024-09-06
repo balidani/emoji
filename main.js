@@ -455,12 +455,11 @@ console.log(game);
 //     this.isOver = false;
 
 //     this.allowed = new Set([
-//       Multiplier, FreeTurn, Dice
+//       Multiplier,
 //     ]);
 //     this.buyOnce = [
-//       Grave, Grave, Grave, BullsEye, BullsEye, BullsEye, CrystalBall, CrystalBall
 //     ];
-//     this.symbolLimit = 15;
+//     this.symbolLimit = 1000;
 //   }
 //   async over() {
 //     this.isOver = true;
