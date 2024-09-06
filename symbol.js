@@ -337,7 +337,7 @@ export class Clover extends Symbol {
   static name = '🍀';
   constructor() {
     super();
-    this.rarity = 0.3;
+    this.rarity = 0.35;
   }
   copy() { return new Clover(); }
   description() {
@@ -429,7 +429,7 @@ export class CrystalBall extends Symbol {
   static name = '🔮';
   constructor() {
     super();
-    this.rarity = 0.1;
+    this.rarity = 0.12;
   }
   copy() { return new CrystalBall(); }
   description() {
@@ -513,7 +513,6 @@ export class Dice extends Symbol {
   }
 }
 
-let dragonScore = 0;
 export class Dragon extends Symbol {
   static name = '🐉';
   constructor() {
@@ -525,8 +524,6 @@ export class Dragon extends Symbol {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
       this.addMoney(game, 24)]);
-    dragonScore += 24 * this.multiplier;
-    console.log(dragonScore);
   }
   description() {
     return '💵24';
@@ -661,6 +658,28 @@ export class Fox extends Symbol {
   }
 }
 
+export class FreeTurn extends Symbol {
+  static name = '🈚';
+  constructor() {
+    super();
+    this.rarity = 0.08;
+  }
+  copy() { return new FreeTurn(); }
+  async evaluate(game, x, y) {
+    if (chance(game, 0.1, x, y)) {
+      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.1, 3);
+      game.inventory.turns++;
+      game.inventory.updateUi();
+      game.inventory.remove(this);
+      game.board.cells[y][x] = new Empty();
+      await game.board.spinDivOnce(x, y);
+    }
+  }
+  description() {
+    return '10%: one more ⏰, disappear'
+  }
+}
+
 export class ShoppingBag extends Symbol {
   static name = '🛍️';
   constructor() {
@@ -698,7 +717,7 @@ export class Grave extends Symbol {
   static name = '🪦';
   constructor() {
     super();
-    this.rarity = 0.12;
+    this.rarity = 0.11;
   }
   copy() { return new Grave(); }
   async evaluate(game, x, y) {
@@ -814,7 +833,7 @@ export class MoneyBag extends Symbol {
 }
 
 export class Multiplier extends Symbol {
-  static name = '❎';
+  static name = '❇️';
   constructor() {
     super();
     this.rarity = 0.04;

@@ -2,9 +2,11 @@ body {
   overflow: hidden;
   font-family: monospace;
 }
+
 button {
   font-size: 24pt;
 }
+
 .blur {
   filter: blur(4px); /* Apply a blur of 5px */
 }

@@ -24,6 +24,7 @@ import {
   Egg,
   Firefighter,
   Fox,
+  FreeTurn,
   Slots,
   Grave,
   MagicWand,
@@ -69,6 +70,7 @@ const makeCatalog = () => [
   new Egg(),
   new Firefighter(),
   new Fox(),
+  new FreeTurn(),
   new Slots(),
   new Grave(),
   new MagicWand(),
@@ -95,6 +97,7 @@ const startingSet = () => [
 
 // Test
 makeCatalog().forEach(s => s.copy());
+let totalTurns = 0;
 
 class Inventory {
   constructor(symbols) {
@@ -102,7 +105,7 @@ class Inventory {
     this.symbolsDiv = document.querySelector('.inventory');
     this.uiDiv = document.querySelector('.ui');
     this.money = 1;
-    this.turns = 0;
+    this.turns = 99;
     this.updateUi();
     this.graveyard = [];
   }
@@ -408,14 +411,15 @@ class Game {
     document.querySelector('body').appendChild(scoreDiv);
     await Util.animate(scoreDiv, 'scoreIn', 0.4);
 
-    document.getElementById('roll')
+    console.log(totalTurns);
+    // document.getElementById('roll')
   }
   async roll() {
     if (this.rolling) {
       return;
     }
     this.rolling = true;
-    this.inventory.turns++;
+    this.inventory.turns--;
     this.inventory.updateUi();
     if (this.inventory.money > 0) {
       this.inventory.addMoney(-1);
@@ -426,13 +430,11 @@ class Game {
       await this.board.score(this);
       await this.shop.open(this);
     }
-    if (this.inventory.turns % 10 === 0) {
-      console.log('turn', this.inventory.turns, 'money', this.inventory.money);
-    }
     this.rolling = false;
-    if (this.inventory.turns === 100) {
+    if (this.inventory.turns === 0) {
       await this.over();
     }
+    totalTurns++;
   }
 }
 
@@ -448,18 +450,20 @@ console.log(game);
 //     this.board = new Board();
 //     this.shop = new Shop();
 //     this.rolling = false;
-//     this.turns = 0;
+//     totalTurns = 0;
 //     this.scores = [];
+//     this.isOver = false;
 
 //     this.allowed = new Set([
-//       Multiplier, Coin,
+//       Multiplier, FreeTurn, Dice
 //     ]);
 //     this.buyOnce = [
-//        MoneyBag, Bug, MagicWand, BullsEye, Rocket, Bank, Bank, Bank, Bank, CrystalBall, CrystalBall
+//       Grave, Grave, Grave, BullsEye, BullsEye, BullsEye, CrystalBall, CrystalBall
 //     ];
-//     this.symbolLimit = 20;
+//     this.symbolLimit = 15;
 //   }
 //   async over() {
+//     this.isOver = true;
 //     await this.board.finalScore(this);
 //     const blurDiv = document.querySelector('.blur-me');
 //     blurDiv.classList.add('blur');
@@ -473,11 +477,11 @@ console.log(game);
 //     document.getElementById('roll')
 //   }
 //   async roll() {
-//     if (this.rolling) {
+//     if (this.rolling || this.isOver) {
 //       return;
 //     }
 //     this.rolling = true;
-//     this.inventory.turns++;
+//     this.inventory.turns--;
 //     this.inventory.updateUi();
 //     if (this.inventory.money > 0) {
 //       this.inventory.addMoney(-1);
@@ -514,16 +518,14 @@ console.log(game);
 //         tryBuy(sym);
 //       }
 //     }
-//     // if (this.inventory.turns % 10 === 0) {
-//     //   console.log('turn', this.inventory.turns, 'money', this.inventory.money);
-//     // }
 //     this.rolling = false;
-//     if (this.inventory.turns === 100) {
+//     if (this.inventory.turns === 0) {
 //       await this.over();
 //     }
+//     totalTurns++;
 //   }
 //   async simulate() {
-//     while (this.turns++ < 100) {
+//     for (let i = 0; i < 4000; ++i) {
 //       await this.roll();
 //     }
 //   }
@@ -541,7 +543,7 @@ console.log(game);
 //     const avg = scores.reduce((acc, val) => acc + val, 0) / scores.length | 0;
 //     const max = Math.max(...scores);
 //     const min = Math.min(...scores);
-//     console.log(`average ${avg} max ${max} min ${min}`);
+//     console.log(`${i}\tavg ${avg}\tmax ${max}\tmin ${min}\tturns ${totalTurns}`);
 //   }
 // };
 // await run();
