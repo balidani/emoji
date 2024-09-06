@@ -460,7 +460,7 @@ document.getElementById('animation')
 //     this.isOver = false;
 
 //     this.allowed = new Set([
-//       Multiplier,
+//       Multiplier, 
 //     ]);
 //     this.buyOnce = [
 //     ];
@@ -550,4 +550,5 @@ document.getElementById('animation')
 //     console.log(`${i}\tavg ${avg}\tmax ${max}\tmin ${min}\tturns ${totalTurns}`);
 //   }
 // };
+// Util.toggleAnimation();
 // await run();

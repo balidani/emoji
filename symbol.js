@@ -166,8 +166,8 @@ export class Bomb extends Symbol {
       const coord = Util.randomChoose(coords);
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      game.board.cells[deleteY][deleteX] = new Empty();
       await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.1, 2);
+      game.board.cells[deleteY][deleteX] = new Empty();
       await game.board.spinDivOnce(deleteX, deleteY);
     }
   }
