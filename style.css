@@ -30,6 +30,7 @@ button {
   padding-left: 4pt;
   padding-bottom: 4pt;
   background: white;
+  font-size: 16pt;
 }
 .inventoryEntry {
   display: inline-block;
@@ -45,11 +46,17 @@ button {
   position: fixed;
   left: 0pt;
   top: 0pt;
-  width: 80pt;
+  width: 800pt;
+  display: block;
   letter-spacing: 4pt;
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
+  font-size: 16pt;
+}
+
+.ui > div {
+  display: inline-block;
 }
 
 /* Shop */
@@ -80,11 +87,14 @@ button {
 .grid {
   display: flex;
   justify-content: center;
-  width: 170pt;
+  width: 240pt;
+  font-size: 30pt;
+}
+.row {
 }
 .cell {
-  width: 32pt;
-  height: 28pt;
+  width: 40pt;
+  height: 40pt;
   display: inline-block;
   text-align: center;
   overflow: hidden;
@@ -99,12 +109,13 @@ button {
   justify-content: center;
   position: fixed;
   left: 0pt;
-  top: 50vh;
+  top: 30vh;
   width: 100%;
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
-  font-size: 20vw;
+  font-size: 18vw;
+  font-weight: 900;
 }
 
 /* Settings */
@@ -113,16 +124,15 @@ button {
   position: fixed;
   right: 0pt;
   top: 0pt;
-  width: 42pt;
-  letter-spacing: 4pt;
-  padding-top: 8pt;
-  padding-left: 4pt;
-  padding-bottom: 4pt;
+  width: 40pt;
+  padding-top: 4pt;
+  padding-left: 0pt;
+  padding-bottom: 2pt;
 }
 
 .settingsButton {
   font-size: 12pt;
-  margin-bottom: 4pt; 
+  margin-bottom: 2pt;
 }
 
 /* Animations */
@@ -141,17 +151,17 @@ button {
 
 @keyframes startSpin {
   0% { transform: scaleY(1) translateY(0); }
-  100% { transform: scaleY(0.5) translateY(54pt); filter: blur(0.5px); }
+  100% { transform: scaleY(0.5) translateY(70pt); }
 }
 
 @keyframes spin {
-  0% { transform: scaleY(0.25) translateY(-42pt); filter: blur(0.5px); }
-  50% { transform: scaleY(1.4) translateY(0); filter: blur(1px); }
-  100% { transform: scaleY(0.5) translateY(54pt); filter: blur(0.5px); }
+  0% { transform: scaleY(0.25) translateY(-54pt); }
+  50% { transform: scaleY(1.4) translateY(0); }
+  100% { transform: scaleY(0.5) translateY(70pt); }
 }
 
 @keyframes endSpin {
-  0% { transform: scaleY(0.5) translateY(-54pt); filter: blur(0.5px); }
+  0% { transform: scaleY(0.5) translateY(-70pt); }
   100% { transform: scaleY(1) translateY(0); }
 }
 

@@ -150,19 +150,19 @@ class Inventory {
     this.uiDiv.replaceChildren();
     {
       const symbolDiv = document.createElement('div');
-      symbolDiv.innerText = '⏰';
+      symbolDiv.innerText = Dollar.name;
       const countSpan = document.createElement('span');
       countSpan.classList.add('inventoryEntryCount');
-      countSpan.innerText = this.turns;
+      countSpan.innerText = this.money;
       symbolDiv.appendChild(countSpan);
       this.uiDiv.appendChild(symbolDiv);
     }
     {
       const symbolDiv = document.createElement('div');
-      symbolDiv.innerText = Dollar.name;
+      symbolDiv.innerText = '⏰';
       const countSpan = document.createElement('span');
       countSpan.classList.add('inventoryEntryCount');
-      countSpan.innerText = this.money;
+      countSpan.innerText = this.turns;
       symbolDiv.appendChild(countSpan);
       this.uiDiv.appendChild(symbolDiv);
     }
