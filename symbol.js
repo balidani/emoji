@@ -15,8 +15,8 @@ const luckyChance = (game, chance, x, y) => {
     return total;
   };
   let total = 0;
-  total += check(Clover.name, 0.02);
-  total += check(CrystalBall.name, 0.05);
+  total += check(Clover.name, 0.01);
+  total += check(CrystalBall.name, 0.03);
   return chance + total;
 }
 const chance = (game, percent, x, y) => 
@@ -246,7 +246,7 @@ export class BullsEye extends Symbol {
   }
   copy() { return new BullsEye(); }
   description() {
-    return 'neighboring roll always succeeds';
+    return 'neighboring rolls always succeed';
   }
 }
 
@@ -337,11 +337,11 @@ export class Clover extends Symbol {
   static name = '🍀';
   constructor() {
     super();
-    this.rarity = 0.35;
+    this.rarity = 0.21;
   }
   copy() { return new Clover(); }
   description() {
-    return '+2% luck';
+    return '+1% luck';
   }
 }
 
@@ -429,11 +429,11 @@ export class CrystalBall extends Symbol {
   static name = '🔮';
   constructor() {
     super();
-    this.rarity = 0.07;
+    this.rarity = 0.05;
   }
   copy() { return new CrystalBall(); }
   description() {
-    return '+5% luck';
+    return '+3% luck';
   }
 }
 
@@ -662,7 +662,7 @@ export class FreeTurn extends Symbol {
   static name = '🈚';
   constructor() {
     super();
-    this.rarity = 0.08;
+    this.rarity = 0.03;
   }
   copy() { return new FreeTurn(); }
   async evaluate(game, x, y) {

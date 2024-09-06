@@ -194,8 +194,8 @@ class Shop {
       return total;
     };
     let luck = 0;
-    luck += checkLuckyItem(Clover.name, 0.02);
-    luck += checkLuckyItem(CrystalBall.name, 0.05);
+    luck += checkLuckyItem(Clover.name, 0.01);
+    luck += checkLuckyItem(CrystalBall.name, 0.03);
 
     this.shopDiv.replaceChildren();
     this.catalog = makeCatalog();
@@ -472,12 +472,9 @@ document.getElementById('animation')
 //       FreeTurn,
 //     ]);
 //     this.buyOnce = [
-//       Grave, Grave, Grave, 
-//       BullsEye, BullsEye, BullsEye, 
-//       CrystalBall, CrystalBall, CrystalBall, 
-//       Multiplier, Dragon, Dragon, Dice, Dice
+//       Grave, Grave, Grave, BullsEye, BullsEye, BullsEye, Clover, CrystalBall, CrystalBall, Multiplier, 
 //     ];
-//     this.symbolLimit = 25;
+//     this.symbolLimit = 20;
 //   }
 //   async over() {
 //     this.isOver = true;
@@ -567,7 +564,7 @@ document.getElementById('animation')
 
 // const run = async () => {
 //   const scores = [];
-//   for (let i = 0; i < 10; ++i) {
+//   for (let i = 0; i < 20; ++i) {
 //     const game = new AutoGame();
 //     await game.simulate();
 //     const score = game.inventory.money;
