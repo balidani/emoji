@@ -105,7 +105,7 @@ export class Bank extends Symbol {
       const [newX, newY] = Util.randomChoose(coords);
       game.board.cells[newY][newX] = coin;
       game.inventory.add(coin);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
       await game.board.spinDivOnce(newX, newY);
     };
     if (this.turns % 5 === 0) {
@@ -140,7 +140,7 @@ export class Bell extends Symbol {
       const [newX, newY] = Util.randomChoose(coords);
       game.board.cells[newY][newX] = note;
       game.inventory.add(note);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
       await game.board.spinDivOnce(newX, newY);
     }
   }
@@ -166,7 +166,7 @@ export class Bomb extends Symbol {
       const coord = Util.randomChoose(coords);
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.15, 2);
       game.board.cells[deleteY][deleteX] = new Empty();
       await game.board.spinDivOnce(deleteX, deleteY);
     }
@@ -213,7 +213,7 @@ export class Bug extends Symbol {
   }
   async evaluate(game, x, y) {
     const coords = Util.nextToExpr(game.board.cells, x, y, 
-      (sym) => [...Fruits, ...Vegetables].includes(sym.name()));
+      (sym) => Food.includes(sym.name()));
     if (coords.length === 0) {
       this.timeToLive--;
       if (this.timeToLive <= 0) {
@@ -234,7 +234,7 @@ export class Bug extends Symbol {
     }
   }
   description() {
-    return 'eat neighboring fruit and vegetables for 💵5<br>leave after 5 turns with no food';
+    return 'eat all food for 💵5<br>leave after 5 turns with no food';
   }
 }
 
@@ -263,7 +263,7 @@ export class Cherry extends Symbol {
       return;
     }
     await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.1),
+      Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
       this.addMoney(game, coords.length * 2)]);
   }
   description() {
@@ -323,7 +323,7 @@ export class Chicken extends Symbol {
         const egg = new Egg();
         game.board.cells[newY][newX] = egg;
         game.inventory.add(egg);
-        await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+        await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
         await game.board.spinDivOnce(newX, newY);
       }
     }
@@ -385,7 +385,7 @@ export class Corn extends Symbol {
         const popcorn = new Popcorn();
         game.board.cells[newY][newX] = popcorn;
         game.inventory.add(popcorn);
-        await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+        await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
         await game.board.spinDivOnce(newX, newY);
       }
     }
@@ -405,7 +405,7 @@ export class CreditCard extends Symbol {
   copy() { return new CreditCard(); }
   async finalScore(game, x, y) {
       await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.1, 3),
+        Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3),
         this.addMoney(game, -1100)]);
   }
   async score(game, x, y) {
@@ -429,7 +429,7 @@ export class CrystalBall extends Symbol {
   static name = '🔮';
   constructor() {
     super();
-    this.rarity = 0.12;
+    this.rarity = 0.07;
   }
   copy() { return new CrystalBall(); }
   description() {
@@ -481,7 +481,7 @@ export class Diamond extends Symbol {
   copy() { return new Diamond(); }
   async score(game, x, y) {
     await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.1),
+      Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
       this.addMoney(game, 6)]);
     const coords = Util.nextToSymbol(game.board.cells, x, y, Diamond.name);
     if (coords.length === 0) {
@@ -504,12 +504,12 @@ export class Dice extends Symbol {
   async score(game, x, y) {
     if (chance(game, 0.01, x, y)) {
       await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1, 2),
-        this.addMoney(game, 69)]);
+        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2),
+        this.addMoney(game, 42)]);
     }
   }
   description() {
-    return '1%: 💵69';
+    return '1%: 💵42';
   }
 }
 
@@ -548,7 +548,7 @@ export class Drums extends Symbol {
       const [newX, newY] = Util.randomChoose(coords);
       game.board.cells[newY][newX] = note;
       game.inventory.add(note);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1, 3);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 3);
       await game.board.spinDivOnce(newX, newY);
     }
   }
@@ -573,7 +573,7 @@ export class Egg extends Symbol {
       if (chance(game, 0.01, x, y)) {
         newSymbol = new Dragon();
       }
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1, 1);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 1);
       game.inventory.add(newSymbol);
       game.board.cells[y][x] = newSymbol;
       await game.board.spinDivOnce(x, y);
@@ -600,7 +600,7 @@ export class Firefighter extends Symbol {
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
       game.board.cells[deleteY][deleteX] = new Empty();
-      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.15, 2);
       await game.board.spinDivOnce(deleteX, deleteY);
     }
     game.inventory.remove(this);
@@ -638,7 +638,7 @@ export class Fox extends Symbol {
         const [deleteX, deleteY] = coord;
         game.inventory.remove(game.board.cells[deleteY][deleteX]);
         game.board.cells[deleteY][deleteX] = new Empty();
-        await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.1, 2);
+        await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.15, 2);
         await game.board.spinDivOnce(deleteX, deleteY);
       }
       this.timeToLive = 5;
@@ -654,7 +654,7 @@ export class Fox extends Symbol {
     }
   }
   description() {
-    return 'eat neighboring 🐔 for 💵20<br>eat neighboring 🐣 for 💵10<br>leave after 5 turns with no food';
+    return 'eat 🐔 for 💵20<br>eat 🐣 for 💵10<br>leave after 5 turns with no food';
   }
 }
 
@@ -667,7 +667,7 @@ export class FreeTurn extends Symbol {
   copy() { return new FreeTurn(); }
   async evaluate(game, x, y) {
     if (chance(game, 0.1, x, y)) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.1, 3);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3);
       game.inventory.turns++;
       game.inventory.updateUi();
       game.inventory.remove(this);
@@ -717,7 +717,7 @@ export class Grave extends Symbol {
   static name = '🪦';
   constructor() {
     super();
-    this.rarity = 0.11;
+    this.rarity = 0.07;
   }
   copy() { return new Grave(); }
   async evaluate(game, x, y) {
@@ -733,7 +733,7 @@ export class Grave extends Symbol {
       const oldSymbol = Util.randomRemove(game.inventory.graveyard).copy();
       game.board.cells[newY][newX] = oldSymbol;
       game.inventory.add(oldSymbol);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
       await game.board.spinDivOnce(newX, newY);
     }
   }
@@ -765,7 +765,7 @@ export class MagicWand extends Symbol {
       const newSymbol = game.board.cells[copyY][copyX].copy();
       game.board.cells[newY][newX] = newSymbol;
       game.inventory.add(newSymbol);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
       await game.board.spinDivOnce(newX, newY);
     }
   }  
@@ -787,7 +787,7 @@ export class Mango extends Symbol {
     if (coords.length === 0) {
       return;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1, 2);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
     for (const coord of coords) {
       const [neighborX, neighborY] = coord;
       game.board.cells[neighborY][neighborX].multiplier *= 2;
@@ -823,7 +823,7 @@ export class MoneyBag extends Symbol {
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
       game.board.cells[deleteY][deleteX] = new Empty();
-      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15, 2);
       await game.board.spinDivOnce(deleteX, deleteY);
     }
   }
@@ -845,7 +845,7 @@ export class Multiplier extends Symbol {
     if (coords.length === 0) {
       return;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
     for (const coord of coords) {
       const [neighborX, neighborY] = coord;
       game.board.cells[neighborY][neighborX].multiplier *= 2;
@@ -953,7 +953,7 @@ export class Record extends Symbol {
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
       game.board.cells[deleteY][deleteX] = new Empty();
-      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15, 2);
       await game.board.spinDivOnce(deleteX, deleteY);
     }
   }
@@ -971,10 +971,10 @@ export class Refresh extends Symbol {
   copy() { return new Refresh(); }
   async evaluate(game, x, y) {
     game.shop.refreshable = true;
-    game.shop.refreshCost = 1 + (game.inventory.money * 0.01) | 0;
+    game.shop.refreshCount = 0;
   }
   description() {
-    return 'allow refreshing rewards';
+    return 'allow infinite refresh';
   }
 }
 
@@ -1032,17 +1032,17 @@ export class Tree extends Symbol {
       const cherry = new Cherry();
       game.board.cells[newY][newX] = cherry;
       game.inventory.add(cherry);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
       await game.board.spinDivOnce(newX, newY);
     };
 
     this.turns++;
-    if (this.turns % 5 === 0) {
+    if (this.turns % 3 === 0) {
       await grow(); await grow();
     }
   }
   description() {
-    return 'every 5 turns: grow 🍒🍒';
+    return 'every 3 turns: grow 🍒🍒';
   }
 }
 
@@ -1061,7 +1061,7 @@ export class Volcano extends Symbol {
       game.inventory.remove(game.board.cells[newY][newX]);
       game.board.cells[newY][newX] = rock;
       game.inventory.add(rock);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
       await game.board.spinDivOnce(newX, newY);
     }
   }
@@ -1122,7 +1122,7 @@ export class Worker extends Symbol {
       return;
     }
     for (const coord of coords) {
-      await game.inventory.addMoney(3);
+      await this.addMoney(3);
       let newSymbol = new Empty();
       if (chance(game, 0.1, x, y)) {
         newSymbol = new Diamond();
@@ -1133,7 +1133,7 @@ export class Worker extends Symbol {
         game.inventory.add(newSymbol);
       }
       game.board.cells[deleteY][deleteX] = newSymbol;
-      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.1, 2);
+      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.15, 2);
       await game.board.spinDivOnce(deleteX, deleteY);
     }
   }
@@ -1142,5 +1142,6 @@ export class Worker extends Symbol {
   }
 }
 
-const Fruits = [Cherry.name, Mango.name, Pineapple.name];
-const Vegetables = [Corn.name, Clover.name];
+const Fruits = [Cherry, Mango, Pineapple].map(f => f.name);
+const Vegetables = [Corn, Clover].map(f => f.name);
+const Food = [...Fruits, ...Vegetables, Popcorn.name];

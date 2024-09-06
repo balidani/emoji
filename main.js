@@ -105,7 +105,7 @@ class Inventory {
     this.symbolsDiv = document.querySelector('.inventory');
     this.uiDiv = document.querySelector('.ui');
     this.money = 1;
-    this.turns = 99;
+    this.turns = 50;
     this.updateUi();
     this.graveyard = [];
   }
@@ -174,6 +174,7 @@ class Shop {
     this.shopDiv = document.querySelector('.shop');
     this.isOpen = false;
     this.refreshCost = 1;
+    this.refreshCount = 0;
     this.refreshable = false;
     this.buyCount = 1;
   }
@@ -245,32 +246,39 @@ class Shop {
             div.parentElement.removeChild(div);
           }
           if (game.shop.buyCount === 0) {
-            await game.shop.close();
+            await game.shop.close(game);
           }
       });
       this.shopDiv.appendChild(shopItemDiv);
     }
 
-    if (this.refreshable) {
-      const shopItemDiv = makeShopItem('', '💵' + this.refreshCost,
-        async () => {
-        if (game.inventory.money > 0) {
-          game.inventory.addMoney(-this.refreshCost);
-          this.refreshCost *= 2;
-          this.isOpen = false;
-          this.open(game);
-        }
-      }, /*refresh=*/true);
-      this.shopDiv.appendChild(shopItemDiv);
+    // Refresh
+    if (game.inventory.money > this.refreshCost) {
+      if (game.shop.refreshable || game.shop.refreshCount === 0) {
+        const shopItemDiv = makeShopItem('', '💵' + this.refreshCost,
+          async () => {
+            game.shop.refreshCount++;
+            if (game.inventory.money > 0) {
+              game.inventory.addMoney(-this.refreshCost);
+              this.refreshCost *= 2;
+              this.isOpen = false;
+              this.open(game);
+            }
+        }, /*refresh=*/true);
+        this.shopDiv.appendChild(shopItemDiv);
+      }
     }
 
     await Util.animate(this.shopDiv, 'openShop', 0.4);
   }
-  async close() {
+  async close(game) {
     if (!this.isOpen) {
       return;
     }
     this.refreshable = false;
+    this.refreshCost = 1 + (game.inventory.money * 0.01) | 0;
+    this.refreshCount = 0;
+
     this.buyCount = 1;
     await Util.animate(this.shopDiv, 'closeShop', 0.2);
     this.shopDiv
@@ -409,6 +417,7 @@ class Game {
     scoreDiv.classList.add('score');
     scoreDiv.innerText = '💵' + this.inventory.money;
     document.querySelector('body').appendChild(scoreDiv);
+    document.querySelector('#roll').disabled = true;
     await Util.animate(scoreDiv, 'scoreIn', 0.4);
   }
   async roll() {
@@ -421,7 +430,7 @@ class Game {
     if (this.inventory.money > 0) {
       this.inventory.addMoney(-1);
       this.inventory.symbols.forEach(s => s.reset());
-      await this.shop.close();
+      await this.shop.close(this);
       await this.board.roll(this.inventory);
       await this.board.evaluate(this);
       await this.board.score(this);
@@ -460,11 +469,15 @@ document.getElementById('animation')
 //     this.isOver = false;
 
 //     this.allowed = new Set([
-//       Multiplier, 
+//       FreeTurn,
 //     ]);
 //     this.buyOnce = [
+//       Grave, Grave, Grave, 
+//       BullsEye, BullsEye, BullsEye, 
+//       CrystalBall, CrystalBall, CrystalBall, 
+//       Multiplier, Dragon, Dragon, Dice, Dice
 //     ];
-//     this.symbolLimit = 1000;
+//     this.symbolLimit = 25;
 //   }
 //   async over() {
 //     this.isOver = true;
@@ -490,7 +503,7 @@ document.getElementById('animation')
 //     if (this.inventory.money > 0) {
 //       this.inventory.addMoney(-1);
 //       this.inventory.symbols.forEach(s => s.reset());
-//       await this.shop.close();
+//       await this.shop.close(this);
 //       await this.board.roll(this.inventory);
 //       await this.board.evaluate(this);
 //       await this.board.score(this);
@@ -499,27 +512,39 @@ document.getElementById('animation')
 
 //     // Choose from item to buy
 //     if (this.inventory.symbols.length < this.symbolLimit) {
-//       const buttons = document.getElementsByClassName('buyButton');
-//       let bought = false;
-//       const tryBuy = (sym) => {
-//         for (const button of buttons) {
-//           if (button.parentElement.parentElement.children[0].innerText === sym.name) {
-//             if (!bought) {
+//       const tryOnce = (first) => {
+//         const buttons = Array.from(document.getElementsByClassName('buyButton'));
+//         const refreshButton = buttons.splice(3, 1)[0];
+//         let bought = false;
+//         const tryBuy = (sym) => {
+//           for (const button of buttons) {
+//             if (button.parentElement.parentElement.children[0].innerText === sym.name) {
 //               button.click();
-//               bought = true;
-//               // console.log('bought', sym.name)
+//               return true;
 //             }
 //           }
+//           return false;
+//         };
+//         for (let i = 0; i < this.buyOnce.length; ++i) {
+//           bought |= tryBuy(this.buyOnce[i]);
+//           if (bought) {
+//             this.buyOnce.splice(i, 1);
+//             return true;
+//           }
 //         }
-//       };
-//       for (let i = 0; i < this.buyOnce.length; ++i) {
-//         tryBuy(this.buyOnce[i]);
-//         if (bought) {
-//           this.buyOnce.splice(i, 1);
+//         for (const sym of this.allowed) {
+//           bought |= tryBuy(sym);
+//           if (bought) {
+//             return true;
+//           }
 //         }
+//         if (first && !bought && refreshButton !== undefined) {
+//           refreshButton.click();
+//         }
+//         return false;
 //       }
-//       for (const sym of this.allowed) {
-//         tryBuy(sym);
+//       if (!tryOnce(/*first=*/true)) {
+//         tryOnce(/*first=*/false);
 //       }
 //     }
 //     this.rolling = false;
@@ -529,26 +554,28 @@ document.getElementById('animation')
 //     totalTurns++;
 //   }
 //   async simulate() {
-//     for (let i = 0; i < 4000; ++i) {
+//     for (let i = 0; i < 200 && !this.isOver; ++i) {
 //       await this.roll();
 //     }
 //   }
 // }
+
+// Util.toggleAnimation();
 
 // // const game = new AutoGame();
 // // await game.simulate();
 
 // const run = async () => {
 //   const scores = [];
-//   for (let i = 0; i < 20; ++i) {
+//   for (let i = 0; i < 10; ++i) {
 //     const game = new AutoGame();
 //     await game.simulate();
-//     scores.push(game.inventory.money);
+//     const score = game.inventory.money;
+//     scores.push(score);
 //     const avg = scores.reduce((acc, val) => acc + val, 0) / scores.length | 0;
 //     const max = Math.max(...scores);
 //     const min = Math.min(...scores);
-//     console.log(`${i}\tavg ${avg}\tmax ${max}\tmin ${min}\tturns ${totalTurns}`);
+//     console.log(`${i}\tscore ${score}\tavg ${avg}\tmax ${max}\tmin ${min}\tturns ${totalTurns}`);
 //   }
 // };
-// Util.toggleAnimation();
 // await run();
