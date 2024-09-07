@@ -109,12 +109,12 @@ button {
   justify-content: center;
   position: fixed;
   left: 0pt;
-  top: 30vh;
-  width: 100%;
+  top: 100pt;
+  width: 240pt;
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
-  font-size: 18vw;
+  font-size: 56pt;
   font-weight: 900;
 }
 
