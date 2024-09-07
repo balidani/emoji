@@ -2,6 +2,12 @@ let ANIMATION = true;
 export const toggleAnimation = () => {
   ANIMATION = !ANIMATION;
 };
+export const animationOff = () => {
+  ANIMATION = false;
+};
+export const animationOn = () => {
+  ANIMATION = true;
+};
 export const BOARD_SIZE = 5;
 export const random = (lim) => Math.random() * lim | 0;
 export const randomChoose = (arr) => arr[random(arr.length)];

@@ -118,23 +118,6 @@ button {
   font-weight: 900;
 }
 
-/* Settings */
-
-.settings {
-  position: fixed;
-  right: 0pt;
-  top: 0pt;
-  width: 40pt;
-  padding-top: 4pt;
-  padding-left: 0pt;
-  padding-bottom: 2pt;
-}
-
-.settingsButton {
-  font-size: 12pt;
-  margin-bottom: 2pt;
-}
-
 /* Animations */
 
 @keyframes blurStart {

@@ -422,7 +422,10 @@ class Game {
   }
   async roll() {
     if (this.rolling) {
+      Util.animationOff();
       return;
+    } else {
+      Util.animationOn();
     }
     this.rolling = true;
     this.inventory.turns--;
@@ -447,15 +450,6 @@ const game = new Game();
 document.getElementById('roll')
   .addEventListener('click', () => game.roll());
 console.log(game);
-
-document.getElementById('settings')
-  .addEventListener('click', () => {
-    document.querySelector('.settings > .settingsContent').classList.toggle('hidden');
-  });
-document.getElementById('animation')
-  .addEventListener('click', () => {
-    Util.toggleAnimation();
-  });
 
 // class AutoGame {
 //   constructor() {
