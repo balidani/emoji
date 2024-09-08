@@ -91,7 +91,7 @@ export class Bank extends Symbol {
   constructor() {
     super();
     this.turns = 0;
-    this.rarity = 0.5;
+    this.rarity = 0.4;
   }
   copy() { return new Bank(); }
   async evaluate(game, x, y) {
@@ -108,13 +108,13 @@ export class Bank extends Symbol {
       await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
       await game.board.spinDivOnce(newX, newY);
     };
-    if (this.turns % 5 === 0) {
+    if (this.turns % 4 === 0) {
       await mint(); await mint(); await mint(); 
     }
     
   }
   description() {
-    return 'every five turns: mint 🪙🪙🪙';
+    return 'every four turns: mint 🪙🪙🪙';
   }
 }
 
@@ -355,10 +355,10 @@ export class Coin extends Symbol {
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 1)]);
+      this.addMoney(game, 2)]);
   }
   description() {
-    return '💵1';
+    return '💵2';
   }
 }
 
@@ -498,18 +498,18 @@ export class Dice extends Symbol {
   static name = '🎲';
   constructor() {
     super();
-    this.rarity = 0.17;
+    this.rarity = 0.14;
   }
   copy() { return new Dice(); }
   async score(game, x, y) {
     if (chance(game, 0.01, x, y)) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2),
-        this.addMoney(game, 42)]);
+        this.addMoney(game, 52)]);
     }
   }
   description() {
-    return '1%: 💵42';
+    return '1%: 💵52';
   }
 }
 
@@ -659,7 +659,7 @@ export class Fox extends Symbol {
 }
 
 export class FreeTurn extends Symbol {
-  static name = '🈚';
+  static name = '🎟️';
   constructor() {
     super();
     this.rarity = 0.03;
@@ -803,7 +803,7 @@ export class MoneyBag extends Symbol {
   constructor(coins=0) {
     super();
     this.coins = coins;
-    this.rarity = 0.45;
+    this.rarity = 0.5;
   }
   copy() { return new MoneyBag(this.coins); }
   async score(game, x, y) {
@@ -833,7 +833,7 @@ export class MoneyBag extends Symbol {
 }
 
 export class Multiplier extends Symbol {
-  static name = '❇️';
+  static name = '❎';
   constructor() {
     super();
     this.rarity = 0.04;

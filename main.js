@@ -463,10 +463,10 @@ console.log(game);
 //     this.isOver = false;
 
 //     this.allowed = new Set([
-//       FreeTurn,
+//       Multiplier, Dice, BullsEye, Balloon, FreeTurn
 //     ]);
 //     this.buyOnce = [
-//       Grave, Grave, Grave, BullsEye, BullsEye, BullsEye, Clover, CrystalBall, CrystalBall, Multiplier, 
+//       Clover, CrystalBall, CrystalBall, CrystalBall, MagicWand
 //     ];
 //     this.symbolLimit = 20;
 //   }
@@ -558,7 +558,7 @@ console.log(game);
 
 // const run = async () => {
 //   const scores = [];
-//   for (let i = 0; i < 20; ++i) {
+//   for (let i = 0; i < 100; ++i) {
 //     const game = new AutoGame();
 //     await game.simulate();
 //     const score = game.inventory.money;
@@ -570,3 +570,4 @@ console.log(game);
 //   }
 // };
 // await run();
+
