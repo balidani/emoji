@@ -1,5 +1,5 @@
 import {
-  Symbol, Empty, Dollar,
+  Symbol, Empty,
   Balloon,
   Bank,
   Bell,
@@ -25,8 +25,8 @@ import {
   Firefighter,
   Fox,
   FreeTurn,
-  Slots,
   Grave,
+  Hole,
   MagicWand,
   Mango,
   MoneyBag,
@@ -39,6 +39,7 @@ import {
   Rock,
   Rocket,
   ShoppingBag,
+  Slots,
   Tree,
   Volcano,
   Worker,
@@ -71,8 +72,8 @@ const makeCatalog = () => [
   new Firefighter(),
   new Fox(),
   new FreeTurn(),
-  new Slots(),
   new Grave(),
+  new Hole(),
   new MagicWand(),
   new Mango(),
   new MoneyBag(),
@@ -83,6 +84,7 @@ const makeCatalog = () => [
   new Rock(),
   new Rocket(),
   new ShoppingBag(),
+  new Slots(),
   new Tree(),
   // new Volcano(),
   // new Worker(),
@@ -150,7 +152,7 @@ class Inventory {
     this.uiDiv.replaceChildren();
     {
       const symbolDiv = document.createElement('div');
-      symbolDiv.innerText = Dollar.name;
+      symbolDiv.innerText = '💵';
       const countSpan = document.createElement('span');
       countSpan.classList.add('inventoryEntryCount');
       countSpan.innerText = this.money;
@@ -428,9 +430,9 @@ class Game {
       Util.animationOn();
     }
     this.rolling = true;
-    this.inventory.turns--;
-    this.inventory.updateUi();
     if (this.inventory.money > 0) {
+      this.inventory.turns--;
+      this.inventory.updateUi();
       this.inventory.addMoney(-1);
       this.inventory.symbols.forEach(s => s.reset());
       await this.shop.close(this);
@@ -438,6 +440,8 @@ class Game {
       await this.board.evaluate(this);
       await this.board.score(this);
       await this.shop.open(this);
+    } else {
+      // Handle the case where player ran out of money
     }
     this.rolling = false;
     if (this.inventory.turns === 0) {
