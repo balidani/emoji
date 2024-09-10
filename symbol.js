@@ -100,7 +100,7 @@ export class Balloon extends Symbol {
     }
   }
   description() {
-    return '💵20<br>50%: pop';
+    return '💵20<br>50% chance: pop';
   }
 }
 
@@ -159,7 +159,7 @@ export class Bell extends Symbol {
     }
   }
   description() {
-    return '💵1<br>20%: make 🎵';
+    return '💵1<br>20% chance: make 🎵';
   }
 }
 
@@ -186,7 +186,7 @@ export class Bomb extends Symbol {
     }
   }
   description() {
-    return '10%: destroy a neighbor';
+    return '10% chance: destroy a neighbor';
   }
 }
 
@@ -256,7 +256,7 @@ export class BullsEye extends Symbol {
   static name = '🎯';
   constructor() {
     super();
-    this.rarity = 0.05;
+    this.rarity = 0.045;
   }
   copy() { return new BullsEye(); }
   description() {
@@ -341,7 +341,7 @@ export class Chicken extends Symbol {
     }
   }
   description() {
-    return '💵3<br>10%: lay up to 3 🥚';
+    return '💵3<br>10% chance: lay up to 3 🥚';
   }
 }
 
@@ -440,7 +440,7 @@ export class Corn extends Symbol {
     }
   }
   description() {
-    return '💵2<br>10%: pop 🍿';
+    return '💵2<br>10% chance: pop 🍿';
   }
 }
 
@@ -558,7 +558,7 @@ export class Dice extends Symbol {
     }
   }
   description() {
-    return '1%: 💵52';
+    return '1% chance: 💵52';
   }
 }
 
@@ -627,7 +627,7 @@ export class Egg extends Symbol {
     }
   }
   description() {
-    return 'after 3-5 turns: hatch 🐣<br>1%: hatch 🐉'
+    return 'after 3-5 turns: hatch 🐣<br>1% chance: hatch 🐉'
   }
 }
 
@@ -717,13 +717,13 @@ export class FreeTurn extends Symbol {
       await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3);
       game.inventory.turns++;
       game.inventory.updateUi();
-      game.inventory.remove(this);
-      game.board.cells[y][x] = new Empty();
-      await game.board.spinDivOnce(x, y);
     }
+    game.board.cells[y][x] = new Empty();
+    game.inventory.remove(this);
+    await game.board.spinDivOnce(x, y);
   }
   description() {
-    return '10%: one more ⏰, disappear'
+    return '10% chance: one more ⏰<br>disappear'
   }
 }
 
@@ -731,7 +731,7 @@ export class Grave extends Symbol {
   static name = '🪦';
   constructor() {
     super();
-    this.rarity = 0.07;
+    this.rarity = 0.06;
   }
   copy() { return new Grave(); }
   async evaluate(game, x, y) {
@@ -750,7 +750,7 @@ export class Grave extends Symbol {
     }
   }
   description() {
-    return '10%: add random symbol removed this game';
+    return '10% chance: add random symbol removed this game';
   }
 }
 
@@ -783,7 +783,7 @@ export class MagicWand extends Symbol {
     if (nonEmptyCoords.length === 0) {
       return;
     }
-    if (chance(game, 0.2, x, y)) {
+    if (chance(game, 0.15, x, y)) {
       const [copyX, copyY] = Util.randomChoose(nonEmptyCoords);
       const [newX, newY] = Util.randomChoose(emptyCoords);
       const newSymbol = game.board.cells[copyY][copyX].copy();
@@ -792,7 +792,7 @@ export class MagicWand extends Symbol {
     }
   }  
   description() {
-    return '20%: duplicate neighboring symbol';
+    return '15% chance: duplicate neighboring symbol';
   }
 }
 
@@ -1119,7 +1119,7 @@ export class Volcano extends Symbol {
     }
   }
   description() {
-    return '10%: replace random tile with 🪨'
+    return '10% chance: replace random tile with 🪨'
   }
 }
 
@@ -1152,7 +1152,7 @@ export class Worker extends Symbol {
     }
   }
   description() {
-    return 'destroy neighboring 🪨 for 💵3, 10%: 💎'
+    return 'destroy neighboring 🪨 for 💵3<br>10% chance: produce 💎'
   }
 }
 

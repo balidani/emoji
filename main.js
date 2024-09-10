@@ -461,16 +461,15 @@ console.log(game);
 //     this.inventory.update();
 //     this.board = new Board();
 //     this.shop = new Shop();
-//     this.rolling = false;
 //     totalTurns = 0;
 //     this.scores = [];
 //     this.isOver = false;
 
 //     this.allowed = new Set([
-//       Multiplier, Dice, BullsEye, Balloon, FreeTurn
+//       FreeTurn,
 //     ]);
 //     this.buyOnce = [
-//       Clover, CrystalBall, CrystalBall, CrystalBall, MagicWand
+//       Grave, Grave, Grave, BullsEye, BullsEye, BullsEye, CrystalBall, CrystalBall
 //     ];
 //     this.symbolLimit = 20;
 //   }
@@ -489,13 +488,12 @@ console.log(game);
 //     document.getElementById('roll')
 //   }
 //   async roll() {
-//     if (this.rolling || this.isOver) {
+//     if (this.isOver) {
 //       return;
 //     }
-//     this.rolling = true;
-//     this.inventory.turns--;
-//     this.inventory.updateUi();
 //     if (this.inventory.money > 0) {
+//       this.inventory.turns--;
+//       this.inventory.updateUi();
 //       this.inventory.addMoney(-1);
 //       this.inventory.symbols.forEach(s => s.reset());
 //       await this.shop.close(this);
@@ -503,9 +501,12 @@ console.log(game);
 //       await this.board.evaluate(this);
 //       await this.board.score(this);
 //       await this.shop.open(this);
+//     } else {
+//       await this.over();
+//       return;
 //     }
 
-//     // Choose from item to buy
+//     // Choose item to buy
 //     if (this.inventory.symbols.length < this.symbolLimit) {
 //       const tryOnce = (first) => {
 //         const buttons = Array.from(document.getElementsByClassName('buyButton'));
@@ -542,8 +543,7 @@ console.log(game);
 //         tryOnce(/*first=*/false);
 //       }
 //     }
-//     this.rolling = false;
-//     if (this.inventory.turns === 0) {
+//     if (this.inventory.turns <= 0) {
 //       await this.over();
 //     }
 //     totalTurns++;
@@ -574,4 +574,3 @@ console.log(game);
 //   }
 // };
 // await run();
-
