@@ -513,10 +513,10 @@ console.log(game);
 //     this.isOver = false;
 
 //     this.allowed = new Set([
-//       Multiplier, CreditCard, Briefcase, Hole, MagicWand, Slots, BullsEye, CrystalBall
+//       Multiplier, Cherry, Pineapple, Mango, Balloon, FreeTurn
 //     ]);
 //     this.buyOnce = [
-//       Bug
+//       Cocktail, Tree, Tree, Tree, Clover, CrystalBall, MagicWand
 //     ];
 //     this.symbolLimit = 2000;
 //   }
