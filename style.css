@@ -7,6 +7,8 @@ button {
   font-size: 24pt;
 }
 
+html, body { height: 100%; }
+
 .blur {
   filter: blur(4px); /* Apply a blur of 5px */
 }
@@ -112,15 +114,14 @@ button {
 
 /* Score */
 .scoreContainer {
-  display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  position: fixed;
+  position: fixed; /* Keep the container fixed relative to the viewport */
+  top: 0;
   left: 0;
-  top: 100pt; /* Adjust this as per your requirement */
-  width: 100%; /* Full width to enable centering */
-  height: auto; /* Can adjust if needed */
-  z-index: 9999; /* Ensure it stays above other content */
+  width: 100vw; /* Full viewport width */
+  height: 100vh; /* Full viewport height */
+  display: flex; /* Flexbox for centering */
+  justify-content: center; /* Horizontal centering */
+  align-items: center; /* Vertical centering */
 }
 
 .score {

@@ -516,6 +516,7 @@ console.log(game);
 //       Multiplier, CreditCard, Briefcase, Hole, MagicWand, Slots, BullsEye, CrystalBall
 //     ]);
 //     this.buyOnce = [
+//       Bug
 //     ];
 //     this.symbolLimit = 2000;
 //   }
