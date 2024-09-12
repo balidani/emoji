@@ -320,9 +320,9 @@ class Board {
   getSymbolDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[0];
   }
-  updateCounter(x, y) {
+  updateCounter(game, x, y) {
     const counterDiv = this.gridDiv.children[y].children[x].children[1];
-    const counter = this.cells[y][x].counter();
+    const counter = this.cells[y][x].counter(game);
     if (counter !== null) {
       counterDiv.innerText = counter;
     }
@@ -334,14 +334,14 @@ class Board {
     this.getCounterDiv(x, y).innerText = '';
     this.cells[y][x] = new Empty();
   }
-  async spinDiv(inventory, x, y, symbol) {
+  async spinDiv(game, x, y, symbol) {
     await Util.delay(Util.random(600));
     const div = this.getSymbolDiv(x, y);
     const counterDiv = this.getCounterDiv(x, y);
     counterDiv.innerText = '';
     const randomSymbol = () => {
       const set = new Set();
-      for (const symbol of Object.values(inventory.symbols)) {
+      for (const symbol of Object.values(game.inventory.symbols)) {
         set.add(symbol.name());
       }
       div.innerText = Util.randomChoose([...set]);
@@ -354,11 +354,11 @@ class Board {
     div.innerText = symbol.name();
     await Util.animate(div, 'endSpin', 0.3);
     await Util.animate(div, 'bounce', 0.1);
-    if (symbol.counter() != null) {
-      counterDiv.innerText = symbol.counter();
+    if (symbol.counter(game) != null) {
+      counterDiv.innerText = symbol.counter(game);
     }
   }
-  async spinDivOnce(x, y) {
+  async spinDivOnce(game, x, y) {
     const div = this.getSymbolDiv(x, y);
     const counterDiv = this.getCounterDiv(x, y);
     counterDiv.innerText = '';
@@ -367,12 +367,12 @@ class Board {
     div.innerText = symbol.name();
     await Util.animate(div, 'endSpin', 0.3);
     await Util.animate(div, 'bounce', 0.1);
-    if (symbol.counter() != null) {
-      counterDiv.innerText = symbol.counter();
+    if (symbol.counter(game) != null) {
+      counterDiv.innerText = symbol.counter(game);
     }
   }
-  async roll(inventory) {
-    const symbols = [...inventory.symbols];
+  async roll(game) {
+    const symbols = [...game.inventory.symbols];
     const empties = [];
     for (let i = 0; i < Util.BOARD_SIZE; ++i) {
       for (let j = 0; j < Util.BOARD_SIZE; ++j) {
@@ -392,7 +392,7 @@ class Board {
     for (let i = 0; i < Util.BOARD_SIZE; ++i) {
       for (let j = 0; j < Util.BOARD_SIZE; ++j) {
         tasks.push(
-          this.spinDiv(inventory, j, i, this.cells[i][j]));
+          this.spinDiv(game, j, i, this.cells[i][j]));
       }
     }
     await Promise.all(tasks);
@@ -410,6 +410,10 @@ class Board {
     for (const task of tasks) {
       await task();
     }
+
+    this.forAllCells((cell, x, y) => {
+      this.updateCounter(game, x, y);
+    });
   }
   async finalScore(game) {
     const tasks = [];
@@ -479,7 +483,7 @@ class Game {
       this.inventory.addMoney(-1);
       this.inventory.symbols.forEach(s => s.reset());
       await this.shop.close(this);
-      await this.board.roll(this.inventory);
+      await this.board.roll(this);
       await this.board.evaluate(this);
       await this.board.score(this);
       await this.shop.open(this);
@@ -539,7 +543,7 @@ console.log(game);
 //       this.inventory.addMoney(-1);
 //       this.inventory.symbols.forEach(s => s.reset());
 //       await this.shop.close(this);
-//       await this.board.roll(this.inventory);
+//       await this.board.roll(this);
 //       await this.board.evaluate(this);
 //       await this.board.score(this);
 //       await this.shop.open(this);
