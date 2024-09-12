@@ -506,10 +506,9 @@ console.log(game);
 //     this.isOver = false;
 
 //     this.allowed = new Set([
-//       Multiplier, Hole, MagicWand, CreditCard, BullsEye, CrystalBall, FreeTurn,
+//       Multiplier, CreditCard, Briefcase, Hole, MagicWand, Slots, BullsEye, CrystalBall
 //     ]);
 //     this.buyOnce = [
-//       Bug,
 //     ];
 //     this.symbolLimit = 2000;
 //   }

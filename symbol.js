@@ -1110,12 +1110,13 @@ export class Slots extends Symbol {
   copy() { return new Slots(); }
   async score(game, x, y) {
     const value = new Set(game.inventory.symbols.map(s => s.name())).size;
+    this.count = value;
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, value * 3)]);
+      this.addMoney(game, this.count * 3)]);
   }
   counter() {
-    return new Set(game.inventory.symbols.map(s => s.name())).size;
+    return this.count;
   }
   description() {
     return '💵3 per different symbol in inventory';
