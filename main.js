@@ -294,6 +294,7 @@ class Board {
   constructor() {
     this.cells = [];
     this.gridDiv = document.querySelector('.grid');
+    this.gridDiv.replaceChildren();
     for (let i = 0; i < Util.BOARD_SIZE; ++i) {
       const row = [];
       const rowDiv = document.createElement('div');
@@ -505,12 +506,12 @@ console.log(game);
 //     this.isOver = false;
 
 //     this.allowed = new Set([
-//       FreeTurn,
+//       Multiplier, Hole, MagicWand, CreditCard, BullsEye, CrystalBall, FreeTurn,
 //     ]);
 //     this.buyOnce = [
-//       Grave, Grave, Grave, BullsEye, BullsEye, BullsEye, CrystalBall, CrystalBall
+//       Bug,
 //     ];
-//     this.symbolLimit = 20;
+//     this.symbolLimit = 2000;
 //   }
 //   async over() {
 //     this.isOver = true;

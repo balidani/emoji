@@ -26,10 +26,10 @@ const nextToEmpty = (cells, x, y) => {
   return Util.nextToExpr(cells, x, y, (sym) => [Empty.name, Hole.name].includes(sym.name()));
 };
 const addToBoard = async (game, sym, x, y) => {
-  if (sym.name() === Hole.name && game.board.cells[y][x].name() === Hole.name) {
+  if (sym.name() === Hole.name 
+    && game.board.cells[y][x].name() === Hole.name) {
     // Putting a hole in a hole
     // sym = new BlackHole();
-    console.log('wow');
   }
   game.inventory.add(sym);
   if (game.board.cells[y][x].name() === Hole.name) {
@@ -1017,7 +1017,7 @@ export class Record extends Symbol {
       return;
     }
     for (const coord of coords) {
-      this.notes += 4;
+      this.notes += 5;
       game.board.updateCounter(x, y);
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
@@ -1030,7 +1030,7 @@ export class Record extends Symbol {
     return this.notes;
   }
   description() {
-    return 'record neighboring 🎵<br>💵4 for each 🎵 recorded';
+    return 'record neighboring 🎵<br>💵5 for each 🎵 recorded';
   }
 }
 
