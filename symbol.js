@@ -68,6 +68,9 @@ export class Symbol {
   reset() {
     this.multiplier = 1;
   }
+  counter() {
+    return null;
+  }
 }
 
 export class Empty extends Symbol {
@@ -95,7 +98,7 @@ export class Balloon extends Symbol {
       this.addMoney(game, 20)]);
     if (chance(game, 0.5, x, y)) {
       game.inventory.remove(this);
-      game.board.cells[y][x] = new Empty();
+      game.board.clearCell(x, y);
       await game.board.spinDivOnce(x, y);
     }
   }
@@ -124,13 +127,17 @@ export class Bank extends Symbol {
       await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
       await addToBoard(game, coin, newX, newY);
     };
-    if (this.turns % 4 === 1) {
+    if (this.turns % 4 === 0) {
       await mint(); await mint(); await mint(); 
+      game.board.updateCounter(x, y);
     }
     
   }
+  counter() {
+    return 4 - this.turns % 4;
+  }
   description() {
-    return 'every four turns: mint 🪙🪙🪙';
+    return 'every 4 turns: mint 🪙🪙🪙';
   }
 }
 
@@ -181,7 +188,7 @@ export class Bomb extends Symbol {
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
       await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.15, 2);
-      game.board.cells[deleteY][deleteX] = new Empty();
+      game.board.clearCell(deleteX, deleteY);
       await game.board.spinDivOnce(deleteX, deleteY);
     }
   }
@@ -195,6 +202,7 @@ export class Briefcase extends Symbol {
   constructor() {
     super();
     this.rarity = 0.13;
+    this.count = 0;
   }
   copy() { return new Briefcase(); }
   async score(game, x, y) {
@@ -202,6 +210,10 @@ export class Briefcase extends Symbol {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
       this.addMoney(game, value * 2)]);
+    this.count = game.inventory.symbols.length;
+  }
+  counter() {
+    return this.count;
   }
   description() {
     return '💵2 per symbol in inventory'
@@ -230,22 +242,27 @@ export class Bug extends Symbol {
       (sym) => Food.includes(sym.name()));
     if (coords.length === 0) {
       this.timeToLive--;
+      game.board.updateCounter(x, y);
       if (this.timeToLive <= 0) {
         game.inventory.remove(this);
-        game.board.cells[y][x] = new Empty();
+        game.board.clearCell(x, y);
         await game.board.spinDivOnce(x, y);
       }
     } else {
       this.timeToLive = 5;
+      game.board.updateCounter(x, y);
       for (const coord of coords) {
         this.foodScore += 5;
         const [deleteX, deleteY] = coord;
         game.inventory.remove(game.board.cells[deleteY][deleteX]);
-        game.board.cells[deleteY][deleteX] = new Empty();
+        game.board.clearCell(deleteX, deleteY);
         await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.15);
         await game.board.spinDivOnce(deleteX, deleteY);
       }
     }
+  }
+  counter() {
+    return this.timeToLive - 1;
   }
   description() {
     return 'eat all food for 💵5<br>leave after 5 turns with no food';
@@ -300,6 +317,7 @@ export class Chick extends Symbol {
   }
   async evaluate(game, x, y) {
     this.turns++;
+    game.board.updateCounter(x, y);
     if (this.turns >= 3) {
       game.inventory.remove(this);
       const chicken = new Chicken();
@@ -307,6 +325,9 @@ export class Chick extends Symbol {
       game.board.cells[y][x] = chicken;
       await game.board.spinDivOnce(x, y);
     }
+  }
+  counter() {
+    return 3 - this.turns;
   }
   description() {
     return '💵1<br>after 3 turns: become 🐔';
@@ -382,14 +403,18 @@ export class Cocktail extends Symbol {
         this.cherryScore += reward;
         const [deleteX, deleteY] = coord;
         game.inventory.remove(game.board.cells[deleteY][deleteX]);
-        game.board.cells[deleteY][deleteX] = new Empty();
+        game.board.clearCell(deleteX, deleteY);
         await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15);
         await game.board.spinDivOnce(deleteX, deleteY);
+        game.board.updateCounter(x, y);
       }
     }
     await remove(Cherry, 2);
     await remove(Pineapple, 4);
     await remove(Mango, 8);
+  }
+  counter() {
+    return this.cherryScore;
   }
   description() {
     return '💵2 per 🍒 removed<br>💵4 per 🍍 removed<br>💵8 per 🥭 removed';
@@ -509,11 +534,6 @@ export class Dancer extends Symbol {
     }
     for (const coord of coords) {
       this.musicScore += 10;
-      // const [deleteX, deleteY] = coord;
-      // game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      // game.board.cells[deleteY][deleteX] = new Empty();
-      // await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15);
-      // await game.board.spinDivOnce(deleteX, deleteY);
     }
   }
   description() {
@@ -588,6 +608,7 @@ export class Drums extends Symbol {
   copy() { return new Drums(); }
   async evaluate(game, x, y) {
     this.turns++;
+    game.board.updateCounter(x, y);
     if (this.turns % 3 === 0) {
       const note = new MusicalNote();
       const coords = nextToEmpty(game.board.cells, x, y);
@@ -598,6 +619,9 @@ export class Drums extends Symbol {
       await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 3);
       await addToBoard(game, note, newX, newY);
     }
+  }
+  counter() {
+    return 3 - this.turns % 3;
   }
   description() {
     return 'every 3 turns: make 🎵';
@@ -614,6 +638,7 @@ export class Egg extends Symbol {
   copy() { return new Egg(); }
   async evaluate(game, x, y) {
     this.turns++;
+    game.board.updateCounter(x, y);
     if (this.turns >= this.timeToHatch) {
       game.inventory.remove(this);
       let newSymbol = new Chick();
@@ -625,6 +650,9 @@ export class Egg extends Symbol {
       game.board.cells[y][x] = newSymbol;
       await game.board.spinDivOnce(x, y);
     }
+  }
+  counter() {
+    return this.timeToHatch - this.turns;
   }
   description() {
     return 'after 3-5 turns: hatch 🐣<br>1% chance: hatch 🐉'
@@ -646,12 +674,12 @@ export class Firefighter extends Symbol {
     for (const coord of coords) {
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      game.board.cells[deleteY][deleteX] = new Empty();
+      game.board.clearCell(deleteX, deleteY);
       await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.15, 2);
       await game.board.spinDivOnce(deleteX, deleteY);
     }
     game.inventory.remove(this);
-    game.board.cells[y][x] = new Empty();
+    game.board.clearCell(x, y);
     await game.board.spinDivOnce(x, y);
   }
   description() {
@@ -669,10 +697,12 @@ export class Fox extends Symbol {
   }
   copy() { return new Fox(); }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, this.eatenScore)]);      
-    this.eatenScore = 0;
+    if (this.eatenScore > 0) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+        this.addMoney(game, this.eatenScore)]);      
+      this.eatenScore = 0;
+    }
   }
   async evaluate(game, x, y) {
     const eatNeighbor = async (neighborClass, reward) => {
@@ -684,21 +714,26 @@ export class Fox extends Symbol {
         this.eatenScore += reward;
         const [deleteX, deleteY] = coord;
         game.inventory.remove(game.board.cells[deleteY][deleteX]);
-        game.board.cells[deleteY][deleteX] = new Empty();
+        game.board.clearCell(deleteX, deleteY);
         await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.15, 2);
         await game.board.spinDivOnce(deleteX, deleteY);
       }
       this.timeToLive = 5;
+      game.board.updateCounter(x, y);
     };
 
     this.timeToLive--;
+    game.board.updateCounter(x, y);
     await eatNeighbor(Chick, 10);
     await eatNeighbor(Chicken, 20);
     if (this.timeToLive <= 0) {
       game.inventory.remove(this);
-      game.board.cells[y][x] = new Empty();
+      game.board.clearCell(x, y);
       await game.board.spinDivOnce(x, y);
     }
+  }
+  counter() {
+    return this.timeToLive - 1;
   }
   description() {
     return 'eat 🐔 for 💵20<br>eat 🐣 for 💵10<br>leave after 5 turns with no food';
@@ -718,7 +753,7 @@ export class FreeTurn extends Symbol {
       game.inventory.turns++;
       game.inventory.updateUi();
     }
-    game.board.cells[y][x] = new Empty();
+    game.board.clearCell(x, y);
     game.inventory.remove(this);
     await game.board.spinDivOnce(x, y);
   }
@@ -844,10 +879,14 @@ export class MoneyBag extends Symbol {
       this.coins += 2;
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      game.board.cells[deleteY][deleteX] = new Empty();
+      game.board.clearCell(deleteX, deleteY);
       await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15, 2);
       await game.board.spinDivOnce(deleteX, deleteY);
+      game.board.updateCounter(x, y);
     }
+  }
+  counter() {
+    return this.coins;
   }
   description() {
     return '💵2 for each 🪙 bagged<br>bag neighboring 🪙'
@@ -892,12 +931,16 @@ export class MusicalNote extends Symbol {
   }
   async evaluate(game, x, y) {
     this.turns++;
-    if (this.turns >= 3) {
+    game.board.updateCounter(x, y);
+    if (this.turns > 3) {
       game.inventory.remove(this);
-      game.board.cells[y][x] = new Empty();
+      game.board.clearCell(x, y);
       await game.board.spinDivOnce(x, y);
     }
-    this.timeToLive--;
+
+  }
+  counter() {
+    return 3 - this.turns;
   }
   description() {
     return '💵4<br>disappear after 3 turns';
@@ -938,12 +981,15 @@ export class Popcorn extends Symbol {
   }
   async evaluate(game, x, y) {
     this.turns++;
-    if (this.turns >= this.timeToLive) {
+    game.board.updateCounter(x, y);
+    if (this.turns > this.timeToLive) {
       game.inventory.remove(this);
-      game.board.cells[y][x] = new Empty();
+      game.board.clearCell(x, y);
       await game.board.spinDivOnce(x, y);
     }
-    this.timeToLive--;
+  }
+  counter() {
+    return this.timeToLive - this.turns;
   }
   description() {
     return '💵7<br>disappear after 1-3 turns'
@@ -972,12 +1018,16 @@ export class Record extends Symbol {
     }
     for (const coord of coords) {
       this.notes += 4;
+      game.board.updateCounter(x, y);
       const [deleteX, deleteY] = coord;
       game.inventory.remove(game.board.cells[deleteY][deleteX]);
-      game.board.cells[deleteY][deleteX] = new Empty();
+      game.board.clearCell(deleteX, deleteY);
       await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'flip', 0.15, 2);
       await game.board.spinDivOnce(deleteX, deleteY);
     }
+  }
+  counter() {
+    return this.notes;
   }
   description() {
     return 'record neighboring 🎵<br>💵4 for each 🎵 recorded';
@@ -1064,6 +1114,9 @@ export class Slots extends Symbol {
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
       this.addMoney(game, value * 3)]);
   }
+  counter() {
+    return new Set(game.inventory.symbols.map(s => s.name())).size;
+  }
   description() {
     return '💵3 per different symbol in inventory';
   }
@@ -1090,9 +1143,13 @@ export class Tree extends Symbol {
     };
 
     this.turns++;
+    game.board.updateCounter(x, y);
     if (this.turns % 3 === 0) {
       await grow(); await grow();
     }
+  }
+  counter() {
+    return 3 - this.turns % 3;
   }
   description() {
     return 'every 3 turns: grow 🍒🍒';

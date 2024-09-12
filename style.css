@@ -93,6 +93,7 @@ button {
 .row {
 }
 .cell {
+  position: relative;
   width: 40pt;
   height: 40pt;
   display: inline-block;
@@ -101,6 +102,12 @@ button {
 }
 .symbol {
   transform-origin: top;
+}
+.symbolCounter {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 10pt;
 }
 
 /* Score */
