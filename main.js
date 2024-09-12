@@ -399,20 +399,22 @@ class Board {
   async evaluate(game) {
     const tasks = [];
     this.forAllCells((cell, x, y) => tasks.push(
-      async () => { await cell.evaluate(game, x, y); } ));
+      async () => { 
+        // If the symbol has since been removed from the board, do not evaluate.
+        if (this.cells[y][x] !== cell) {
+          return;
+        }
+        await cell.evaluate(game, x, y);
+      } ));
     for (const task of tasks) {
       await task();
     }
-    // We should check in the beginning of the task if the symbol is still on the board.
   }
   async finalScore(game) {
     const tasks = [];
     this.forAllCells((cell, x, y) => {
       tasks.push(async () => {
-        // const before = game.inventory.money;
         await cell.finalScore(game, x, y);
-        // const after = game.inventory.money;
-        // console.log(cell.name(), after - before);
       });
     })
     for (const task of tasks) {
@@ -423,10 +425,7 @@ class Board {
     const tasks = [];
     this.forAllCells((cell, x, y) => {
       tasks.push(async () => {
-        // const before = game.inventory.money;
         await cell.score(game, x, y);
-        // const after = game.inventory.money;
-        // console.log(cell.name(), after - before);
       });
     })
     for (const task of tasks) {
