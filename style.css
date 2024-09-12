@@ -111,16 +111,20 @@ button {
 }
 
 /* Score */
-.score {
+.scoreContainer {
   display: flex;
-  justify-content: center;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
   position: fixed;
-  left: 0pt;
-  top: 100pt;
-  width: 240pt;
-  padding-top: 4pt;
-  padding-left: 4pt;
-  padding-bottom: 4pt;
+  left: 0;
+  top: 100pt; /* Adjust this as per your requirement */
+  width: 100%; /* Full width to enable centering */
+  height: auto; /* Can adjust if needed */
+  z-index: 9999; /* Ensure it stays above other content */
+}
+
+.score {
+  padding: 4pt;
   font-size: 56pt;
   font-weight: 900;
 }

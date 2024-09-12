@@ -455,10 +455,13 @@ class Game {
     const blurDiv = document.querySelector('.blur-me');
     blurDiv.classList.add('blur');
     await Util.animate(blurDiv, 'blurStart', 0.4);
+    const scoreContainer = document.createElement('div');
+    scoreContainer.classList.add('scoreContainer');
     const scoreDiv = document.createElement('div');
     scoreDiv.classList.add('score');
     scoreDiv.innerText = '💵' + this.inventory.money;
-    document.querySelector('body').appendChild(scoreDiv);
+    scoreContainer.appendChild(scoreDiv);
+    document.querySelector('body').appendChild(scoreContainer);
     document.querySelector('#roll').disabled = true;
     await Util.animate(scoreDiv, 'scoreIn', 0.4);
   }
