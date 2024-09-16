@@ -62,7 +62,7 @@ export class Symbol {
   }
   async addMoney(game, score, x, y) {
     const value = score * this.multiplier;
-    game.board.showMoneyEarned(x, y, value);
+    await game.board.showMoneyEarned(x, y, value);
     await game.inventory.addMoney(score * this.multiplier);
   }
   name() { 

@@ -330,16 +330,14 @@ class Board {
   getCounterDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[1];
   }
-  showMoneyEarned(x, y, value) {
-    // const moneyDiv = document.createElement('div');
-    // moneyDiv.classList.add('moneyEarned');
-    // moneyDiv.innerText = `💵${value}`;
-    // this.gridDiv.appendChild(moneyDiv);
+  async showMoneyEarned(x, y, value) {
+    const moneyDiv = document.createElement('div');
+    moneyDiv.classList.add('moneyEarned');
+    moneyDiv.innerText = `💵${value}`;
+    this.gridDiv.appendChild(moneyDiv);
 
-    // Util.animate(moneyDiv, 'fadeOutMoveDown', 1);
-    // setTimeout(() => {
-    //   this.gridDiv.removeChild(moneyDiv);
-    // }, 1000);
+    await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.4);
+    this.gridDiv.removeChild(moneyDiv);
   }
   clearCell(x, y) {
     this.getCounterDiv(x, y).innerText = '';

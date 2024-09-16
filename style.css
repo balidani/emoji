@@ -113,8 +113,8 @@ html, body { height: 100%; }
 .moneyEarned {
   position: absolute;
   top: 20pt;
-  left: 0;
-  font-size: 16pt;
+  left: 4pt;
+  font-size: 12pt;
 }
 
 /* Score */
@@ -209,7 +209,8 @@ html, body { height: 100%; }
 
 @keyframes fadeOutMoveDown {
   0% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(200pt); }
+  50% { opacity: 0.5; transform: translateY(16pt); }
+  100% { opacity: 0; transform: translateY(16pt); }
 }
 
 /* Misc */
