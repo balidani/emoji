@@ -110,6 +110,12 @@ html, body { height: 100%; }
   right: 0;
   font-size: 10pt;
 }
+.moneyEarned {
+  position: absolute;
+  top: 20pt;
+  left: 0;
+  font-size: 16pt;
+}
 
 /* Score */
 .scoreContainer {
@@ -199,6 +205,11 @@ html, body { height: 100%; }
 @keyframes closeShop {
   0% { transform: translateY(0); opacity: 1; }
   100% { transform: translateY(500pt); opacity: 0; }
+}
+
+@keyframes fadeOutMoveDown {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(200pt); }
 }
 
 /* Misc */

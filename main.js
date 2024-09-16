@@ -330,6 +330,17 @@ class Board {
   getCounterDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[1];
   }
+  showMoneyEarned(x, y, value) {
+    // const moneyDiv = document.createElement('div');
+    // moneyDiv.classList.add('moneyEarned');
+    // moneyDiv.innerText = `💵${value}`;
+    // this.gridDiv.appendChild(moneyDiv);
+
+    // Util.animate(moneyDiv, 'fadeOutMoveDown', 1);
+    // setTimeout(() => {
+    //   this.gridDiv.removeChild(moneyDiv);
+    // }, 1000);
+  }
   clearCell(x, y) {
     this.getCounterDiv(x, y).innerText = '';
     this.cells[y][x] = new Empty();
@@ -513,12 +524,12 @@ console.log(game);
 //     this.isOver = false;
 
 //     this.allowed = new Set([
-//       Multiplier, Cherry, Pineapple, Mango, Balloon, FreeTurn
+//       Multiplier, Cherry
 //     ]);
 //     this.buyOnce = [
-//       Cocktail, Tree, Tree, Tree, Clover, CrystalBall, MagicWand
+      
 //     ];
-//     this.symbolLimit = 2000;
+//     this.symbolLimit = 40;
 //   }
 //   async over() {
 //     this.isOver = true;
