@@ -50,7 +50,7 @@ const onBottomRight = (cells, x, y, name) => inBounds(x + 1) && inBounds(y + 1)
 const nextTo = (cells, x, y, name) => 
   [onLeft, onRight, onTop, onBottom, 
     onTopLeft, onTopRight, onBottomLeft, onBottomRight].some((f) => f(cells, x, y, name));
-export const nextToCoords = (cells, x, y) => {
+const nextToCoords = (cells, x, y) => {
   const coords = [];
   const add = (x, y) => {
     if (inBounds(x) && inBounds(y)) {

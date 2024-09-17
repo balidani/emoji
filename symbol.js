@@ -900,6 +900,38 @@ export class MoneyBag extends Symbol {
   }
 }
 
+export class Moon extends Symbol {
+  static name = '🌝';
+  constructor() {
+    super();
+    this.rarity = 0.28;
+  }
+  copy() { return new Moon(this.turns); }
+  async score(game, x, y) {
+    if (this.moonScore > 0) {
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.3),
+        this.addMoney(game, this.moonScore, x, y)]);
+    }
+    this.moonScore = 0;
+  }
+  async evaluate(game, x, y) {
+    this.turns++;
+    game.board.updateCounter(game, x, y);
+    if (this.turns >= 31) {
+      this.moonScore = 444;
+      this.turns = 0;
+      game.board.updateCounter(game, x, y);
+    }
+  }
+  counter(game) {
+    return 31 - this.turns;
+  }
+  description() {
+    return 'after 31 turns: 💵444';
+  }
+}
+
 export class Multiplier extends Symbol {
   static name = '❎';
   constructor() {
@@ -944,7 +976,6 @@ export class MusicalNote extends Symbol {
       game.board.clearCell(x, y);
       await game.board.spinDivOnce(game, x, y);
     }
-
   }
   counter(game) {
     return 3 - this.turns;
@@ -1078,14 +1109,14 @@ export class Rocket extends Symbol {
   static name = '🚀';
   constructor() {
     super();
-    this.rarity = 0.15;
+    this.rarity = 0.18;
   }
   copy() { return new Rocket(); }
   async evaluate(game, x, y) {
-    const coords = Util.nextToCoords(game.board.cells, x, y);
-    // await Util.animate(game.board.getSymbolDiv(x, y), 'shakeRocket', 0.15, 2);
+    const coords = Util.nextToExpr(game.board.cells, x, y, (sym) => true);
     for (const cell of coords) {
-      cell.turns++;
+      const [neighborX, neighborY] = cell;
+      game.board.cells[neighborY][neighborX].turns++;
     }
   }
   description() {

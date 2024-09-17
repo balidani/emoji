@@ -30,6 +30,7 @@ import {
   MagicWand,
   Mango,
   MoneyBag,
+  Moon,
   Multiplier,
   MusicalNote,
   Pineapple,
@@ -77,6 +78,7 @@ const makeCatalog = () => [
   new MagicWand(),
   new Mango(),
   new MoneyBag(),
+  new Moon(),
   new Multiplier(),
   new Pineapple(),
   new Record(),
@@ -336,7 +338,7 @@ class Board {
     moneyDiv.innerText = `💵${value}`;
     this.gridDiv.appendChild(moneyDiv);
 
-    await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.4);
+    await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.5);
     this.gridDiv.removeChild(moneyDiv);
   }
   clearCell(x, y) {
@@ -419,7 +421,6 @@ class Board {
     for (const task of tasks) {
       await task();
     }
-
     this.forAllCells((cell, x, y) => {
       this.updateCounter(game, x, y);
     });
@@ -524,10 +525,10 @@ console.log(game);
 //     this.isOver = false;
 
 //     this.allowed = new Set([
-//       Multiplier, Cherry
+//       Multiplier,
 //     ]);
 //     this.buyOnce = [
-      
+//       Record, Bug, Drums, Drums, Drums, Bell, Bell, Bell, BullsEye, Rocket, CrystalBall, MagicWand
 //     ];
 //     this.symbolLimit = 1000;
 //   }
@@ -623,7 +624,7 @@ console.log(game);
 //   let over10k = 0;
 //   let over15k = 0;
 //   let over20k = 0;
-//   for (let i = 0; i < 10; ++i) {
+//   for (let i = 0; i < 200; ++i) {
 //     const game = new AutoGame();
 //     await game.simulate();
 //     const score = game.inventory.money;
