@@ -87,7 +87,7 @@ const makeCatalog = () => [
   new Slots(),
   new Tree(),
   // new Volcano(),
-  // new Worker(),
+  new Worker(),
 ];
 
 const startingSet = () => [
@@ -495,14 +495,16 @@ class Game {
       await this.board.roll(this);
       await this.board.evaluate(this);
       await this.board.score(this);
-      await this.shop.open(this);
     } else {
       // Handle the case where player ran out of money
     }
-    this.rolling = false;
     if (this.inventory.turns === 0) {
       await this.over();
+    } else {
+      await this.shop.open(this);
     }
+
+    this.rolling = false;
   }
 }
 
@@ -527,7 +529,7 @@ console.log(game);
 //     this.buyOnce = [
       
 //     ];
-//     this.symbolLimit = 40;
+//     this.symbolLimit = 1000;
 //   }
 //   async over() {
 //     this.isOver = true;
@@ -618,7 +620,10 @@ console.log(game);
 
 // const run = async () => {
 //   const scores = [];
-//   for (let i = 0; i < 100; ++i) {
+//   let over10k = 0;
+//   let over15k = 0;
+//   let over20k = 0;
+//   for (let i = 0; i < 10; ++i) {
 //     const game = new AutoGame();
 //     await game.simulate();
 //     const score = game.inventory.money;
@@ -626,7 +631,20 @@ console.log(game);
 //     const avg = scores.reduce((acc, val) => acc + val, 0) / scores.length | 0;
 //     const max = Math.max(...scores);
 //     const min = Math.min(...scores);
-//     console.log(`${i}\tscore ${score}\tavg ${avg}\tmax ${max}\tmin ${min}\tturns ${totalTurns}`);
+//     console.log(`${i}\tscore ${score}\tavg ${avg}\tmax ${max}`);
+//     if (totalTurns === 200) {
+//       console.log('inf!');
+//     }
+//     if (score > 10000) {
+//       over10k++;
+//     }
+//     if (score > 15000) {
+//       over15k++;
+//     }
+//     if (score > 20000) {
+//       over20k++;
+//     }
 //   }
+//   console.log(over10k, over15k, over20k);
 // };
 // await run();
