@@ -15,7 +15,6 @@ html, body { height: 100%; }
 .wrapper {
   display: flex;
   justify-content: center;
-  padding: 10pt;
   font-size: 22pt;
 }
 
@@ -30,7 +29,6 @@ html, body { height: 100%; }
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
-  background: white;
   font-size: 16pt;
 }
 .inventoryEntry {
@@ -60,9 +58,15 @@ html, body { height: 100%; }
   display: inline-block;
 }
 
+.info {
+  font-size: 12pt;
+  padding: 10pt;
+}
+
 /* Shop */
 
 .shop {
+  padding-top: 20pt;
   width: 256pt;
   overflow: hidden;
 }
@@ -86,20 +90,25 @@ html, body { height: 100%; }
 /* Grid */
 
 .grid {
+  padding-top: 40pt;
   display: flex;
   justify-content: center;
   width: 240pt;
-  font-size: 30pt;
 }
 .row {
+  display: flex;
+  flex-direction: column;
 }
 .cell {
-  position: relative;
+  font-size: 30pt;
   width: 40pt;
   height: 40pt;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   overflow: hidden;
+  position: relative;
 }
 .symbol {
   transform-origin: top;

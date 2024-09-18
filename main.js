@@ -338,7 +338,7 @@ class Board {
     moneyDiv.innerText = `💵${value}`;
     this.gridDiv.appendChild(moneyDiv);
 
-    await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.5);
+    await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.3);
     this.gridDiv.removeChild(moneyDiv);
   }
   clearCell(x, y) {
@@ -453,6 +453,26 @@ class Board {
         f(cell, x, y);
       });
     });
+  }
+  async addSymbol(game, sym, x, y) {
+    game.inventory.add(sym);
+    if (this.cells[y][x].name() === Hole.name) {
+      const hole = this.cells[y][x];
+      this.cells[y][x] = sym;
+      await this.spinDivOnce(game, x, y);
+      this.cells[y][x] = hole;
+      await this.spinDivOnce(game, x, y);
+    } else {
+      this.cells[y][x] = sym;
+      await this.spinDivOnce(game, x, y);
+    }
+    this.updateCounter(game, x, y);
+  }
+  async removeSymbol(game, x, y) {
+    game.inventory.remove(this.cells[y][x]);
+    this.clearCell(x, y);
+    await Util.animate(this.getSymbolDiv(x, y), 'flip', 0.15);
+    await this.spinDivOnce(game, x, y);
   }
 }
 
