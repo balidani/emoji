@@ -51,7 +51,7 @@ const makeCatalog = () => [
   new Balloon(),
   new Bank(),
   new Bell(),
-  new Bomb(),
+  // new Bomb(),
   new Briefcase(),
   new Bug(),
   new BullsEye(),
@@ -70,7 +70,7 @@ const makeCatalog = () => [
   new Dragon(),
   new Drums(),
   new Egg(),
-  new Firefighter(),
+  // new Firefighter(),
   new Fox(),
   // new FreeTurn(),
   // new Grave(),
@@ -463,6 +463,9 @@ class Game {
     this.board = new Board();
     this.shop = new Shop();
     this.rolling = false;
+    document.getElementById('roll')
+      .addEventListener('click', () => this.roll());
+    console.log(this);
   }
   async over() {
     await this.board.finalScore(this);
@@ -510,9 +513,6 @@ class Game {
 }
 
 const game = new Game();
-document.getElementById('roll')
-  .addEventListener('click', () => game.roll());
-console.log(game);
 
 // class AutoGame {
 //   constructor() {
@@ -613,12 +613,7 @@ console.log(game);
 //     }
 //   }
 // }
-
 // Util.toggleAnimation();
-
-// // const game = new AutoGame();
-// // await game.simulate();
-
 // const run = async () => {
 //   const scores = [];
 //   let over10k = 0;

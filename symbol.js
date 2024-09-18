@@ -385,6 +385,8 @@ export class Clover extends Symbol {
   }
 }
 
+// TODO: 🍾 -- x2 to Cocktail
+
 export class Cocktail extends Symbol {
   static name = '🍹';
   constructor(cherryScore = 0) {
@@ -563,7 +565,7 @@ export class Diamond extends Symbol {
     if (coords.length === 0) {
       return;
     }
-    this.addMoney(game, coords.length * 4, x, y);
+    await this.addMoney(game, coords.length * 4, x, y);
   }
   description() {
     return '💵4<br>💵4 for each neighboring 💎';
