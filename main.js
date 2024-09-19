@@ -106,8 +106,8 @@ let totalTurns = 0;
 class Inventory {
   constructor(symbols) {
     this.symbols = symbols;
-    this.symbolsDiv = document.querySelector('.inventory');
-    this.uiDiv = document.querySelector('.ui');
+    this.symbolsDiv = document.querySelector('.game .inventory');
+    this.uiDiv = document.querySelector('.game .ui');
     this.money = 1;
     this.turns = 50;
     this.updateUi();
@@ -175,7 +175,7 @@ class Inventory {
 
 class Shop {
   constructor() {
-    this.shopDiv = document.querySelector('.shop');
+    this.shopDiv = document.querySelector('.game .shop');
     this.isOpen = false;
     this.refreshCost = 1;
     this.refreshCount = 0;
@@ -295,7 +295,7 @@ class Shop {
 class Board {
   constructor() {
     this.cells = [];
-    this.gridDiv = document.querySelector('.grid');
+    this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
     for (let i = 0; i < Util.BOARD_SIZE; ++i) {
       const row = [];
@@ -483,26 +483,55 @@ class Game {
     this.board = new Board();
     this.shop = new Shop();
     this.rolling = false;
-    document.getElementById('roll')
+    this.info = document.querySelector('.game .info');
+    Util.drawText(this.info, "hi there. press (🕹️) when you are ready to play.");
+    document.querySelector('.game .roll')
       .addEventListener('click', () => this.roll());
     console.log(this);
   }
   async over() {
+    document.querySelector('.game .roll').disabled = true;
     await this.board.finalScore(this);
-    const blurDiv = document.querySelector('.blur-me');
+    const blurDiv = document.querySelector('.game .blur-me');
     blurDiv.classList.add('blur');
-    await Util.animate(blurDiv, 'blurStart', 0.4);
-    const scoreContainer = document.createElement('div');
-    scoreContainer.classList.add('scoreContainer');
-    const scoreDiv = document.createElement('div');
-    scoreDiv.classList.add('score');
-    scoreDiv.innerText = '💵' + this.inventory.money;
-    scoreContainer.appendChild(scoreDiv);
-    document.querySelector('body').appendChild(scoreContainer);
-    document.querySelector('#roll').disabled = true;
-    await Util.animate(scoreDiv, 'scoreIn', 0.4);
+    await Util.animate(blurDiv, 'blurStart', 0.6);
+    {
+      const scoreContainer = document.createElement('div');
+      scoreContainer.classList.add('scoreContainer');
+      const scoreDiv = document.createElement('div');
+      scoreDiv.classList.add('score');
+      scoreDiv.innerText = '💵' + this.inventory.money;
+      scoreContainer.appendChild(scoreDiv);
+      document.querySelector('.game').appendChild(scoreContainer);
+      await Util.animate(scoreDiv, 'scoreIn', 0.4);
+    }
+    let trophy = null;
+    if (this.inventory.money >= 30000) {
+      trophy = '🏆';
+    } else if (this.inventory.money >= 20000) {
+      trophy = '🥇';
+    } else if (this.inventory.money >= 15000) {
+      trophy = '🥈';
+    } else if (this.inventory.money >= 10000) {
+      trophy = '🥉';
+    } else {
+      trophy = '💩';
+    }
+    {
+      const trophyContainer = document.createElement('div');
+      trophyContainer.classList.add('scoreContainer');
+      const trophyDiv = document.createElement('div');
+      trophyDiv.classList.add('trophy');
+      trophyDiv.innerText = trophy;
+      trophyContainer.appendChild(trophyDiv);
+      document.querySelector('.game').appendChild(trophyContainer);
+      await Util.animate(trophyDiv, 'scoreIn', 0.4);
+    }
+    document.querySelector('body').addEventListener(
+      'click', load);
   }
   async roll() {
+    Util.deleteText(this.info);
     if (this.rolling) {
       Util.animationOff();
       return;
@@ -527,12 +556,27 @@ class Game {
     } else {
       await this.shop.open(this);
     }
-
+    if (this.inventory.turns === 49) {
+      Util.drawText(this.info, 'you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.');
+    } else if (this.inventory.turns === 48) {
+      Util.drawText(this.info, 'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵30000 for 🏆. good luck!');
+    }
     this.rolling = false;
   }
 }
 
-const game = new Game();
+const load = () => {
+  document.querySelector('body').removeEventListener(
+    'click', load);
+  const template = document.querySelector('.template');
+  const gameDiv = document.querySelector('.game');
+  gameDiv.replaceChildren();
+  const templateClone = template.cloneNode(true);
+  templateClone.classList.remove('hidden');
+  gameDiv.appendChild(templateClone.children[0]);
+  const game = new Game();
+};
+load();
 
 // class AutoGame {
 //   constructor() {
@@ -555,16 +599,6 @@ const game = new Game();
 //   async over() {
 //     this.isOver = true;
 //     await this.board.finalScore(this);
-//     const blurDiv = document.querySelector('.blur-me');
-//     blurDiv.classList.add('blur');
-//     await Util.animate(blurDiv, 'blurStart', 0.4);
-//     const scoreDiv = document.createElement('div');
-//     scoreDiv.classList.add('score');
-//     scoreDiv.innerText = '💵' + this.inventory.money;
-//     document.querySelector('body').appendChild(scoreDiv);
-//     await Util.animate(scoreDiv, 'scoreIn', 0.4);
-
-//     document.getElementById('roll')
 //   }
 //   async roll() {
 //     if (this.isOver) {

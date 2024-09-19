@@ -6,10 +6,14 @@ button {
   font-size: 24pt;
 }
 
-html, body { height: 100%; }
+html, body { 
+  height: 100%;
+  scrollbar-width: 0;
+}
 
 .blur {
-  filter: blur(4px); /* Apply a blur of 5px */
+  height: 100%;
+  filter: blur(6px);
 }
 
 .wrapper {
@@ -59,8 +63,11 @@ html, body { height: 100%; }
 }
 
 .info {
-  font-size: 12pt;
-  padding: 10pt;
+  width: 240pt;
+  height: 36pt;
+  font-size: 10pt;
+  padding: 8pt;
+  text-align: center;
 }
 
 /* Shop */
@@ -90,7 +97,7 @@ html, body { height: 100%; }
 /* Grid */
 
 .grid {
-  padding-top: 40pt;
+  padding-top: 25pt;
   display: flex;
   justify-content: center;
   width: 240pt;
@@ -143,12 +150,18 @@ html, body { height: 100%; }
   font-size: 56pt;
   font-weight: 900;
 }
+.trophy {
+  padding: 4pt;
+  padding-bottom: 120pt;
+  font-size: 56pt;
+  font-weight: 900;
+}
 
 /* Animations */
 
 @keyframes blurStart {
   0% { filter: blur(0px); }
-  100% { filter: blur(4px); }
+  100% { filter: blur(6px); }
 }
 
 @keyframes scoreIn {
