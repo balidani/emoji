@@ -575,126 +575,137 @@ const load = () => {
   templateClone.classList.remove('hidden');
   gameDiv.appendChild(templateClone.children[0]);
   const game = new Game();
+  return game;
 };
+
+class AutoGame {
+  constructor() {
+    this.inventory = new Inventory(startingSet());
+    this.inventory.update();
+    this.board = new Board();
+    this.shop = new Shop();
+    totalTurns = 0;
+    this.scores = [];
+    this.isOver = false;
+
+    this.allowed = new Set([
+      Multiplier,
+    ]);
+    this.buyOnce = [
+      Record, Bug, Drums, Drums, Drums, Bell, Bell, Bell, BullsEye, Rocket, CrystalBall, MagicWand
+    ];
+    this.symbolLimit = 1000;
+  }
+  async over() {
+    this.isOver = true;
+    await this.board.finalScore(this);
+  }
+  async roll() {
+    if (this.isOver) {
+      return;
+    }
+    if (this.inventory.money > 0) {
+      this.inventory.turns--;
+      this.inventory.updateUi();
+      this.inventory.addMoney(-1);
+      this.inventory.symbols.forEach(s => s.reset());
+      await this.shop.close(this);
+      await this.board.roll(this);
+      await this.board.evaluate(this);
+      await this.board.score(this);
+      await this.shop.open(this);
+    } else {
+      await this.over();
+      return;
+    }
+
+    // Choose item to buy
+    if (this.inventory.symbols.length < this.symbolLimit) {
+      const tryOnce = (first) => {
+        const buttons = Array.from(document.getElementsByClassName('buyButton'));
+        const refreshButton = buttons.splice(3, 1)[0];
+        let bought = false;
+        const tryBuy = (sym) => {
+          for (const button of buttons) {
+            if (button.parentElement.parentElement.children[0].innerText === sym.name) {
+              button.click();
+              return true;
+            }
+          }
+          return false;
+        };
+        for (let i = 0; i < this.buyOnce.length; ++i) {
+          bought |= tryBuy(this.buyOnce[i]);
+          if (bought) {
+            this.buyOnce.splice(i, 1);
+            return true;
+          }
+        }
+        for (const sym of this.allowed) {
+          bought |= tryBuy(sym);
+          if (bought) {
+            return true;
+          }
+        }
+        if (first && !bought && refreshButton !== undefined) {
+          refreshButton.click();
+        }
+        return false;
+      }
+      if (!tryOnce(/*first=*/true)) {
+        tryOnce(/*first=*/false);
+      }
+    }
+    if (this.inventory.turns <= 0) {
+      await this.over();
+    }
+    totalTurns++;
+  }
+  async simulate() {
+    for (let i = 0; i < 200 && !this.isOver; ++i) {
+      await this.roll();
+    }
+  }
+}
+
+const simulate = async () => {
+  Util.toggleAnimation();
+
+  const template = document.querySelector('.template');
+  const gameDiv = document.querySelector('.game');
+  gameDiv.replaceChildren();
+  const templateClone = template.cloneNode(true);
+  templateClone.classList.remove('hidden');
+  gameDiv.appendChild(templateClone.children[0]);
+
+  const scores = [];
+  let over10k = 0;
+  let over15k = 0;
+  let over20k = 0;
+  for (let i = 0; i < 200; ++i) {
+    const game = new AutoGame();
+    await game.simulate();
+    const score = game.inventory.money;
+    scores.push(score);
+    const avg = scores.reduce((acc, val) => acc + val, 0) / scores.length | 0;
+    const max = Math.max(...scores);
+    const min = Math.min(...scores);
+    console.log(`${i}\tscore ${score}\tavg ${avg}\tmax ${max}`);
+    if (totalTurns === 200) {
+      console.log('inf!');
+    }
+    if (score > 10000) {
+      over10k++;
+    }
+    if (score > 15000) {
+      over15k++;
+    }
+    if (score > 20000) {
+      over20k++;
+    }
+  }
+  console.log(over10k, over15k, over20k);
+};
+
 load();
-
-// class AutoGame {
-//   constructor() {
-//     this.inventory = new Inventory(startingSet());
-//     this.inventory.update();
-//     this.board = new Board();
-//     this.shop = new Shop();
-//     totalTurns = 0;
-//     this.scores = [];
-//     this.isOver = false;
-
-//     this.allowed = new Set([
-//       Multiplier,
-//     ]);
-//     this.buyOnce = [
-//       Record, Bug, Drums, Drums, Drums, Bell, Bell, Bell, BullsEye, Rocket, CrystalBall, MagicWand
-//     ];
-//     this.symbolLimit = 1000;
-//   }
-//   async over() {
-//     this.isOver = true;
-//     await this.board.finalScore(this);
-//   }
-//   async roll() {
-//     if (this.isOver) {
-//       return;
-//     }
-//     if (this.inventory.money > 0) {
-//       this.inventory.turns--;
-//       this.inventory.updateUi();
-//       this.inventory.addMoney(-1);
-//       this.inventory.symbols.forEach(s => s.reset());
-//       await this.shop.close(this);
-//       await this.board.roll(this);
-//       await this.board.evaluate(this);
-//       await this.board.score(this);
-//       await this.shop.open(this);
-//     } else {
-//       await this.over();
-//       return;
-//     }
-
-//     // Choose item to buy
-//     if (this.inventory.symbols.length < this.symbolLimit) {
-//       const tryOnce = (first) => {
-//         const buttons = Array.from(document.getElementsByClassName('buyButton'));
-//         const refreshButton = buttons.splice(3, 1)[0];
-//         let bought = false;
-//         const tryBuy = (sym) => {
-//           for (const button of buttons) {
-//             if (button.parentElement.parentElement.children[0].innerText === sym.name) {
-//               button.click();
-//               return true;
-//             }
-//           }
-//           return false;
-//         };
-//         for (let i = 0; i < this.buyOnce.length; ++i) {
-//           bought |= tryBuy(this.buyOnce[i]);
-//           if (bought) {
-//             this.buyOnce.splice(i, 1);
-//             return true;
-//           }
-//         }
-//         for (const sym of this.allowed) {
-//           bought |= tryBuy(sym);
-//           if (bought) {
-//             return true;
-//           }
-//         }
-//         if (first && !bought && refreshButton !== undefined) {
-//           refreshButton.click();
-//         }
-//         return false;
-//       }
-//       if (!tryOnce(/*first=*/true)) {
-//         tryOnce(/*first=*/false);
-//       }
-//     }
-//     if (this.inventory.turns <= 0) {
-//       await this.over();
-//     }
-//     totalTurns++;
-//   }
-//   async simulate() {
-//     for (let i = 0; i < 200 && !this.isOver; ++i) {
-//       await this.roll();
-//     }
-//   }
-// }
-// Util.toggleAnimation();
-// const run = async () => {
-//   const scores = [];
-//   let over10k = 0;
-//   let over15k = 0;
-//   let over20k = 0;
-//   for (let i = 0; i < 200; ++i) {
-//     const game = new AutoGame();
-//     await game.simulate();
-//     const score = game.inventory.money;
-//     scores.push(score);
-//     const avg = scores.reduce((acc, val) => acc + val, 0) / scores.length | 0;
-//     const max = Math.max(...scores);
-//     const min = Math.min(...scores);
-//     console.log(`${i}\tscore ${score}\tavg ${avg}\tmax ${max}`);
-//     if (totalTurns === 200) {
-//       console.log('inf!');
-//     }
-//     if (score > 10000) {
-//       over10k++;
-//     }
-//     if (score > 15000) {
-//       over15k++;
-//     }
-//     if (score > 20000) {
-//       over20k++;
-//     }
-//   }
-//   console.log(over10k, over15k, over20k);
-// };
-// await run();
+// simulate();

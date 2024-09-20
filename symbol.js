@@ -244,7 +244,7 @@ export class Bug extends Symbol {
     return this.timeToLive - 1;
   }
   description() {
-    return 'eat nearby for 💵5 each<br>leave after 5 turns with no food';
+    return 'eat nearby food for 💵5 each<br>leave after 5 turns with no food';
   }
 }
 
