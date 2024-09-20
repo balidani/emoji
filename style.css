@@ -25,6 +25,7 @@ html, body {
 /* Inventory */
 
 .inventory {
+  pointer-events: none;
   position: fixed;
   left: 0pt;
   bottom: 0pt;
