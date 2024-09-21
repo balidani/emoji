@@ -51,7 +51,7 @@ const makeCatalog = () => [
   new Balloon(),
   new Bank(),
   new Bell(),
-  // new Bomb(),
+  new Bomb(),
   new Briefcase(),
   new Bug(),
   new BullsEye(),
@@ -600,10 +600,10 @@ class AutoGame {
     this.isOver = false;
 
     this.allowed = new Set([
-      Multiplier, Moon, Rocket, Balloon, FreeTurn
+      Multiplier, Hole, MagicWand, CreditCard, BullsEye, CrystalBall,
     ]);
     this.buyOnce = [
-      Bug, Clover, CrystalBall, MagicWand,
+      Bug, Bomb
     ];
     this.symbolLimit = 1000;
   }

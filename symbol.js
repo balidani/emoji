@@ -228,7 +228,7 @@ export class Bug extends Symbol {
       this.turns = 0;
       game.board.updateCounter(game, x, y);
       for (const coord of coords) {
-        this.foodScore += 5;
+        this.foodScore += 8;
         const [deleteX, deleteY] = coord;
         await game.board.removeSymbol(game, deleteX, deleteY);
       }
@@ -238,7 +238,7 @@ export class Bug extends Symbol {
     return 5 - this.turns;
   }
   description() {
-    return 'eat nearby food for 💵5 each<br>leave after 5 turns with no food';
+    return 'eat nearby food for 💵8 each<br>leave after 5 turns with no food';
   }
 }
 
@@ -512,10 +512,10 @@ export class Diamond extends Symbol {
     if (coords.length === 0) {
       return;
     }
-    await this.addMoney(game, coords.length * 4, x, y);
+    await this.addMoney(game, coords.length * 5, x, y);
   }
   description() {
-    return '💵4<br>💵4 for each neighboring 💎';
+    return '💵6<br>💵5 for each neighboring 💎';
   }
 }
 
@@ -839,7 +839,7 @@ export class Moon extends Symbol {
       game.board.updateCounter(game, x, y);
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.3),
-        this.addMoney(game, 444, x, y)]);
+        this.addMoney(game, 600, x, y)]);
     }
     this.moonScore = 0;
   }
@@ -847,7 +847,7 @@ export class Moon extends Symbol {
     return 31 - this.turns;
   }
   description() {
-    return 'after 31 turns: 💵444';
+    return 'after 31 turns: 💵600';
   }
 }
 
