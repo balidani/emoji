@@ -415,21 +415,26 @@ class Board {
     this.forAllCells((cell, x, y) => {
       this.updateCounter(game, x, y);
     });
-    const tasks = [];
-    this.forAllCells((cell, x, y) => tasks.push(
-      async () => { 
-        // If the symbol has since been removed from the board, do not evaluate.
-        if (this.cells[y][x] !== cell) {
-          return;
-        }
-        await cell.evaluate(game, x, y);
-      } ));
-    for (const task of tasks) {
-      await task();
-    }
-    this.forAllCells((cell, x, y) => {
-      this.updateCounter(game, x, y);
-    });
+    const evaluateRound = async (f) => {
+      const tasks = [];
+      this.forAllCells((cell, x, y) => tasks.push(
+        async () => { 
+          // If the symbol has since been removed from the board, do not evaluate.
+          if (this.cells[y][x] !== cell) {
+            return;
+          }
+          await f(cell, game, x, y);
+        } ));
+      for (const task of tasks) {
+        await task();
+      }
+      this.forAllCells((cell, x, y) => {
+        this.updateCounter(game, x, y);
+      });
+    };
+    await evaluateRound((c, g, x, y) => c.evaluateConsume(g, x, y));
+    await evaluateRound((c, g, x, y) => c.evaluateProduce(g, x, y));
+    await evaluateRound((c, g, x, y) => c.evaluateConsume(g, x, y));
   }
   async finalScore(game) {
     const tasks = [];
@@ -713,5 +718,5 @@ const simulate = async () => {
   console.log(over10k, over15k, over20k);
 };
 
-// load();
-simulate();
+load();
+// simulate();
