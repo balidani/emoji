@@ -3,7 +3,7 @@ body {
 }
 
 button {
-  font-size: 24pt;
+  font-size: 20pt;
 }
 
 html, body { 
@@ -109,9 +109,9 @@ html, body {
   flex-direction: column;
 }
 .cell {
-  font-size: 30pt;
-  width: 40pt;
-  height: 40pt;
+  font-size: 26pt;
+  width: 34pt;
+  height: 34pt;
   display: flex;
   align-items: center;
   justify-content: center;
