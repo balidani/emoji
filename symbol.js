@@ -116,16 +116,9 @@ export class Bank extends Symbol {
       await game.board.addSymbol(game, coin, newX, newY);
     };
     await mint();
-    // if (this.turns % 4 === 0) {
-    //   await mint(); await mint(); await mint(); 
-    //   game.board.updateCounter(game, x, y);
-    // }
   }
-  // counter(game) {
-  //   return 4 - this.turns % 4;
-  // }
   description() {
-    return 'every turn: mint 🪙';
+    return 'every turn: make 🪙';
   }
 }
 
@@ -139,7 +132,7 @@ export class Bell extends Symbol {
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 1, x, y)]);
+      this.addMoney(game, 11, x, y)]);
   }
   async evaluate(game, x, y) {
     const coords = nextToEmpty(game.board.cells, x, y);
@@ -154,7 +147,7 @@ export class Bell extends Symbol {
     }
   }
   description() {
-    return '💵1<br>20% chance: make 🎵';
+    return '💵11<br>20% chance: make 🎵';
   }
 }
 
