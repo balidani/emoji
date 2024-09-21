@@ -517,7 +517,7 @@ class Game {
       await Util.animate(scoreDiv, 'scoreIn', 0.4);
     }
     let trophy = null;
-    if (this.inventory.money >= 30000) {
+    if (this.inventory.money >= 25000) {
       trophy = '🏆';
     } else if (this.inventory.money >= 20000) {
       trophy = '🥇';
@@ -570,7 +570,7 @@ class Game {
     if (this.inventory.turns === 49) {
       Util.drawText(this.info, 'you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.');
     } else if (this.inventory.turns === 48) {
-      Util.drawText(this.info, 'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵30000 for 🏆. good luck!');
+      Util.drawText(this.info, 'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!');
     }
     this.rolling = false;
   }
@@ -600,10 +600,10 @@ class AutoGame {
     this.isOver = false;
 
     this.allowed = new Set([
-      Multiplier,
+      Multiplier, Moon, Rocket, Balloon, FreeTurn
     ]);
     this.buyOnce = [
-      Record, Bug, Drums, Drums, Drums, Bell, Bell, Bell, BullsEye, Rocket, CrystalBall, MagicWand
+      Bug, Clover, CrystalBall, MagicWand,
     ];
     this.symbolLimit = 1000;
   }
