@@ -37,13 +37,13 @@ html, body {
   font-size: 16pt;
 }
 .inventoryEntry {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
 }
 .inventoryEntryCount {
-  position: relative;
-  left: -2pt;
-  font-size: 12pt;
+  font-size: 10pt;
   letter-spacing: 0pt;
+  padding-right: 2pt;
 }
 
 .ui {
@@ -60,7 +60,8 @@ html, body {
 }
 
 .ui > div {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
 }
 
 .info {
