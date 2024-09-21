@@ -409,6 +409,12 @@ class Board {
     await Promise.all(tasks);
   }
   async evaluate(game) {
+    this.forAllCells((cell, x, y) => {
+      cell.turns++;
+    });
+    this.forAllCells((cell, x, y) => {
+      this.updateCounter(game, x, y);
+    });
     const tasks = [];
     this.forAllCells((cell, x, y) => tasks.push(
       async () => { 
@@ -707,5 +713,5 @@ const simulate = async () => {
   console.log(over10k, over15k, over20k);
 };
 
-load();
-// simulate();
+// load();
+simulate();

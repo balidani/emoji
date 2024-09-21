@@ -104,7 +104,6 @@ export class Bank extends Symbol {
   }
   copy() { return new Bank(); }
   async evaluate(game, x, y) {
-    this.turns++;
     const mint = async () => {
       const coords = nextToEmpty(game.board.cells, x, y);
       if (coords.length === 0) {
@@ -218,13 +217,12 @@ export class Bug extends Symbol {
     const coords = Util.nextToExpr(game.board.cells, x, y, 
       (sym) => Food.includes(sym.name()));
     if (coords.length === 0) {
-      this.timeToLive--;
       game.board.updateCounter(game, x, y);
-      if (this.timeToLive <= 0) {
+      if (this.turns >= 5) {
         await game.board.removeSymbol(game, x, y);
       }
     } else {
-      this.timeToLive = 5;
+      this.turns = 0;
       game.board.updateCounter(game, x, y);
       for (const coord of coords) {
         this.foodScore += 5;
@@ -234,7 +232,7 @@ export class Bug extends Symbol {
     }
   }
   counter(game) {
-    return this.timeToLive - 1;
+    return 5 - this.turns;
   }
   description() {
     return 'eat nearby food for 💵5 each<br>leave after 5 turns with no food';
@@ -288,7 +286,6 @@ export class Chick extends Symbol {
       this.addMoney(game, 1, x, y)]);
   }
   async evaluate(game, x, y) {
-    this.turns++;
     game.board.updateCounter(game, x, y);
     if (this.turns >= 3) {
       await game.board.removeSymbol(game, x, y);
@@ -575,7 +572,6 @@ export class Drums extends Symbol {
   }
   copy() { return new Drums(); }
   async evaluate(game, x, y) {
-    this.turns++;
     game.board.updateCounter(game, x, y);
     if (this.turns % 3 === 0) {
       const note = new MusicalNote();
@@ -605,7 +601,6 @@ export class Egg extends Symbol {
   }
   copy() { return new Egg(); }
   async evaluate(game, x, y) {
-    this.turns++;
     game.board.updateCounter(game, x, y);
     if (this.turns >= this.timeToHatch) {
       let newSymbol = new Chick();
@@ -653,7 +648,6 @@ export class Fox extends Symbol {
     super();
     this.rarity = 0.25;
     this.eatenScore = 3;
-    this.timeToLive = 5;
   }
   copy() { return new Fox(); }
   async score(game, x, y) {
@@ -675,20 +669,18 @@ export class Fox extends Symbol {
         const [deleteX, deleteY] = coord;
         await game.board.removeSymbol(game, deleteX, deleteY);
       }
-      this.timeToLive = 5;
+      this.turns = 0;
       game.board.updateCounter(game, x, y);
     };
-
-    this.timeToLive--;
     game.board.updateCounter(game, x, y);
     await eatNeighbor(Chick, 10);
     await eatNeighbor(Chicken, 20);
-    if (this.timeToLive <= 0) {
+    if (this.turns >= 5) {
       await game.board.removeSymbol(game, x, y);
     }
   }
   counter(game) {
-    return this.timeToLive - 1;
+    return 5 - this.turns;
   }
   description() {
     return 'eat 🐔 for 💵20<br>eat 🐣 for 💵10<br>leave after 5 turns with no food';
@@ -859,7 +851,6 @@ export class Moon extends Symbol {
     this.moonScore = 0;
   }
   async evaluate(game, x, y) {
-    this.turns++;
     game.board.updateCounter(game, x, y);
     if (this.turns >= 31) {
       this.moonScore = 444;
@@ -912,9 +903,8 @@ export class MusicalNote extends Symbol {
       this.addMoney(game, 4, x, y)]);
   }
   async evaluate(game, x, y) {
-    this.turns++;
     game.board.updateCounter(game, x, y);
-    if (this.turns > 3) {
+    if (this.turns >= 3) {
       await game.board.removeSymbol(game, x, y);
     }
   }
@@ -959,7 +949,6 @@ export class Popcorn extends Symbol {
       this.addMoney(game, 7, x, y)]);
   }
   async evaluate(game, x, y) {
-    this.turns++;
     game.board.updateCounter(game, x, y);
     if (this.turns >= this.timeToLive) {
       await game.board.removeSymbol(game, x, y);
@@ -1116,7 +1105,6 @@ export class Tree extends Symbol {
       await game.board.addSymbol(game, cherry, newX, newY);
     };
 
-    this.turns++;
     game.board.updateCounter(game, x, y);
     if (this.turns % 3 === 0) {
       await grow(); await grow();
