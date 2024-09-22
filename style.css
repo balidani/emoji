@@ -13,7 +13,7 @@ html, body {
 
 .blur {
   height: 100%;
-  filter: blur(6px);
+  /* filter: blur(6px); */
 }
 
 .wrapper {
@@ -159,6 +159,13 @@ html, body {
   font-weight: 900;
 }
 
+.discord {
+  position: fixed;
+  top: 0;
+  right: 0;
+  margin: 4pt;
+}
+
 /* Animations */
 
 @keyframes blurStart {
@@ -196,11 +203,11 @@ html, body {
 }
 
 @keyframes flip {
-  0% { transform: scaleX(1); filter: blur(0); }
-  25% { transform: scaleX(0); filter: blur(0.5px); }
-  50% { transform: scaleX(-1); filter: blur(1px); }
-  75% { transform: scaleX(0); filter: blur(0.5px); }
-  100% { transform: scaleX(1); filter: blur(0); }
+  0% { transform: scaleX(1); }
+  25% { transform: scaleX(0); }
+  50% { transform: scaleX(-1); }
+  75% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
 }
 
 @keyframes shake {

@@ -504,8 +504,8 @@ class Game {
     document.querySelector('.game .roll').disabled = true;
     await this.board.finalScore(this);
     const blurDiv = document.querySelector('.game .blur-me');
-    blurDiv.classList.add('blur');
-    await Util.animate(blurDiv, 'blurStart', 0.6);
+    // blurDiv.classList.add('blur');
+    // await Util.animate(blurDiv, 'blurStart', 0.6);
     {
       const scoreContainer = document.createElement('div');
       scoreContainer.classList.add('scoreContainer');
