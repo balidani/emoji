@@ -828,9 +828,10 @@ export class MoneyBag extends Symbol {
 
 export class Moon extends Symbol {
   static name = '🌝';
-  constructor() {
+  constructor(turns=0) {
     super();
     this.rarity = 0.28;
+    this.turns = turns;
   }
   copy() { return new Moon(this.turns); }
   async score(game, x, y) {

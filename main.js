@@ -600,10 +600,10 @@ class AutoGame {
     this.isOver = false;
 
     this.allowed = new Set([
-      Multiplier, Hole, MagicWand, CreditCard, BullsEye, CrystalBall,
+      Multiplier, Moon, Rocket, Balloon, FreeTurn
     ]);
     this.buyOnce = [
-      Bug, Bomb
+      Bug, Clover, CrystalBall, MagicWand,
     ];
     this.symbolLimit = 1000;
   }
