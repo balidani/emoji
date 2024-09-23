@@ -5,8 +5,11 @@ import {
   Bell,
   Bomb,
   Briefcase,
+  Bubble,
+  Butter,
   Bug,
   BullsEye,
+  Champagne,
   Cherry,
   Chick,
   Chicken,
@@ -41,6 +44,7 @@ import {
   Rocket,
   ShoppingBag,
   Slots,
+  Snail,
   Tree,
   Volcano,
   Worker,
@@ -55,6 +59,8 @@ const makeCatalog = () => [
   new Briefcase(),
   new Bug(),
   new BullsEye(),
+  new Butter(),
+  new Champagne(),
   new Cherry(),
   new Chick(),
   new Chicken(),
@@ -87,6 +93,7 @@ const makeCatalog = () => [
   new Rocket(),
   new ShoppingBag(),
   new Slots(),
+  new Snail(),
   new Tree(),
   // new Volcano(),
   new Worker(),
@@ -590,7 +597,7 @@ const load = () => {
 };
 
 class AutoGame {
-  constructor() {
+  constructor(buyAlways, buyOnce) {
     this.inventory = new Inventory(startingSet());
     this.inventory.update();
     this.board = new Board();
@@ -599,12 +606,8 @@ class AutoGame {
     this.scores = [];
     this.isOver = false;
 
-    this.allowed = new Set([
-      Multiplier, Moon, Rocket, Balloon, FreeTurn
-    ]);
-    this.buyOnce = [
-      Bug, Clover, CrystalBall, MagicWand,
-    ];
+    this.buyAlways = new Set(buyAlways);
+    this.buyOnce = buyOnce;
     this.symbolLimit = 1000;
   }
   async over() {
@@ -652,7 +655,7 @@ class AutoGame {
             return true;
           }
         }
-        for (const sym of this.allowed) {
+        for (const sym of this.buyAlways) {
           bought |= tryBuy(sym);
           if (bought) {
             return true;
@@ -679,7 +682,7 @@ class AutoGame {
   }
 }
 
-const simulate = async () => {
+const simulate = async (buyAlways, buyOnce, rounds=200) => {
   Util.toggleAnimation();
 
   const template = document.querySelector('.template');
@@ -693,8 +696,8 @@ const simulate = async () => {
   let over10k = 0;
   let over15k = 0;
   let over20k = 0;
-  for (let i = 0; i < 200; ++i) {
-    const game = new AutoGame();
+  for (let i = 0; i < rounds; ++i) {
+    const game = new AutoGame(buyAlways, [...buyOnce]);
     await game.simulate();
     const score = game.inventory.money;
     scores.push(score);
@@ -719,4 +722,3 @@ const simulate = async () => {
 };
 
 load();
-// simulate();

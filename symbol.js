@@ -120,7 +120,7 @@ export class Bank extends Symbol {
     await mint();
   }
   description() {
-    return 'every turn: make 🪙';
+    return 'every turn: makes 🪙';
   }
 }
 
@@ -149,7 +149,7 @@ export class Bell extends Symbol {
     }
   }
   description() {
-    return '💵11<br>20% chance: make 🎵';
+    return '💵11<br>20% chance: makes 🎵';
   }
 }
 
@@ -173,7 +173,7 @@ export class Bomb extends Symbol {
     }
   }
   description() {
-    return '10% chance: destroy a neighbor';
+    return '10% chance: destroys a neighbor';
   }
 }
 
@@ -199,6 +199,47 @@ export class Briefcase extends Symbol {
   }
 }
 
+export class Bubble extends Symbol {
+  static name = '🫧';
+  constructor() {
+    super();
+    this.rarity = 0;
+  }
+  copy() { return new Bubble(); }
+  async evaluateConsume(game, x, y) {
+    if (this.turns < 3) {
+      return;
+    }
+    await game.board.removeSymbol(game, x, y);
+  }
+  counter(game) {
+    return 3 - this.turns;
+  }
+  description() {
+    return 'disappears after 3 turns';
+  }
+}
+
+export class Butter extends Symbol {
+  static name = '🧈';
+  constructor() {
+    super();
+    this.rarity = 0.1;
+  }
+  copy() { return new Butter(); }
+  async evaluateConsume(game, x, y) {
+    if (this.turns >= 7) {
+      await game.board.removeSymbol(game, x, y);
+    }
+  }
+  counter() {
+    return 7 - this.turns;
+  }
+  description() {
+    return 'x3 to neighboring 🍿<br>melts after 7 turns';
+  }
+}
+
 export class Bug extends Symbol {
   static name = '🐛';
   constructor() {
@@ -220,7 +261,6 @@ export class Bug extends Symbol {
     const coords = Util.nextToExpr(game.board.cells, x, y, 
       (sym) => Food.includes(sym.name()));
     if (coords.length === 0) {
-      game.board.updateCounter(game, x, y);
       if (this.turns >= 5) {
         await game.board.removeSymbol(game, x, y);
       }
@@ -238,7 +278,7 @@ export class Bug extends Symbol {
     return 5 - this.turns;
   }
   description() {
-    return 'eat nearby food for 💵8 each<br>leave after 5 turns with no food';
+    return 'eats nearby food for 💵8 each<br>leaves after 5 turns with no food';
   }
 }
 
@@ -251,6 +291,42 @@ export class BullsEye extends Symbol {
   copy() { return new BullsEye(); }
   description() {
     return 'neighboring rolls always succeed';
+  }
+}
+
+export class Champagne extends Symbol {
+  static name = '🍾';
+  constructor() {
+    super();
+    this.rarity = 0.07;
+  }
+  copy() { return new Champagne(); }
+  async score(game, x, y) {
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, 70, x, y)]);
+  }
+  async evaluateConsume(game, x, y) {
+    if (this.turns < 3) {
+      return;
+    }
+    await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+    await game.board.removeSymbol(game, x, y);
+    await game.board.addSymbol(game, new Bubble(), x, y);
+    const coords = nextToEmpty(game.board.cells, x, y);
+    if (coords.length === 0) {
+      return;
+    }
+    for (let i = 0; i < coords.length; ++i) {
+      const [newX, newY] = coords[i];
+      await game.board.addSymbol(game, new Bubble(), newX, newY);
+    }
+  }
+  counter(game) {
+    return 3 - this.turns;
+  }
+  description() {
+    return '💵70<br>after 3 turns: explodes';
   }
 }
 
@@ -289,7 +365,6 @@ export class Chick extends Symbol {
       this.addMoney(game, 1, x, y)]);
   }
   async evaluateConsume(game, x, y) {
-    game.board.updateCounter(game, x, y);
     if (this.turns >= 3) {
       await game.board.removeSymbol(game, x, y);
       await game.board.addSymbol(game, new Chicken(), x, y);
@@ -299,7 +374,7 @@ export class Chick extends Symbol {
     return 3 - this.turns;
   }
   description() {
-    return '💵1<br>after 3 turns: become 🐔';
+    return '💵1<br>after 3 turns: becomes 🐔';
   }
 }
 
@@ -331,7 +406,7 @@ export class Chicken extends Symbol {
     }
   }
   description() {
-    return '💵3<br>10% chance: lay up to 3 🥚';
+    return '💵3<br>10% chance: lays up to 3 🥚';
   }
 }
 
@@ -346,8 +421,6 @@ export class Clover extends Symbol {
     return '+1% luck';
   }
 }
-
-// TODO: 🍾 -- x2 to Cocktail
 
 export class Cocktail extends Symbol {
   static name = '🍹';
@@ -371,21 +444,21 @@ export class Cocktail extends Symbol {
         return;
       }
       for (const coord of coords) {
-        this.cherryScore += reward;
+        this.cherryScore = reward(this.cherryScore);
         const [deleteX, deleteY] = coord;
         await game.board.removeSymbol(game, deleteX, deleteY);
         game.board.updateCounter(game, x, y);
       }
     }
-    await remove(Cherry, 2);
-    await remove(Pineapple, 4);
-    await remove(Mango, 8);
+    await remove(Cherry, (v) => v + 2);
+    await remove(Pineapple, (v) => v + 4);
+    await remove(Champagne, (v) => v * 2);
   }
   counter(game) {
     return this.cherryScore;
   }
   description() {
-    return '💵2 per 🍒 removed<br>💵4 per 🍍 removed<br>💵8 per 🥭 removed';
+    return '💵2 per 🍒 removed<br>💵4 per 🍍 removed<br>x2 per 🍾 removed';
   }
 }
 
@@ -416,7 +489,7 @@ export class Corn extends Symbol {
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 2, x, y)]);
+      this.addMoney(game, 20, x, y)]);
   }
   async evaluateProduce(game, x, y) {
     const coords = nextToEmpty(game.board.cells, x, y);
@@ -433,7 +506,7 @@ export class Corn extends Symbol {
     }
   }
   description() {
-    return '💵2<br>10% chance: pop 🍿';
+    return '💵20<br>10% chance: pops 🍿';
   }
 }
 
@@ -563,7 +636,6 @@ export class Drums extends Symbol {
   }
   copy() { return new Drums(); }
   async evaluateProduce(game, x, y) {
-    game.board.updateCounter(game, x, y);
     if (this.turns % 3 === 0) {
       const note = new MusicalNote();
       const coords = nextToEmpty(game.board.cells, x, y);
@@ -579,7 +651,7 @@ export class Drums extends Symbol {
     return 3 - this.turns % 3;
   }
   description() {
-    return 'every 3 turns: make 🎵';
+    return 'every 3 turns: makes 🎵';
   }
 }
 
@@ -592,7 +664,6 @@ export class Egg extends Symbol {
   }
   copy() { return new Egg(); }
   async evaluateConsume(game, x, y) {
-    game.board.updateCounter(game, x, y);
     if (this.turns >= this.timeToHatch) {
       let newSymbol = new Chick();
       if (chance(game, 0.01, x, y)) {
@@ -606,7 +677,7 @@ export class Egg extends Symbol {
     return this.timeToHatch - this.turns;
   }
   description() {
-    return 'after 3-5 turns: hatch 🐣<br>1% chance: hatch 🐉'
+    return 'after 3-5 turns: hatches 🐣<br>1% chance: hatches 🐉'
   }
 }
 
@@ -629,7 +700,7 @@ export class Firefighter extends Symbol {
     await game.board.removeSymbol(game, x, y);
   }
   description() {
-    return 'disarm 💣, leave';
+    return 'disarms 💣, then leaves';
   }
 }
 
@@ -663,7 +734,6 @@ export class Fox extends Symbol {
       this.turns = 0;
       game.board.updateCounter(game, x, y);
     };
-    game.board.updateCounter(game, x, y);
     await eatNeighbor(Chick, 10);
     await eatNeighbor(Chicken, 20);
     if (this.turns >= 5) {
@@ -674,7 +744,7 @@ export class Fox extends Symbol {
     return 5 - this.turns;
   }
   description() {
-    return 'eat 🐔 for 💵20<br>eat 🐣 for 💵10<br>leave after 5 turns with no food';
+    return 'eats 🐔 for 💵20<br>eats 🐣 for 💵10<br>leaves after 5 turns with no food';
   }
 }
 
@@ -690,11 +760,11 @@ export class FreeTurn extends Symbol {
       await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3);
       game.inventory.turns++;
       game.inventory.updateUi();
+      await game.board.removeSymbol(game, x, y);
     }
-    await game.board.removeSymbol(game, x, y);
   }
   description() {
-    return '10% chance: one more ⏰<br>disappear'
+    return '10% chance: one more ⏰, then disappears'
   }
 }
 
@@ -721,7 +791,7 @@ export class Grave extends Symbol {
     }
   }
   description() {
-    return '10% chance: add random symbol removed this game';
+    return '10% chance: adds random symbol removed this game';
   }
 }
 
@@ -763,7 +833,7 @@ export class MagicWand extends Symbol {
     }
   }  
   description() {
-    return '15% chance: duplicate neighboring symbol';
+    return '15% chance: duplicates neighboring symbol';
   }
 }
 
@@ -822,7 +892,7 @@ export class MoneyBag extends Symbol {
     return this.coins;
   }
   description() {
-    return '💵2 for each 🪙 bagged<br>bag neighboring 🪙'
+    return '💵2 for each 🪙 collected<br>collects neighboring 🪙'
   }
 }
 
@@ -840,7 +910,7 @@ export class Moon extends Symbol {
       game.board.updateCounter(game, x, y);
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.3),
-        this.addMoney(game, 600, x, y)]);
+        this.addMoney(game, 555, x, y)]);
     }
     this.moonScore = 0;
   }
@@ -848,7 +918,7 @@ export class Moon extends Symbol {
     return 31 - this.turns;
   }
   description() {
-    return 'after 31 turns: 💵600';
+    return 'after 31 turns: 💵555';
   }
 }
 
@@ -888,7 +958,6 @@ export class MusicalNote extends Symbol {
       this.addMoney(game, 4, x, y)]);
   }
   async evaluateConsume(game, x, y) {
-    game.board.updateCounter(game, x, y);
     if (this.turns >= 3) {
       await game.board.removeSymbol(game, x, y);
     }
@@ -897,7 +966,7 @@ export class MusicalNote extends Symbol {
     return 3 - this.turns;
   }
   description() {
-    return '💵4<br>disappear after 3 turns';
+    return '💵4<br>disappears after 3 turns';
   }
 }
 
@@ -925,16 +994,20 @@ export class Popcorn extends Symbol {
   constructor() {
     super();
     this.rarity = 0;
-    this.timeToLive = 1 + Util.random(3);
+    this.timeToLive = 2 + Util.random(4);
   }
   copy() { return new Popcorn(); }
   async score(game, x, y) {
+    const butter = Util.nextToSymbol(game.board.cells, x, y, Butter.name);
+    let score = 17;
+    for (const b of butter) {
+      score *= 3;
+    }
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 7, x, y)]);
+      this.addMoney(game, score, x, y)]);
   }
   async evaluateConsume(game, x, y) {
-    game.board.updateCounter(game, x, y);
     if (this.turns >= this.timeToLive) {
       await game.board.removeSymbol(game, x, y);
     }
@@ -943,7 +1016,7 @@ export class Popcorn extends Symbol {
     return this.timeToLive - this.turns;
   }
   description() {
-    return '💵7<br>disappear after 1-3 turns'
+    return '💵17<br>disappears after 2-5 turns'
   }
 }
 
@@ -978,7 +1051,7 @@ export class Record extends Symbol {
     return this.notes;
   }
   description() {
-    return 'record neighboring 🎵<br>💵6 for each 🎵 recorded';
+    return 'records neighboring 🎵<br>💵6 for each 🎵 recorded';
   }
 }
 
@@ -994,7 +1067,7 @@ export class Refresh extends Symbol {
     game.shop.refreshCount = 0;
   }
   description() {
-    return 'always allow refreshing the shop';
+    return 'always allows refreshing the shop';
   }
 }
 
@@ -1012,6 +1085,25 @@ export class Rock extends Symbol {
   }
   description() {
     return '💵1';
+  }
+}
+
+export class Snail extends Symbol {
+  static name = '🐌';
+  constructor() {
+    super();
+    this.rarity = 0.12;
+  }
+  copy() { return new Snail(); }
+  async evaluateProduce(game, x, y) {
+    const coords = Util.nextToExpr(game.board.cells, x, y, (sym) => true);
+    for (const cell of coords) {
+      const [neighborX, neighborY] = cell;
+      game.board.cells[neighborY][neighborX].turns--;
+    }
+  }
+  description() {
+    return 'slows down neighbors by 1 turn';
   }
 }
 
@@ -1045,7 +1137,7 @@ export class ShoppingBag extends Symbol {
     game.shop.buyCount++;
   }
   description() {
-    return 'allow picking 1 more item';
+    return 'allows picking 1 more item';
   }
 }
 
@@ -1090,7 +1182,6 @@ export class Tree extends Symbol {
       await game.board.addSymbol(game, cherry, newX, newY);
     };
 
-    game.board.updateCounter(game, x, y);
     if (this.turns % 3 === 0) {
       await grow(); await grow();
     }
@@ -1099,7 +1190,7 @@ export class Tree extends Symbol {
     return 3 - this.turns % 3;
   }
   description() {
-    return 'every 3 turns: grow 🍒🍒';
+    return 'every 3 turns: grows 🍒🍒';
   }
 }
 
@@ -1119,7 +1210,7 @@ export class Volcano extends Symbol {
     }
   }
   description() {
-    return '10% chance: replace random tile with 🪨'
+    return '10% chance: replaces random tile with 🪨'
   }
 }
 
@@ -1144,7 +1235,7 @@ export class Worker extends Symbol {
     }
   }
   description() {
-    return 'destroy neighboring 🪨 for 💵3<br>50% chance: produce 💎'
+    return 'destroys neighboring 🪨 for 💵3<br>50% chance: produce 💎'
   }
 }
 
