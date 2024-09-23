@@ -8,7 +8,7 @@ button {
 
 html, body { 
   height: 100%;
-  scrollbar-width: 0;
+  scrollbar-width: none;
 }
 
 .blur {
