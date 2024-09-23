@@ -306,7 +306,7 @@ export class Champagne extends Symbol {
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
       this.addMoney(game, 70, x, y)]);
   }
-  async evaluateConsume(game, x, y) {
+  async evaluateProduce(game, x, y) {
     if (this.turns < 3) {
       return;
     }
