@@ -1,6 +1,10 @@
 import { Symbol } from "./symbol.js";
 import * as Util from "./util.js";
 
+/**
+ * Example of a "mod" file that introduces an extra item
+ */
+
 export class Monorail extends Symbol {
     static name = '🚝';
     constructor() {

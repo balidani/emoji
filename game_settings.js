@@ -15,12 +15,11 @@ export class GameSettings {
         })
 
         this.isOpen = false;
-        // NOT READY TO CHANGE
         this.boardX = 5;
         this.boardY = 5;
-        // OK
         this.startingSet = "🍒🍒🍒🪙🍀"
-        this.symbolSources = ['./symbol.js', './extra_sym.js']
+        this.symbolSources = ['./symbol.js']
+        // , './extra_sym.js'
     }
 
     async open(game) {
