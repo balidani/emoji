@@ -283,8 +283,6 @@ class Game {
 }
 
 export const load = async (gameSettings) => {
-  console.log("loading...");
-  console.log(gameSettings);
   document.querySelector('body').removeEventListener(
     'click', load);
   const template = document.querySelector('.template');
@@ -304,8 +302,8 @@ export const load = async (gameSettings) => {
 };
 
 class AutoGame {
-  constructor(buyAlways, buyOnce) {
-    this.inventory = new Inventory(startingSet());
+  constructor(startingSet, buyAlways, buyOnce) {
+    this.inventory = new Inventory(startingSet);
     this.inventory.update();
     this.board = new Board();
     this.shop = new Shop();
@@ -403,8 +401,13 @@ const simulate = async (buyAlways, buyOnce, rounds=200) => {
   let over10k = 0;
   let over15k = 0;
   let over20k = 0;
+
+  const simulateGameSettings = GameSettings()
+  // example: simulateGameSettings.startingSet = "🔮🔮🪙🪙🪙"
+
   for (let i = 0; i < rounds; ++i) {
-    const game = new AutoGame(buyAlways, [...buyOnce]);
+    const catalog = new Catalog(simulateGameSettings.symbolSources)
+    const game = new AutoGame(catalog.symbolsFromString(simulateGameSettings.startingSet), buyAlways, [...buyOnce]);
     await game.simulate();
     const score = game.inventory.money;
     scores.push(score);

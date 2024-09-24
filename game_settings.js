@@ -24,7 +24,6 @@ export class GameSettings {
     }
 
     async open(game) {
-        console.log(`GameSettings open(): isOpen ${this.isOpen}`)
         if (this.isOpen) {
             return;
         }
@@ -68,7 +67,6 @@ export class GameSettings {
         this.symbolSources = symbolSourcesInput.input.value.split("\n");
         this.startingSet = startingSymbolsInput.input.value;
         this.close();
-        console.log(this.isOpen);
         GameSettings.loadFn(this);
     }
 }
