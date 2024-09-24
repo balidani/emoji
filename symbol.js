@@ -70,7 +70,7 @@ export class Empty extends Symbol {
     super();
   }
   copy() {
-    throw new Error('Trying to get copy of Empty.');
+    return new Empty()
   }
 }
 

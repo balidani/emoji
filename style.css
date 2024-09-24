@@ -72,6 +72,13 @@ html, body {
   text-align: center;
 }
 
+/* Settings */
+.settings {
+  padding-top: 20pt;
+  width: 256pt;
+  overflow: hidden;
+}
+
 /* Shop */
 
 .shop {
