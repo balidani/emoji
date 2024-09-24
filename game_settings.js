@@ -24,6 +24,7 @@ export class GameSettings {
             return;
         }
         this.isOpen = true;
+        this.settingsDiv = document.querySelector('.game .settings');
         this.settingsDiv.replaceChildren();
 
         // Create input elements
