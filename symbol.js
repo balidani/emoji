@@ -43,8 +43,7 @@ export class Symbol {
     throw new Error('Trying to get description of base class.');
   }
   descriptionLong() {
-    // throw new Error('Trying to get long description of base class.');
-    return '';
+    throw new Error('Trying to get long description of base class.');
   }
   async addMoney(game, score, x, y) {
     const value = score * this.multiplier;
@@ -420,7 +419,7 @@ export class Chick extends Symbol {
     return '💵1<br>after 3 turns: becomes 🐔';
   }
   descriptionLong() {
-    return 'this is a chick. it pays a measly 💵1 and becomes 🐔 in 3 turns.';
+    return 'this is a chick. it pays 💵1 and becomes 🐔 in 3 turns.';
   }
 }
 
@@ -455,7 +454,7 @@ export class Chicken extends Symbol {
     return '💵3<br>10% chance: lays up to 3 🥚';
   }
   descriptionLong() {
-    return 'this is a chick. it pays a measly 💵1 and becomes 🐔 in 3 turns.';
+    return 'this is a chicken. it pays 💵3 and has a 10% chance of laying up to 3 🥚 on empty spaces around it.';
   }
 }
 
@@ -512,6 +511,9 @@ export class Cocktail extends Symbol {
   description() {
     return '💵2 per 🍒 removed<br>💵4 per 🍍 removed<br>x2 per 🍾 removed';
   }
+  descriptionLong() {
+    return 'this is a cocktail. it permanently gives more 💵 by removing neighboring 🍒 (💵2), 🍍 (💵4) and 🍾 (x2).';
+  }
 }
 
 export class Coin extends Symbol {
@@ -528,6 +530,9 @@ export class Coin extends Symbol {
   }
   description() {
     return '💵2';
+  }
+  descriptionLong() {
+    return 'this is a coin. it pays 💵2.';
   }
 }
 
@@ -560,6 +565,9 @@ export class Corn extends Symbol {
   description() {
     return '💵20<br>10% chance: pops 🍿';
   }
+  descriptionLong() {
+    return 'this is corn. it pays 💵20, and has a 10% chance to pop, making 🍿 on all empty space nearby.';
+  }
 }
 
 export class CreditCard extends Symbol {
@@ -586,6 +594,9 @@ export class CreditCard extends Symbol {
   description() {
     return '💵1000 now<br>💵-1100 on last turn';
   }
+  descriptionLong() {
+    return 'this is a credit card. it pays 💵1000, but takes 💵1100 on your last turn. if it\'s not on the board on your last turn, however ...';
+  }
 }
 
 export class CrystalBall extends Symbol {
@@ -597,6 +608,9 @@ export class CrystalBall extends Symbol {
   copy() { return new CrystalBall(); }
   description() {
     return '+3% luck';
+  }
+  descriptionLong() {
+    return 'this is a crystal ball. symbols having a chance to do something will succeed more. and you get rarer items to choose from in the shop.';
   }
 }
 
@@ -620,6 +634,9 @@ export class Dancer extends Symbol {
   description() {
     return '💵10 for each neighboring 🎵';
   }
+  descriptionLong() {
+    return 'this is a dancer. it pays 💵10 for each 🎵 it\'s standing next to.';
+  }
 }
 
 export class Diamond extends Symbol {
@@ -642,6 +659,9 @@ export class Diamond extends Symbol {
   description() {
     return '💵6<br>💵5 for each neighboring 💎';
   }
+  descriptionLong() {
+    return 'this is a diamond. it pays 💵6 and 💵5 for each other 💎 next to it.';
+  }
 }
 
 export class Dice extends Symbol {
@@ -661,6 +681,9 @@ export class Dice extends Symbol {
   description() {
     return '1% chance: 💵52';
   }
+  descriptionLong() {
+    return 'this is a die. it has a 1% chance to pay 💵52.';
+  }
 }
 
 export class Dragon extends Symbol {
@@ -677,6 +700,9 @@ export class Dragon extends Symbol {
   }
   description() {
     return '💵42';
+  }
+  descriptionLong() {
+    return 'this is a mighty dragon. it pays 💵42.';
   }
 }
 
@@ -705,6 +731,9 @@ export class Drums extends Symbol {
   description() {
     return 'every 3 turns: makes 🎵';
   }
+  descriptionLong() {
+    return 'these are drums. every third turn, they create 🎵 on a nearby empty space.';
+  }
 }
 
 export class Egg extends Symbol {
@@ -731,6 +760,9 @@ export class Egg extends Symbol {
   description() {
     return 'after 3-5 turns: hatches 🐣<br>1% chance: hatches 🐉'
   }
+  descriptionLong() {
+    return 'this is an egg. after 3-5 turns, it becomes a 🐣, or with 1% chance it becomes a 🐉.';
+  }
 }
 
 export class Firefighter extends Symbol {
@@ -753,6 +785,9 @@ export class Firefighter extends Symbol {
   }
   description() {
     return 'disarms 💣, then leaves';
+  }
+  descriptionLong() {
+    return 'this is an firefighter. if it stands to a 💣, it will remove the 💣 and leave your inventory.';
   }
 }
 
@@ -798,6 +833,9 @@ export class Fox extends Symbol {
   description() {
     return 'eats 🐔 for 💵20<br>eats 🐣 for 💵10<br>leaves after 5 turns with no food';
   }
+  descriptionLong() {
+    return 'this is a fox. it will eat 🐣 and 🐔 neighbors and pay 💵10 and 💵20 respectively. it disappears after 5 turns with no food.';
+  }
 }
 
 export class FreeTurn extends Symbol {
@@ -817,6 +855,9 @@ export class FreeTurn extends Symbol {
   }
   description() {
     return '10% chance: one more ⏰, then disappears'
+  }
+  descriptionLong() {
+    return 'this is a free turn ticket. it has a 10% chance to give you one more ⏰. if it succeeded, it disappears from your inventory.';
   }
 }
 
@@ -845,6 +886,9 @@ export class Grave extends Symbol {
   description() {
     return '10% chance: adds random symbol removed this game';
   }
+  descriptionLong() {
+    return 'this is a grave. it has a 10% chance to add a previously removed symbol to a nearby empty space';
+  }
 }
 
 export class Hole extends Symbol {
@@ -856,6 +900,9 @@ export class Hole extends Symbol {
   copy() { return new Hole(); }
   description() {
     return 'always empty';
+  }
+  descriptionLong() {
+    return 'this is a hole. it works like an empty space, other symbols can be created here and they will go into your inventory.';
   }
 }
 
@@ -887,6 +934,9 @@ export class MagicWand extends Symbol {
   description() {
     return '15% chance: duplicates neighboring symbol';
   }
+  descriptionLong() {
+    return 'this is a magic wand. it has a 15% chance to copy a neighboring symbol and place it on nearby empty space.';
+  }
 }
 
 export class Mango extends Symbol {
@@ -910,6 +960,9 @@ export class Mango extends Symbol {
   }
   description() {
     return 'x2 to neighboring fruit';
+  }
+  descriptionLong() {
+    return 'this is a mango. it makes nearby fruit give double 💵.';
   }
 }
 
@@ -946,6 +999,9 @@ export class MoneyBag extends Symbol {
   description() {
     return '💵2 for each 🪙 collected<br>collects neighboring 🪙'
   }
+  descriptionLong() {
+    return 'this is a money bag. it collects neighboring 🪙 and permanently gives 💵2 more for each 🪙 collected.';
+  }
 }
 
 export class Moon extends Symbol {
@@ -970,7 +1026,10 @@ export class Moon extends Symbol {
     return 31 - this.turns;
   }
   description() {
-    return 'after 31 turns: 💵555';
+    return 'every 31 turns: 💵555';
+  }
+  descriptionLong() {
+    return 'this is a moon. every 31 turns, it gives 💵555.';
   }
 }
 
@@ -994,6 +1053,9 @@ export class Multiplier extends Symbol {
   }
   description() {
     return 'x2 to all neighbors';
+  }
+  descriptionLong() {
+    return 'this is a multiplier. it doubles the 💵 gained (or lost) for all neighboring symbols.';
   }
 }
 
@@ -1020,6 +1082,9 @@ export class MusicalNote extends Symbol {
   description() {
     return '💵4<br>disappears after 3 turns';
   }
+  descriptionLong() {
+    return 'this is a musical note. it pays 💵4, and disappears after 3 turns';
+  }
 }
 
 export class Pineapple extends Symbol {
@@ -1038,6 +1103,9 @@ export class Pineapple extends Symbol {
   }
   description() {
     return '💵12<br>💵-2 for all non-empty neighbors';
+  }
+  descriptionLong() {
+    return 'this is a pineapple. it pays 💵12, minus 💵2 for all neighboring symbols that are not empty.';
   }
 }
 
@@ -1069,6 +1137,9 @@ export class Popcorn extends Symbol {
   }
   description() {
     return '💵17<br>disappears after 2-5 turns'
+  }
+  descriptionLong() {
+    return 'this is popcorn. it pays 💵17 and disappears after 2-5 turns.';
   }
 }
 
@@ -1105,6 +1176,9 @@ export class Record extends Symbol {
   description() {
     return 'records neighboring 🎵<br>💵6 for each 🎵 recorded';
   }
+  descriptionLong() {
+    return 'this is a record. it removes neighboring 🎵 and permanently pays 💵6 more for each 🎵 removed.';
+  }
 }
 
 export class Refresh extends Symbol {
@@ -1120,6 +1194,9 @@ export class Refresh extends Symbol {
   }
   description() {
     return 'always allows refreshing the shop';
+  }
+  descriptionLong() {
+    return 'this is a refresher. it allows refreshing the selection in the shop more than once. careful, the cost of refreshing also increases.';
   }
 }
 
@@ -1137,6 +1214,9 @@ export class Rock extends Symbol {
   }
   description() {
     return '💵1';
+  }
+  descriptionLong() {
+    return 'this is a rock. it pays 💵1. i\'m not sure what you expected.';
   }
 }
 
@@ -1157,6 +1237,9 @@ export class Snail extends Symbol {
   description() {
     return 'slows down neighbors by 1 turn';
   }
+  descriptionLong() {
+    return 'this is a snail. all neighboring symbols that have a timer will take one more turn to complete.';
+  }
 }
 
 export class Rocket extends Symbol {
@@ -1176,6 +1259,9 @@ export class Rocket extends Symbol {
   description() {
     return 'speeds up neighbors by 1 turn';
   }
+  descriptionLong() {
+    return 'this is a rocket. all neighboring symbols that have a timer will complete one turn faster.';
+  }
 }
 
 export class ShoppingBag extends Symbol {
@@ -1190,6 +1276,9 @@ export class ShoppingBag extends Symbol {
   }
   description() {
     return 'allows picking 1 more item';
+  }
+  descriptionLong() {
+    return 'these are shopping bags. you can choose one more item to buy from the shop.';
   }
 }
 
@@ -1211,6 +1300,9 @@ export class Slots extends Symbol {
   }
   description() {
     return '💵2 per different symbol in inventory';
+  }
+  descriptionLong() {
+    return 'this is a slot machine. it pays 💵2 for all the different symbols in your inventory.';
   }
 }
 
@@ -1244,6 +1336,9 @@ export class Tree extends Symbol {
   description() {
     return 'every 3 turns: grows 🍒🍒';
   }
+  descriptionLong() {
+    return 'this is a tree. every 3 turns, it will grow up to two 🍒 on nearby empty space.';
+  }
 }
 
 export class Volcano extends Symbol {
@@ -1263,6 +1358,9 @@ export class Volcano extends Symbol {
   }
   description() {
     return '10% chance: replaces random tile with 🪨'
+  }
+  descriptionLong() {
+    return 'this is a volcano. it has a 10% chance to replace a random tile on the board with 🪨.';
   }
 }
 
@@ -1288,6 +1386,9 @@ export class Worker extends Symbol {
   }
   description() {
     return 'destroys neighboring 🪨 for 💵3<br>50% chance: produce 💎'
+  }
+  descriptionLong() {
+    return 'this is a worker. it pays 💵3 for each neighboring 🪨 removed. it has a 50% chance to produce 💎 in place of the destroyed 🪨.';
   }
 }
 
