@@ -74,6 +74,11 @@ export class Board {
       await Util.animate(div, 'spin', 0.12 + i * 0.02);
     }
     div.innerText = symbol.name();
+    div.removeEventListener('click', div.clickEvent);
+    div.clickEvent = () => {
+      Util.drawText(game.info, symbol.descriptionLong());
+    };
+    div.addEventListener('click', div.clickEvent);
     await Util.animate(div, 'endSpin', 0.3);
     await Util.animate(div, 'bounce', 0.1);
     if (symbol.counter(game) != null) {
@@ -87,6 +92,10 @@ export class Board {
     await Util.animate(div, 'startSpin', 0.1);
     const symbol = this.cells[y][x];
     div.innerText = symbol.name();
+    div.removeEventListener('click', div.clickEvent);
+    div.clickEvent = () => {
+      Util.drawText(game.info, symbol.descriptionLong());
+    };
     await Util.animate(div, 'endSpin', 0.3);
     await Util.animate(div, 'bounce', 0.1);
     if (symbol.counter(game) != null) {

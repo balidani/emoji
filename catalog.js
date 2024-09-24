@@ -52,4 +52,17 @@ export class Catalog {
         return result
     }
 
+    test() {
+        for (let [n, s] of this.symbols) {
+            try {
+                s.copy();
+                s.description();
+                s.descriptionLong();
+            }
+            catch (e) {
+                console.log(`error for ${n}: ${e}`)
+            }
+        }
+    }
+
 }

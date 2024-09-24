@@ -3,8 +3,6 @@ import { GameSettings } from './game_settings.js'
 import { Catalog } from './catalog.js';
 import { Board } from './board.js';
 
-// Test
-// makeCatalog().forEach(s => s.copy());
 let totalTurns = 0;
 
 class Inventory {
@@ -109,12 +107,15 @@ class Shop {
     this.shopDiv.replaceChildren();
     const newCatalog = this.catalog.generate_shop(3, luck)
 
-    const makeShopItem = (symbol, description, handler, refresh=false) => {
+    const makeShopItem = (symbol, description, descriptionLong, handler, refresh=false) => {
       const shopItemDiv = document.createElement('div');
       shopItemDiv.classList.add('shopItem');
       const symbolDiv = document.createElement('div');
       symbolDiv.classList.add('cell');
       symbolDiv.innerText = symbol;
+      symbolDiv.addEventListener('click', () => {
+        Util.drawText(game.info, descriptionLong);
+      });
       shopItemDiv.appendChild(symbolDiv);
       const descriptionDiv = document.createElement('div');
       descriptionDiv.classList.add('description');
@@ -135,7 +136,7 @@ class Shop {
     }
     for (let i = 0; i < 3; ++i) {
       const symbol = Util.randomRemove(newCatalog);
-      const shopItemDiv = makeShopItem(symbol.name(), symbol.description(),
+      const shopItemDiv = makeShopItem(symbol.name(), symbol.description(), symbol.descriptionLong(), 
         async (e) => {
           if (game.shop.buyCount > 0) {
             game.shop.buyCount--;
@@ -156,7 +157,7 @@ class Shop {
     // Refresh
     if (game.inventory.money > this.refreshCost) {
       if (game.shop.refreshable || game.shop.refreshCount === 0) {
-        const shopItemDiv = makeShopItem('', '💵' + this.refreshCost,
+        const shopItemDiv = makeShopItem('', '💵' + this.refreshCost, '',
           async () => {
             game.shop.refreshCount++;
             if (game.inventory.money > 0) {
@@ -188,8 +189,6 @@ class Shop {
   }
 
 }
-
-
 
 class Game {
   constructor(gameSettings, catalog) {
@@ -248,7 +247,6 @@ class Game {
       'click', load);
   }
   async roll() {
-    Util.deleteText(this.info);
     if (this.rolling) {
       Util.animationOff();
       return;
@@ -256,6 +254,25 @@ class Game {
       Util.animationOn();
     }
     this.rolling = true;
+
+    Util.deleteText(this.info);
+    switch (this.inventory.turns) {
+      case 50:
+        Util.drawText(this.info, 'you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.');
+        break;
+      case 49:
+        Util.drawText(this.info, 'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!');
+        break;
+      case 48:
+        Util.drawText(this.info, 'you can double tap the roll (🕹️) button to skip animation.');
+        break;
+      case 47:
+        Util.drawText(this.info, 'you can tap on any symbol, on the board or in the shop, to get more information.');
+        break;
+      default:
+        break;
+    }
+
     if (this.inventory.money > 0) {
       this.inventory.turns--;
       this.inventory.updateUi();
@@ -273,11 +290,7 @@ class Game {
     } else {
       await this.shop.open(this);
     }
-    if (this.inventory.turns === 49) {
-      Util.drawText(this.info, 'you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.');
-    } else if (this.inventory.turns === 48) {
-      Util.drawText(this.info, 'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!');
-    }
+    
     this.rolling = false;
   }
 }
