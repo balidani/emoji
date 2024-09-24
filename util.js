@@ -28,14 +28,8 @@ export const animate = (element, animation, duration, repeat = 1) => {
     element.addEventListener('animationend', resolve, { once: true });
   });
 };
-export const deleteText = async (element) => {
-  element.addingText = false;
-  let text = [...element.textContent];
-  while (text.length > 0) {
-    text.splice(text.length - 1, 1);
-    element.textContent = text.join('');
-    await delay(10);
-  }
+export const deleteText = (element) => {
+  element.textContent = '';
 };
 export const drawText = async (element, text) => {
   if (!ANIMATION) {
@@ -43,19 +37,20 @@ export const drawText = async (element, text) => {
     return;
   }
   if (element.textContent.length > 0) {
-    await deleteText(element);
+    deleteText(element);
   }
-  element.addingText = true;
+  // Ugly hack.
+  element.cancelled = true;
+  await delay(31);
+  element.cancelled = false;
   for (let char of text) {
-    if (!element.addingText) {
+    if (element.cancelled) {
       break;
     }
     element.textContent += char;
     await delay(30);
   }
-  element.addingText = false;
 };
-
 export const createInput = (labelText, type, dV) => {
   const label = document.createElement('label');
   label.textContent = labelText;
@@ -71,7 +66,6 @@ export const createInput = (labelText, type, dV) => {
 
   return { label, input };
 }
-
 export const createButton = (text, onClick) => {
   const button = document.createElement('button');
   button.textContent = text;
