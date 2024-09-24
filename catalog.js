@@ -41,7 +41,6 @@ export class Catalog {
     // TODO: Rework, 🛍️ cannot be passed to this function.
     symbolsFromString(input) {
         const result = [];
-        console.log(input);
         for (const e of input) {
             const sym = this.symbol(e);
             if (sym != null) {
