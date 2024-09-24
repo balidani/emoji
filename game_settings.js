@@ -1,9 +1,6 @@
 import * as Utils from "./util.js"
 
 export class GameSettings {
-
-    // TODO: temporary hack
-
     static loadFn;
 
     constructor() {
@@ -35,7 +32,7 @@ export class GameSettings {
         const symbolSourcesInput = Utils.createInput('Symbol Sources', 'textarea', this.symbolSources.join("\n"));
         const startingSymbolsInput = Utils.createInput('Starting Symbols', 'text', this.startingSet);
         // Create buttons
-        const cancelButton = Utils.createButton('Cancel', () => this.close());
+        const cancelButton = Utils.createButton('Cancel', async () => await this.close());
         const saveButton = Utils.createButton('Save', () => this.save(numRowsInput, numColumnsInput, symbolSourcesInput, startingSymbolsInput));
 
         // Append elements to the settings div
