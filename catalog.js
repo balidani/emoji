@@ -1,7 +1,10 @@
 
 export class Catalog {
+    constructor(symbolSources) {
+        this.symbolSources = symbolSources || ['./symbol.js'];
+    }
     async updateSymbols() {
-        this.symbols = new Map()
+        this.symbols = new Map();
         for (let source of this.symbolSources) {
             console.log(`processing ${source}...`); 
             try {
@@ -16,9 +19,6 @@ export class Catalog {
             };
         }
     }
-    constructor(symbolSources) {
-        this.symbolSources = symbolSources || ['./symbol.js'];
-    }
     symbol(emoji) {
         if (this.symbols.has(emoji)) {
             return this.symbols.get(emoji);
@@ -29,6 +29,9 @@ export class Catalog {
         const newCatalog = [];
         while (newCatalog.length < count) {
             for (const[_, item] of this.symbols) {
+                if ('⬛⬜'.includes(item.name())) {
+                    continue;
+                }
                 if (Math.random() < item.rarity + luck) {
                     newCatalog.push(item);
                 }

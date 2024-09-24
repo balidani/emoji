@@ -22,6 +22,7 @@ const chance = (game, percent, x, y) =>
   Math.random() < luckyChance(game, percent, x, y);
 
 export class Symbol {
+  static name = '⬛';
   constructor() {
     this.multiplier = 1;
     this.rarity = 0;

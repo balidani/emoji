@@ -3,8 +3,6 @@ import { GameSettings } from './game_settings.js'
 import { Catalog } from './catalog.js';
 import { Board } from './board.js';
 
-let totalTurns = 0;
-
 class Inventory {
   constructor(symbols) {
     this.symbols = symbols;
@@ -295,7 +293,7 @@ class Game {
   }
 }
 
-export const load = async (gameSettings) => {
+export const load = async (gameSettings=new GameSettings()) => {
   document.querySelector('body').removeEventListener(
     'click', load);
   const template = document.querySelector('.template');
@@ -304,10 +302,7 @@ export const load = async (gameSettings) => {
   const templateClone = template.cloneNode(true);
   templateClone.classList.remove('hidden');
   gameDiv.appendChild(templateClone.children[0]);
-  gameSettings = gameSettings || new GameSettings();
-  // TODO: This is probably a sign of a bug: but the simple fix is this next line:
-  gameSettings.isOpen = false;
-  const catalog = new Catalog(gameSettings.symbolSources)
+  const catalog = new Catalog(gameSettings.symbolSources);
   await catalog.updateSymbols();
   const game = new Game(gameSettings, catalog);
   GameSettings.loadFn = load
@@ -315,15 +310,14 @@ export const load = async (gameSettings) => {
 };
 
 class AutoGame {
-  constructor(startingSet, buyAlways, buyOnce) {
-    this.inventory = new Inventory(startingSet);
+  constructor(gameSettings, catalog, buyAlways, buyOnce) {
+    this.gameSettings = gameSettings;
+    this.catalog = catalog;
+    this.inventory = new Inventory(this.catalog.symbolsFromString(this.gameSettings.startingSet));
     this.inventory.update();
-    this.board = new Board();
-    this.shop = new Shop();
-    totalTurns = 0;
-    this.scores = [];
-    this.isOver = false;
-
+    this.board = new Board(this.gameSettings, this.catalog);
+    this.shop = new Shop(this.catalog);
+    this.totalTurns = 0;
     this.buyAlways = new Set(buyAlways);
     this.buyOnce = buyOnce;
     this.symbolLimit = 1000;
@@ -391,7 +385,7 @@ class AutoGame {
     if (this.inventory.turns <= 0) {
       await this.over();
     }
-    totalTurns++;
+    this.totalTurns++;
   }
   async simulate() {
     for (let i = 0; i < 200 && !this.isOver; ++i) {
@@ -400,7 +394,7 @@ class AutoGame {
   }
 }
 
-const simulate = async (buyAlways, buyOnce, rounds=200) => {
+window.simulate = async (buyAlways, buyOnce, rounds=100) => {
   Util.toggleAnimation();
 
   const template = document.querySelector('.template');
@@ -415,12 +409,16 @@ const simulate = async (buyAlways, buyOnce, rounds=200) => {
   let over15k = 0;
   let over20k = 0;
 
-  const simulateGameSettings = GameSettings()
-  // example: simulateGameSettings.startingSet = "🔮🔮🪙🪙🪙"
+  const simulateGameSettings = new GameSettings();
 
   for (let i = 0; i < rounds; ++i) {
-    const catalog = new Catalog(simulateGameSettings.symbolSources)
-    const game = new AutoGame(catalog.symbolsFromString(simulateGameSettings.startingSet), buyAlways, [...buyOnce]);
+    const catalog = new Catalog(simulateGameSettings.symbolSources);
+    await catalog.updateSymbols();
+    const game = new AutoGame(
+      simulateGameSettings, 
+      catalog,
+      catalog.symbolsFromString(buyAlways),
+      catalog.symbolsFromString(buyOnce));
     await game.simulate();
     const score = game.inventory.money;
     scores.push(score);
@@ -428,7 +426,7 @@ const simulate = async (buyAlways, buyOnce, rounds=200) => {
     const max = Math.max(...scores);
     const min = Math.min(...scores);
     console.log(`${i}\tscore ${score}\tavg ${avg}\tmax ${max}`);
-    if (totalTurns === 200) {
+    if (game.totalTurns === 200) {
       console.log('inf!');
     }
     if (score > 10000) {
@@ -445,3 +443,4 @@ const simulate = async (buyAlways, buyOnce, rounds=200) => {
 };
 
 load();
+// simulate(/*buyAlways=*/'🍾❎🍒🍍', /*buyOnce=*/'🍹🛍️🌳🌳🌳');
