@@ -353,7 +353,7 @@ class AutoGame {
         let bought = false;
         const tryBuy = (sym) => {
           for (const button of buttons) {
-            if (button.parentElement.parentElement.children[0].innerText === sym.name) {
+            if (button.parentElement.parentElement.children[0].innerText === sym.name()) {
               button.click();
               return true;
             }
@@ -394,7 +394,7 @@ class AutoGame {
   }
 }
 
-window.simulate = async (buyAlways, buyOnce, rounds=100) => {
+window.simulate = async (buyAlways, buyOnce, rounds=1) => {
   Util.toggleAnimation();
 
   const template = document.querySelector('.template');
