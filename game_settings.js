@@ -2,7 +2,7 @@ import * as Utils from "./util.js"
 
 export class GameSettings {
 
-    //TODO temporary hack
+    // TODO: temporary hack
 
     static loadFn;
 

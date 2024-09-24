@@ -1,15 +1,14 @@
 
 export class Catalog {
-
     async updateSymbols() {
         this.symbols = new Map()
         for (let source of this.symbolSources) {
             console.log(`processing ${source}...`); 
             try {
-                let symModule = await import(source)
+                let symModule = await import(source);
                 for (const [_, value] of Object.entries(symModule)) {
-                    let sym = new value()
-                    this.symbols.set(sym.name(), sym)
+                    let sym = new value();
+                    this.symbols.set(sym.name(), sym);
                 }
             }
             catch(error) {
@@ -17,19 +16,16 @@ export class Catalog {
             };
         }
     }
-
     constructor(symbolSources) {
         this.symbolSources = symbolSources || ['./symbol.js'];
     }
-
     symbol(emoji) {
         if (this.symbols.has(emoji)) {
-            return this.symbols.get(emoji)
+            return this.symbols.get(emoji);
         }
-        return null
+        return null;
     }
-
-    generate_shop(count, luck) {
+    generateShop(count, luck) {
         const newCatalog = [];
         while (newCatalog.length < count) {
             for (const[_, item] of this.symbols) {
@@ -38,20 +34,18 @@ export class Catalog {
                 }
             }
         }
-        return newCatalog
+        return newCatalog;
     }
-
     symbolsFromString(input) {
         const result = [];
         for (let e of input) {
-            let s = this.symbol(e)
+            let s = this.symbol(e);
             if (s != null) {
-                result.push(s)
+                result.push(s);
             }
         }
-        return result
+        return result;
     }
-
     test() {
         for (let [n, s] of this.symbols) {
             try {
@@ -64,5 +58,4 @@ export class Catalog {
             }
         }
     }
-
 }

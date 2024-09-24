@@ -105,7 +105,7 @@ class Shop {
     luck += checkLuckyItem('🔮', 0.03);
 
     this.shopDiv.replaceChildren();
-    const newCatalog = this.catalog.generate_shop(3, luck)
+    const newCatalog = this.catalog.generateShop(3, luck);
 
     const makeShopItem = (symbol, description, descriptionLong, handler, refresh=false) => {
       const shopItemDiv = document.createElement('div');
