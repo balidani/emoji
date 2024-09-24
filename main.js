@@ -195,7 +195,6 @@ class Game {
   constructor(gameSettings, catalog) {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
-    console.log(this.catalog);
     this.inventory = new Inventory(this.catalog.symbolsFromString(this.gameSettings.startingSet));
     this.inventory.update();
     this.board = new Board(this.gameSettings, this.catalog);
@@ -283,7 +282,9 @@ class Game {
   }
 }
 
-const load = async () => {
+export const load = async (gameSettings) => {
+  console.log("loading...");
+  console.log(gameSettings);
   document.querySelector('body').removeEventListener(
     'click', load);
   const template = document.querySelector('.template');
@@ -292,10 +293,13 @@ const load = async () => {
   const templateClone = template.cloneNode(true);
   templateClone.classList.remove('hidden');
   gameDiv.appendChild(templateClone.children[0]);
-  const gameSettings = new GameSettings();
+  gameSettings = gameSettings || new GameSettings();
+  // TODO: This is probably a sign of a bug: but the simple fix is this next line:
+  gameSettings.isOpen = false;
   const catalog = new Catalog(gameSettings.symbolSources)
   await catalog.updateSymbols();
   const game = new Game(gameSettings, catalog);
+  GameSettings.loadFn = load
   return game;
 };
 

@@ -8,7 +8,6 @@ export const animationOff = () => {
 export const animationOn = () => {
   ANIMATION = true;
 };
-export const BOARD_SIZE = 5;
 export const random = (lim) => Math.random() * lim | 0;
 export const randomChoose = (arr) => arr[random(arr.length)];
 export const randomRemove = (arr) => arr.splice(random(arr.length), 1)[0];
@@ -18,7 +17,7 @@ export const delay = (ms) => {
   }
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-export const animate = (element, animation, duration, repeat=1) => {
+export const animate = (element, animation, duration, repeat = 1) => {
   if (!ANIMATION) {
     return;
   }
@@ -56,3 +55,26 @@ export const drawText = async (element, text) => {
   }
   element.addingText = false;
 };
+
+export const createInput = (labelText, type, dV) => {
+  const label = document.createElement('label');
+  label.textContent = labelText;
+
+  let input;
+  if (type === 'textarea') {
+    input = document.createElement('textarea');
+  } else {
+    input = document.createElement('input');
+    input.type = type;
+  }
+  input.defaultValue = dV;
+
+  return { label, input };
+}
+
+export const createButton = (text, onClick) => {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.addEventListener('click', onClick);
+  return button;
+}

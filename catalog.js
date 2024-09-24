@@ -7,17 +7,15 @@ export class Catalog {
             console.log(`processing ${source}...`); 
             try {
                 let symModule = await import(source)
-                for (const [name, value] of Object.entries(symModule)) {
+                for (const [_, value] of Object.entries(symModule)) {
                     let sym = new value()
                     this.symbols.set(sym.name(), sym)
-                    console.log(`${name} ==> sym.name()`)
                 }
             }
             catch(error) {
                 console.error(`Failed to load module ${source} : ${error}`);
             };
         }
-        console.log('Catalog done processing all sources!');
     }
 
     constructor(symbolSources) {

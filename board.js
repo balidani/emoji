@@ -96,13 +96,13 @@ export class Board {
   async roll(game) {
     const symbols = [...game.inventory.symbols];
     const empties = [];
-    for (let i = 0; i < Util.BOARD_SIZE; ++i) {
-      for (let j = 0; j < Util.BOARD_SIZE; ++j) {
+    for (let i = 0; i < game.gameSettings.boardY; ++i) {
+      for (let j = 0; j < game.gameSettings.boardX; ++j) {
         empties.push([j, i]);
         this.cells[i][j] = this.empty.copy();
       }
     }
-    for (let i = 0; i < Util.BOARD_SIZE * Util.BOARD_SIZE; ++i) {
+    for (let i = 0; i < game.gameSettings.boardY * game.gameSettings.boardX; ++i) {
       if (symbols.length === 0) {
         break;
       }
@@ -111,8 +111,8 @@ export class Board {
       this.cells[y][x] = symbol;
     }
     const tasks = [];
-    for (let i = 0; i < Util.BOARD_SIZE; ++i) {
-      for (let j = 0; j < Util.BOARD_SIZE; ++j) {
+    for (let i = 0; i < game.gameSettings.boardY; ++i) {
+      for (let j = 0; j < game.gameSettings.boardX; ++j) {
         tasks.push(
           this.spinDiv(game, j, i, this.cells[i][j]));
       }

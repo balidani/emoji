@@ -1202,8 +1202,8 @@ export class Volcano extends Symbol {
   copy() { return new Volcano(); }
   async evaluateProduce(game, x, y) {
     if (chance(game, 0.1, x, y)) {
-      const newX = Util.random(Util.BOARD_SIZE);
-      const newY = Util.random(Util.BOARD_SIZE);
+      const newX = Util.random(game.gameSettings.boardX);
+      const newY = Util.random(game.gameSettings.boardY);
       await game.board.removeSymbol(game, newX, newY);
       await game.board.addSymbol(game, new Rock(), newX, newY);
     }
