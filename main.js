@@ -443,4 +443,4 @@ window.simulate = async (buyAlways, buyOnce, rounds=1) => {
 };
 
 load();
-// simulate(/*buyAlways=*/'🍾❎🍒🍍', /*buyOnce=*/'🍹🛍️🌳🌳🌳');
+// simulate(/*buyAlways=*/'🍾❎🍒🍍', /*buyOnce=*/'🍹🌳🌳🌳');
