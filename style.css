@@ -251,3 +251,63 @@ html, body {
 .hidden {
   display: none;
 }
+
+/* Settings */
+
+.open-settings {
+  position: fixed;
+  top: 1;
+  right: 0;
+  margin: 4pt;
+}
+
+.settings-box {
+  border: 1px solid #ccc;
+  padding: 20pt;
+  width: 256pt;
+  overflow: hidden;
+  position: fixed;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.settings-box label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.settings-box input,
+.settings-box textarea {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.settings-box button {
+  padding: 10px 20px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.settings-box button:last-child {
+  margin-right: 0;
+}
+
+.settings-box button:hover {
+  background-color: #0056b3;
+}
+
+.settings-box .button-container {
+  display: flex;
+  justify-content: flex-end;
+}
