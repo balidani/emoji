@@ -711,14 +711,13 @@ export class Drums extends Symbol {
   copy() { return new Drums(); }
   async evaluateProduce(game, x, y) {
     if (this.turns % 3 === 0) {
-      const note = new MusicalNote();
       const coords = game.board.nextToEmpty(x, y);
       if (coords.length === 0) {
         return;
       }
       const [newX, newY] = Util.randomChoose(coords);
       await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 3);
-      await game.board.addSymbol(game, note, newX, newY);
+      await game.board.addSymbol(game, new MusicalNote(), newX, newY);
     }
   }
   counter(game) {

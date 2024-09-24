@@ -96,6 +96,7 @@ export class Board {
     div.clickEvent = () => {
       Util.drawText(game.info, symbol.descriptionLong());
     };
+    div.addEventListener('click', div.clickEvent);
     await Util.animate(div, 'endSpin', 0.3);
     await Util.animate(div, 'bounce', 0.1);
     if (symbol.counter(game) != null) {
