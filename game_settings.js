@@ -19,7 +19,7 @@ export class GameSettings {
         this.boardX = 5;
         this.boardY = 5;
         // OK
-        this.startingSet = "🍒🍒🍒🪙"
+        this.startingSet = "🍒🍒🍒🪙🍀"
         this.symbolSources = ['./symbol.js', './extra_sym.js']
     }
 

@@ -235,7 +235,7 @@ export class Board {
     return coords;
   };
 
-  nextToExpr = (x, y, expr) => {
+  nextToExpr(x, y, expr) {
     const coords = [];
     this.nextToCoords(x, y).forEach((coord) => {
       const [neighborX, neighborY] = coord;
@@ -244,6 +244,10 @@ export class Board {
       }
     });
     return coords;
+  };
+
+  nextToEmpty(x, y) {
+    return this.nextToExpr(x, y, (sym) => ["⬜", "🕳️"].includes(sym.name()));
   };
 
 }

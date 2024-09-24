@@ -21,10 +21,6 @@ const luckyChance = (game, chance, x, y) => {
 const chance = (game, percent, x, y) => 
   Math.random() < luckyChance(game, percent, x, y);
 
-const nextToEmpty = (cells, x, y) => {
-  return game.board.nextToExpr(x, y, (sym) => [Empty.name, Hole.name].includes(sym.name()));
-};
-
 export class Symbol {
   constructor() {
     this.multiplier = 1;
@@ -119,7 +115,7 @@ export class Bank extends Symbol {
   copy() { return new Bank(); }
   async evaluateProduce(game, x, y) {
     const mint = async () => {
-      const coords = nextToEmpty(game.board.cells, x, y);
+      const coords = game.board.nextToEmpty(x, y);
       if (coords.length === 0) {
         return;
       }
@@ -151,7 +147,7 @@ export class Bell extends Symbol {
       this.addMoney(game, 11, x, y)]);
   }
   async evaluateProduce(game, x, y) {
-    const coords = nextToEmpty(game.board.cells, x, y);
+    const coords = game.board.nextToEmpty(x, y);
     if (coords.length === 0) {
       return;
     }
@@ -348,7 +344,7 @@ export class Champagne extends Symbol {
     await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
     await game.board.removeSymbol(game, x, y);
     await game.board.addSymbol(game, new Bubble(), x, y);
-    const coords = nextToEmpty(game.board.cells, x, y);
+    const coords = game.board.nextToEmpty(x, y);
     if (coords.length === 0) {
       return;
     }
@@ -435,7 +431,7 @@ export class Chicken extends Symbol {
       this.addMoney(game, 3, x, y)]);
   }
   async evaluateProduce(game, x, y) {
-    const coords = nextToEmpty(game.board.cells, x, y);
+    const coords = game.board.nextToEmpty(x, y);
     if (coords.length === 0) {
       return;
     }
@@ -548,7 +544,7 @@ export class Corn extends Symbol {
       this.addMoney(game, 20, x, y)]);
   }
   async evaluateProduce(game, x, y) {
-    const coords = nextToEmpty(game.board.cells, x, y);
+    const coords = game.board.nextToEmpty(x, y);
     if (coords.length === 0) {
       return;
     }
@@ -715,7 +711,7 @@ export class Drums extends Symbol {
   async evaluateProduce(game, x, y) {
     if (this.turns % 3 === 0) {
       const note = new MusicalNote();
-      const coords = nextToEmpty(game.board.cells, x, y);
+      const coords = game.board.nextToEmpty(x, y);
       if (coords.length === 0) {
         return;
       }
@@ -868,7 +864,7 @@ export class Grave extends Symbol {
   }
   copy() { return new Grave(); }
   async evaluateProduce(game, x, y) {
-    const coords = nextToEmpty(game.board.cells, x, y);
+    const coords = game.board.nextToEmpty(x, y);
     if (coords.length === 0) {
       return;
     }
@@ -913,7 +909,7 @@ export class MagicWand extends Symbol {
   }
   copy() { return new MagicWand(); }
   async evaluateProduce(game, x, y) {
-    const emptyCoords = nextToEmpty(game.board.cells, x, y);
+    const emptyCoords = game.board.nextToEmpty(x, y);
     if (emptyCoords.length === 0) {
       return;
     }
@@ -1315,7 +1311,7 @@ export class Tree extends Symbol {
   copy() { return new Tree(); }
   async evaluateProduce(game, x, y) {
     const grow = async () => {
-      const coords = nextToEmpty(game.board.cells, x, y);
+      const coords = game.board.nextToEmpty(x, y);
       if (coords.length === 0) {
         return;
       }

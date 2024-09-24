@@ -11,6 +11,9 @@ export class Monorail extends Symbol {
     description() {
         return 'Developer Cheat Item';
     }
+    descriptionLong() {
+        return 'Developer Cheat Item worth 10 per spin'
+    }
     async score(game, x, y) {
         await Promise.all([
             Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.5),
