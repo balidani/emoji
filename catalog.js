@@ -28,7 +28,7 @@ export class Catalog {
         const newCatalog = [];
         while (newCatalog.length < count) {
             for (const[_, item] of this.symbols) {
-                if ('⬛⬜'.includes(item.name())) {
+                if ('⬛⬜🎟️🪦'.includes(item.name())) {
                     continue;
                 }
                 if (Math.random() < item.rarity + luck) {
