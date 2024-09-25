@@ -449,6 +449,12 @@ window.simulate = async (buyAlways, buyOnce, rounds=1, buyRandom=false) => {
   console.log(over10k, over15k, over20k);
 };
 
+window.testemoji = (testStr) => {
+  testStr = testStr || "🍀🛍️👨‍👩‍👧‍👦🇺🇸🏴‍☠️👍🏻👩🏽‍🚀🕵🏼‍♀️🫱🏼‍🫲🏾";
+  const emojis = Util.parseEmojiString(testStr);
+  console.log(emojis);
+}
+
 load();
 
 // For balancing:
