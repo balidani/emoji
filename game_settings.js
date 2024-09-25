@@ -21,6 +21,7 @@ export class GameSettings {
     this.isOpen = false;
     this.boardX = 5;
     this.boardY = 5;
+    this.gameLength = 50;
     this.startingSet = "🍒🍒🍒🪙🍀"
     this.symbolSources = ['./symbol.js']
     // , './extra_sym.js'
