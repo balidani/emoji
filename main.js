@@ -310,7 +310,7 @@ export const load = async (gameSettings=new GameSettings()) => {
 };
 
 class AutoGame {
-  constructor(gameSettings, catalog, buyAlways, buyOnce) {
+  constructor(gameSettings, catalog, buyAlways, buyOnce, buyRandom) {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
     this.inventory = new Inventory(this.catalog.symbolsFromString(this.gameSettings.startingSet));
@@ -320,6 +320,7 @@ class AutoGame {
     this.totalTurns = 0;
     this.buyAlways = new Set(buyAlways);
     this.buyOnce = buyOnce;
+    this.buyRandom = buyRandom;
     this.symbolLimit = 1000;
   }
   async over() {
@@ -345,43 +346,48 @@ class AutoGame {
       return;
     }
 
-    // Choose item to buy
-    if (this.inventory.symbols.length < this.symbolLimit) {
-      const tryOnce = (first) => {
-        const buttons = Array.from(document.getElementsByClassName('buyButton'));
-        const refreshButton = buttons.splice(3, 1)[0];
-        let bought = false;
-        const tryBuy = (sym) => {
-          for (const button of buttons) {
-            if (button.parentElement.parentElement.children[0].innerText === sym.name()) {
-              button.click();
+    if (this.buyRandom) {
+      Array.from(document.getElementsByClassName('buyButton'))[Util.random(3)].click();
+    } else {
+      // Choose item to buy
+      if (this.inventory.symbols.length < this.symbolLimit) {
+        const tryOnce = (first) => {
+          const buttons = Array.from(document.getElementsByClassName('buyButton'));
+          const refreshButton = buttons.splice(3, 1)[0];
+          let bought = false;
+          const tryBuy = (sym) => {
+            for (const button of buttons) {
+              if (button.parentElement.parentElement.children[0].innerText === sym.name()) {
+                button.click();
+                return true;
+              }
+            }
+            return false;
+          };
+          for (let i = 0; i < this.buyOnce.length; ++i) {
+            bought |= tryBuy(this.buyOnce[i]);
+            if (bought) {
+              this.buyOnce.splice(i, 1);
               return true;
             }
           }
+          for (const sym of this.buyAlways) {
+            bought |= tryBuy(sym);
+            if (bought) {
+              return true;
+            }
+          }
+          if (first && !bought && refreshButton !== undefined) {
+            refreshButton.click();
+          }
           return false;
-        };
-        for (let i = 0; i < this.buyOnce.length; ++i) {
-          bought |= tryBuy(this.buyOnce[i]);
-          if (bought) {
-            this.buyOnce.splice(i, 1);
-            return true;
-          }
         }
-        for (const sym of this.buyAlways) {
-          bought |= tryBuy(sym);
-          if (bought) {
-            return true;
-          }
+        if (!tryOnce(/*first=*/true)) {
+          tryOnce(/*first=*/false);
         }
-        if (first && !bought && refreshButton !== undefined) {
-          refreshButton.click();
-        }
-        return false;
-      }
-      if (!tryOnce(/*first=*/true)) {
-        tryOnce(/*first=*/false);
       }
     }
+
     if (this.inventory.turns <= 0) {
       await this.over();
     }
@@ -394,7 +400,7 @@ class AutoGame {
   }
 }
 
-window.simulate = async (buyAlways, buyOnce, rounds=1) => {
+window.simulate = async (buyAlways, buyOnce, rounds=1, buyRandom=false) => {
   Util.toggleAnimation();
 
   const template = document.querySelector('.template');
@@ -418,7 +424,8 @@ window.simulate = async (buyAlways, buyOnce, rounds=1) => {
       simulateGameSettings, 
       catalog,
       catalog.symbolsFromString(buyAlways),
-      catalog.symbolsFromString(buyOnce));
+      catalog.symbolsFromString(buyOnce),
+      buyRandom);
     await game.simulate();
     const score = game.inventory.money;
     scores.push(score);
@@ -443,4 +450,9 @@ window.simulate = async (buyAlways, buyOnce, rounds=1) => {
 };
 
 load();
+
+// For balancing:
 // simulate(/*buyAlways=*/'🍾❎🍒🍍', /*buyOnce=*/'🍹🌳🌳🌳');
+
+// This is our "integration test" for now, lol.
+// simulate('','',/*rounds=*/100,/*buyRandom=*/true);
