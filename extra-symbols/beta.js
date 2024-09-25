@@ -1,5 +1,5 @@
-import * as Util from "./util.js"
-import { Symbol } from "./symbol.js"
+import * as Util from "../util.js"
+import { Symbol } from "../symbol.js"
 
 /* This file contains symbols still in testing. They may be broken or unbalanced */
 

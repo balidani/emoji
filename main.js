@@ -4,12 +4,12 @@ import { Catalog } from './catalog.js';
 import { Board } from './board.js';
 
 class Inventory {
-  constructor(symbols) {
+  constructor(turns, symbols) {
     this.symbols = symbols;
     this.symbolsDiv = document.querySelector('.game .inventory');
     this.uiDiv = document.querySelector('.game .ui');
     this.money = 1;
-    this.turns = 50;
+    this.turns = turns;
     this.updateUi();
     this.graveyard = [];
   }
@@ -192,7 +192,7 @@ class Game {
   constructor(gameSettings, catalog) {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
-    this.inventory = new Inventory(this.catalog.symbolsFromString(this.gameSettings.startingSet));
+    this.inventory = new Inventory(this.gameSettings.gameLength, this.catalog.symbolsFromString(this.gameSettings.startingSet));
     this.inventory.update();
     this.board = new Board(this.gameSettings, this.catalog);
     this.shop = new Shop(this.catalog);
@@ -242,7 +242,7 @@ class Game {
       await Util.animate(trophyDiv, 'scoreIn', 0.4);
     }
     document.querySelector('body').addEventListener(
-      'click', load);
+      'click', loadListener);
   }
   async roll() {
     if (this.rolling) {
@@ -293,27 +293,31 @@ class Game {
   }
 }
 
-export const load = async (gameSettings=new GameSettings()) => {
-  document.querySelector('body').removeEventListener(
-    'click', load);
+export const loadSettings = async (settings=GameSettings.instance()) => {
   const template = document.querySelector('.template');
   const gameDiv = document.querySelector('.game');
   gameDiv.replaceChildren();
   const templateClone = template.cloneNode(true);
   templateClone.classList.remove('hidden');
   gameDiv.appendChild(templateClone.children[0]);
-  const catalog = new Catalog(gameSettings.symbolSources);
+  const catalog = new Catalog(settings.symbolSources);
   await catalog.updateSymbols();
-  const game = new Game(gameSettings, catalog);
-  GameSettings.loadFn = load
+  const game = new Game(settings, catalog);
+  GameSettings.loadFn = loadSettings;
   return game;
+};
+
+export const loadListener = async (event) => {
+  document.querySelector('body').removeEventListener(
+    'click', loadListener);
+  loadSettings(GameSettings.instance());
 };
 
 class AutoGame {
   constructor(gameSettings, catalog, buyAlways, buyOnce, buyRandom) {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
-    this.inventory = new Inventory(this.catalog.symbolsFromString(this.gameSettings.startingSet));
+    this.inventory = new Inventory(gameSettings.gameLength, this.catalog.symbolsFromString(this.gameSettings.startingSet));
     this.inventory.update();
     this.board = new Board(this.gameSettings, this.catalog);
     this.shop = new Shop(this.catalog);
@@ -415,13 +419,13 @@ window.simulate = async (buyAlways, buyOnce, rounds=1, buyRandom=false) => {
   let over15k = 0;
   let over20k = 0;
 
-  const simulateGameSettings = new GameSettings();
+  const settings = GameSettings.instance();
 
   for (let i = 0; i < rounds; ++i) {
-    const catalog = new Catalog(simulateGameSettings.symbolSources);
+    const catalog = new Catalog(settings.symbolSources);
     await catalog.updateSymbols();
     const game = new AutoGame(
-      simulateGameSettings, 
+      settings,
       catalog,
       catalog.symbolsFromString(buyAlways),
       catalog.symbolsFromString(buyOnce),
@@ -449,13 +453,7 @@ window.simulate = async (buyAlways, buyOnce, rounds=1, buyRandom=false) => {
   console.log(over10k, over15k, over20k);
 };
 
-window.testemoji = (testStr) => {
-  testStr = testStr || "🍀🛍️👨‍👩‍👧‍👦🇺🇸🏴‍☠️👍🏻👩🏽‍🚀🕵🏼‍♀️🫱🏼‍🫲🏾";
-  const emojis = Util.parseEmojiString(testStr);
-  console.log(emojis);
-}
-
-load();
+loadSettings();
 
 // For balancing:
 // simulate(/*buyAlways=*/'🍾❎🍒🍍', /*buyOnce=*/'🍹🌳🌳🌳');
