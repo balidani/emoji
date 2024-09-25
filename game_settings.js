@@ -14,9 +14,9 @@ export class GameSettings {
         this.isOpen = false;
         this.boardX = 5;
         this.boardY = 5;
+        this.gameLength = 50;
         this.startingSet = "🍒🍒🍒🪙🍀"
         this.symbolSources = ['./symbol.js']
-        // , './extra_sym.js'
     }
 
     async open(game) {
@@ -30,17 +30,19 @@ export class GameSettings {
         // Create input elements
         const numRowsInput = Utils.createInput('# of Rows', 'number', this.boardX);
         const numColumnsInput = Utils.createInput('# of Columns', 'number', this.boardY);
+        const gameLengthInput = Utils.createInput("Game Length", 'number', this.gameLength);
         const symbolSourcesInput = Utils.createInput('Symbol Sources', 'textarea', this.symbolSources.join("\n"));
         const startingSymbolsInput = Utils.createInput('Starting Symbols', 'text', this.startingSet);
         // Create buttons
         const cancelButton = Utils.createButton('Cancel', async () => await this.close());
-        const saveButton = Utils.createButton('Save', () => this.save(numRowsInput, numColumnsInput, symbolSourcesInput, startingSymbolsInput));
+        const saveButton = Utils.createButton('Save', () => this.save(numRowsInput, numColumnsInput, gameLengthInput, symbolSourcesInput, startingSymbolsInput));
 
         // Append elements to the settings div
         const settingsBoxDiv = document.createElement('div');
         settingsBoxDiv.classList.add('settings-box')
         settingsBoxDiv.append(numRowsInput.label, numRowsInput.input);
         settingsBoxDiv.append(numColumnsInput.label, numColumnsInput.input);
+        settingsBoxDiv.append(gameLengthInput.label, gameLengthInput.input);
         settingsBoxDiv.append(symbolSourcesInput.label, symbolSourcesInput.input);
         settingsBoxDiv.append(startingSymbolsInput.label, startingSymbolsInput.input);
         settingsBoxDiv.append(cancelButton, saveButton);
@@ -58,9 +60,10 @@ export class GameSettings {
         this.isOpen = false;
     }
 
-    save(numRowsInput, numColsInput, symbolSourcesInput, startingSymbolsInput) {
+    save(numRowsInput, numColsInput, gameLengthInput, symbolSourcesInput, startingSymbolsInput) {
         this.boardX = numRowsInput.input.value;
         this.boardY = numColsInput.input.value;
+        this.gameLength = gameLengthInput.input.value;
         this.symbolSources = symbolSourcesInput.input.value.split("\n");
         this.startingSet = startingSymbolsInput.input.value;
         this.close();
