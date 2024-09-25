@@ -35,6 +35,9 @@ export class Symbol {
   async evaluateProduce() {}
   async finalScore(game, x, y) {}
   async score(game, x, y) {}
+  categories() {
+    return []
+  }
   description() {
     throw new Error('Trying to get description of base class.');
   }
@@ -258,6 +261,9 @@ export class Butter extends Symbol {
   counter() {
     return 7 - this.turns;
   }
+  categories() {
+    return ["Food"]
+  }
   description() {
     return 'x3 to neighboring 🍿<br>melts after 7 turns';
   }
@@ -284,8 +290,7 @@ export class Bug extends Symbol {
     this.foodScore = 0;
   }
   async evaluateConsume(game, x, y) {
-    const coords = game.board.nextToExpr(x, y, 
-      (sym) => Food.includes(sym.name()));
+    const coords = game.board.nextToCategory(x, y, "Food")
     if (coords.length === 0) {
       if (this.turns >= 5) {
         await game.board.removeSymbol(game, x, y);
@@ -381,6 +386,9 @@ export class Cherry extends Symbol {
       Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
       this.addMoney(game, coords.length * 2, x, y)]);
   }
+  categories() {
+    return ["Fruits", "Food"]
+  }
   description() {
     return '💵2 for each neighboring 🍒';
   }
@@ -461,6 +469,9 @@ export class Clover extends Symbol {
     this.rarity = 0.21;
   }
   copy() { return new Clover(); }
+  categories() {
+    return ["Vegetables", "Food"]
+  }
   description() {
     return '+1% luck';
   }
@@ -557,6 +568,9 @@ export class Corn extends Symbol {
         await game.board.addSymbol(game, popcorn, newX, newY);
       }
     }
+  }
+  categories() {
+    return ["Vegetables", "Food"]
   }
   description() {
     return '💵20<br>10% chance: pops 🍿';
@@ -833,59 +847,6 @@ export class Fox extends Symbol {
   }
 }
 
-export class FreeTurn extends Symbol {
-  static name = '🎟️';
-  constructor() {
-    super();
-    this.rarity = 0.03;
-  }
-  copy() { return new FreeTurn(); }
-  async evaluate(game, x, y) {
-    if (chance(game, 0.1, x, y)) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3);
-      game.inventory.turns++;
-      game.inventory.updateUi();
-      await game.board.removeSymbol(game, x, y);
-    }
-  }
-  description() {
-    return '10% chance: one more ⏰, then disappears'
-  }
-  descriptionLong() {
-    return 'this is a free turn ticket. it has a 10% chance to give you one more ⏰. if it succeeded, it disappears from your inventory.';
-  }
-}
-
-export class Grave extends Symbol {
-  static name = '🪦';
-  constructor() {
-    super();
-    this.rarity = 0.06;
-  }
-  copy() { return new Grave(); }
-  async evaluateProduce(game, x, y) {
-    const coords = game.board.nextToEmpty(x, y);
-    if (coords.length === 0) {
-      return;
-    }
-    if (game.inventory.graveyard.length === 0) {
-      return;
-    }
-    if (chance(game, 0.1, x, y)) {
-      const [newX, newY] = Util.randomRemove(coords);
-      const oldSymbol = Util.randomChoose(game.inventory.graveyard).copy();
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
-      await game.board.addSymbol(game, oldSymbol, newX, newY);
-    }
-  }
-  description() {
-    return '10% chance: adds random symbol removed this game';
-  }
-  descriptionLong() {
-    return 'this is a grave. it has a 10% chance to add a previously removed symbol to a nearby empty space';
-  }
-}
-
 export class Hole extends Symbol {
   static name = '🕳️';
   constructor() {
@@ -942,8 +903,7 @@ export class Mango extends Symbol {
   }
   copy() { return new Mango(); }
   async evaluateScore(game, x, y) {
-    const coords = game.board.nextToExpr(x, y,
-      (sym) => Fruits.includes(sym.name()));
+    const coords = game.board.nextToCategory(x, y, "Fruits");
     if (coords.length === 0) {
       return;
     }
@@ -952,6 +912,9 @@ export class Mango extends Symbol {
       const [neighborX, neighborY] = coord;
       game.board.cells[neighborY][neighborX].multiplier *= 2;
     }
+  }
+  categories() {
+    return ["Fruits", "Food"]
   }
   description() {
     return 'x2 to neighboring fruit';
@@ -1096,6 +1059,9 @@ export class Pineapple extends Symbol {
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
       this.addMoney(game, 12 - coords.length * 2, x, y)]);
   }
+  categories() {
+    return ["Fruits", "Food"]
+  }
   description() {
     return '💵12<br>💵-2 for all non-empty neighbors';
   }
@@ -1129,6 +1095,9 @@ export class Popcorn extends Symbol {
   }
   counter(game) {
     return this.timeToLive - this.turns;
+  }
+  categories() {
+    return ["Food"]
   }
   description() {
     return '💵17<br>disappears after 2-5 turns'
@@ -1386,7 +1355,3 @@ export class Worker extends Symbol {
     return 'this is a worker. it pays 💵3 for each neighboring 🪨 removed. it has a 50% chance to produce 💎 in place of the destroyed 🪨.';
   }
 }
-
-const Fruits = [Cherry, Mango, Pineapple].map(f => f.name);
-const Vegetables = [Corn, Clover].map(f => f.name);
-const Food = [...Fruits, ...Vegetables, Popcorn.name, Butter.name];

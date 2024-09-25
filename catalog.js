@@ -5,12 +5,21 @@ export class Catalog {
     }
     async updateSymbols() {
         this.symbols = new Map();
+        this.categories = new Map();
         for (let source of this.symbolSources) {
             try {
                 let symModule = await import(source);
                 for (const [_, value] of Object.entries(symModule)) {
                     let sym = new value();
                     this.symbols.set(sym.name(), sym);
+                    let cats = sym.categories();
+                    if (cats.length > 0) {
+                        for (const cat of cats) {
+                            const old = this.categories.get(cat) || []
+                            old.push(sym.name());
+                            this.categories.set(cat, old)
+                        }
+                    }
                 }
             }
             catch(error) {
