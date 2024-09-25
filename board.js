@@ -251,7 +251,6 @@ export class Board {
     return this.nextToExpr(x, y, (sym) => ["⬜", "🕳️"].includes(sym.name()));
   };
 
-
   nextToCategory(x, y, category_name) {
     const category_symbols = this.catalog.categories.get(category_name)
     if (!category_symbols || category_symbols.length === 0) {

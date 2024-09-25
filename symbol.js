@@ -36,7 +36,7 @@ export class Symbol {
   async finalScore(game, x, y) {}
   async score(game, x, y) {}
   categories() {
-    return []
+    return [];
   }
   description() {
     throw new Error('Trying to get description of base class.');
@@ -262,7 +262,7 @@ export class Butter extends Symbol {
     return 7 - this.turns;
   }
   categories() {
-    return ["Food"]
+    return ["Food"];
   }
   description() {
     return 'x3 to neighboring 🍿<br>melts after 7 turns';
@@ -387,7 +387,7 @@ export class Cherry extends Symbol {
       this.addMoney(game, coords.length * 2, x, y)]);
   }
   categories() {
-    return ["Fruits", "Food"]
+    return ["Fruits", "Food"];
   }
   description() {
     return '💵2 for each neighboring 🍒';
@@ -470,7 +470,7 @@ export class Clover extends Symbol {
   }
   copy() { return new Clover(); }
   categories() {
-    return ["Vegetables", "Food"]
+    return ["Vegetables", "Food"];
   }
   description() {
     return '+1% luck';
@@ -570,7 +570,7 @@ export class Corn extends Symbol {
     }
   }
   categories() {
-    return ["Vegetables", "Food"]
+    return ["Vegetables", "Food"];
   }
   description() {
     return '💵20<br>10% chance: pops 🍿';
@@ -914,7 +914,7 @@ export class Mango extends Symbol {
     }
   }
   categories() {
-    return ["Fruits", "Food"]
+    return ["Fruits", "Food"];
   }
   description() {
     return 'x2 to neighboring fruit';
@@ -1060,7 +1060,7 @@ export class Pineapple extends Symbol {
       this.addMoney(game, 12 - coords.length * 2, x, y)]);
   }
   categories() {
-    return ["Fruits", "Food"]
+    return ["Fruits", "Food"];
   }
   description() {
     return '💵12<br>💵-2 for all non-empty neighbors';
@@ -1097,7 +1097,7 @@ export class Popcorn extends Symbol {
     return this.timeToLive - this.turns;
   }
   categories() {
-    return ["Food"]
+    return ["Food"];
   }
   description() {
     return '💵17<br>disappears after 2-5 turns'
