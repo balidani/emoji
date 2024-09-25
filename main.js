@@ -4,12 +4,12 @@ import { Catalog } from './catalog.js';
 import { Board } from './board.js';
 
 class Inventory {
-  constructor(symbols) {
+  constructor(turns, symbols) {
     this.symbols = symbols;
     this.symbolsDiv = document.querySelector('.game .inventory');
     this.uiDiv = document.querySelector('.game .ui');
     this.money = 1;
-    this.turns = 50;
+    this.turns = turns;
     this.updateUi();
     this.graveyard = [];
   }
@@ -192,7 +192,7 @@ class Game {
   constructor(gameSettings, catalog) {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
-    this.inventory = new Inventory(this.catalog.symbolsFromString(this.gameSettings.startingSet));
+    this.inventory = new Inventory(this.gameSettings.gameLength, this.catalog.symbolsFromString(this.gameSettings.startingSet));
     this.inventory.update();
     this.board = new Board(this.gameSettings, this.catalog);
     this.shop = new Shop(this.catalog);
@@ -317,7 +317,7 @@ class AutoGame {
   constructor(gameSettings, catalog, buyAlways, buyOnce, buyRandom) {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
-    this.inventory = new Inventory(this.catalog.symbolsFromString(this.gameSettings.startingSet));
+    this.inventory = new Inventory(gameSettings.gameLength, this.catalog.symbolsFromString(this.gameSettings.startingSet));
     this.inventory.update();
     this.board = new Board(this.gameSettings, this.catalog);
     this.shop = new Shop(this.catalog);

@@ -1,5 +1,5 @@
-import { Symbol } from "./symbol.js";
-import * as Util from "./util.js";
+import { Symbol } from "../symbol.js";
+import * as Util from "../util.js";
 
 /**
  * Example of a "mod" file that introduces an extra item
