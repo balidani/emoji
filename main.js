@@ -242,7 +242,7 @@ class Game {
       await Util.animate(trophyDiv, 'scoreIn', 0.4);
     }
     document.querySelector('body').addEventListener(
-      'click', load);
+      'click', loadListener);
   }
   async roll() {
     if (this.rolling) {
@@ -293,20 +293,24 @@ class Game {
   }
 }
 
-export const load = async (gameSettings=new GameSettings()) => {
-  document.querySelector('body').removeEventListener(
-    'click', load);
+export const loadSettings = async (settings=GameSettings.instance()) => {
   const template = document.querySelector('.template');
   const gameDiv = document.querySelector('.game');
   gameDiv.replaceChildren();
   const templateClone = template.cloneNode(true);
   templateClone.classList.remove('hidden');
   gameDiv.appendChild(templateClone.children[0]);
-  const catalog = new Catalog(gameSettings.symbolSources);
+  const catalog = new Catalog(settings.symbolSources);
   await catalog.updateSymbols();
-  const game = new Game(gameSettings, catalog);
-  GameSettings.loadFn = load
+  const game = new Game(settings, catalog);
+  GameSettings.loadFn = loadSettings;
   return game;
+};
+
+export const loadListener = async (event) => {
+  document.querySelector('body').removeEventListener(
+    'click', loadListener);
+  loadSettings(GameSettings.instance());
 };
 
 class AutoGame {
@@ -415,13 +419,13 @@ window.simulate = async (buyAlways, buyOnce, rounds=1, buyRandom=false) => {
   let over15k = 0;
   let over20k = 0;
 
-  const simulateGameSettings = new GameSettings();
+  const settings = GameSettings.instance();
 
   for (let i = 0; i < rounds; ++i) {
-    const catalog = new Catalog(simulateGameSettings.symbolSources);
+    const catalog = new Catalog(settings.symbolSources);
     await catalog.updateSymbols();
     const game = new AutoGame(
-      simulateGameSettings, 
+      settings,
       catalog,
       catalog.symbolsFromString(buyAlways),
       catalog.symbolsFromString(buyOnce),
@@ -449,7 +453,7 @@ window.simulate = async (buyAlways, buyOnce, rounds=1, buyRandom=false) => {
   console.log(over10k, over15k, over20k);
 };
 
-load();
+loadSettings();
 
 // For balancing:
 // simulate(/*buyAlways=*/'🍾❎🍒🍍', /*buyOnce=*/'🍹🌳🌳🌳');
