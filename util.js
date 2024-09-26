@@ -72,3 +72,12 @@ export const createButton = (text, onClick) => {
   button.addEventListener('click', onClick);
   return button;
 }
+
+
+export const parseEmojiString = (str) => {
+  const seg = new Intl.Segmenter('en', {
+    granularity: 'grapheme',
+  });
+  const graphemeSegments = seg.segment(str);
+  return Array.from(graphemeSegments).map(x => x.segment)
+};
