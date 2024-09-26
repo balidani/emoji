@@ -1,4 +1,5 @@
 import { CATEGORY_UNBUYABLE, Symb } from "./symbol.js";
+import * as Util from "./util.js"
 
 export class Catalog {
   constructor(symbolSources) {
@@ -54,13 +55,18 @@ export class Catalog {
     }
     return newCatalog;
   }
-  // TODO: Rework, 🛍️ cannot be passed to this function.
   symbolsFromString(input) {
     const result = [];
-    for (const e of input) {
-      const sym = this.symbol(e);
-      if (sym != null) {
-        result.push(sym.copy());
+    for (const emoji of Util.parseEmojiString(input))
+    {
+      try {
+        const sym = this.symbol(emoji);
+        if (sym != null) {
+          result.push(sym.copy());
+        }
+      }
+      catch (e) {
+        console.error(e);
       }
     }
     return result;
