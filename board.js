@@ -1,5 +1,5 @@
 import { CATEGORY_EMPTY_SPACE } from './symbol.js';
-import * as Util from './util.js'
+import * as Util from './util.js';
 
 export class Board {
   constructor(gameSettings, catalog) {
@@ -68,7 +68,7 @@ export class Board {
         set.add(symbol.name());
       }
       div.innerText = Util.randomChoose([...set]);
-    }
+    };
     await Util.animate(div, 'startSpin', 0.1);
     for (let i = 0; i < 6; ++i) {
       randomSymbol();
@@ -113,19 +113,22 @@ export class Board {
         this.cells[i][j] = this.empty.copy();
       }
     }
-    for (let i = 0; i < game.gameSettings.boardY * game.gameSettings.boardX; ++i) {
+    for (
+      let i = 0;
+      i < game.gameSettings.boardY * game.gameSettings.boardX;
+      ++i
+    ) {
       if (symbols.length === 0) {
         break;
       }
-      const symbol = Util.randomRemove(symbols)
+      const symbol = Util.randomRemove(symbols);
       const [x, y] = Util.randomRemove(empties);
       this.cells[y][x] = symbol;
     }
     const tasks = [];
     for (let i = 0; i < game.gameSettings.boardY; ++i) {
       for (let j = 0; j < game.gameSettings.boardX; ++j) {
-        tasks.push(
-          this.spinDiv(game, j, i, this.cells[i][j]));
+        tasks.push(this.spinDiv(game, j, i, this.cells[i][j]));
       }
     }
     await Promise.all(tasks);
@@ -139,14 +142,15 @@ export class Board {
     });
     const evaluateRound = async (f) => {
       const tasks = [];
-      this.forAllCells((cell, x, y) => tasks.push(
-        async () => {
+      this.forAllCells((cell, x, y) =>
+        tasks.push(async () => {
           // If the symbol has since been removed from the board, do not evaluate.
           if (this.cells[y][x] !== cell) {
             return;
           }
           await f(cell, game, x, y);
-        }));
+        })
+      );
       for (const task of tasks) {
         await task();
       }
@@ -164,7 +168,7 @@ export class Board {
       tasks.push(async () => {
         await cell.finalScore(game, x, y);
       });
-    })
+    });
     for (const task of tasks) {
       await task();
     }
@@ -175,7 +179,7 @@ export class Board {
       tasks.push(async () => {
         await cell.score(game, x, y);
       });
-    })
+    });
     for (const task of tasks) {
       await task();
     }
@@ -211,7 +215,12 @@ export class Board {
   nextToCoords(x, y) {
     const coords = [];
     const add = (x, y) => {
-      if (x >= 0 && x < this.gameSettings.boardX && y >= 0 && y < this.gameSettings.boardY) {
+      if (
+        x >= 0 &&
+        x < this.gameSettings.boardX &&
+        y >= 0 &&
+        y < this.gameSettings.boardY
+      ) {
         coords.push([x, y]);
       }
     };
@@ -224,7 +233,7 @@ export class Board {
     add(x - 1, y + 1);
     add(x + 1, y + 1);
     return coords;
-  };
+  }
 
   nextToSymbol(x, y, name) {
     const coords = [];
@@ -235,7 +244,7 @@ export class Board {
       }
     });
     return coords;
-  };
+  }
 
   nextToExpr(x, y, expr) {
     const coords = [];
@@ -246,17 +255,19 @@ export class Board {
       }
     });
     return coords;
-  };
+  }
 
   nextToCategory(x, y, category_name) {
-    const category_symbols = this.catalog.categories.get(category_name)
+    const category_symbols = this.catalog.categories.get(category_name);
     if (!category_symbols || category_symbols.length === 0) {
       return [];
     }
-    return this.nextToExpr(x, y, (sym) => category_symbols.includes(sym.name()));
+    return this.nextToExpr(x, y, (sym) =>
+      category_symbols.includes(sym.name())
+    );
   }
 
   nextToEmpty(x, y) {
-    return this.nextToCategory(x, y, CATEGORY_EMPTY_SPACE)
-  };
+    return this.nextToCategory(x, y, CATEGORY_EMPTY_SPACE);
+  }
 }

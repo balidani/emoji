@@ -4,6 +4,19 @@ Slot machine game using emojis, https://unicode.fun/
 ## Discord
 https://discord.com/invite/wyCDHsuk
 
+
+# Development
+
+## Linter
+Finds unused vars and code syntax issues:
+
+`npm run lint`
+
+## Formatter
+Enforces code style rules like semicolons, line spacing, etc:
+
+`npm run format`
+
 ## Setup
 
 ### WSL (Windows Subsystem for Linux)

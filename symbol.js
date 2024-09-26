@@ -1,17 +1,17 @@
-import * as Util from './util.js'
+import * as Util from './util.js';
 
-export const CATEGORY_EMPTY_SPACE = Symbol("Empty Space");
-export const CATEGORY_UNBUYABLE = Symbol("Unbuyable");
-export const CATEGORY_FOOD = Symbol("Food");
-export const CATEGORY_FRUIT = Symbol("Fruit");
-export const CATEGORY_VEGETABLES = Symbol("Vegetables");
+export const CATEGORY_EMPTY_SPACE = Symbol('Empty Space');
+export const CATEGORY_UNBUYABLE = Symbol('Unbuyable');
+export const CATEGORY_FOOD = Symbol('Food');
+export const CATEGORY_FRUIT = Symbol('Fruit');
+export const CATEGORY_VEGETABLES = Symbol('Vegetables');
 
 const luckyChance = (game, chance, x, y) => {
   if (game.board.nextToSymbol(x, y, BullsEye.name).length > 0) {
     return 1.0;
   }
   return chance + game.inventory.lastLuckBonus;
-}
+};
 const chance = (game, percent, x, y) =>
   Math.random() < luckyChance(game, percent, x, y);
 
@@ -25,10 +25,10 @@ export class Symb {
   copy() {
     throw new Error('Trying to get copy of base class.');
   }
-  async evaluateConsume() { }
-  async evaluateProduce() { }
-  async finalScore(game, x, y) { }
-  async score(game, x, y) { }
+  async evaluateConsume() {}
+  async evaluateProduce() {}
+  async finalScore(game, x, y) {}
+  async score(game, x, y) {}
   categories() {
     return [];
   }
@@ -43,11 +43,17 @@ export class Symb {
     const coords = game.board.nextToSymbol(x, y, Multiplier.name);
     for (const coord of coords) {
       const [multX, multY] = coord;
-      await Util.animate(game.board.getSymbolDiv(multX, multY), 'flip', 0.15, 1);
+      await Util.animate(
+        game.board.getSymbolDiv(multX, multY),
+        'flip',
+        0.15,
+        1
+      );
     }
     await Promise.all([
       game.board.showMoneyEarned(x, y, value),
-      game.inventory.addMoney(score * this.multiplier)]);
+      game.inventory.addMoney(score * this.multiplier),
+    ]);
   }
   name() {
     return this.constructor.name;
@@ -66,13 +72,13 @@ export class Empty extends Symb {
     super();
   }
   copy() {
-    return new Empty()
+    return new Empty();
   }
   description() {
-    return 'you should not be seeing this'
+    return 'you should not be seeing this';
   }
   descriptionLong() {
-    return 'this is empty space. it\'s not part of your inventory.';
+    return "this is empty space. it's not part of your inventory.";
   }
   categories() {
     return [CATEGORY_EMPTY_SPACE];
@@ -87,11 +93,14 @@ export class Balloon extends Symb {
     super();
     this.rarity = 0.1;
   }
-  copy() { return new Balloon(); }
+  copy() {
+    return new Balloon();
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 20, x, y)]);
+      this.addMoney(game, 20, x, y),
+    ]);
   }
   async evaluateConsume(game, x, y) {
     if (chance(game, 0.5, x, y)) {
@@ -113,7 +122,9 @@ export class Bank extends Symb {
     this.turns = 0;
     this.rarity = 0.4;
   }
-  copy() { return new Bank(); }
+  copy() {
+    return new Bank();
+  }
   async evaluateProduce(game, x, y) {
     const mint = async () => {
       const coords = game.board.nextToEmpty(x, y);
@@ -141,11 +152,14 @@ export class Bell extends Symb {
     super();
     this.rarity = 0.4;
   }
-  copy() { return new Bell(); }
+  copy() {
+    return new Bell();
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 11, x, y)]);
+      this.addMoney(game, 11, x, y),
+    ]);
   }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToEmpty(x, y);
@@ -173,11 +187,16 @@ export class Bomb extends Symb {
     super();
     this.rarity = 0.15;
   }
-  copy() { return new Bomb(); }
+  copy() {
+    return new Bomb();
+  }
   async evaluateConsume(game, x, y) {
     if (chance(game, 0.1, x, y)) {
-      const coords = game.board.nextToExpr(x, y,
-        (sym) => ![Empty.name, Firefighter.name].includes(sym.name()));
+      const coords = game.board.nextToExpr(
+        x,
+        y,
+        (sym) => ![Empty.name, Firefighter.name].includes(sym.name())
+      );
       if (coords.length === 0) {
         return;
       }
@@ -201,15 +220,18 @@ export class Briefcase extends Symb {
     this.rarity = 0.13;
     this.count = 0;
   }
-  copy() { return new Briefcase(); }
+  copy() {
+    return new Briefcase();
+  }
   async score(game, x, y) {
     const value = this.counter(game);
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, value, x, y)]);
+      this.addMoney(game, value, x, y),
+    ]);
   }
   counter(game) {
-    return (game.inventory.symbols.length / 4 | 0) * 5;
+    return ((game.inventory.symbols.length / 4) | 0) * 5;
   }
   description() {
     return '💵5 for every 4 symbols in inventory';
@@ -225,7 +247,9 @@ export class Bubble extends Symb {
     super();
     this.rarity = 0;
   }
-  copy() { return new Bubble(); }
+  copy() {
+    return new Bubble();
+  }
   async evaluateConsume(game, x, y) {
     if (this.turns < 3) {
       return;
@@ -239,7 +263,7 @@ export class Bubble extends Symb {
     return 'disappears after 3 turns';
   }
   descriptionLong() {
-    return 'this is a bubble. it doesn\'t really do anything. it will disappear after 3 turns.';
+    return "this is a bubble. it doesn't really do anything. it will disappear after 3 turns.";
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -252,7 +276,9 @@ export class Butter extends Symb {
     super();
     this.rarity = 0.1;
   }
-  copy() { return new Butter(); }
+  copy() {
+    return new Butter();
+  }
   async evaluateConsume(game, x, y) {
     if (this.turns >= 7) {
       await game.board.removeSymbol(game, x, y);
@@ -280,17 +306,20 @@ export class Bug extends Symb {
     this.foodScore = 0;
     this.timeToLive = 5;
   }
-  copy() { return new Bug(); }
+  copy() {
+    return new Bug();
+  }
   async score(game, x, y) {
     if (this.foodScore > 0) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.foodScore, x, y)]);
+        this.addMoney(game, this.foodScore, x, y),
+      ]);
     }
     this.foodScore = 0;
   }
   async evaluateConsume(game, x, y) {
-    const coords = game.board.nextToCategory(x, y, CATEGORY_FOOD)
+    const coords = game.board.nextToCategory(x, y, CATEGORY_FOOD);
     if (coords.length === 0) {
       if (this.turns >= 5) {
         await game.board.removeSymbol(game, x, y);
@@ -322,7 +351,9 @@ export class BullsEye extends Symb {
     super();
     this.rarity = 0.045;
   }
-  copy() { return new BullsEye(); }
+  copy() {
+    return new BullsEye();
+  }
   description() {
     return 'neighboring rolls always succeed';
   }
@@ -337,11 +368,14 @@ export class Champagne extends Symb {
     super();
     this.rarity = 0.07;
   }
-  copy() { return new Champagne(); }
+  copy() {
+    return new Champagne();
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 70, x, y)]);
+      this.addMoney(game, 70, x, y),
+    ]);
   }
   async evaluateProduce(game, x, y) {
     if (this.turns < 3) {
@@ -376,7 +410,9 @@ export class Cherry extends Symb {
     super();
     this.rarity = 0.8;
   }
-  copy() { return new Cherry(); }
+  copy() {
+    return new Cherry();
+  }
   async score(game, x, y) {
     const coords = game.board.nextToSymbol(x, y, Cherry.name);
     if (coords.length === 0) {
@@ -384,7 +420,8 @@ export class Cherry extends Symb {
     }
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
-      this.addMoney(game, coords.length * 2, x, y)]);
+      this.addMoney(game, coords.length * 2, x, y),
+    ]);
   }
   categories() {
     return [CATEGORY_FOOD, CATEGORY_FRUIT];
@@ -404,11 +441,14 @@ export class Chick extends Symb {
     this.rarity = 0.2;
     this.turns = 0;
   }
-  copy() { return new Chick(this.timeToGrow); }
+  copy() {
+    return new Chick(this.timeToGrow);
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 1, x, y)]);
+      this.addMoney(game, 1, x, y),
+    ]);
   }
   async evaluateConsume(game, x, y) {
     if (this.turns >= 3) {
@@ -433,11 +473,14 @@ export class Chicken extends Symb {
     super();
     this.rarity = 0.15;
   }
-  copy() { return new Chicken(); }
+  copy() {
+    return new Chicken();
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 3, x, y)]);
+      this.addMoney(game, 3, x, y),
+    ]);
   }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToEmpty(x, y);
@@ -468,7 +511,9 @@ export class Clover extends Symb {
     super();
     this.rarity = 0.21;
   }
-  copy() { return new Clover(); }
+  copy() {
+    return new Clover();
+  }
   categories() {
     return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
   }
@@ -491,12 +536,15 @@ export class Cocktail extends Symb {
     this.rarity = 0.27;
     this.cherryScore = cherryScore;
   }
-  copy() { return new Cocktail(this.cherryScore); }
+  copy() {
+    return new Cocktail(this.cherryScore);
+  }
   async score(game, x, y) {
     if (this.cherryScore > 0) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.cherryScore, x, y)]);
+        this.addMoney(game, this.cherryScore, x, y),
+      ]);
     }
   }
   async evaluateConsume(game, x, y) {
@@ -511,7 +559,7 @@ export class Cocktail extends Symb {
         await game.board.removeSymbol(game, deleteX, deleteY);
         game.board.updateCounter(game, x, y);
       }
-    }
+    };
     await remove(Cherry, (v) => v + 2);
     await remove(Pineapple, (v) => v + 4);
     await remove(Champagne, (v) => v * 2);
@@ -533,11 +581,14 @@ export class Coin extends Symb {
     super();
     this.rarity = 1;
   }
-  copy() { return new Coin(); }
+  copy() {
+    return new Coin();
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 2, x, y)]);
+      this.addMoney(game, 2, x, y),
+    ]);
   }
   description() {
     return '💵2';
@@ -553,11 +604,14 @@ export class Corn extends Symb {
     super();
     this.rarity = 0.25;
   }
-  copy() { return new Corn(); }
+  copy() {
+    return new Corn();
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 20, x, y)]);
+      this.addMoney(game, 20, x, y),
+    ]);
   }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToEmpty(x, y);
@@ -591,25 +645,29 @@ export class CreditCard extends Symb {
     this.turn = turn;
     this.rarity = 0.35;
   }
-  copy() { return new CreditCard(); }
+  copy() {
+    return new CreditCard();
+  }
   async finalScore(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3),
-      this.addMoney(game, -1100, x, y)]);
+      this.addMoney(game, -1100, x, y),
+    ]);
   }
   async score(game, x, y) {
     this.turn += 1;
     if (this.turn === 1) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, 1000, x, y)]);
+        this.addMoney(game, 1000, x, y),
+      ]);
     }
   }
   description() {
     return '💵1000 now<br>💵-1100 on last turn';
   }
   descriptionLong() {
-    return 'this is a credit card. it pays 💵1000, but takes 💵1100 on your last turn. if it\'s not on the board on your last turn, however ...';
+    return "this is a credit card. it pays 💵1000, but takes 💵1100 on your last turn. if it's not on the board on your last turn, however ...";
   }
 }
 
@@ -619,7 +677,9 @@ export class CrystalBall extends Symb {
     super();
     this.rarity = 0.05;
   }
-  copy() { return new CrystalBall(); }
+  copy() {
+    return new CrystalBall();
+  }
   description() {
     return '+3% luck';
   }
@@ -639,7 +699,9 @@ export class Dancer extends Symb {
     this.rarity = 0.3;
     this.musicScore = 0;
   }
-  copy() { return new Dancer(); }
+  copy() {
+    return new Dancer();
+  }
   async score(game, x, y) {
     const coords = game.board.nextToSymbol(x, y, MusicalNote.name);
     if (coords.length === 0) {
@@ -647,13 +709,14 @@ export class Dancer extends Symb {
     }
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, coords.length * 10, x, y)]);
+      this.addMoney(game, coords.length * 10, x, y),
+    ]);
   }
   description() {
     return '💵10 for each neighboring 🎵';
   }
   descriptionLong() {
-    return 'this is a dancer. it pays 💵10 for each 🎵 it\'s standing next to.';
+    return "this is a dancer. it pays 💵10 for each 🎵 it's standing next to.";
   }
 }
 
@@ -663,11 +726,14 @@ export class Diamond extends Symb {
     super();
     this.rarity = 0.3;
   }
-  copy() { return new Diamond(); }
+  copy() {
+    return new Diamond();
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
-      this.addMoney(game, 6, x, y)]);
+      this.addMoney(game, 6, x, y),
+    ]);
     const coords = game.board.nextToSymbol(x, y, Diamond.name);
     if (coords.length === 0) {
       return;
@@ -688,12 +754,15 @@ export class Dice extends Symb {
     super();
     this.rarity = 0.14;
   }
-  copy() { return new Dice(); }
+  copy() {
+    return new Dice();
+  }
   async score(game, x, y) {
     if (chance(game, 0.01, x, y)) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2),
-        this.addMoney(game, 52, x, y)]);
+        this.addMoney(game, 52, x, y),
+      ]);
     }
   }
   description() {
@@ -710,11 +779,14 @@ export class Dragon extends Symb {
     super();
     this.rarity = 0.01;
   }
-  copy() { return new Dragon(); }
+  copy() {
+    return new Dragon();
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 42, x, y)]);
+      this.addMoney(game, 42, x, y),
+    ]);
   }
   description() {
     return '💵42';
@@ -730,7 +802,9 @@ export class Drums extends Symb {
     super();
     this.rarity = 0.25;
   }
-  copy() { return new Drums(); }
+  copy() {
+    return new Drums();
+  }
   async evaluateProduce(game, x, y) {
     if (this.turns % 3 === 0) {
       const coords = game.board.nextToEmpty(x, y);
@@ -743,7 +817,7 @@ export class Drums extends Symb {
     }
   }
   counter(game) {
-    return 3 - this.turns % 3;
+    return 3 - (this.turns % 3);
   }
   description() {
     return 'every 3 turns: makes 🎵';
@@ -760,7 +834,9 @@ export class Egg extends Symb {
     this.rarity = 0.6;
     this.timeToHatch = 3 + Util.random(3);
   }
-  copy() { return new Egg(); }
+  copy() {
+    return new Egg();
+  }
   async evaluateConsume(game, x, y) {
     if (this.turns >= this.timeToHatch) {
       let newSymbol = new Chick();
@@ -775,7 +851,7 @@ export class Egg extends Symb {
     return this.timeToHatch - this.turns;
   }
   description() {
-    return 'after 3-5 turns: hatches 🐣<br>1% chance: hatches 🐉'
+    return 'after 3-5 turns: hatches 🐣<br>1% chance: hatches 🐉';
   }
   descriptionLong() {
     return 'this is an egg. after 3-5 turns, it becomes a 🐣, or with 1% chance it becomes a 🐉.';
@@ -788,7 +864,9 @@ export class Firefighter extends Symb {
     super();
     this.rarity = 0.15;
   }
-  copy() { return new Firefighter(); }
+  copy() {
+    return new Firefighter();
+  }
   async evaluateConsume(game, x, y) {
     const coords = game.board.nextToSymbol(x, y, Bomb.name);
     if (coords.length === 0) {
@@ -815,12 +893,15 @@ export class Fox extends Symb {
     this.rarity = 0.25;
     this.eatenScore = 3;
   }
-  copy() { return new Fox(); }
+  copy() {
+    return new Fox();
+  }
   async score(game, x, y) {
     if (this.eatenScore > 0) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.eatenScore, x, y)]);
+        this.addMoney(game, this.eatenScore, x, y),
+      ]);
       this.eatenScore = 0;
     }
   }
@@ -861,7 +942,9 @@ export class Hole extends Symb {
     super();
     this.rarity = 0.21;
   }
-  copy() { return new Hole(); }
+  copy() {
+    return new Hole();
+  }
   description() {
     return 'always empty';
   }
@@ -869,7 +952,7 @@ export class Hole extends Symb {
     return 'this is a hole. it works like an empty space, other symbols can be created here and they will go into your inventory.';
   }
   categories() {
-    return [CATEGORY_EMPTY_SPACE]
+    return [CATEGORY_EMPTY_SPACE];
   }
 }
 
@@ -879,14 +962,19 @@ export class MagicWand extends Symb {
     super();
     this.rarity = 0.1;
   }
-  copy() { return new MagicWand(); }
+  copy() {
+    return new MagicWand();
+  }
   async evaluateProduce(game, x, y) {
     const emptyCoords = game.board.nextToEmpty(x, y);
     if (emptyCoords.length === 0) {
       return;
     }
-    const nonEmptyCoords = game.board.nextToExpr(x, y,
-      (sym) => sym.name() !== Empty.name);
+    const nonEmptyCoords = game.board.nextToExpr(
+      x,
+      y,
+      (sym) => sym.name() !== Empty.name
+    );
     if (nonEmptyCoords.length === 0) {
       return;
     }
@@ -912,7 +1000,9 @@ export class Mango extends Symb {
     super();
     this.rarity = 0.06;
   }
-  copy() { return new Mango(); }
+  copy() {
+    return new Mango();
+  }
   async evaluateScore(game, x, y) {
     const coords = game.board.nextToCategory(x, y, CATEGORY_FRUIT);
     if (coords.length === 0) {
@@ -942,12 +1032,15 @@ export class MoneyBag extends Symb {
     this.coins = coins;
     this.rarity = 0.5;
   }
-  copy() { return new MoneyBag(this.coins); }
+  copy() {
+    return new MoneyBag(this.coins);
+  }
   async score(game, x, y) {
     if (this.coins > 0) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.coins, x, y)]);
+        this.addMoney(game, this.coins, x, y),
+      ]);
     }
   }
   async evaluateConsume(game, x, y) {
@@ -966,7 +1059,7 @@ export class MoneyBag extends Symb {
     return this.coins;
   }
   description() {
-    return '💵2 for each 🪙 collected<br>collects neighboring 🪙'
+    return '💵2 for each 🪙 collected<br>collects neighboring 🪙';
   }
   descriptionLong() {
     return 'this is a money bag. it collects neighboring 🪙 and permanently gives 💵2 more for each 🪙 collected.';
@@ -980,14 +1073,17 @@ export class Moon extends Symb {
     this.rarity = 0.28;
     this.turns = turns;
   }
-  copy() { return new Moon(this.turns); }
+  copy() {
+    return new Moon(this.turns);
+  }
   async score(game, x, y) {
     if (this.turns >= 31) {
       this.turns = 0;
       game.board.updateCounter(game, x, y);
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.3),
-        this.addMoney(game, 555, x, y)]);
+        this.addMoney(game, 555, x, y),
+      ]);
     }
     this.moonScore = 0;
   }
@@ -1008,10 +1104,15 @@ export class Multiplier extends Symb {
     super();
     this.rarity = 0.07;
   }
-  copy() { return new Multiplier(); }
+  copy() {
+    return new Multiplier();
+  }
   async evaluateProduce(game, x, y) {
-    const coords = game.board.nextToExpr(x, y,
-      (sym) => sym.name() !== Empty.name);
+    const coords = game.board.nextToExpr(
+      x,
+      y,
+      (sym) => sym.name() !== Empty.name
+    );
     if (coords.length === 0) {
       return;
     }
@@ -1034,11 +1135,14 @@ export class MusicalNote extends Symb {
     super();
     this.rarity = 0;
   }
-  copy() { return new MusicalNote(); }
+  copy() {
+    return new MusicalNote();
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 4, x, y)]);
+      this.addMoney(game, 4, x, y),
+    ]);
   }
   async evaluateConsume(game, x, y) {
     if (this.turns >= 3) {
@@ -1062,13 +1166,19 @@ export class Pineapple extends Symb {
     super();
     this.rarity = 0.4;
   }
-  copy() { return new Pineapple(); }
+  copy() {
+    return new Pineapple();
+  }
   async score(game, x, y) {
-    const coords = game.board.nextToExpr(x, y,
-      (sym) => sym.name() !== Empty.name);
+    const coords = game.board.nextToExpr(
+      x,
+      y,
+      (sym) => sym.name() !== Empty.name
+    );
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 12 - coords.length * 2, x, y)]);
+      this.addMoney(game, 12 - coords.length * 2, x, y),
+    ]);
   }
   categories() {
     return [CATEGORY_FRUIT, CATEGORY_FOOD];
@@ -1088,7 +1198,9 @@ export class Popcorn extends Symb {
     this.rarity = 0;
     this.timeToLive = 2 + Util.random(4);
   }
-  copy() { return new Popcorn(); }
+  copy() {
+    return new Popcorn();
+  }
   async score(game, x, y) {
     const butter = game.board.nextToSymbol(x, y, Butter.name);
     let score = 17;
@@ -1097,7 +1209,8 @@ export class Popcorn extends Symb {
     }
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, score, x, y)]);
+      this.addMoney(game, score, x, y),
+    ]);
   }
   async evaluateConsume(game, x, y) {
     if (this.turns >= this.timeToLive) {
@@ -1111,7 +1224,7 @@ export class Popcorn extends Symb {
     return [CATEGORY_FOOD];
   }
   description() {
-    return '💵17<br>disappears after 2-5 turns'
+    return '💵17<br>disappears after 2-5 turns';
   }
   descriptionLong() {
     return 'this is popcorn. it pays 💵17 and disappears after 2-5 turns.';
@@ -1125,12 +1238,15 @@ export class Record extends Symb {
     this.rarity = 0.12;
     this.notes = notes;
   }
-  copy() { return new Record(this.notes); }
+  copy() {
+    return new Record(this.notes);
+  }
   async score(game, x, y) {
     if (this.notes > 0) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.notes, x, y)]);
+        this.addMoney(game, this.notes, x, y),
+      ]);
     }
   }
   async evaluateConsume(game, x, y) {
@@ -1162,7 +1278,9 @@ export class Refresh extends Symb {
     super();
     this.rarity = 0.05;
   }
-  copy() { return new Refresh(); }
+  copy() {
+    return new Refresh();
+  }
   async evaluateProduce(game, x, y) {
     game.shop.refreshable = true;
     game.shop.refreshCount = 0;
@@ -1181,17 +1299,20 @@ export class Rock extends Symb {
     super();
     this.rarity = 0.55;
   }
-  copy() { return new Rock(); }
+  copy() {
+    return new Rock();
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 1, x, y)]);
+      this.addMoney(game, 1, x, y),
+    ]);
   }
   description() {
     return '💵1';
   }
   descriptionLong() {
-    return 'this is a rock. it pays 💵1. i\'m not sure what you expected.';
+    return "this is a rock. it pays 💵1. i'm not sure what you expected.";
   }
 }
 
@@ -1201,7 +1322,9 @@ export class Snail extends Symb {
     super();
     this.rarity = 0.12;
   }
-  copy() { return new Snail(); }
+  copy() {
+    return new Snail();
+  }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToExpr(x, y, (sym) => true);
     for (const cell of coords) {
@@ -1223,7 +1346,9 @@ export class Rocket extends Symb {
     super();
     this.rarity = 0.18;
   }
-  copy() { return new Rocket(); }
+  copy() {
+    return new Rocket();
+  }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToExpr(x, y, (sym) => true);
     for (const cell of coords) {
@@ -1245,7 +1370,9 @@ export class ShoppingBag extends Symb {
     super();
     this.rarity = 0.07;
   }
-  copy() { return new ShoppingBag(); }
+  copy() {
+    return new ShoppingBag();
+  }
   async evaluateProduce(game, x, y) {
     game.shop.buyCount++;
   }
@@ -1263,15 +1390,18 @@ export class Slots extends Symb {
     super();
     this.rarity = 0.15;
   }
-  copy() { return new Slots(); }
+  copy() {
+    return new Slots();
+  }
   async score(game, x, y) {
     const value = this.counter(game);
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, value, x, y)]);
+      this.addMoney(game, value, x, y),
+    ]);
   }
   counter(game) {
-    return new Set(game.inventory.symbols.map(s => s.name())).size * 2;
+    return new Set(game.inventory.symbols.map((s) => s.name())).size * 2;
   }
   description() {
     return '💵2 per different symbol in inventory';
@@ -1288,7 +1418,9 @@ export class Tree extends Symb {
     this.rarity = 0.4;
     this.turns = 0;
   }
-  copy() { return new Tree(); }
+  copy() {
+    return new Tree();
+  }
   async evaluateProduce(game, x, y) {
     const grow = async () => {
       const coords = game.board.nextToEmpty(x, y);
@@ -1302,11 +1434,12 @@ export class Tree extends Symb {
     };
 
     if (this.turns % 3 === 0) {
-      await grow(); await grow();
+      await grow();
+      await grow();
     }
   }
   counter(game) {
-    return 3 - this.turns % 3;
+    return 3 - (this.turns % 3);
   }
   description() {
     return 'every 3 turns: grows 🍒🍒';
@@ -1322,7 +1455,9 @@ export class Volcano extends Symb {
     super();
     this.rarity = 0.4;
   }
-  copy() { return new Volcano(); }
+  copy() {
+    return new Volcano();
+  }
   async evaluateProduce(game, x, y) {
     if (chance(game, 0.1, x, y)) {
       const newX = Util.random(game.gameSettings.boardX);
@@ -1332,7 +1467,7 @@ export class Volcano extends Symb {
     }
   }
   description() {
-    return '10% chance: replaces random tile with 🪨'
+    return '10% chance: replaces random tile with 🪨';
   }
   descriptionLong() {
     return 'this is a volcano. it has a 10% chance to replace a random tile on the board with 🪨.';
@@ -1345,7 +1480,9 @@ export class Worker extends Symb {
     super();
     this.rarity = 0.45;
   }
-  copy() { return new Worker(); }
+  copy() {
+    return new Worker();
+  }
   async evaluateConsume(game, x, y) {
     const coords = game.board.nextToSymbol(x, y, Rock.name);
     if (coords.length === 0) {
@@ -1360,7 +1497,7 @@ export class Worker extends Symb {
     }
   }
   description() {
-    return 'destroys neighboring 🪨 for 💵3<br>50% chance: produce 💎'
+    return 'destroys neighboring 🪨 for 💵3<br>50% chance: produce 💎';
   }
   descriptionLong() {
     return 'this is a worker. it pays 💵3 for each neighboring 🪨 removed. it has a 50% chance to produce 💎 in place of the destroyed 🪨.';
