@@ -1,5 +1,11 @@
 import * as Util from './util.js'
 
+export const CATEGORY_EMPTY_SPACE = Symbol("Empty Space");
+export const CATEGORY_UNBUYABLE = Symbol("Unbuyable");
+export const CATEGORY_FOOD = Symbol("Food");
+export const CATEGORY_FRUIT = Symbol("Fruit");
+export const CATEGORY_VEGETABLES = Symbol("Vegetables");
+
 const luckyChance = (game, chance, x, y) => {
   if (game.board.nextToSymbol(x, y, BullsEye.name).length > 0) {
     return 1.0;
@@ -9,7 +15,7 @@ const luckyChance = (game, chance, x, y) => {
 const chance = (game, percent, x, y) =>
   Math.random() < luckyChance(game, percent, x, y);
 
-export class Symbol {
+export class Symb {
   static name = '⬛';
   constructor() {
     this.multiplier = 1;
@@ -54,7 +60,7 @@ export class Symbol {
   }
 }
 
-export class Empty extends Symbol {
+export class Empty extends Symb {
   static name = '⬜';
   constructor() {
     super();
@@ -68,11 +74,14 @@ export class Empty extends Symbol {
   descriptionLong() {
     return 'this is empty space. it\'s not part of your inventory.';
   }
+  categories() {
+    return [CATEGORY_EMPTY_SPACE];
+  }
 }
 
 /* Gameplay symbols. */
 
-export class Balloon extends Symbol {
+export class Balloon extends Symb {
   static name = '🎈';
   constructor() {
     super();
@@ -97,7 +106,7 @@ export class Balloon extends Symbol {
   }
 }
 
-export class Bank extends Symbol {
+export class Bank extends Symb {
   static name = '🏦';
   constructor() {
     super();
@@ -126,7 +135,7 @@ export class Bank extends Symbol {
   }
 }
 
-export class Bell extends Symbol {
+export class Bell extends Symb {
   static name = '🔔';
   constructor() {
     super();
@@ -158,7 +167,7 @@ export class Bell extends Symbol {
   }
 }
 
-export class Bomb extends Symbol {
+export class Bomb extends Symb {
   static name = '💣';
   constructor() {
     super();
@@ -185,7 +194,7 @@ export class Bomb extends Symbol {
   }
 }
 
-export class Briefcase extends Symbol {
+export class Briefcase extends Symb {
   static name = '💼';
   constructor() {
     super();
@@ -210,7 +219,7 @@ export class Briefcase extends Symbol {
   }
 }
 
-export class Bubble extends Symbol {
+export class Bubble extends Symb {
   static name = '🫧';
   constructor() {
     super();
@@ -232,9 +241,12 @@ export class Bubble extends Symbol {
   descriptionLong() {
     return 'this is a bubble. it doesn\'t really do anything. it will disappear after 3 turns.';
   }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
+  }
 }
 
-export class Butter extends Symbol {
+export class Butter extends Symb {
   static name = '🧈';
   constructor() {
     super();
@@ -250,7 +262,7 @@ export class Butter extends Symbol {
     return 7 - this.turns;
   }
   categories() {
-    return ["Food"];
+    return [CATEGORY_FOOD];
   }
   description() {
     return 'x3 to neighboring 🍿<br>melts after 7 turns';
@@ -260,7 +272,7 @@ export class Butter extends Symbol {
   }
 }
 
-export class Bug extends Symbol {
+export class Bug extends Symb {
   static name = '🐛';
   constructor() {
     super();
@@ -278,7 +290,7 @@ export class Bug extends Symbol {
     this.foodScore = 0;
   }
   async evaluateConsume(game, x, y) {
-    const coords = game.board.nextToCategory(x, y, "Food")
+    const coords = game.board.nextToCategory(x, y, CATEGORY_FOOD)
     if (coords.length === 0) {
       if (this.turns >= 5) {
         await game.board.removeSymbol(game, x, y);
@@ -304,7 +316,7 @@ export class Bug extends Symbol {
   }
 }
 
-export class BullsEye extends Symbol {
+export class BullsEye extends Symb {
   static name = '🎯';
   constructor() {
     super();
@@ -319,7 +331,7 @@ export class BullsEye extends Symbol {
   }
 }
 
-export class Champagne extends Symbol {
+export class Champagne extends Symb {
   static name = '🍾';
   constructor() {
     super();
@@ -358,7 +370,7 @@ export class Champagne extends Symbol {
   }
 }
 
-export class Cherry extends Symbol {
+export class Cherry extends Symb {
   static name = '🍒';
   constructor() {
     super();
@@ -385,7 +397,7 @@ export class Cherry extends Symbol {
   }
 }
 
-export class Chick extends Symbol {
+export class Chick extends Symb {
   static name = '🐣';
   constructor(timeToGrow = 3) {
     super();
@@ -415,7 +427,7 @@ export class Chick extends Symbol {
   }
 }
 
-export class Chicken extends Symbol {
+export class Chicken extends Symb {
   static name = '🐔';
   constructor() {
     super();
@@ -450,7 +462,7 @@ export class Chicken extends Symbol {
   }
 }
 
-export class Clover extends Symbol {
+export class Clover extends Symb {
   static name = '🍀';
   constructor() {
     super();
@@ -458,7 +470,7 @@ export class Clover extends Symbol {
   }
   copy() { return new Clover(); }
   categories() {
-    return ["Vegetables", "Food"];
+    return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
   }
   description() {
     return '+1% luck';
@@ -472,7 +484,7 @@ export class Clover extends Symbol {
   }
 }
 
-export class Cocktail extends Symbol {
+export class Cocktail extends Symb {
   static name = '🍹';
   constructor(cherryScore = 0) {
     super();
@@ -515,7 +527,7 @@ export class Cocktail extends Symbol {
   }
 }
 
-export class Coin extends Symbol {
+export class Coin extends Symb {
   static name = '🪙';
   constructor() {
     super();
@@ -535,7 +547,7 @@ export class Coin extends Symbol {
   }
 }
 
-export class Corn extends Symbol {
+export class Corn extends Symb {
   static name = '🌽';
   constructor() {
     super();
@@ -562,7 +574,7 @@ export class Corn extends Symbol {
     }
   }
   categories() {
-    return ["Vegetables", "Food"];
+    return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
   }
   description() {
     return '💵20<br>10% chance: pops 🍿';
@@ -572,7 +584,7 @@ export class Corn extends Symbol {
   }
 }
 
-export class CreditCard extends Symbol {
+export class CreditCard extends Symb {
   static name = '💳';
   constructor(turn = 0) {
     super();
@@ -601,7 +613,7 @@ export class CreditCard extends Symbol {
   }
 }
 
-export class CrystalBall extends Symbol {
+export class CrystalBall extends Symb {
   static name = '🔮';
   constructor() {
     super();
@@ -620,7 +632,7 @@ export class CrystalBall extends Symbol {
   }
 }
 
-export class Dancer extends Symbol {
+export class Dancer extends Symb {
   static name = '💃';
   constructor() {
     super();
@@ -645,7 +657,7 @@ export class Dancer extends Symbol {
   }
 }
 
-export class Diamond extends Symbol {
+export class Diamond extends Symb {
   static name = '💎';
   constructor() {
     super();
@@ -670,7 +682,7 @@ export class Diamond extends Symbol {
   }
 }
 
-export class Dice extends Symbol {
+export class Dice extends Symb {
   static name = '🎲';
   constructor() {
     super();
@@ -692,7 +704,7 @@ export class Dice extends Symbol {
   }
 }
 
-export class Dragon extends Symbol {
+export class Dragon extends Symb {
   static name = '🐉';
   constructor() {
     super();
@@ -712,7 +724,7 @@ export class Dragon extends Symbol {
   }
 }
 
-export class Drums extends Symbol {
+export class Drums extends Symb {
   static name = '🥁';
   constructor() {
     super();
@@ -741,7 +753,7 @@ export class Drums extends Symbol {
   }
 }
 
-export class Egg extends Symbol {
+export class Egg extends Symb {
   static name = '🥚';
   constructor() {
     super();
@@ -770,7 +782,7 @@ export class Egg extends Symbol {
   }
 }
 
-export class Firefighter extends Symbol {
+export class Firefighter extends Symb {
   static name = '🧑‍🚒';
   constructor() {
     super();
@@ -796,7 +808,7 @@ export class Firefighter extends Symbol {
   }
 }
 
-export class Fox extends Symbol {
+export class Fox extends Symb {
   static name = '🦊';
   constructor() {
     super();
@@ -843,7 +855,7 @@ export class Fox extends Symbol {
   }
 }
 
-export class Hole extends Symbol {
+export class Hole extends Symb {
   static name = '🕳️';
   constructor() {
     super();
@@ -857,11 +869,11 @@ export class Hole extends Symbol {
     return 'this is a hole. it works like an empty space, other symbols can be created here and they will go into your inventory.';
   }
   categories() {
-    return ["Empty Space"]
+    return [CATEGORY_EMPTY_SPACE]
   }
 }
 
-export class MagicWand extends Symbol {
+export class MagicWand extends Symb {
   static name = '🪄';
   constructor() {
     super();
@@ -894,7 +906,7 @@ export class MagicWand extends Symbol {
   }
 }
 
-export class Mango extends Symbol {
+export class Mango extends Symb {
   static name = '🥭';
   constructor() {
     super();
@@ -902,7 +914,7 @@ export class Mango extends Symbol {
   }
   copy() { return new Mango(); }
   async evaluateScore(game, x, y) {
-    const coords = game.board.nextToCategory(x, y, "Fruits");
+    const coords = game.board.nextToCategory(x, y, CATEGORY_FRUIT);
     if (coords.length === 0) {
       return;
     }
@@ -913,7 +925,7 @@ export class Mango extends Symbol {
     }
   }
   categories() {
-    return ["Fruits", "Food"];
+    return [CATEGORY_FRUIT, CATEGORY_FOOD];
   }
   description() {
     return 'x2 to neighboring fruit';
@@ -923,7 +935,7 @@ export class Mango extends Symbol {
   }
 }
 
-export class MoneyBag extends Symbol {
+export class MoneyBag extends Symb {
   static name = '💰';
   constructor(coins = 0) {
     super();
@@ -961,7 +973,7 @@ export class MoneyBag extends Symbol {
   }
 }
 
-export class Moon extends Symbol {
+export class Moon extends Symb {
   static name = '🌝';
   constructor(turns = 0) {
     super();
@@ -990,7 +1002,7 @@ export class Moon extends Symbol {
   }
 }
 
-export class Multiplier extends Symbol {
+export class Multiplier extends Symb {
   static name = '❎';
   constructor() {
     super();
@@ -1016,7 +1028,7 @@ export class Multiplier extends Symbol {
   }
 }
 
-export class MusicalNote extends Symbol {
+export class MusicalNote extends Symb {
   static name = '🎵';
   constructor() {
     super();
@@ -1044,7 +1056,7 @@ export class MusicalNote extends Symbol {
   }
 }
 
-export class Pineapple extends Symbol {
+export class Pineapple extends Symb {
   static name = '🍍';
   constructor() {
     super();
@@ -1059,7 +1071,7 @@ export class Pineapple extends Symbol {
       this.addMoney(game, 12 - coords.length * 2, x, y)]);
   }
   categories() {
-    return ["Fruits", "Food"];
+    return [CATEGORY_FRUIT, CATEGORY_FOOD];
   }
   description() {
     return '💵12<br>💵-2 for all non-empty neighbors';
@@ -1069,7 +1081,7 @@ export class Pineapple extends Symbol {
   }
 }
 
-export class Popcorn extends Symbol {
+export class Popcorn extends Symb {
   static name = '🍿';
   constructor() {
     super();
@@ -1096,7 +1108,7 @@ export class Popcorn extends Symbol {
     return this.timeToLive - this.turns;
   }
   categories() {
-    return ["Food"];
+    return [CATEGORY_FOOD];
   }
   description() {
     return '💵17<br>disappears after 2-5 turns'
@@ -1106,7 +1118,7 @@ export class Popcorn extends Symbol {
   }
 }
 
-export class Record extends Symbol {
+export class Record extends Symb {
   static name = '📀';
   constructor(notes = 0) {
     super();
@@ -1144,7 +1156,7 @@ export class Record extends Symbol {
   }
 }
 
-export class Refresh extends Symbol {
+export class Refresh extends Symb {
   static name = '🔀';
   constructor() {
     super();
@@ -1163,7 +1175,7 @@ export class Refresh extends Symbol {
   }
 }
 
-export class Rock extends Symbol {
+export class Rock extends Symb {
   static name = '🪨';
   constructor() {
     super();
@@ -1183,7 +1195,7 @@ export class Rock extends Symbol {
   }
 }
 
-export class Snail extends Symbol {
+export class Snail extends Symb {
   static name = '🐌';
   constructor() {
     super();
@@ -1205,7 +1217,7 @@ export class Snail extends Symbol {
   }
 }
 
-export class Rocket extends Symbol {
+export class Rocket extends Symb {
   static name = '🚀';
   constructor() {
     super();
@@ -1227,7 +1239,7 @@ export class Rocket extends Symbol {
   }
 }
 
-export class ShoppingBag extends Symbol {
+export class ShoppingBag extends Symb {
   static name = '🛍️';
   constructor() {
     super();
@@ -1245,7 +1257,7 @@ export class ShoppingBag extends Symbol {
   }
 }
 
-export class Slots extends Symbol {
+export class Slots extends Symb {
   static name = '🎰';
   constructor() {
     super();
@@ -1269,7 +1281,7 @@ export class Slots extends Symbol {
   }
 }
 
-export class Tree extends Symbol {
+export class Tree extends Symb {
   static name = '🌳';
   constructor() {
     super();
@@ -1304,7 +1316,7 @@ export class Tree extends Symbol {
   }
 }
 
-export class Volcano extends Symbol {
+export class Volcano extends Symb {
   static name = '🌋';
   constructor() {
     super();
@@ -1327,7 +1339,7 @@ export class Volcano extends Symbol {
   }
 }
 
-export class Worker extends Symbol {
+export class Worker extends Symb {
   static name = '👷';
   constructor() {
     super();

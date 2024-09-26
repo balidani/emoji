@@ -1,11 +1,11 @@
-import { Symbol } from "../symbol.js";
+import { Symb } from "../symbol.js";
 import * as Util from "../util.js";
 
 /**
  * Example of a "mod" file that introduces an extra item
  */
 
-export class Monorail extends Symbol {
+export class Monorail extends Symb {
     static name = '🚝';
     constructor() {
         super();
