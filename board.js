@@ -1,3 +1,4 @@
+import { CATEGORY_EMPTY_SPACE } from './symbol.js';
 import * as Util from './util.js'
 
 export class Board {
@@ -210,7 +211,7 @@ export class Board {
   nextToCoords(x, y) {
     const coords = [];
     const add = (x, y) => {
-      if (x >=0 && x < this.gameSettings.boardX && y >=0 && y < this.gameSettings.boardY) {
+      if (x >= 0 && x < this.gameSettings.boardX && y >= 0 && y < this.gameSettings.boardY) {
         coords.push([x, y]);
       }
     };
@@ -247,10 +248,6 @@ export class Board {
     return coords;
   };
 
-  nextToEmpty(x, y) {
-    return this.nextToExpr(x, y, (sym) => ["⬜", "🕳️"].includes(sym.name()));
-  };
-
   nextToCategory(x, y, category_name) {
     const category_symbols = this.catalog.categories.get(category_name)
     if (!category_symbols || category_symbols.length === 0) {
@@ -258,4 +255,8 @@ export class Board {
     }
     return this.nextToExpr(x, y, (sym) => category_symbols.includes(sym.name()));
   }
+
+  nextToEmpty(x, y) {
+    return this.nextToCategory(x, y, CATEGORY_EMPTY_SPACE)
+  };
 }

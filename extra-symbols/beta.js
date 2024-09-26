@@ -1,9 +1,9 @@
 import * as Util from "../util.js"
-import { Symbol } from "../symbol.js"
+import { Symb } from "../symbol.js"
 
 /* This file contains symbols still in testing. They may be broken or unbalanced */
 
-export class FreeTurn extends Symbol {
+export class FreeTurn extends Symb {
     static name = '🎟️';
     constructor() {
         super();
@@ -27,7 +27,7 @@ export class FreeTurn extends Symbol {
 }
 
 
-export class Grave extends Symbol {
+export class Grave extends Symb {
     static name = '🪦';
     constructor() {
         super();

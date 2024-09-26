@@ -1,3 +1,4 @@
+import { CATEGORY_UNBUYABLE, Symb } from "./symbol.js";
 import * as Util from "./util.js"
 
 export class Catalog {
@@ -11,6 +12,9 @@ export class Catalog {
       try {
         let symModule = await import(source);
         for (const [_, value] of Object.entries(symModule)) {
+          if (!(value.prototype instanceof Symb)) {
+            continue;
+          }
           let sym = new value();
           this.symbols.set(sym.name(), sym);
           let cats = sym.categories();
@@ -23,7 +27,7 @@ export class Catalog {
           }
         }
       }
-      catch(error) {
+      catch (error) {
         console.error(`Failed to load module ${source} : ${error}`);
       };
     }
@@ -37,8 +41,11 @@ export class Catalog {
   generateShop(count, luck) {
     const newCatalog = [];
     while (newCatalog.length < count) {
-      for (const[_, item] of this.symbols) {
-        if ('⬛⬜🎟️🪦'.includes(item.name())) {
+      for (const [_, item] of this.symbols) {
+        if (item.prototype === Symb.prototype) {
+          continue;
+        }
+        if (item.categories().includes(CATEGORY_UNBUYABLE)) {
           continue;
         }
         if (Math.random() < item.rarity + luck) {
