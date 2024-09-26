@@ -6,7 +6,8 @@ button {
   font-size: 20pt;
 }
 
-html, body { 
+html,
+body {
   height: 100%;
   scrollbar-width: none;
 }
@@ -171,79 +172,166 @@ html, body {
 /* Animations */
 
 @keyframes blurStart {
-  0% { filter: blur(0px); }
-  100% { filter: blur(6px); }
+  0% {
+    filter: blur(0px);
+  }
+  100% {
+    filter: blur(6px);
+  }
 }
 
 @keyframes scoreIn {
-  0% { transform: translateY(-100vh); }
-  80% { transform: translateY(0pt); }
-  90% { transform: translateY(-8pt); }
-  100% { transform: translateY(0pt); }
+  0% {
+    transform: translateY(-100vh);
+  }
+  80% {
+    transform: translateY(0pt);
+  }
+  90% {
+    transform: translateY(-8pt);
+  }
+  100% {
+    transform: translateY(0pt);
+  }
 }
 
 @keyframes startSpin {
-  0% { transform: scaleY(1) translateY(0); }
-  100% { transform: scaleY(0.5) translateY(90pt); }
+  0% {
+    transform: scaleY(1) translateY(0);
+  }
+  100% {
+    transform: scaleY(0.5) translateY(90pt);
+  }
 }
 
 @keyframes spin {
-  0% { transform: scaleY(0.25) translateY(-70pt); }
-  50% { transform: scaleY(1.4) translateY(0); }
-  100% { transform: scaleY(0.5) translateY(90pt); }
+  0% {
+    transform: scaleY(0.25) translateY(-70pt);
+  }
+  50% {
+    transform: scaleY(1.4) translateY(0);
+  }
+  100% {
+    transform: scaleY(0.5) translateY(90pt);
+  }
 }
 
 @keyframes endSpin {
-  0% { transform: scaleY(0.5) translateY(-90pt); }
-  100% { transform: scaleY(1) translateY(0); }
+  0% {
+    transform: scaleY(0.5) translateY(-90pt);
+  }
+  100% {
+    transform: scaleY(1) translateY(0);
+  }
 }
 
 @keyframes bounce {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-4pt); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4pt);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 @keyframes flip {
-  0% { transform: scaleX(1); }
-  25% { transform: scaleX(0); }
-  50% { transform: scaleX(-1); }
-  75% { transform: scaleX(0); }
-  100% { transform: scaleX(1); }
+  0% {
+    transform: scaleX(1);
+  }
+  25% {
+    transform: scaleX(0);
+  }
+  50% {
+    transform: scaleX(-1);
+  }
+  75% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
 }
 
 @keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(2pt); }
-  50% { transform: translateX(0); }
-  75% { transform: translateX(-2pt); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(2pt);
+  }
+  50% {
+    transform: translateX(0);
+  }
+  75% {
+    transform: translateX(-2pt);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 @keyframes shakeRocket {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(2pt, -2pt); }
-  50% { transform: translate(0, 0); }
-  75% { transform: translate(-2pt, 2pt); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(2pt, -2pt);
+  }
+  50% {
+    transform: translate(0, 0);
+  }
+  75% {
+    transform: translate(-2pt, 2pt);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 @keyframes openShop {
-  0% { transform: translateY(500pt); opacity: 0; }
-  80% { transform: translateY(0); opacity: 1; }
-  90% { transform: translateY(4pt); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(500pt);
+    opacity: 0;
+  }
+  80% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  90% {
+    transform: translateY(4pt);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 @keyframes closeShop {
-  0% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(500pt); opacity: 0; }
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(500pt);
+    opacity: 0;
+  }
 }
 
 @keyframes fadeOutMoveDown {
-  0% { opacity: 1; transform: translateY(0); }
-  50% { opacity: 0.5; transform: translateY(16pt); }
-  100% { opacity: 0; transform: translateY(16pt); }
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateY(16pt);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(16pt);
+  }
 }
 
 /* Misc */

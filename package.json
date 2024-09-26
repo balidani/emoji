@@ -1,0 +1,21 @@
+{
+  "name": "emoji",
+  "version": "1.0.0",
+  "description": "emoji slots",
+  "main": "main.js",
+  "scripts": {
+    "lint": "eslint '**/*.js'",
+    "format": "prettier --write '**/*.{js,css,html}'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "balidani",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.11.1",
+    "eslint": "^9.11.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.9.0",
+    "prettier": "^3.3.3"
+  }
+}

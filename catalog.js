@@ -1,5 +1,5 @@
-import { CATEGORY_UNBUYABLE, Symb } from "./symbol.js";
-import * as Util from "./util.js"
+import { CATEGORY_UNBUYABLE, Symb } from './symbol.js';
+import * as Util from './util.js';
 
 export class Catalog {
   constructor(symbolSources) {
@@ -26,10 +26,9 @@ export class Catalog {
             }
           }
         }
-      }
-      catch (error) {
+      } catch (error) {
         console.error(`Failed to load module ${source} : ${error}`);
-      };
+      }
     }
   }
   symbol(emoji) {
@@ -57,15 +56,13 @@ export class Catalog {
   }
   symbolsFromString(input) {
     const result = [];
-    for (const emoji of Util.parseEmojiString(input))
-    {
+    for (const emoji of Util.parseEmojiString(input)) {
       try {
         const sym = this.symbol(emoji);
         if (sym != null) {
           result.push(sym.copy());
         }
-      }
-      catch (e) {
+      } catch (e) {
         console.error(e);
       }
     }
@@ -77,9 +74,8 @@ export class Catalog {
         s.copy();
         s.description();
         s.descriptionLong();
-      }
-      catch (e) {
-        console.log(`error for ${n}: ${e}`)
+      } catch (e) {
+        console.log(`error for ${n}: ${e}`);
       }
     }
   }

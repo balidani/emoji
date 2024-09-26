@@ -8,22 +8,22 @@ export const animationOff = () => {
 export const animationOn = () => {
   ANIMATION = true;
 };
-export const random = (lim) => Math.random() * lim | 0;
+export const random = (lim) => (Math.random() * lim) | 0;
 export const randomChoose = (arr) => arr[random(arr.length)];
 export const randomRemove = (arr) => arr.splice(random(arr.length), 1)[0];
 export const delay = (ms) => {
   if (!ANIMATION) {
     return;
   }
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
 export const animate = (element, animation, duration, repeat = 1) => {
   if (!ANIMATION) {
     return;
   }
   return new Promise((resolve) => {
     element.style.animation = 'none';
-    element.offsetWidth;  // lmao
+    element.offsetWidth; // lmao
     element.style.animation = `${animation} ${duration}s linear ${repeat}`;
     element.addEventListener('animationend', resolve, { once: true });
   });
@@ -65,19 +65,18 @@ export const createInput = (labelText, type, dV) => {
   input.defaultValue = dV;
 
   return { label, input };
-}
+};
 export const createButton = (text, onClick) => {
   const button = document.createElement('button');
   button.textContent = text;
   button.addEventListener('click', onClick);
   return button;
-}
-
+};
 
 export const parseEmojiString = (str) => {
   const seg = new Intl.Segmenter('en', {
     granularity: 'grapheme',
   });
   const graphemeSegments = seg.segment(str);
-  return Array.from(graphemeSegments).map(x => x.segment)
+  return Array.from(graphemeSegments).map((x) => x.segment);
 };

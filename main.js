@@ -1,5 +1,5 @@
-import * as Util from './util.js'
-import { GameSettings } from './game_settings.js'
+import * as Util from './util.js';
+import { GameSettings } from './game_settings.js';
 import { Catalog } from './catalog.js';
 import { Board } from './board.js';
 
@@ -62,7 +62,7 @@ class Inventory {
   resetLuck() {
     this.lastLuckBonus = this.luckBonus;
     this.luckBonus = 0;
-    this.updateUi(); 
+    this.updateUi();
   }
   updateUi() {
     this.uiDiv.replaceChildren();
@@ -77,7 +77,7 @@ class Inventory {
     };
     displayKeyValue('💵', this.money);
     displayKeyValue('⏰', this.turns);
-    displayKeyValue('🍀', this.lastLuckBonus * 100 | 0);
+    displayKeyValue('🍀', (this.lastLuckBonus * 100) | 0);
   }
 }
 
@@ -98,9 +98,18 @@ class Shop {
     this.isOpen = true;
 
     this.shopDiv.replaceChildren();
-    const newCatalog = this.catalog.generateShop(3, game.inventory.lastLuckBonus);
+    const newCatalog = this.catalog.generateShop(
+      3,
+      game.inventory.lastLuckBonus
+    );
 
-    const makeShopItem = (symbol, description, descriptionLong, handler, refresh = false) => {
+    const makeShopItem = (
+      symbol,
+      description,
+      descriptionLong,
+      handler,
+      refresh = false
+    ) => {
       const shopItemDiv = document.createElement('div');
       shopItemDiv.classList.add('shopItem');
       const symbolDiv = document.createElement('div');
@@ -126,10 +135,13 @@ class Shop {
       buyDiv.appendChild(buyButton);
       shopItemDiv.appendChild(buyDiv);
       return shopItemDiv;
-    }
+    };
     for (let i = 0; i < 3; ++i) {
       const symbol = Util.randomRemove(newCatalog);
-      const shopItemDiv = makeShopItem(symbol.name(), symbol.description(), symbol.descriptionLong(),
+      const shopItemDiv = makeShopItem(
+        symbol.name(),
+        symbol.description(),
+        symbol.descriptionLong(),
         async (e) => {
           if (game.shop.buyCount > 0) {
             game.shop.buyCount--;
@@ -143,14 +155,18 @@ class Shop {
           if (game.shop.buyCount === 0) {
             await game.shop.close(game);
           }
-        });
+        }
+      );
       this.shopDiv.appendChild(shopItemDiv);
     }
 
     // Refresh
     if (game.inventory.money > this.refreshCost) {
       if (game.shop.refreshable || game.shop.refreshCount === 0) {
-        const shopItemDiv = makeShopItem('', '💵' + this.refreshCost, '',
+        const shopItemDiv = makeShopItem(
+          '',
+          '💵' + this.refreshCost,
+          '',
           async () => {
             game.shop.refreshCount++;
             if (game.inventory.money > 0) {
@@ -159,7 +175,9 @@ class Shop {
               this.isOpen = false;
               this.open(game);
             }
-          }, /*refresh=*/true);
+          },
+          /*refresh=*/ true
+        );
         this.shopDiv.appendChild(shopItemDiv);
       }
     }
@@ -171,30 +189,36 @@ class Shop {
       return;
     }
     this.refreshable = false;
-    this.refreshCost = 1 + (game.inventory.money * 0.01) | 0;
+    this.refreshCost = (1 + game.inventory.money * 0.01) | 0;
     this.refreshCount = 0;
 
     this.buyCount = 1;
     await Util.animate(this.shopDiv, 'closeShop', 0.2);
-    this.shopDiv
+    this.shopDiv;
     this.shopDiv.replaceChildren();
     this.isOpen = false;
   }
-
 }
 
 class Game {
   constructor(gameSettings, catalog) {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
-    this.inventory = new Inventory(this.gameSettings.gameLength, this.catalog.symbolsFromString(this.gameSettings.startingSet));
+    this.inventory = new Inventory(
+      this.gameSettings.gameLength,
+      this.catalog.symbolsFromString(this.gameSettings.startingSet)
+    );
     this.inventory.update();
     this.board = new Board(this.gameSettings, this.catalog);
     this.shop = new Shop(this.catalog);
     this.rolling = false;
     this.info = document.querySelector('.game .info');
-    Util.drawText(this.info, "hi there. press (🕹️) when you are ready to play.");
-    document.querySelector('.game .roll')
+    Util.drawText(
+      this.info,
+      'hi there. press (🕹️) when you are ready to play.'
+    );
+    document
+      .querySelector('.game .roll')
       .addEventListener('click', () => this.roll());
     console.log(this);
   }
@@ -236,8 +260,7 @@ class Game {
       document.querySelector('.game').appendChild(trophyContainer);
       await Util.animate(trophyDiv, 'scoreIn', 0.4);
     }
-    document.querySelector('body').addEventListener(
-      'click', loadListener);
+    document.querySelector('body').addEventListener('click', loadListener);
   }
   async roll() {
     if (this.rolling) {
@@ -251,16 +274,28 @@ class Game {
     Util.deleteText(this.info);
     switch (this.inventory.turns) {
       case 50:
-        Util.drawText(this.info, 'you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.');
+        Util.drawText(
+          this.info,
+          'you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.'
+        );
         break;
       case 49:
-        Util.drawText(this.info, 'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!');
+        Util.drawText(
+          this.info,
+          'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!'
+        );
         break;
       case 48:
-        Util.drawText(this.info, 'you can double tap the roll (🕹️) button to skip animation.');
+        Util.drawText(
+          this.info,
+          'you can double tap the roll (🕹️) button to skip animation.'
+        );
         break;
       case 47:
-        Util.drawText(this.info, 'you can tap on any symbol, on the board or in the shop, to get more information.');
+        Util.drawText(
+          this.info,
+          'you can tap on any symbol, on the board or in the shop, to get more information.'
+        );
         break;
       default:
         break;
@@ -270,7 +305,7 @@ class Game {
       this.inventory.turns--;
       this.inventory.updateUi();
       this.inventory.addMoney(-1);
-      this.inventory.symbols.forEach(s => s.reset());
+      this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);
       await this.board.roll(this);
       await this.board.evaluate(this);
@@ -304,8 +339,7 @@ export const loadSettings = async (settings = GameSettings.instance()) => {
 };
 
 export const loadListener = async (event) => {
-  document.querySelector('body').removeEventListener(
-    'click', loadListener);
+  document.querySelector('body').removeEventListener('click', loadListener);
   loadSettings(GameSettings.instance());
 };
 
@@ -313,7 +347,10 @@ class AutoGame {
   constructor(gameSettings, catalog, buyAlways, buyOnce, buyRandom) {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
-    this.inventory = new Inventory(gameSettings.gameLength, this.catalog.symbolsFromString(this.gameSettings.startingSet));
+    this.inventory = new Inventory(
+      gameSettings.gameLength,
+      this.catalog.symbolsFromString(this.gameSettings.startingSet)
+    );
     this.inventory.update();
     this.board = new Board(this.gameSettings, this.catalog);
     this.shop = new Shop(this.catalog);
@@ -335,7 +372,7 @@ class AutoGame {
       this.inventory.turns--;
       this.inventory.updateUi();
       this.inventory.addMoney(-1);
-      this.inventory.symbols.forEach(s => s.reset());
+      this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);
       await this.board.roll(this);
       await this.board.evaluate(this);
@@ -348,19 +385,26 @@ class AutoGame {
     }
 
     if (this.buyRandom) {
-      Array.from(document.getElementsByClassName('buyButton'))[Util.random(3)].click();
+      Array.from(document.getElementsByClassName('buyButton'))[
+        Util.random(3)
+      ].click();
     } else {
       // Choose item to buy
       if (this.inventory.symbols.length < this.symbolLimit) {
         const tryOnce = () => {
-          const buttons = Array.from(document.getElementsByClassName('buyButton'));
+          const buttons = Array.from(
+            document.getElementsByClassName('buyButton')
+          );
           let bought = false;
           const tryBuy = (sym) => {
             for (const button of buttons) {
               if (button.disabled) {
                 return true;
               }
-              if (button.parentElement.parentElement.children[0].innerText === sym.name()) {
+              if (
+                button.parentElement.parentElement.children[0].innerText ===
+                sym.name()
+              ) {
                 button.click();
                 button.disabled = true;
                 return true;
@@ -382,7 +426,7 @@ class AutoGame {
             }
           }
           return false;
-        }
+        };
         let buys = this.shop.buyCount;
         while (buys >= 1) {
           if (tryOnce()) {
@@ -392,11 +436,13 @@ class AutoGame {
               // No more refresh.
               break;
             }
-            const buttons = Array.from(document.getElementsByClassName('buyButton'));
+            const buttons = Array.from(
+              document.getElementsByClassName('buyButton')
+            );
             const refreshButton = buttons.splice(3, 1)[0];
             if (refreshButton !== undefined) {
               refreshButton.click();
-              if (this.shop.refreshCost >= this.inventory.money / 2 | 0) {
+              if ((this.shop.refreshCost >= this.inventory.money / 2) | 0) {
                 break;
               }
             } else {
@@ -419,7 +465,12 @@ class AutoGame {
   }
 }
 
-window.simulate = async (buyAlways, buyOnce, rounds = 100, buyRandom = false) => {
+window.simulate = async (
+  buyAlways,
+  buyOnce,
+  rounds = 100,
+  buyRandom = false
+) => {
   Util.toggleAnimation();
 
   const template = document.querySelector('.template');
@@ -444,11 +495,12 @@ window.simulate = async (buyAlways, buyOnce, rounds = 100, buyRandom = false) =>
       catalog,
       catalog.symbolsFromString(buyAlways),
       catalog.symbolsFromString(buyOnce),
-      buyRandom);
+      buyRandom
+    );
     await game.simulate();
     const score = game.inventory.money;
     scores.push(score);
-    const avg = scores.reduce((acc, val) => acc + val, 0) / scores.length | 0;
+    const avg = (scores.reduce((acc, val) => acc + val, 0) / scores.length) | 0;
     const max = Math.max(...scores);
     const min = Math.min(...scores);
     console.log(`${i}\tscore ${score}\tavg ${avg}\tmax ${max}`);
