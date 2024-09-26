@@ -20,7 +20,7 @@ class Inventory {
     this.symbolsDiv.replaceChildren();
     const map = new Map();
     this.symbols.forEach((symbol) => {
-      const name = symbol.name();
+      const name = symbol.emoji();
       if (!map.has(name)) {
         map.set(name, { count: 0, description: symbol.descriptionLong() });
       }
@@ -147,7 +147,7 @@ class Shop {
     for (let i = 0; i < 3; ++i) {
       const symbol = Util.randomRemove(newCatalog);
       const shopItemDiv = makeShopItem(
-        symbol.name(),
+        symbol.emoji(),
         symbol.description(),
         symbol.descriptionLong(),
         async (e) => {
@@ -411,7 +411,7 @@ class AutoGame {
               }
               if (
                 button.parentElement.parentElement.children[0].innerText ===
-                sym.name()
+                sym.emoji()
               ) {
                 button.click();
                 button.disabled = true;

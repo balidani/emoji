@@ -16,12 +16,12 @@ export class Catalog {
             continue;
           }
           let sym = new value();
-          this.symbols.set(sym.name(), sym);
+          this.symbols.set(sym.emoji(), sym);
           let cats = sym.categories();
           if (cats.length > 0) {
             for (const cat of cats) {
               const old = this.categories.get(cat) || [];
-              old.push(sym.name());
+              old.push(sym.emoji());
               this.categories.set(cat, old);
             }
           }

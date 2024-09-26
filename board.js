@@ -65,7 +65,7 @@ export class Board {
     const randomSymbol = () => {
       const set = new Set();
       for (const symbol of Object.values(game.inventory.symbols)) {
-        set.add(symbol.name());
+        set.add(symbol.emoji());
       }
       div.innerText = Util.randomChoose([...set]);
     };
@@ -74,7 +74,7 @@ export class Board {
       randomSymbol();
       await Util.animate(div, 'spin', 0.12 + i * 0.02);
     }
-    div.innerText = symbol.name();
+    div.innerText = symbol.emoji();
     div.removeEventListener('click', div.clickEvent);
     div.clickEvent = () => {
       Util.drawText(game.info, symbol.descriptionLong());
@@ -92,7 +92,7 @@ export class Board {
     counterDiv.innerText = '';
     await Util.animate(div, 'startSpin', 0.1);
     const symbol = this.cells[y][x];
-    div.innerText = symbol.name();
+    div.innerText = symbol.emoji();
     div.removeEventListener('click', div.clickEvent);
     div.clickEvent = () => {
       Util.drawText(game.info, symbol.descriptionLong());
@@ -193,7 +193,7 @@ export class Board {
   }
   async addSymbol(game, sym, x, y) {
     game.inventory.add(sym);
-    if (this.cells[y][x].name() === '🕳️') {
+    if (this.cells[y][x].emoji() === '🕳️') {
       const hole = this.cells[y][x];
       this.cells[y][x] = sym;
       await this.spinDivOnce(game, x, y);
@@ -235,11 +235,11 @@ export class Board {
     return coords;
   }
 
-  nextToSymbol(x, y, name) {
+  nextToSymbol(x, y, emoji) {
     const coords = [];
     this.nextToCoords(x, y).forEach((coord) => {
       const [neighborX, neighborY] = coord;
-      if (this.cells[neighborY][neighborX].name() === name) {
+      if (this.cells[neighborY][neighborX].emoji() === emoji) {
         coords.push([neighborX, neighborY]);
       }
     });
@@ -263,7 +263,7 @@ export class Board {
       return [];
     }
     return this.nextToExpr(x, y, (sym) =>
-      category_symbols.includes(sym.name())
+      category_symbols.includes(sym.emoji())
     );
   }
 
