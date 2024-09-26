@@ -25,6 +25,7 @@ html, body {
 /* Inventory */
 
 .inventory {
+  pointer-events: none;
   position: fixed;
   left: 0pt;
   bottom: 0pt;
@@ -36,6 +37,7 @@ html, body {
   font-size: 16pt;
 }
 .inventoryEntry {
+  pointer-events: auto;
   display: inline-flex;
   align-items: center;
 }

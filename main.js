@@ -20,11 +20,11 @@ class Inventory {
     this.symbols.forEach((symbol) => {
       const name = symbol.name();
       if (!map.has(name)) {
-        map.set(name, { count: 0, description: symbol.description() });
+        map.set(name, { count: 0, description: symbol.descriptionLong() });
       }
       map.set(name, {
         count: map.get(name).count + 1,
-        description: symbol.description(),
+        description: symbol.descriptionLong(),
       });
     });
     map.forEach(({ count, description }, name) => {
