@@ -4,21 +4,9 @@ const luckyChance = (game, chance, x, y) => {
   if (game.board.nextToSymbol(x, y, BullsEye.name).length > 0) {
     return 1.0;
   }
-  const check = (name, percent) => {
-    let total = 0;
-    game.board.forAllCells((cell, x, y) => {
-      if (cell.name() === name) {
-        total += percent;
-      }
-    });
-    return total;
-  };
-  let total = 0;
-  total += check(Clover.name, 0.01);
-  total += check(CrystalBall.name, 0.03);
-  return chance + total;
+  return chance + game.inventory.luckBonus;
 }
-const chance = (game, percent, x, y) => 
+const chance = (game, percent, x, y) =>
   Math.random() < luckyChance(game, percent, x, y);
 
 export class Symbol {
@@ -31,10 +19,10 @@ export class Symbol {
   copy() {
     throw new Error('Trying to get copy of base class.');
   }
-  async evaluateConsume() {}
-  async evaluateProduce() {}
-  async finalScore(game, x, y) {}
-  async score(game, x, y) {}
+  async evaluateConsume() { }
+  async evaluateProduce() { }
+  async finalScore(game, x, y) { }
+  async score(game, x, y) { }
   categories() {
     return [];
   }
@@ -55,7 +43,7 @@ export class Symbol {
       game.board.showMoneyEarned(x, y, value),
       game.inventory.addMoney(score * this.multiplier)]);
   }
-  name() { 
+  name() {
     return this.constructor.name;
   }
   reset() {
@@ -387,7 +375,7 @@ export class Cherry extends Symbol {
       this.addMoney(game, coords.length * 2, x, y)]);
   }
   categories() {
-    return ["Fruits", "Food"];
+    return [CATEGORY_FOOD, CATEGORY_FRUIT];
   }
   description() {
     return '💵2 for each neighboring 🍒';
@@ -477,6 +465,10 @@ export class Clover extends Symbol {
   }
   descriptionLong() {
     return 'this is a clover. it gives you luck. symbols having a chance to do something will succeed more. and you get rarer items to choose from in the shop.';
+  }
+  async score(game, x, y) {
+    game.inventory.addLuck(0.01);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
   }
 }
 
@@ -582,16 +574,16 @@ export class Corn extends Symbol {
 
 export class CreditCard extends Symbol {
   static name = '💳';
-  constructor(turn=0) {
+  constructor(turn = 0) {
     super();
     this.turn = turn;
     this.rarity = 0.35;
   }
   copy() { return new CreditCard(); }
   async finalScore(game, x, y) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3),
-        this.addMoney(game, -1100, x, y)]);
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3),
+      this.addMoney(game, -1100, x, y)]);
   }
   async score(game, x, y) {
     this.turn += 1;
@@ -621,6 +613,10 @@ export class CrystalBall extends Symbol {
   }
   descriptionLong() {
     return 'this is a crystal ball. symbols having a chance to do something will succeed more. and you get rarer items to choose from in the shop.';
+  }
+  async score(game, x, y) {
+    game.inventory.addLuck(0.03);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
   }
 }
 
@@ -812,7 +808,7 @@ export class Fox extends Symbol {
     if (this.eatenScore > 0) {
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.eatenScore, x, y)]);      
+        this.addMoney(game, this.eatenScore, x, y)]);
       this.eatenScore = 0;
     }
   }
@@ -860,6 +856,9 @@ export class Hole extends Symbol {
   descriptionLong() {
     return 'this is a hole. it works like an empty space, other symbols can be created here and they will go into your inventory.';
   }
+  categories() {
+    return ["Empty Space"]
+  }
 }
 
 export class MagicWand extends Symbol {
@@ -886,7 +885,7 @@ export class MagicWand extends Symbol {
       await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
       await game.board.addSymbol(game, newSymbol, newX, newY);
     }
-  }  
+  }
   description() {
     return '15% chance: duplicates neighboring symbol';
   }
@@ -926,7 +925,7 @@ export class Mango extends Symbol {
 
 export class MoneyBag extends Symbol {
   static name = '💰';
-  constructor(coins=0) {
+  constructor(coins = 0) {
     super();
     this.coins = coins;
     this.rarity = 0.5;
@@ -964,7 +963,7 @@ export class MoneyBag extends Symbol {
 
 export class Moon extends Symbol {
   static name = '🌝';
-  constructor(turns=0) {
+  constructor(turns = 0) {
     super();
     this.rarity = 0.28;
     this.turns = turns;
@@ -1053,7 +1052,7 @@ export class Pineapple extends Symbol {
   }
   copy() { return new Pineapple(); }
   async score(game, x, y) {
-    const coords = game.board.nextToExpr(x, y, 
+    const coords = game.board.nextToExpr(x, y,
       (sym) => sym.name() !== Empty.name);
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -1109,7 +1108,7 @@ export class Popcorn extends Symbol {
 
 export class Record extends Symbol {
   static name = '📀';
-  constructor(notes=0) {
+  constructor(notes = 0) {
     super();
     this.rarity = 0.12;
     this.notes = notes;
@@ -1247,7 +1246,7 @@ export class ShoppingBag extends Symbol {
 }
 
 export class Slots extends Symbol {
-  static name ='🎰';
+  static name = '🎰';
   constructor() {
     super();
     this.rarity = 0.15;

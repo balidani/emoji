@@ -210,7 +210,7 @@ export class Board {
   nextToCoords(x, y) {
     const coords = [];
     const add = (x, y) => {
-      if (x >=0 && x < this.gameSettings.boardX && y >=0 && y < this.gameSettings.boardY) {
+      if (x >= 0 && x < this.gameSettings.boardX && y >= 0 && y < this.gameSettings.boardY) {
         coords.push([x, y]);
       }
     };

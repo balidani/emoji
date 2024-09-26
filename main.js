@@ -9,6 +9,7 @@ class Inventory {
     this.symbolsDiv = document.querySelector('.game .inventory');
     this.uiDiv = document.querySelector('.game .ui');
     this.money = 1;
+    this.luckBonus = 0;
     this.turns = turns;
     this.updateUi();
     this.graveyard = [];
@@ -50,6 +51,14 @@ class Inventory {
     this.money += value;
     this.updateUi();
   }
+  addLuck(bonus) {
+    this.luckBonus += bonus;
+    this.updateUi();  // Luck currently not displayed, but refresh UI since it should be?
+  }
+  resetLuck() {
+    this.luckBonus = 0;
+    this.updateUi();
+  }
   updateUi() {
     this.uiDiv.replaceChildren();
     {
@@ -89,23 +98,10 @@ class Shop {
     }
     this.isOpen = true;
 
-    const checkLuckyItem = (name, percent) => {
-      let total = 0;
-      game.board.forAllCells((cell, x, y) => {
-        if (cell.name() === name) {
-          total += percent;
-        }
-      });
-      return total;
-    };
-    let luck = 0;
-    luck += checkLuckyItem('🍀', 0.01);
-    luck += checkLuckyItem('🔮', 0.03);
-
     this.shopDiv.replaceChildren();
-    const newCatalog = this.catalog.generateShop(3, luck);
+    const newCatalog = this.catalog.generateShop(3, game.inventory.luckBonus);
 
-    const makeShopItem = (symbol, description, descriptionLong, handler, refresh=false) => {
+    const makeShopItem = (symbol, description, descriptionLong, handler, refresh = false) => {
       const shopItemDiv = document.createElement('div');
       shopItemDiv.classList.add('shopItem');
       const symbolDiv = document.createElement('div');
@@ -134,7 +130,7 @@ class Shop {
     }
     for (let i = 0; i < 3; ++i) {
       const symbol = Util.randomRemove(newCatalog);
-      const shopItemDiv = makeShopItem(symbol.name(), symbol.description(), symbol.descriptionLong(), 
+      const shopItemDiv = makeShopItem(symbol.name(), symbol.description(), symbol.descriptionLong(),
         async (e) => {
           if (game.shop.buyCount > 0) {
             game.shop.buyCount--;
@@ -148,7 +144,7 @@ class Shop {
           if (game.shop.buyCount === 0) {
             await game.shop.close(game);
           }
-      });
+        });
       this.shopDiv.appendChild(shopItemDiv);
     }
 
@@ -164,7 +160,7 @@ class Shop {
               this.isOpen = false;
               this.open(game);
             }
-        }, /*refresh=*/true);
+          }, /*refresh=*/true);
         this.shopDiv.appendChild(shopItemDiv);
       }
     }
@@ -180,6 +176,7 @@ class Shop {
     this.refreshCount = 0;
 
     this.buyCount = 1;
+    game.inventory.resetLuck();
     await Util.animate(this.shopDiv, 'closeShop', 0.2);
     this.shopDiv
     this.shopDiv.replaceChildren();
@@ -288,12 +285,12 @@ class Game {
     } else {
       await this.shop.open(this);
     }
-    
+
     this.rolling = false;
   }
 }
 
-export const loadSettings = async (settings=GameSettings.instance()) => {
+export const loadSettings = async (settings = GameSettings.instance()) => {
   const template = document.querySelector('.template');
   const gameDiv = document.querySelector('.game');
   gameDiv.replaceChildren();
@@ -404,7 +401,7 @@ class AutoGame {
   }
 }
 
-window.simulate = async (buyAlways, buyOnce, rounds=1, buyRandom=false) => {
+window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
   Util.toggleAnimation();
 
   const template = document.querySelector('.template');
