@@ -341,6 +341,7 @@ class AutoGame {
       await this.board.evaluate(this);
       await this.board.score(this);
       await this.shop.open(this);
+      this.inventory.resetLuck();
     } else {
       await this.over();
       return;
@@ -351,14 +352,17 @@ class AutoGame {
     } else {
       // Choose item to buy
       if (this.inventory.symbols.length < this.symbolLimit) {
-        const tryOnce = (first) => {
+        const tryOnce = () => {
           const buttons = Array.from(document.getElementsByClassName('buyButton'));
-          const refreshButton = buttons.splice(3, 1)[0];
           let bought = false;
           const tryBuy = (sym) => {
             for (const button of buttons) {
+              if (button.disabled) {
+                return true;
+              }
               if (button.parentElement.parentElement.children[0].innerText === sym.name()) {
                 button.click();
+                button.disabled = true;
                 return true;
               }
             }
@@ -377,13 +381,28 @@ class AutoGame {
               return true;
             }
           }
-          if (first && !bought && refreshButton !== undefined) {
-            refreshButton.click();
-          }
           return false;
         }
-        if (!tryOnce(/*first=*/true)) {
-          tryOnce(/*first=*/false);
+        let buys = this.shop.buyCount;
+        while (buys >= 1) {
+          if (tryOnce()) {
+            buys--;
+          } else {
+            if (this.inventory.turns <= 10) {
+              // No more refresh.
+              break;
+            }
+            const buttons = Array.from(document.getElementsByClassName('buyButton'));
+            const refreshButton = buttons.splice(3, 1)[0];
+            if (refreshButton !== undefined) {
+              refreshButton.click();
+              if (this.shop.refreshCost >= this.inventory.money / 2 | 0) {
+                break;
+              }
+            } else {
+              break;
+            }
+          }
         }
       }
     }
@@ -452,7 +471,9 @@ window.simulate = async (buyAlways, buyOnce, rounds = 100, buyRandom = false) =>
 loadSettings();
 
 // For balancing:
-// simulate(/*buyAlways=*/'🍾❎🍒🍍', /*buyOnce=*/'🍹🌳🌳🌳');
+// simulate(/*buyAlways=*/'🍾❎🍍🍒', /*buyOnce=*/'🔀🛍️🛍️🛍️🍹🔮🔮🔮🐌🐌🐌🌳');
+// simulate(/*buyAlways=*/'🍾❎🍍🍒', /*buyOnce=*/'🍹🔮🔮🔮🐌🐌🐌🌳🌳');
+// simulate(/*buyAlways=*/'❎🎲🎯🪄', /*buyOnce=*/'🐛🔮');
 
 // This is our "integration test" for now, lol.
 // simulate('','',/*rounds=*/100,/*buyRandom=*/true);
