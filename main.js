@@ -6,8 +6,9 @@ import { Board } from './board.js';
 class Inventory {
   constructor(turns, symbols) {
     this.symbols = symbols;
-    this.symbolsDiv = document.querySelector('.game .inventory');
-    this.uiDiv = document.querySelector('.game .ui');
+    this.symbolsDiv = document.querySelector(".game .inventory");
+    this.uiDiv = document.querySelector(".game .ui");
+    this.infoDiv = document.querySelector(".info");
     this.money = 1;
     this.luckBonus = 0;
     this.lastLuckBonus = 0;
@@ -21,16 +22,23 @@ class Inventory {
     this.symbols.forEach((symbol) => {
       const name = symbol.name();
       if (!map.has(name)) {
-        map.set(name, 0);
+        map.set(name, { count: 0, description: symbol.descriptionLong() });
       }
-      map.set(name, map.get(name) + 1);
+      map.set(name, {
+        count: map.get(name).count + 1,
+        description: symbol.descriptionLong(),
+      });
     });
-    map.forEach((count, name) => {
-      const symbolDiv = document.createElement('div');
-      symbolDiv.classList.add('inventoryEntry');
+    map.forEach(({ count, description }, name) => {
+      const symbolDiv = document.createElement("div");
+      symbolDiv.addEventListener("click", (e) => {
+        Util.drawText(this.infoDiv, `${name}: ${description}`);
+      });
+      symbolDiv.classList.add("inventoryEntry");
       symbolDiv.innerText = name;
-      const countSpan = document.createElement('span');
-      countSpan.classList.add('inventoryEntryCount');
+
+      const countSpan = document.createElement("span");
+      countSpan.classList.add("inventoryEntryCount");
       countSpan.innerText = count;
       symbolDiv.appendChild(countSpan);
       this.symbolsDiv.appendChild(symbolDiv);

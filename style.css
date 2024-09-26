@@ -38,6 +38,7 @@ body {
   font-size: 16pt;
 }
 .inventoryEntry {
+  pointer-events: auto;
   display: inline-flex;
   align-items: center;
 }
