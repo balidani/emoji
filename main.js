@@ -10,6 +10,7 @@ class Inventory {
     this.uiDiv = document.querySelector('.game .ui');
     this.money = 1;
     this.luckBonus = 0;
+    this.lastLuckBonus = 0;
     this.turns = turns;
     this.updateUi();
     this.graveyard = [];
@@ -53,32 +54,30 @@ class Inventory {
   }
   addLuck(bonus) {
     this.luckBonus += bonus;
-    this.updateUi();  // Luck currently not displayed, but refresh UI since it should be?
+    // Not needed!
+    // resetLuck is the function to call when luck calculation finished in last turn's Board::score.
+    // We technically always use last turn's luck to avoid another round of scoring.
+    // this.updateUi();
   }
   resetLuck() {
+    this.lastLuckBonus = this.luckBonus;
     this.luckBonus = 0;
-    this.updateUi();
+    this.updateUi(); 
   }
   updateUi() {
     this.uiDiv.replaceChildren();
-    {
+    const displayKeyValue = (key, value) => {
       const symbolDiv = document.createElement('div');
-      symbolDiv.innerText = '💵';
+      symbolDiv.innerText = key;
       const countSpan = document.createElement('span');
       countSpan.classList.add('inventoryEntryCount');
-      countSpan.innerText = this.money;
+      countSpan.innerText = value;
       symbolDiv.appendChild(countSpan);
       this.uiDiv.appendChild(symbolDiv);
-    }
-    {
-      const symbolDiv = document.createElement('div');
-      symbolDiv.innerText = '⏰';
-      const countSpan = document.createElement('span');
-      countSpan.classList.add('inventoryEntryCount');
-      countSpan.innerText = this.turns;
-      symbolDiv.appendChild(countSpan);
-      this.uiDiv.appendChild(symbolDiv);
-    }
+    };
+    displayKeyValue('💵', this.money);
+    displayKeyValue('⏰', this.turns);
+    displayKeyValue('🍀', this.lastLuckBonus * 100 | 0);
   }
 }
 
@@ -99,7 +98,7 @@ class Shop {
     this.isOpen = true;
 
     this.shopDiv.replaceChildren();
-    const newCatalog = this.catalog.generateShop(3, game.inventory.luckBonus);
+    const newCatalog = this.catalog.generateShop(3, game.inventory.lastLuckBonus);
 
     const makeShopItem = (symbol, description, descriptionLong, handler, refresh = false) => {
       const shopItemDiv = document.createElement('div');
@@ -176,7 +175,6 @@ class Shop {
     this.refreshCount = 0;
 
     this.buyCount = 1;
-    game.inventory.resetLuck();
     await Util.animate(this.shopDiv, 'closeShop', 0.2);
     this.shopDiv
     this.shopDiv.replaceChildren();
@@ -277,6 +275,7 @@ class Game {
       await this.board.roll(this);
       await this.board.evaluate(this);
       await this.board.score(this);
+      this.inventory.resetLuck();
     } else {
       // Handle the case where player ran out of money
     }
@@ -401,7 +400,7 @@ class AutoGame {
   }
 }
 
-window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
+window.simulate = async (buyAlways, buyOnce, rounds = 100, buyRandom = false) => {
   Util.toggleAnimation();
 
   const template = document.querySelector('.template');

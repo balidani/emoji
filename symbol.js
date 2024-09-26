@@ -10,7 +10,7 @@ const luckyChance = (game, chance, x, y) => {
   if (game.board.nextToSymbol(x, y, BullsEye.name).length > 0) {
     return 1.0;
   }
-  return chance + game.inventory.luckBonus;
+  return chance + game.inventory.lastLuckBonus;
 }
 const chance = (game, percent, x, y) =>
   Math.random() < luckyChance(game, percent, x, y);
