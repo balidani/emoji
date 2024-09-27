@@ -11,7 +11,7 @@ export class GameSettings {
     return GameSettings.settings;
   }
 
-  constructor() {
+  constructor(name, boardX, boardY, gameLength, startingSetString, symbolSources, resultLookup, textLookup) {
     this.settingsDiv = document.querySelector('.game .settings');
     this.settingsOpener = document.querySelector('.open-settings');
     this.settingsOpener.addEventListener('click', (_) => {
@@ -19,12 +19,25 @@ export class GameSettings {
     });
 
     this.isOpen = false;
-    this.boardX = 5;
-    this.boardY = 5;
-    this.gameLength = 50;
-    this.startingSet = '🍒🍒🍒🪙🍀';
-    this.symbolSources = ['./symbol.js'];
-    // , './extra_sym.js'
+    this.name = name || "Default Game Settings";
+    this.boardX = boardX || 5;
+    this.boardY = boardY || 5;
+    this.gameLength = gameLength || 50;
+    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
+    this.symbolSources = symbolSources || ['./symbol.js', './advanced-symbols.js'];
+    this.resultLookup = resultLookup || new Map(Object.entries({
+      // NOTE: These temporarily are assumed to be sorted such that the hardest score is first.
+      25000: '🏆',
+      20000: '🥇',
+      15000: '🥈',
+      10000: '🥉',
+    }));
+    this.textLookup = textLookup || new Map(Object.entries({
+      50: 'you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.',
+      49: 'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!',
+      48: 'you can double tap the roll (🕹️) button to skip animation.',
+      47: 'you can tap on any symbol, on the board or in the shop, to get more information.',
+    }));
   }
 
   async open(game) {
