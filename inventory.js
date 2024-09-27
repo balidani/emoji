@@ -1,3 +1,4 @@
+import * as Util from "./util.js";
 
 export class Inventory {
   constructor(turns, symbols) {

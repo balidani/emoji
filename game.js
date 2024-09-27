@@ -18,6 +18,7 @@ export class Game {
     this.shop = new Shop(this.catalog);
     this.rolling = false;
     this.info = document.querySelector('.game .info');
+    this.progression.updateUi();
     Util.drawText(
       this.info,
       'hi there. press (🕹️) when you are ready to play.'

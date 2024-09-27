@@ -22,7 +22,6 @@ export const loadSettings = async (settings = GameSettings.instance()) => {
   const catalog = new Catalog(settings.symbolSources);
   await catalog.updateSymbols();
   const game = new Game(PROGRESSION, settings, catalog);
-  GameSettings.loadFn = loadSettings;
   return game;
 };
 

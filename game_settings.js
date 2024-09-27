@@ -1,8 +1,8 @@
 import * as Utils from './util.js';
 
-export class GameSettings {
-  static loadFn;
+import { loadSettings } from './main.js';
 
+export class GameSettings {
   static settings = null;
   static instance() {
     if (GameSettings.settings === null) {
@@ -115,7 +115,7 @@ export class GameSettings {
     this.symbolSources = symbolSourcesInput.input.value.split('\n');
     this.startingSet = startingSymbolsInput.input.value;
     this.close();
-    GameSettings.loadFn(this);
+    loadSettings(this);
   }
   async close(game) {
     if (!this.isOpen) {

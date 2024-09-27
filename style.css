@@ -37,11 +37,13 @@ body {
   padding-bottom: 4pt;
   font-size: 16pt;
 }
+
 .inventoryEntry {
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
 }
+
 .inventoryEntryCount {
   font-size: 10pt;
   letter-spacing: 0pt;
@@ -61,7 +63,7 @@ body {
   font-size: 16pt;
 }
 
-.ui > div {
+.ui>div {
   display: inline-flex;
   align-items: center;
 }
@@ -83,18 +85,22 @@ body {
   width: 256pt;
   overflow: hidden;
 }
+
 .shopItem {
   display: flex;
   padding-bottom: 8pt;
 }
+
 .description {
   padding-left: 8pt;
   font-size: 10pt;
   width: 180pt;
 }
+
 .refreshDescription {
   text-align: right;
 }
+
 .buy {
   margin-left: auto;
   padding-left: 4pt;
@@ -108,10 +114,12 @@ body {
   justify-content: center;
   width: 240pt;
 }
+
 .row {
   display: flex;
   flex-direction: column;
 }
+
 .cell {
   font-size: 26pt;
   width: 34pt;
@@ -123,15 +131,18 @@ body {
   overflow: hidden;
   position: relative;
 }
+
 .symbol {
   transform-origin: top;
 }
+
 .symbolCounter {
   position: absolute;
   bottom: 0;
   right: 0;
   font-size: 10pt;
 }
+
 .moneyEarned {
   position: absolute;
   top: 20pt;
@@ -141,14 +152,20 @@ body {
 
 /* Score */
 .scoreContainer {
-  position: fixed; /* Keep the container fixed relative to the viewport */
+  position: fixed;
+  /* Keep the container fixed relative to the viewport */
   top: 0;
   left: 0;
-  width: 100vw; /* Full viewport width */
-  height: 100vh; /* Full viewport height */
-  display: flex; /* Flexbox for centering */
-  justify-content: center; /* Horizontal centering */
-  align-items: center; /* Vertical centering */
+  width: 100vw;
+  /* Full viewport width */
+  height: 100vh;
+  /* Full viewport height */
+  display: flex;
+  /* Flexbox for centering */
+  justify-content: center;
+  /* Horizontal centering */
+  align-items: center;
+  /* Vertical centering */
 }
 
 .score {
@@ -156,6 +173,7 @@ body {
   font-size: 56pt;
   font-weight: 900;
 }
+
 .trophy {
   padding: 4pt;
   padding-bottom: 120pt;
@@ -170,12 +188,52 @@ body {
   margin: 4pt;
 }
 
+.progression {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.level {
+  padding: 5px 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  transition: border 0.3s, background-color 0.3s;
+}
+
+.level.active {
+  border: 2px solid #007bff;
+}
+
+.level.unbeaten {
+  color: lightgrey;
+  cursor: not-allowed;
+}
+
+.level.unbeaten:not(.active) {
+  pointer-events: none;
+}
+
+.level.beaten {
+  background-color: #d4edda;
+}
+
+.level.beaten:hover {
+  background-color: #c3e6cb;
+}
+
 /* Animations */
 
 @keyframes blurStart {
   0% {
     filter: blur(0px);
   }
+
   100% {
     filter: blur(6px);
   }
@@ -185,12 +243,15 @@ body {
   0% {
     transform: translateY(-100vh);
   }
+
   80% {
     transform: translateY(0pt);
   }
+
   90% {
     transform: translateY(-8pt);
   }
+
   100% {
     transform: translateY(0pt);
   }
@@ -200,6 +261,7 @@ body {
   0% {
     transform: scaleY(1) translateY(0);
   }
+
   100% {
     transform: scaleY(0.5) translateY(90pt);
   }
@@ -209,9 +271,11 @@ body {
   0% {
     transform: scaleY(0.25) translateY(-70pt);
   }
+
   50% {
     transform: scaleY(1.4) translateY(0);
   }
+
   100% {
     transform: scaleY(0.5) translateY(90pt);
   }
@@ -221,6 +285,7 @@ body {
   0% {
     transform: scaleY(0.5) translateY(-90pt);
   }
+
   100% {
     transform: scaleY(1) translateY(0);
   }
@@ -230,9 +295,11 @@ body {
   0% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-4pt);
   }
+
   100% {
     transform: translateY(0);
   }
@@ -242,15 +309,19 @@ body {
   0% {
     transform: scaleX(1);
   }
+
   25% {
     transform: scaleX(0);
   }
+
   50% {
     transform: scaleX(-1);
   }
+
   75% {
     transform: scaleX(0);
   }
+
   100% {
     transform: scaleX(1);
   }
@@ -260,15 +331,19 @@ body {
   0% {
     transform: translateX(0);
   }
+
   25% {
     transform: translateX(2pt);
   }
+
   50% {
     transform: translateX(0);
   }
+
   75% {
     transform: translateX(-2pt);
   }
+
   100% {
     transform: translateX(0);
   }
@@ -278,15 +353,19 @@ body {
   0% {
     transform: translate(0, 0);
   }
+
   25% {
     transform: translate(2pt, -2pt);
   }
+
   50% {
     transform: translate(0, 0);
   }
+
   75% {
     transform: translate(-2pt, 2pt);
   }
+
   100% {
     transform: translate(0, 0);
   }
@@ -297,13 +376,16 @@ body {
     transform: translateY(500pt);
     opacity: 0;
   }
+
   80% {
     transform: translateY(0);
     opacity: 1;
   }
+
   90% {
     transform: translateY(4pt);
   }
+
   100% {
     transform: translateY(0);
   }
@@ -314,6 +396,7 @@ body {
     transform: translateY(0);
     opacity: 1;
   }
+
   100% {
     transform: translateY(500pt);
     opacity: 0;
@@ -325,10 +408,12 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+
   50% {
     opacity: 0.5;
     transform: translateY(16pt);
   }
+
   100% {
     opacity: 0;
     transform: translateY(16pt);
