@@ -227,6 +227,28 @@ body {
   background-color: #c3e6cb;
 }
 
+.wipe-button {
+  padding: 2px 3px;
+  font-size: 10pt;
+  border-radius: 2px;
+  background-color: #ff6347;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  margin-top: 20px;
+}
+
+.wipe-button:hover {
+  background-color: #ff4500;
+  transform: scale(1.05);
+}
+
+.wipe-button:active {
+  background-color: #ff6347;
+  transform: scale(0.95);
+}
+
 /* Animations */
 
 @keyframes blurStart {
