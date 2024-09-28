@@ -82,7 +82,7 @@ export class Empty extends Symb {
     return "this is empty space. it's not part of your inventory.";
   }
   categories() {
-    return [CATEGORY_EMPTY_SPACE];
+    return [CATEGORY_EMPTY_SPACE, CATEGORY_UNBUYABLE];
   }
 }
 

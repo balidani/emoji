@@ -626,6 +626,7 @@ export class MoneyBag extends Symb {
   }
 }
 
+
 export class Moon extends Symb {
   static emoji = '🌝';
   constructor(turns = 0) {
@@ -687,15 +688,6 @@ export class Multiplier extends Symb {
   descriptionLong() {
     return 'this is a multiplier. it doubles the 💵 gained (or lost) for all neighboring symbols.';
   }
-  async score(game, x, y) {
-    // Doesn't directly score, but trigger animation here.
-    await Util.animate(
-      game.board.getSymbolDiv(x, y),
-      'flip',
-      0.15,
-      1
-    );
-  }
 }
 
 export class MusicalNote extends Symb {
@@ -720,6 +712,9 @@ export class MusicalNote extends Symb {
   }
   counter(game) {
     return 3 - this.turns;
+  }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
   }
   description() {
     return '💵4<br>disappears after 3 turns';
