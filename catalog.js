@@ -41,9 +41,6 @@ export class Catalog {
     const newCatalog = [];
     while (newCatalog.length < count) {
       for (const [_, item] of this.symbols) {
-        if (item.prototype === Symb.prototype) {
-          continue;
-        }
         if (item.categories().includes(CATEGORY_UNBUYABLE)) {
           continue;
         }

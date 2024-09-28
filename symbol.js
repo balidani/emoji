@@ -30,7 +30,7 @@ export class Symb {
   async finalScore(game, x, y) {}
   async score(game, x, y) {}
   categories() {
-    return [];
+    return [CATEGORY_UNBUYABLE];
   }
   description() {
     throw new Error('Trying to get description of base class.');
@@ -81,7 +81,7 @@ export class Empty extends Symb {
     return "this is empty space. it's not part of your inventory.";
   }
   categories() {
-    return [CATEGORY_EMPTY_SPACE];
+    return [CATEGORY_EMPTY_SPACE, CATEGORY_UNBUYABLE];
   }
 }
 
@@ -1151,6 +1151,9 @@ export class MusicalNote extends Symb {
   }
   counter(game) {
     return 3 - this.turns;
+  }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
   }
   description() {
     return '💵4<br>disappears after 3 turns';
