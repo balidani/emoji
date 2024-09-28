@@ -45,7 +45,7 @@ export class Game {
       await Util.animate(scoreDiv, 'scoreIn', 0.4);
     }
     let trophy = '💩';
-    for (const [requirement, reward] of this.gameSettings.resultLookup) {
+    for (const [requirement, reward] of Object.entries(this.gameSettings.resultLookup)) {
       if (this.inventory.money >= requirement) {
         trophy = reward;
         break;

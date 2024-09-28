@@ -2,7 +2,7 @@ import { GameSettings } from "./game_settings.js";
 import { loadSettings } from "./main.js";
 
 const tutorialLevelSettings = new GameSettings("Tutorial #1", 4, 4, 15, "🍒🍒🪨", ["./symbol.js"], 
-  new Map(Object.entries({ 100: '🥇' })), new Map(Object.entries({ 50: 'Welcome to the Tutorial!' })));
+  { 100: '🥇' }, { 50: 'Welcome to the Tutorial!' });
 const standardGameSettings = new GameSettings();
 
 const PROGRESSION_LEVEL_DATA = "ProgressionLevelData";

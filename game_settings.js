@@ -25,19 +25,19 @@ export class GameSettings {
     this.gameLength = gameLength || 50;
     this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
     this.symbolSources = symbolSources || ['./symbol.js', './advanced-symbols.js'];
-    this.resultLookup = resultLookup || new Map(Object.entries({
+    this.resultLookup =  resultLookup || {
       // NOTE: These temporarily are assumed to be sorted such that the hardest score is first.
       25000: '🏆',
       20000: '🥇',
       15000: '🥈',
       10000: '🥉',
-    }));
-    this.textLookup = textLookup || new Map(Object.entries({
+    };
+    this.textLookup = textLookup || {
       50: 'you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.',
       49: 'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!',
       48: 'you can double tap the roll (🕹️) button to skip animation.',
       47: 'you can tap on any symbol, on the board or in the shop, to get more information.',
-    }));
+    };
   }
 
   async open(game) {
