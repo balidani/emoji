@@ -38,18 +38,18 @@ export class Catalog {
     throw new Error('Unknown symbol: ' + emoji);
   }
   generateShop(count, luck) {
-    const newCatalog = [];
-    while (newCatalog.length < count) {
+    const bag = [];
+    while (bag.length <= count) {
       for (const [_, item] of this.symbols) {
         if (item.categories().includes(CATEGORY_UNBUYABLE)) {
           continue;
         }
         if (Math.random() < item.rarity + luck) {
-          newCatalog.push(item.copy());
+          bag.push(item.copy());
         }
       }
     }
-    return newCatalog;
+    return bag;
   }
   symbolsFromString(input) {
     const result = [];

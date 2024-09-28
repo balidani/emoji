@@ -30,7 +30,7 @@ export class Symb {
   async finalScore(game, x, y) {}
   async score(game, x, y) {}
   categories() {
-    return [CATEGORY_UNBUYABLE];
+    return [];
   }
   description() {
     throw new Error('Trying to get description of base class.');
