@@ -28,6 +28,7 @@ export class Progression {
   }
   load() {
     if (!window.localStorage.getItem(CURRENT_VERSION_KEY)) {
+      window.localStorage.clear();
       window.localStorage.setItem(CURRENT_VERSION_KEY, CURRENT_VERSION);
     }
     if (window.localStorage.getItem(CURRENT_VERSION_KEY) !== CURRENT_VERSION) {
