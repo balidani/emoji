@@ -258,11 +258,18 @@ body {
   .level-highscore {
     max-width: 25px;
   }
+
+  .wipe-button {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 75px;
+  }
 }
 
 
 
 .wipe-button {
+  text-align: center;
   padding: 2px 3px;
   font-size: 10pt;
   border-radius: 2px;
