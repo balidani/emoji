@@ -37,7 +37,6 @@ body {
   padding-left: 4pt;
   padding-bottom: 4pt;
   font-size: 16pt;
-  z-index: -1;
 }
 
 .inventoryEntry {
@@ -123,6 +122,7 @@ body {
 }
 
 .buy {
+  z-index: 1;
   margin-left: auto;
   padding-left: 4pt;
 }
