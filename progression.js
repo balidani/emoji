@@ -6,7 +6,7 @@ const tutorialLevelSettings = new GameSettings("Tutorial #1", 4, 4, 15, "🍒�
   { 100: '🥇' }, { 50: 'Welcome to the Tutorial!' });
 const standardGameSettings = new GameSettings();
 
-const CURRENT_VERSION = "0.1.2";
+const CURRENT_VERSION = "0.1.3";
 const CURRENT_VERSION_KEY = "CurrentVersion";
 const PROGRESSION_LEVEL_DATA = "ProgressionLevelData";
 const PROGRESSION_ACTIVE_LEVEL = "ProgressionActiveLevel";
