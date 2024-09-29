@@ -6,6 +6,8 @@ const tutorialLevelSettings = new GameSettings("Tutorial #1", 4, 4, 15, "🍒�
   { 100: '🥇' }, { 50: 'Welcome to the Tutorial!' });
 const standardGameSettings = new GameSettings();
 
+const CURRENT_VERSION = "0.1.2";
+const CURRENT_VERSION_KEY = "CurrentVersion";
 const PROGRESSION_LEVEL_DATA = "ProgressionLevelData";
 const PROGRESSION_ACTIVE_LEVEL = "ProgressionActiveLevel";
 const PROGRESSION_LEVEL_RESULTS = "ProgressionLevelResults"
@@ -25,6 +27,12 @@ export class Progression {
     this.levelResults = new Map();
   }
   load() {
+    if (!window.localStorage.getItem(CURRENT_VERSION_KEY)) {
+      window.localStorage.setItem(CURRENT_VERSION_KEY, CURRENT_VERSION);
+    }
+    if (window.localStorage.getItem(CURRENT_VERSION_KEY) !== CURRENT_VERSION) {
+      window.localStorage.clear();
+    }
     const levelData = window.localStorage.getItem(PROGRESSION_LEVEL_DATA)
     if (levelData !== null) {
       this.levelData = JSON.parse(levelData);

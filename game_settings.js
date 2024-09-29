@@ -25,7 +25,7 @@ export class GameSettings {
     this.gameLength = gameLength || 50;
     this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
     this.symbolSources = symbolSources || ['./symbol.js', './advanced-symbols.js'];
-    this.resultLookup =  resultLookup || {
+    this.resultLookup = resultLookup || {
       // NOTE: These temporarily are assumed to be sorted such that the hardest score is first.
       25000: '🏆',
       20000: '🥇',
