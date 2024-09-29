@@ -44,6 +44,7 @@ body {
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .inventoryEntryCount {
@@ -68,6 +69,7 @@ body {
 .ui>div {
   display: inline-flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .info {
