@@ -1,5 +1,6 @@
 import { GameSettings } from "./game_settings.js";
 import { loadSettings } from "./main.js";
+import * as Util from "./util.js"
 
 const tutorialLevelSettings = new GameSettings("Tutorial #1", 4, 4, 15, "🍒🍒🪨", ["./symbol.js"], 
   { 100: '🥇' }, { 50: 'Welcome to the Tutorial!' });
@@ -64,26 +65,25 @@ export class Progression {
     for (let i = 0; i < this.levelData.length; i++) {
       const levelName = this.levelData[i].name;
       const levelRecord = this.levelResults.get(levelName);
-      const levelDiv = document.createElement('div');
-      levelDiv.classList.add("level");
+      const levelDiv = Util.createDiv(undefined, "level");
+      levelDiv.appendChild(Util.createDiv(levelName, "level-name"));
       if (levelRecord == null) {
-        levelDiv.innerText = levelName;
         levelDiv.classList.add("unbeaten");
       }
       else {
-        levelDiv.innerText = `${levelRecord.reward}${levelName}: ${levelRecord.highScore}`;
+        levelDiv.appendChild(Util.createDiv(levelRecord.reward, "level-reward"));
+        levelDiv.appendChild(Util.createDiv(`${levelRecord.highScore}`, "level-highscore"));
         levelDiv.classList.add("beaten");
         levelDiv.addEventListener('click', () => {this.jumpTo(i)})
       }
+
       if (i === this.activeLevel) {
         levelDiv.classList.add("active");
         levelDiv.addEventListener('click', () => {this.jumpTo(i)})
       }
       this.uiDiv.appendChild(levelDiv);
     }
-    const wipeDiv = document.createElement('div');
-    wipeDiv.innerText = "Wipe Progress";
-    wipeDiv.classList.add("wipe-button");
+    const wipeDiv = Util.createDiv("Wipe Progress", "wipe-button")
     wipeDiv.addEventListener('click', () => {
       window.localStorage.clear();
       window.location.reload();

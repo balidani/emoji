@@ -204,6 +204,10 @@ body {
   cursor: pointer;
   background-color: #f0f0f0;
   transition: border 0.3s, background-color 0.3s;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
 }
 
 .level.active {
@@ -226,6 +230,37 @@ body {
 .level.beaten:hover {
   background-color: #c3e6cb;
 }
+
+.level-reward {
+  order: 1;
+}
+
+.level-name {
+  order: 2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.level-highscore {
+  order: 3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+  .level-name {
+    max-width: 25px;
+    /* display: none; */
+  }
+
+  .level-highscore {
+    max-width: 25px;
+  }
+}
+
+
 
 .wipe-button {
   padding: 2px 3px;
