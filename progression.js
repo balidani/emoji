@@ -50,7 +50,7 @@ export class Progression {
       this.levelResults.set(aLD.name, new LevelResult(score, result));
     }
     existingRecord = this.levelResults.get(aLD.name);
-    if (existingRecord.reward && (this.activeLevel < this.levelData.length)) {
+    if (existingRecord.reward && (this.activeLevel + 1 < this.levelData.length)) {
       this.activeLevel++;
     }
     this.save();
