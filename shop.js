@@ -34,7 +34,8 @@ export class Shop {
       symbolDiv.classList.add('shopEmoji');
       symbolDiv.innerHTML = symbol.emoji();
       symbolDiv.addEventListener('click', () => {
-        Util.drawText(game.info, symbol.descriptionLong());
+        Util.drawText(game.info,
+          `${symbol.emoji()}: ${symbol.descriptionLong()}`);
       });
       shopItemDiv.appendChild(symbolDiv);
 
