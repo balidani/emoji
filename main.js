@@ -22,6 +22,17 @@ export const loadSettings = async (settings = GameSettings.instance()) => {
   const catalog = new Catalog(settings.symbolSources);
   await catalog.updateSymbols();
   const game = new Game(PROGRESSION, settings, catalog);
+
+  document.body.addEventListener('click', (e) => {
+    if (e.target.classList.contains('interactive-emoji')) {
+      const emoji = e.target.dataset.emoji;
+      const symbol = game.catalog.symbol(emoji);
+      if (symbol) {
+        const interactiveDescription = Util.createInteractiveDescription(symbol.descriptionLong());
+        Util.drawText(game.info, interactiveDescription, true);
+      }
+    }
+  });
   return game;
 };
 

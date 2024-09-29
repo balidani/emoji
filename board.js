@@ -77,7 +77,8 @@ export class Board {
     div.innerText = symbol.emoji();
     div.removeEventListener('click', div.clickEvent);
     div.clickEvent = () => {
-      Util.drawText(game.info, symbol.descriptionLong());
+      const interactiveDescription = Util.createInteractiveDescription(symbol.descriptionLong());
+      Util.drawText(game.info, interactiveDescription, true);
     };
     div.addEventListener('click', div.clickEvent);
     await Util.animate(div, 'endSpin', 0.3);
@@ -95,7 +96,8 @@ export class Board {
     div.innerText = symbol.emoji();
     div.removeEventListener('click', div.clickEvent);
     div.clickEvent = () => {
-      Util.drawText(game.info, symbol.descriptionLong());
+      const interactiveDescription = Util.createInteractiveDescription(symbol.descriptionLong());
+      Util.drawText(game.info, interactiveDescription, true);
     };
     div.addEventListener('click', div.clickEvent);
     await Util.animate(div, 'endSpin', 0.3);

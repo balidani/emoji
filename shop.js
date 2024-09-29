@@ -35,7 +35,8 @@ export class Shop {
       symbolDiv.classList.add('cell');
       symbolDiv.innerText = symbol;
       symbolDiv.addEventListener('click', () => {
-        Util.drawText(game.info, descriptionLong);
+        const interactiveDescription = Util.createInteractiveDescription(descriptionLong);
+        Util.drawText(game.info, interactiveDescription, true);
       });
       shopItemDiv.appendChild(symbolDiv);
       const descriptionDiv = document.createElement('div');
@@ -43,7 +44,7 @@ export class Shop {
       if (refresh) {
         descriptionDiv.classList.add('refreshDescription');
       }
-      descriptionDiv.innerHTML = description;
+      descriptionDiv.innerHTML = Util.createInteractiveDescription(description);
       shopItemDiv.appendChild(descriptionDiv);
       const buyDiv = document.createElement('div');
       buyDiv.classList.add('buy');
