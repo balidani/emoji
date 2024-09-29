@@ -31,26 +31,7 @@ export const animate = (element, animation, duration, repeat = 1) => {
 export const deleteText = (element) => {
   element.textContent = '';
 };
-/* export const drawText = async (element, text) => {
-  if (!ANIMATION) {
-    element.textContent = text;
-    return;
-  }
-  if (element.textContent.length > 0) {
-    deleteText(element);
-  }
-  // Ugly hack.
-  element.cancelled = true;
-  await delay(31);
-  element.cancelled = false;
-  for (let char of text) {
-    if (element.cancelled) {
-      break;
-    }
-    element.textContent += char;
-    await delay(30);
-  }
-}; */
+
 export const createInput = (labelText, type, dV) => {
   const label = document.createElement('label');
   label.textContent = labelText;
@@ -92,8 +73,6 @@ export const createDiv = (innerText, ...classes) => {
   return div;
 };
 
-// Testing - Oxi
-
 export const createInteractiveDescription = (description) => {
   const segments = parseEmojiString(description);
   let result = '';
@@ -109,34 +88,53 @@ export const createInteractiveDescription = (description) => {
 
 export const drawText = async (element, text, isHtml = false) => {
   if (!ANIMATION) {
-    element.innerHTML = isHtml ? text : escapeHtml(text);
+    if (isHtml) {
+      element.innerHTML = text;
+    } else {
+      element.textContent = text;
+    }
     return;
   }
-  if (element.innerHTML.length > 0) {
-    deleteText(element);
+
+  if (isHtml) {
+    if (element.innerHTML.length > 0) {
+      deleteText(element);
+    }
+  } else {
+    if (element.textContent.length > 0) {
+      deleteText(element);
+    }
   }
+
   element.cancelled = true;
   await delay(31);
   element.cancelled = false;
-  
+
   if (isHtml) {
-    element.innerHTML = text;
-  } else {
-    for (let char of text) {
-      if (element.cancelled) {
-        break;
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = text;
+    const nodes = Array.from(tempDiv.childNodes);
+
+    for (const node of nodes) {
+      if (element.cancelled) break;
+
+      if (node.nodeType === Node.TEXT_NODE) {
+        for (const char of node.textContent) {
+          if (element.cancelled) break;
+          element.insertAdjacentText('beforeend', char);
+          await delay(30);
+        }
+      } else {
+        const clone = node.cloneNode(true);
+        element.appendChild(clone);
+        await delay(30);
       }
-      element.innerHTML += escapeHtml(char);
+    }
+  } else {
+    for (const char of text) {
+      if (element.cancelled) break;
+      element.textContent += char;
       await delay(30);
     }
   }
-};
-
-const escapeHtml = (unsafe) => {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 };
