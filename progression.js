@@ -2,7 +2,7 @@ import { GameSettings } from "./game_settings.js";
 import { loadSettings } from "./main.js";
 import * as Util from "./util.js"
 
-const tutorialLevelSettings = new GameSettings("Tutorial #1", 4, 4, 15, "🍒🍒🪨", ["./symbol.js"], 
+const tutorialLevelSettings = new GameSettings("Tutorial #1", 4, 4, 15, "🍒🍒🪨", ["./symbol.js"],
   { 100: '🥇' }, { 50: 'Welcome to the Tutorial!' });
 const standardGameSettings = new GameSettings();
 
@@ -12,8 +12,8 @@ const PROGRESSION_LEVEL_RESULTS = "ProgressionLevelResults"
 
 export class LevelResult {
   constructor(highScore, reward) {
-    this.highScore = highScore || Number.MIN_SAFE_INTEGER
-    this.reward = reward || ""
+    this.highScore = highScore || Number.MIN_SAFE_INTEGER;
+    this.reward = reward || "";
   }
 }
 
@@ -21,7 +21,7 @@ export class Progression {
   constructor() {
     this.uiDiv = document.querySelector(".progression");
     this.levelData = [tutorialLevelSettings, standardGameSettings];
-    this.activeLevel = 0;
+    this.activeLevel = 1;
     this.levelResults = new Map();
   }
   load() {
@@ -47,7 +47,7 @@ export class Progression {
     const aLD = this.levelData[this.activeLevel];
     let existingRecord = this.levelResults.get(aLD.name);
     if (!existingRecord || score > existingRecord.highScore) {
-      this.levelResults.set(aLD.name,new LevelResult(score, result));
+      this.levelResults.set(aLD.name, new LevelResult(score, result));
     }
     existingRecord = this.levelResults.get(aLD.name);
     if (existingRecord.reward && (this.activeLevel < this.levelData.length)) {
@@ -74,12 +74,12 @@ export class Progression {
         levelDiv.appendChild(Util.createDiv(levelRecord.reward, "level-reward"));
         levelDiv.appendChild(Util.createDiv(`${levelRecord.highScore}`, "level-highscore"));
         levelDiv.classList.add("beaten");
-        levelDiv.addEventListener('click', () => {this.jumpTo(i)})
+        levelDiv.addEventListener('click', () => { this.jumpTo(i) })
       }
 
       if (i === this.activeLevel) {
         levelDiv.classList.add("active");
-        levelDiv.addEventListener('click', () => {this.jumpTo(i)})
+        levelDiv.addEventListener('click', () => { this.jumpTo(i) })
       }
       this.uiDiv.appendChild(levelDiv);
     }
@@ -90,5 +90,4 @@ export class Progression {
     });
     this.uiDiv.appendChild(wipeDiv);
   }
-
 }

@@ -4,6 +4,7 @@ body {
 
 button {
   font-size: 20pt;
+  padding: 2pt;
 }
 
 html,
@@ -36,6 +37,7 @@ body {
   padding-left: 4pt;
   padding-bottom: 4pt;
   font-size: 16pt;
+  z-index: -1;
 }
 
 .inventoryEntry {
@@ -82,13 +84,14 @@ body {
 
 .shop {
   padding-top: 12pt;
+  padding-bottom: 12pt;
   width: 256pt;
   overflow: hidden;
 }
 
 .shopItem {
   display: flex;
-  padding-bottom: 8pt;
+  padding-bottom: 2pt;
 }
 
 .description {

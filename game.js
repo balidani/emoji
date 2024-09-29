@@ -21,7 +21,7 @@ export class Game {
     this.progression.updateUi();
     Util.drawText(
       this.info,
-      'hi there. press (🕹️) when you are ready to play.'
+      'press the roll button (🕹️) when you are ready to play.'
     );
     document
       .querySelector('.game .roll')
@@ -72,11 +72,8 @@ export class Game {
       Util.animationOn();
     }
     this.rolling = true;
-
     Util.deleteText(this.info);
-
     const textToDraw = this.gameSettings.textLookup[this.inventory.turns];
-
     if (textToDraw) {
       Util.drawText(this.info, textToDraw);
     }

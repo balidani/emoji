@@ -28,7 +28,6 @@ export const loadSettings = async (settings = GameSettings.instance()) => {
 export const loadListener = async (event) => {
   document.querySelector('body').removeEventListener('click', loadListener);
   loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
-    //GameSettings.instance());
 };
 
 loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
@@ -212,10 +211,5 @@ window.simulate = async (
   console.log(over10k, over15k, over20k);
 };
 
-// For balancing:
-// simulate(/*buyAlways=*/'🍾❎🍍🍒', /*buyOnce=*/'🔀🛍️🛍️🛍️🍹🔮🔮🔮🐌🐌🐌🌳');
-// simulate(/*buyAlways=*/'🍾❎🍍🍒', /*buyOnce=*/'🍹🔮🔮🔮🐌🐌🐌🌳🌳');
-// simulate(/*buyAlways=*/'❎🎲🎯🪄', /*buyOnce=*/'🐛🔮');
-
 // This is our "integration test" for now, lol.
-// simulate('','',/*rounds=*/100,/*buyRandom=*/true);
+// simulate('', '',/*rounds=*/100,/*buyRandom=*/true);
