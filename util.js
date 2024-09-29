@@ -80,3 +80,14 @@ export const parseEmojiString = (str) => {
   const graphemeSegments = seg.segment(str);
   return Array.from(graphemeSegments).map((x) => x.segment);
 };
+
+export const createDiv = (innerText, ...classes) => {
+  const div = document.createElement('div');
+  if (innerText) {
+    div.textContent = innerText;
+  }
+  for (const c of classes) {
+    div.classList.add(c);
+  }
+  return div;
+}
