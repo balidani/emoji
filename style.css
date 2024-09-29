@@ -91,13 +91,31 @@ body {
 
 .shopItem {
   display: flex;
-  padding-bottom: 2pt;
+  padding-bottom: 8pt;
 }
 
 .description {
   padding-left: 8pt;
   font-size: 10pt;
   width: 180pt;
+}
+
+.shopEmoji {
+  width: 24pt;
+  font-size: 20pt;
+}
+
+.description {
+  padding-left: 4pt;
+  font-size: 10pt;
+  width: 180pt;
+}
+
+.cost {
+  padding-left: 2pt;
+  text-align: right;
+  width: 36pt;
+  font-size: 10pt;
 }
 
 .refreshDescription {

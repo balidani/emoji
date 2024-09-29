@@ -30,6 +30,7 @@ export class Symb {
   async evaluateProduce() { }
   async finalScore(game, x, y) { }
   async score(game, x, y) { }
+  cost() { return 0; }
   categories() {
     return [];
   }
@@ -41,16 +42,12 @@ export class Symb {
   }
   async addMoney(game, score, x, y) {
     const value = score * this.multiplier;
-    // const coords = game.board.nextToSymbol(x, y, Multiplier.emoji);
-    // for (const coord of coords) {
-    //   const [multX, multY] = coord;
-    //   await Util.animate(
-    //     game.board.getSymbolDiv(multX, multY),
-    //     'flip',
-    //     0.15,
-    //     1
-    //   );
-    // }
+    const coords = game.board.nextToSymbol(x, y, '❎');
+    for (const coord of coords) {
+      const [multX, multY] = coord;
+      await Util.animate(
+        game.board.getSymbolDiv(multX, multY), 'flip', 0.15, 1);
+    }
     await Promise.all([
       game.board.showMoneyEarned(x, y, value),
       game.inventory.addMoney(score * this.multiplier),
