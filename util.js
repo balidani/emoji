@@ -98,7 +98,7 @@ export const createInteractiveDescription = (description) => {
   const segments = parseEmojiString(description);
   let result = '';
   for (const segment of segments) {
-    if (segment.match(/\p{Emoji}/u)) {
+    if ((segment.match(/\p{Emoji}/u)) && !segment.match(/^\d+$/)) {
       result += `<span class="interactive-emoji" data-emoji="${segment}">${segment}</span>`;
     } else {
       result += segment;
