@@ -76,10 +76,47 @@ export class Empty extends Symb {
     return 'you should not be seeing this';
   }
   descriptionLong() {
-    return "this is empty space. it's not part of your inventory.";
+    return 'this is empty space. it\'s not part of your inventory.';
   }
   categories() {
     return [CATEGORY_EMPTY_SPACE, CATEGORY_UNBUYABLE];
+  }
+}
+
+export class Money extends Symb {
+  static emoji = '💵';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new Money();
+  }
+  description() {
+    return 'this is money';
+  }
+  descriptionLong() {
+    return 'this is money. you should get as much as possible before the game ends.';
+  }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
+  }
+}
+export class Turn extends Symb {
+  static emoji = '⏰';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new Turn();
+  }
+  description() {
+    return 'this is how many turns you have left';
+  }
+  descriptionLong() {
+    return 'this is how many turns you have left.';
+  }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
   }
 }
 

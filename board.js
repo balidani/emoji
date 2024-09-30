@@ -57,6 +57,7 @@ export class Board {
     this.getCounterDiv(x, y).innerText = '';
     this.cells[y][x] = this.empty.copy();
   }
+  // TODO: Remove duplicate code between spinDiv and spinDivOnce.
   async spinDiv(game, x, y, symbol) {
     await Util.delay(Util.random(600));
     const div = this.getSymbolDiv(x, y);
@@ -77,7 +78,8 @@ export class Board {
     div.innerText = symbol.emoji();
     div.removeEventListener('click', div.clickEvent);
     div.clickEvent = () => {
-      const interactiveDescription = Util.createInteractiveDescription(symbol.descriptionLong());
+      const interactiveDescription = Util.createInteractiveDescription(
+        symbol.descriptionLong(), /*symbol=*/symbol.emoji());
       Util.drawText(game.info, interactiveDescription, true);
     };
     div.addEventListener('click', div.clickEvent);
@@ -96,7 +98,8 @@ export class Board {
     div.innerText = symbol.emoji();
     div.removeEventListener('click', div.clickEvent);
     div.clickEvent = () => {
-      const interactiveDescription = Util.createInteractiveDescription(symbol.descriptionLong());
+      const interactiveDescription = Util.createInteractiveDescription(
+        symbol.descriptionLong(), /*symbol=*/symbol.emoji());
       Util.drawText(game.info, interactiveDescription, true);
     };
     div.addEventListener('click', div.clickEvent);
