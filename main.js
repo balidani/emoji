@@ -142,7 +142,7 @@ class AutoGame {
               document.getElementsByClassName('buyButton')
             );
             const refreshButton = buttons.splice(3, 1)[0];
-            if (refreshButton !== undefined) {
+            if (refreshButton !== undefined && !refreshButton.disabled) {
               refreshButton.click();
               if ((this.shop.refreshCost >= this.inventory.money / 2) | 0) {
                 break;
