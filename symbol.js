@@ -86,8 +86,10 @@ export class Symb {
     return symbolDiv;
   }
   clickHandler(game) {
+    const interactiveDescription = Util.createInteractiveDescription(
+      this.descriptionLong(), /*emoji=*/this.emoji()); 
     return () =>
-      Util.drawText(game.info, `${this.emoji()}: ${this.descriptionLong()}`);
+      Util.drawText(game.info, interactiveDescription, /*isHtml=*/ true);
   }
 }
 
