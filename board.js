@@ -54,10 +54,12 @@ export class Board {
     this.gridDiv.removeChild(moneyDiv);
   }
   clearCell(x, y) {
-    this.getCounterDiv(x, y).innerText = '';
+    const counterDiv = this.getCounterDiv(x, y);
+    if (counterDiv) {
+      this.getCounterDiv(x, y).innerText = '';
+    }
     this.cells[y][x] = this.empty.copy();
   }
-  // TODO: Remove duplicate code between spinDiv and spinDivOnce.
   async spinDiv(game, x, y, symbol) {
     await Util.delay(Util.random(600));
     const cellDiv = this.getCellDiv(x, y);
