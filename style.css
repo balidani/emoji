@@ -147,15 +147,18 @@ body {
 
 .cell {
   font-size: 26pt;
-  width: 34pt;
-  height: 34pt;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  overflow: hidden;
   position: relative;
   cursor: pointer;
+}
+
+.cell-container {
+  width: 34pt;
+  height: 34pt;
+  overflow: hidden;
 }
 
 .symbol {
