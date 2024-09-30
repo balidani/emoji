@@ -5,6 +5,8 @@ body {
 button {
   font-size: 20pt;
   padding: 2pt;
+  width: 32pt;
+  height: 32pt;
 }
 
 html,

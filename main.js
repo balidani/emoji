@@ -28,7 +28,8 @@ export const loadSettings = async (settings = GameSettings.instance()) => {
       const emoji = e.target.dataset.emoji;
       const symbol = game.catalog.symbol(emoji);
       if (symbol) {
-        const interactiveDescription = Util.createInteractiveDescription(symbol.descriptionLong());
+        const interactiveDescription = Util.createInteractiveDescription(
+          symbol.descriptionLong(), /*emoji=*/symbol.emoji());
         Util.drawText(game.info, interactiveDescription, true);
       }
     }
