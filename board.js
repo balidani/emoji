@@ -15,6 +15,8 @@ export class Board {
       rowDiv.classList.add('row');
       for (let j = 0; j < this.gameSettings.boardX; ++j) {
         row.push(this.empty.copy());
+        const cellContainer = document.createElement('div');
+        cellContainer.classList.add('cell-container');
         const cellDiv = document.createElement('div');
         cellDiv.classList.add('cell');
         cellDiv.classList.add(`cell-${j}-${i}`);
@@ -26,7 +28,8 @@ export class Board {
         counterDiv.innerText = '';
         cellDiv.appendChild(symbolDiv);
         cellDiv.appendChild(counterDiv);
-        rowDiv.appendChild(cellDiv);
+        cellContainer.appendChild(cellDiv);
+        rowDiv.appendChild(cellContainer);
       }
       this.cells.push(row);
       this.gridDiv.appendChild(rowDiv);
