@@ -92,7 +92,7 @@ export class Bug extends Symb {
       }
     } else {
       this.turns = 0;
-      game.board.updateCounter(game, x, y);
+      game.board.redrawCell(game, x, y);
       for (const coord of coords) {
         this.foodScore += 8;
         const [deleteX, deleteY] = coord;
