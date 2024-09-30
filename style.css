@@ -43,6 +43,7 @@ body {
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .inventoryEntryCount {
@@ -67,6 +68,7 @@ body {
 .ui>div {
   display: inline-flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .info {
@@ -151,10 +153,12 @@ body {
   text-align: center;
   overflow: hidden;
   position: relative;
+  cursor: pointer;
 }
 
 .symbol {
   transform-origin: top;
+  cursor: pointer;
 }
 
 .symbolCounter {
@@ -569,4 +573,13 @@ body {
 .settings-box .button-container {
   display: flex;
   justify-content: flex-end;
+}
+
+.interactive-emoji {
+  cursor: pointer;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+.interactive-emoji:hover {
+  transform: scale(1.25);
 }

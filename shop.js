@@ -34,14 +34,14 @@ export class Shop {
       symbolDiv.classList.add('shopEmoji');
       symbolDiv.innerHTML = symbol.emoji();
       symbolDiv.addEventListener('click', () => {
-        Util.drawText(game.info,
-          `${symbol.emoji()}: ${symbol.descriptionLong()}`);
+        const interactiveDescription = Util.createInteractiveDescription(descriptionLong);
+        Util.drawText(game.info, interactiveDescription, true);
       });
       shopItemDiv.appendChild(symbolDiv);
 
       const descriptionDiv = document.createElement('div');
       descriptionDiv.classList.add('description');
-      descriptionDiv.innerHTML = symbol.description();
+      descriptionDiv.innerHTML = Util.createInteractiveDescription(description);
       shopItemDiv.appendChild(descriptionDiv);
 
       const costDiv = document.createElement('div');
