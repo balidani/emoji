@@ -65,9 +65,9 @@ export class Board {
     const cellDiv = this.getCellDiv(x, y);
 
     // Rolling animation portion
+    await Util.animate(cellDiv, 'startSpin', 0.1);
     const fakeDiv = Util.createDiv(null, 'symbol');
     cellDiv.replaceChildren(fakeDiv);
-    await Util.animate(fakeDiv, 'startSpin', 0.1);
     for (let i = 0; i < 6; ++i) {
       fakeDiv.innerText = game.inventory.getRandomOwnedEmoji();
       await Util.animate(fakeDiv, 'spin', 0.12 + i * 0.02);
@@ -84,9 +84,9 @@ export class Board {
     const cellDiv = this.getCellDiv(x, y);
 
     // Rolling animation portion
+    await Util.animate(cellDiv, 'startSpin', 0.1);
     const fakeDiv = Util.createDiv(null, 'symbol');
     cellDiv.replaceChildren(fakeDiv);
-    await Util.animate(fakeDiv, 'startSpin', 0.1);
 
     const symbolDiv = this.cells[y][x].render(game);
 
