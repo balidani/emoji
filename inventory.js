@@ -30,7 +30,9 @@ export class Inventory {
       const symbolDiv = document.createElement('div');
       symbolDiv.addEventListener('click', (_) => {
         const interactiveDescription = Util.createInteractiveDescription(
-          description, /*emoji=*/name);
+          description,
+          /*emoji=*/ name
+        );
         Util.drawText(this.infoDiv, interactiveDescription, true);
       });
       symbolDiv.classList.add('inventoryEntry');

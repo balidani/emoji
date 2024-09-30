@@ -9,31 +9,35 @@ export class Board {
     this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
     this.empty = this.catalog.symbol('⬜');
-    for (let i = 0; i < this.gameSettings.boardY; ++i) {
+    for (let y = 0; y < this.gameSettings.boardY; ++y) {
       const row = [];
       const rowDiv = document.createElement('div');
       rowDiv.classList.add('row');
-      for (let j = 0; j < this.gameSettings.boardX; ++j) {
+      for (let x = 0; x < this.gameSettings.boardX; ++x) {
         row.push(this.empty.copy());
-        const cellContainer = document.createElement('div');
-        cellContainer.classList.add('cell-container');
-        const cellDiv = document.createElement('div');
-        cellDiv.classList.add('cell');
-        cellDiv.classList.add(`cell-${j}-${i}`);
-        const symbolDiv = document.createElement('div');
-        symbolDiv.classList.add('symbol');
-        symbolDiv.innerText = '⬜';
-        const counterDiv = document.createElement('div');
-        counterDiv.classList.add('symbol-counter');
-        counterDiv.innerText = '';
-        cellDiv.appendChild(symbolDiv);
-        cellDiv.appendChild(counterDiv);
-        cellContainer.appendChild(cellDiv);
+        const cellContainer = this.createCellDiv(x, y);
         rowDiv.appendChild(cellContainer);
       }
       this.cells.push(row);
       this.gridDiv.appendChild(rowDiv);
     }
+  }
+  createCellDiv(x, y) {
+    const cellContainer = document.createElement('div');
+    cellContainer.classList.add('cell-container');
+    const cellDiv = document.createElement('div');
+    cellDiv.classList.add('cell');
+    cellDiv.classList.add(`cell-${x}-${y}`);
+    const symbolDiv = document.createElement('div');
+    symbolDiv.classList.add('symbol');
+    symbolDiv.innerText = '⬜';
+    const counterDiv = document.createElement('div');
+    counterDiv.classList.add('symbol-counter');
+    counterDiv.innerText = '';
+    cellDiv.appendChild(symbolDiv);
+    cellDiv.appendChild(counterDiv);
+    cellContainer.appendChild(cellDiv);
+    return cellContainer;
   }
   getSymbolDiv(x, y) {
     return document.querySelector(`.cell-${y}-${x} .symbol`);

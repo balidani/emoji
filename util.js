@@ -73,14 +73,14 @@ export const createDiv = (innerText, ...classes) => {
   return div;
 };
 
-export const createInteractiveDescription = (description, emoji=null) => {
+export const createInteractiveDescription = (description, emoji = null) => {
   const segments = parseEmojiString(description);
   let result = '';
   if (emoji) {
     result = `${emoji}: `;
   }
   for (const segment of segments) {
-    if ((segment.match(/\p{Emoji}/u)) && !segment.match(/^\d+$/)) {
+    if (segment.match(/\p{Emoji}/u) && !segment.match(/^\d+$/)) {
       result += `<span class="interactive-emoji" data-emoji="${segment}">${segment}</span>`;
     } else {
       result += segment;

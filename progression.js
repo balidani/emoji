@@ -8,13 +8,13 @@ const tutorialLevelSettings = new GameSettings(
   4,
   15,
   '🍒🍒🪨',
-  ['./symbol.js', './tutorial-symbols.js'],
+  ['./symbols/tutorial.js'],
   { 100: '🥇' },
   { 50: 'Welcome to the Tutorial!' }
 );
 const standardGameSettings = new GameSettings();
 
-const CURRENT_VERSION = '0.1.4';
+const CURRENT_VERSION = '0.1.5';
 const CURRENT_VERSION_KEY = 'CurrentVersion';
 const PROGRESSION_LEVEL_DATA = 'ProgressionLevelData';
 const PROGRESSION_ACTIVE_LEVEL = 'ProgressionActiveLevel';

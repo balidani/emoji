@@ -2,6 +2,16 @@ import * as Utils from './util.js';
 
 import { loadSettings } from './main.js';
 
+const ALL_TESTED_SYMBOL_FILES = [
+  './symbols/advanced.js',
+  './symbols/animals.js',
+  './symbols/food.js',
+  './symbols/money.js',
+  './symbols/music.js',
+  './symbols/rocks.js',
+  './symbols/things.js',
+];
+
 export class GameSettings {
   static settings = null;
   static instance() {
@@ -33,11 +43,7 @@ export class GameSettings {
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
     this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
-    this.symbolSources = symbolSources || [
-      './symbol.js',
-      './tutorial-symbols.js',
-      './advanced-symbols.js',
-    ];
+    this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
       // NOTE: These temporarily are assumed to be sorted such that the hardest score is first.
       25000: '🏆',

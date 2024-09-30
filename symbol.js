@@ -87,7 +87,9 @@ export class Symb {
   }
   clickHandler(game) {
     const interactiveDescription = Util.createInteractiveDescription(
-      this.descriptionLong(), /*emoji=*/this.emoji()); 
+      this.descriptionLong(),
+      /*emoji=*/ this.emoji()
+    );
     return () =>
       Util.drawText(game.info, interactiveDescription, /*isHtml=*/ true);
   }
@@ -105,7 +107,7 @@ export class Empty extends Symb {
     return 'you should not be seeing this';
   }
   descriptionLong() {
-    return 'this is empty space. it\'s not part of your inventory.';
+    return "this is empty space. it's not part of your inventory.";
   }
   categories() {
     return [CATEGORY_EMPTY_SPACE, CATEGORY_UNBUYABLE];
