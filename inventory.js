@@ -29,7 +29,9 @@ export class Inventory {
     map.forEach(({ count, description }, name) => {
       const symbolDiv = document.createElement('div');
       symbolDiv.addEventListener('click', (_) => {
-        Util.drawText(this.infoDiv, `${name}: ${description}`);
+        const interactiveDescription = Util.createInteractiveDescription(
+          description, /*emoji=*/name);
+        Util.drawText(this.infoDiv, interactiveDescription, true);
       });
       symbolDiv.classList.add('inventoryEntry');
       symbolDiv.innerText = name;
