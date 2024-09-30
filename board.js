@@ -82,14 +82,9 @@ export class Board {
   }
   async spinDivOnce(game, x, y) {
     const cellDiv = this.getCellDiv(x, y);
-
-    // Rolling animation portion
     await Util.animate(cellDiv, 'startSpin', 0.1);
-    const fakeDiv = Util.createDiv(null, 'symbol');
-    cellDiv.replaceChildren(fakeDiv);
-
     const symbolDiv = this.cells[y][x].render(game);
-
+    cellDiv.replaceChildren(symbolDiv);
     await Util.animate(symbolDiv, 'endSpin', 0.3);
     await Util.animate(symbolDiv, 'bounce', 0.1);
   }
