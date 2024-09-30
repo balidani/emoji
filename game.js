@@ -1,8 +1,8 @@
 import { Inventory } from './inventory.js';
-import { Board } from "./board.js";
-import { Shop } from "./shop.js";
-import * as Util from "./util.js"
-import { loadListener } from './main.js';   // Semi-Circular import, but it works.
+import { Board } from './board.js';
+import { Shop } from './shop.js';
+import * as Util from './util.js';
+import { loadListener } from './main.js'; // Semi-Circular import, but it works.
 
 export class Game {
   constructor(progression, gameSettings, catalog) {
@@ -42,7 +42,9 @@ export class Game {
       await Util.animate(scoreDiv, 'scoreIn', 0.4);
     }
     let trophy = '💩';
-    for (const [requirement, reward] of Object.entries(this.gameSettings.resultLookup)) {
+    for (const [requirement, reward] of Object.entries(
+      this.gameSettings.resultLookup
+    )) {
       if (this.inventory.money >= requirement) {
         trophy = reward;
         break;

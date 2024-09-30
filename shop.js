@@ -1,4 +1,4 @@
-import * as Util from "./util.js"
+import * as Util from './util.js';
 
 export class Shop {
   constructor(catalog) {
@@ -22,20 +22,17 @@ export class Shop {
       game.inventory.lastLuckBonus
     );
 
-    const makeShopItem = (
-      symbol,
-      symbolCost,
-      handler,
-      buttonText = '✅'
-    ) => {
+    const makeShopItem = (symbol, symbolCost, handler, buttonText = '✅') => {
       const shopItemDiv = document.createElement('div');
       shopItemDiv.classList.add('shopItem');
       const symbolDiv = document.createElement('div');
       symbolDiv.classList.add('shopEmoji');
       symbolDiv.innerHTML = symbol.emoji();
       symbolDiv.addEventListener('click', () => {
-        Util.drawText(game.info,
-          `${symbol.emoji()}: ${symbol.descriptionLong()}`);
+        Util.drawText(
+          game.info,
+          `${symbol.emoji()}: ${symbol.descriptionLong()}`
+        );
       });
       shopItemDiv.appendChild(symbolDiv);
 
@@ -69,28 +66,24 @@ export class Shop {
       const symbol = Util.randomRemove(newCatalog);
       // Support for dynamically generated cost -- report the same value that is subtracted later.
       const symbolCost = symbol.cost();
-      const shopItemDiv = makeShopItem(
-        symbol,
-        symbolCost,
-        async (e) => {
-          if (game.shop.buyCount > 0 && game.inventory.money > symbolCost) {
-            game.shop.buyCount--;
-            await Promise.all([
-              game.board.showMoneyEarned(0, 0, -symbolCost),
-              game.inventory.addMoney(-symbolCost),
-            ]);
-            game.inventory.add(symbol);
-          }
-          if (game.shop.buyCount > 0) {
-            const div = e.srcElement.parentElement.parentElement;
-            await Util.animate(div, 'closeShop', 0.2);
-            div.classList.add('hidden');
-          }
-          if (game.shop.buyCount === 0) {
-            await game.shop.close(game);
-          }
+      const shopItemDiv = makeShopItem(symbol, symbolCost, async (e) => {
+        if (game.shop.buyCount > 0 && game.inventory.money > symbolCost) {
+          game.shop.buyCount--;
+          await Promise.all([
+            game.board.showMoneyEarned(0, 0, -symbolCost),
+            game.inventory.addMoney(-symbolCost),
+          ]);
+          game.inventory.add(symbol);
         }
-      );
+        if (game.shop.buyCount > 0) {
+          const div = e.srcElement.parentElement.parentElement;
+          await Util.animate(div, 'closeShop', 0.2);
+          div.classList.add('hidden');
+        }
+        if (game.shop.buyCount === 0) {
+          await game.shop.close(game);
+        }
+      });
       this.shopDiv.appendChild(shopItemDiv);
     }
 
@@ -98,7 +91,9 @@ export class Shop {
     if (game.shop.refreshable || game.shop.refreshCount === 0) {
       const shopItemDiv = makeShopItem(
         {
-          emoji: () => '&nbsp;', description: () => '', descriptionLong: () => '',
+          emoji: () => '&nbsp;',
+          description: () => '',
+          descriptionLong: () => '',
         },
         this.refreshCost,
         async () => {
@@ -113,7 +108,7 @@ export class Shop {
             this.open(game);
           }
         },
-        /*buttonText=*/'🔀'
+        /*buttonText=*/ '🔀'
       );
       this.shopDiv.appendChild(shopItemDiv);
     }

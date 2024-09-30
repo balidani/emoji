@@ -90,4 +90,4 @@ export const createDiv = (innerText, ...classes) => {
     div.classList.add(c);
   }
   return div;
-}
+};

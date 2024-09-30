@@ -1,7 +1,22 @@
-import { chance, Symb, CATEGORY_ANIMAL, CATEGORY_UNBUYABLE, CATEGORY_EMPTY_SPACE,
-   Cherry, Pineapple, Rock, Empty, Coin, Dragon, Diamond
-  } from "./symbol.js";
-import * as Util from "./util.js";
+import {
+  chance,
+  Symb,
+  Empty,
+  CATEGORY_UNBUYABLE,
+  CATEGORY_EMPTY_SPACE,
+} from './symbol.js';
+
+import {
+  CATEGORY_ANIMAL,
+  Cherry,
+  Pineapple,
+  Rock,
+  Coin,
+  Dragon,
+  Diamond,
+} from './tutorial-symbols.js';
+
+import * as Util from './util.js';
 
 export class Bomb extends Symb {
   static emoji = '💣';
@@ -78,7 +93,7 @@ export class Bubble extends Symb {
     }
     await game.board.removeSymbol(game, x, y);
   }
-  counter(game) {
+  counter(_) {
     return 3 - this.turns;
   }
   description() {
@@ -186,14 +201,14 @@ export class Cocktail extends Symb {
         this.cherryScore = reward(this.cherryScore);
         const [deleteX, deleteY] = coord;
         await game.board.removeSymbol(game, deleteX, deleteY);
-        game.board.updateCounter(game, x, y);
+        game.board.redrawCell(game, x, y);
       }
     };
     await remove(Cherry, (v) => v + 2);
     await remove(Pineapple, (v) => v + 4);
     await remove(Champagne, (v) => v * 2);
   }
-  counter(game) {
+  counter(_) {
     return this.cherryScore;
   }
   description() {
@@ -235,7 +250,7 @@ export class Champagne extends Symb {
       await game.board.addSymbol(game, new Bubble(), newX, newY);
     }
   }
-  counter(game) {
+  counter(_) {
     return 3 - this.turns;
   }
   description() {
@@ -250,7 +265,7 @@ export class Chick extends Symb {
   static emoji = '🐣';
   constructor(timeToGrow = 3) {
     super();
-    this.timeToGrow = timeToGrow
+    this.timeToGrow = timeToGrow;
     this.rarity = 0.2;
     this.turns = 0;
   }
@@ -269,7 +284,7 @@ export class Chick extends Symb {
       await game.board.addSymbol(game, new Chicken(), x, y);
     }
   }
-  counter(game) {
+  counter(_) {
     return 3 - this.turns;
   }
   description() {
@@ -320,7 +335,6 @@ export class Chicken extends Symb {
     return 'this is a chicken. it pays 💵3 and has a 10% chance of laying up to 3 🥚 on empty spaces around it.';
   }
 }
-
 
 export class CreditCard extends Symb {
   static emoji = '💳';
@@ -424,7 +438,7 @@ export class Drums extends Symb {
       await game.board.addSymbol(game, new MusicalNote(), newX, newY);
     }
   }
-  counter(game) {
+  counter(_) {
     return 3 - (this.turns % 3);
   }
   description() {
@@ -455,7 +469,7 @@ export class Egg extends Symb {
       await game.board.addSymbol(game, newSymbol, x, y);
     }
   }
-  counter(game) {
+  counter(_) {
     return this.timeToHatch - this.turns;
   }
   description() {
@@ -525,7 +539,7 @@ export class Fox extends Symb {
         await game.board.removeSymbol(game, deleteX, deleteY);
       }
       this.turns = 0;
-      game.board.updateCounter(game, x, y);
+      game.board.redrawCell(game, x, y);
     };
     await eatNeighbor(Chick, 10);
     await eatNeighbor(Chicken, 20);
@@ -536,7 +550,7 @@ export class Fox extends Symb {
   categories() {
     return [CATEGORY_ANIMAL];
   }
-  counter(game) {
+  counter(_) {
     return 5 - this.turns;
   }
   description() {
@@ -612,10 +626,10 @@ export class MoneyBag extends Symb {
       this.coins += 2;
       const [deleteX, deleteY] = coord;
       await game.board.removeSymbol(game, deleteX, deleteY);
-      game.board.updateCounter(game, x, y);
+      game.board.redrawCell(game, x, y);
     }
   }
-  counter(game) {
+  counter(_) {
     return this.coins;
   }
   description() {
@@ -625,7 +639,6 @@ export class MoneyBag extends Symb {
     return 'this is a money bag. it collects neighboring 🪙 and permanently gives 💵2 more for each 🪙 collected.';
   }
 }
-
 
 export class Moon extends Symb {
   static emoji = '🌝';
@@ -640,7 +653,7 @@ export class Moon extends Symb {
   async score(game, x, y) {
     if (this.turns >= 31) {
       this.turns = 0;
-      game.board.updateCounter(game, x, y);
+      game.board.redrawCell(game, x, y);
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.3),
         this.addMoney(game, 555, x, y),
@@ -648,7 +661,7 @@ export class Moon extends Symb {
     }
     this.moonScore = 0;
   }
-  counter(game) {
+  counter(_) {
     return 31 - this.turns;
   }
   description() {
@@ -710,7 +723,7 @@ export class MusicalNote extends Symb {
       await game.board.removeSymbol(game, x, y);
     }
   }
-  counter(game) {
+  counter(_) {
     return 3 - this.turns;
   }
   categories() {
@@ -749,12 +762,12 @@ export class Record extends Symb {
     }
     for (const coord of coords) {
       this.notes += 6;
-      game.board.updateCounter(game, x, y);
+      game.board.redrawCell(game, x, y);
       const [deleteX, deleteY] = coord;
       await game.board.removeSymbol(game, deleteX, deleteY);
     }
   }
-  counter(game) {
+  counter(_) {
     return this.notes;
   }
   description() {
@@ -774,7 +787,7 @@ export class Refresh extends Symb {
   copy() {
     return new Refresh();
   }
-  async evaluateProduce(game, x, y) {
+  async evaluateProduce(game, _, __) {
     game.shop.refreshable = true;
     game.shop.refreshCount = 0;
   }
@@ -786,7 +799,6 @@ export class Refresh extends Symb {
   }
 }
 
-
 export class Rocket extends Symb {
   static emoji = '🚀';
   constructor() {
@@ -797,7 +809,7 @@ export class Rocket extends Symb {
     return new Rocket();
   }
   async evaluateProduce(game, x, y) {
-    const coords = game.board.nextToExpr(x, y, (sym) => true);
+    const coords = game.board.nextToCoords(x, y);
     for (const cell of coords) {
       const [neighborX, neighborY] = cell;
       game.board.cells[neighborY][neighborX].turns++;
@@ -820,7 +832,7 @@ export class ShoppingBag extends Symb {
   copy() {
     return new ShoppingBag();
   }
-  async evaluateProduce(game, x, y) {
+  async evaluateProduce(game, _, __) {
     game.shop.buyCount++;
   }
   description() {
@@ -858,7 +870,6 @@ export class Slots extends Symb {
   }
 }
 
-
 export class Volcano extends Symb {
   static emoji = '🌋';
   constructor() {
@@ -883,7 +894,6 @@ export class Volcano extends Symb {
     return 'this is a volcano. it has a 10% chance to replace a random tile on the board with 🪨.';
   }
 }
-
 
 export class Hole extends Symb {
   static emoji = '🕳️';
@@ -915,7 +925,7 @@ export class Snail extends Symb {
     return new Snail();
   }
   async evaluateProduce(game, x, y) {
-    const coords = game.board.nextToExpr(x, y, (sym) => true);
+    const coords = game.board.nextToCoords(x, y);
     for (const cell of coords) {
       const [neighborX, neighborY] = cell;
       game.board.cells[neighborY][neighborX].turns--;

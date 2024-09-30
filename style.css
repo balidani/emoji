@@ -64,7 +64,7 @@ body {
   font-size: 16pt;
 }
 
-.ui>div {
+.ui > div {
   display: inline-flex;
   align-items: center;
 }
@@ -157,7 +157,7 @@ body {
   transform-origin: top;
 }
 
-.symbolCounter {
+.symbol-counter {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -224,7 +224,9 @@ body {
   border-radius: 5px;
   cursor: pointer;
   background-color: #f0f0f0;
-  transition: border 0.3s, background-color 0.3s;
+  transition:
+    border 0.3s,
+    background-color 0.3s;
   display: flex;
   justify-content: space-between;
   flex-direction: row;
@@ -287,8 +289,6 @@ body {
   }
 }
 
-
-
 .wipe-button {
   text-align: center;
   padding: 2px 3px;
@@ -298,7 +298,9 @@ body {
   color: white;
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
+  transition:
+    background-color 0.3s,
+    transform 0.3s;
   margin-top: 20px;
 }
 
@@ -508,6 +510,10 @@ body {
 /* Misc */
 
 .hidden {
+  display: none;
+}
+
+.dev-hidden {
   display: none;
 }
 

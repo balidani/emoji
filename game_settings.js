@@ -11,7 +11,16 @@ export class GameSettings {
     return GameSettings.settings;
   }
 
-  constructor(name, boardX, boardY, gameLength, startingSetString, symbolSources, resultLookup, textLookup) {
+  constructor(
+    name,
+    boardX,
+    boardY,
+    gameLength,
+    startingSetString,
+    symbolSources,
+    resultLookup,
+    textLookup
+  ) {
     this.settingsDiv = document.querySelector('.game .settings');
     this.settingsOpener = document.querySelector('.open-settings');
     this.settingsOpener.addEventListener('click', (_) => {
@@ -19,12 +28,16 @@ export class GameSettings {
     });
 
     this.isOpen = false;
-    this.name = name || "Default Game Settings";
+    this.name = name || 'Default Game Settings';
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
     this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
-    this.symbolSources = symbolSources || ['./symbol.js', './advanced-symbols.js'];
+    this.symbolSources = symbolSources || [
+      './symbol.js',
+      './tutorial-symbols.js',
+      './advanced-symbols.js',
+    ];
     this.resultLookup = resultLookup || {
       // NOTE: These temporarily are assumed to be sorted such that the hardest score is first.
       25000: '🏆',
@@ -40,7 +53,7 @@ export class GameSettings {
     };
   }
 
-  async open(game) {
+  async open(_game) {
     if (this.isOpen) {
       return;
     }
@@ -117,7 +130,7 @@ export class GameSettings {
     this.close();
     loadSettings(this);
   }
-  async close(game) {
+  async close(_game) {
     if (!this.isOpen) {
       return;
     }
