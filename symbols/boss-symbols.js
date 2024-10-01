@@ -6,7 +6,31 @@ import * as Util from "../util.js";
 export const CATEGORY_ENEMY = Symbol('Enemy');
 export const CATEGORY_ANIMAL = Symbol('Enemy');
 
-export class Wizard extends Symb {
+export class Enemy extends Symb {
+  static emoji = 'E';
+  constructor(hp) {
+    super();
+    this.rarity = -100;
+    this.hp = hp;
+  }
+  categories() {
+    return [CATEGORY_ENEMY];
+  }
+  counter(game) {
+    return this.hp;
+  }
+  async damage(game, x, y, dmg) {
+    this.hp -= dmg;
+    if (this.hp <= 0) {
+      await game.board.removeSymbol(game, x, y);
+    } else {
+      game.board.redrawCell(game, x, y);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    }
+  }
+}
+
+export class Wizard extends Enemy {
   static emoji = '🧙‍♂️';
   constructor(hp = 100) {
     super();
@@ -19,27 +43,40 @@ export class Wizard extends Symb {
   async score(game, x, y) {
     if (this.hp <= 0) {
       game.over();
+    }      
+    if (chance(game, 0.1, x, y)) {
+      const coords = game.board.nextToEmpty(x, y);
+      if (coords.length === 0) {
+        return;
+      }
+      const [ratX, ratY] = Util.randomChoose(coords);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 1);
+      await game.board.addSymbol(game, new Rat(), ratX, ratY);
     }
-    if (this.turns % 5 === 0 && this.turns > 0) {
-      await this.addMoney(game, -(game.inventory.money - 1), x, y);
-    }
-  }
-  async damage(game, x, y, dmg) {
-    this.hp -= dmg;
-    game.board.redrawCell(game, x, y);
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
-  }
-  categories() {
-    return [CATEGORY_ENEMY];
-  }
-  counter(game) {
-    return this.hp;
   }
   description() {
     return 'this is the grand mage.';
   }
   descriptionLong() {
-    return 'this is the grand mage. it steals almost all your money every 5 turns.';
+    return 'this is the grand mage.';
+  }
+}
+
+export class Rat extends Enemy {
+  static emoji = '🐀';
+  constructor(hp = 3) {
+    super();
+    this.rarity = -1.0;
+    this.hp = hp;
+  }
+  copy() {
+    return new Rat(this.hp);
+  }
+  description() {
+    return 'this is a rat.';
+  }
+  descriptionLong() {
+    return 'this is a rat.';
   }
 }
 
@@ -65,10 +102,10 @@ export class Dagger extends Symb {
     return 11;
   }
   description() {
-    return 'deals 3 damage to a random enemy nearby.';
+    return '3 charges, deals 3 damage to a random enemy nearby.';
   }
   descriptionLong() {
-    return 'deals 3 damage to a random enemy nearby.';
+    return '3 charges, deals 3 damage to a random enemy nearby.';
   }
 }
 
