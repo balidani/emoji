@@ -76,7 +76,7 @@ export class Symb {
       'symbol-counter'
     );
     const mult = this.multiplier !== 1 ? this.multiplier : undefined;
-    const multiplierDiv = Util.createDiv(mult, ['symbol-multiplier', 'hidden']);
+    const multiplierDiv = Util.createDiv(mult, 'symbol-multiplier', 'hidden');
 
     symbolDiv.addEventListener('click', this.clickHandler(game));
 
