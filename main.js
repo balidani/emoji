@@ -237,5 +237,5 @@ window.simulate = async (
 };
 
 // This is our "integration test" for now, lol.
-simulate('', '',/*rounds=*/100,/*buyRandom=*/true);
+// simulate('', '',/*rounds=*/100,/*buyRandom=*/true);
 // simulate(/*buyAlways=*/'❎🪙', /*buyOnce=*/'🐛💰🔮🪄🏦🏦🏦', 10);
