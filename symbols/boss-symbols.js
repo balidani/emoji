@@ -20,6 +20,9 @@ export class Wizard extends Symb {
     if (this.hp <= 0) {
       game.over();
     }
+    if (this.turns % 5 === 0 && this.turns > 0) {
+      await this.addMoney(game, -(game.inventory.money - 1), x, y);
+    }
   }
   async damage(game, x, y, dmg) {
     this.hp -= dmg;
@@ -33,10 +36,10 @@ export class Wizard extends Symb {
     return this.hp;
   }
   description() {
-    return 'this is the boss to defeat.';
+    return 'this is the grand mage.';
   }
   descriptionLong() {
-    return 'this is the boss to defeat. you have to figure out how to defeat it.';
+    return 'this is the grand mage. it steals almost all your money every 5 turns.';
   }
 }
 
