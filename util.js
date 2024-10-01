@@ -13,13 +13,13 @@ export const randomChoose = (arr) => arr[random(arr.length)];
 export const randomRemove = (arr) => arr.splice(random(arr.length), 1)[0];
 export const delay = (ms) => {
   if (!ANIMATION) {
-    return;
+    return Promise.resolve();
   }
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 export const animate = (element, animation, duration, repeat = 1) => {
   if (!ANIMATION) {
-    return;
+    return Promise.resolve();
   }
   return new Promise((resolve) => {
     element.style.animation = 'none';

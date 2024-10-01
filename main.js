@@ -50,7 +50,7 @@ if (window.location.hash === '#dev') {
   });
 }
 
-loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
+await loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
 
 ///// TEST RELATED CODE BELOW //////
 
@@ -86,7 +86,7 @@ class AutoGame {
     if (this.inventory.money > 0) {
       this.inventory.turns--;
       this.inventory.updateUi();
-      this.inventory.addMoney(-1);
+      await this.inventory.addMoney(-1);
       this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);
       await this.board.roll(this);
@@ -156,10 +156,10 @@ class AutoGame {
             );
             const refreshButton = buttons.splice(3, 1)[0];
             if (refreshButton !== undefined && !refreshButton.disabled) {
-              refreshButton.click();
               if ((this.shop.refreshCost >= this.inventory.money / 2) | 0) {
                 break;
               }
+              await refreshButton.clickSim();
             } else {
               break;
             }
@@ -170,8 +170,9 @@ class AutoGame {
 
     if (this.inventory.turns <= 0) {
       await this.over();
+    } else {
+      this.totalTurns++;
     }
-    this.totalTurns++;
   }
   async simulate() {
     for (let i = 0; i < 200 && !this.isOver; ++i) {
@@ -183,7 +184,7 @@ class AutoGame {
 window.simulate = async (
   buyAlways,
   buyOnce,
-  rounds = 100,
+  rounds = 1,
   buyRandom = false
 ) => {
   Util.toggleAnimation();
@@ -236,4 +237,5 @@ window.simulate = async (
 };
 
 // This is our "integration test" for now, lol.
-// simulate('', '',/*rounds=*/100,/*buyRandom=*/true);
+simulate('', '',/*rounds=*/100,/*buyRandom=*/true);
+// simulate(/*buyAlways=*/'❎🪙', /*buyOnce=*/'🐛💰🔮🪄🏦🏦🏦', 10);

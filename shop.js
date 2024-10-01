@@ -61,6 +61,8 @@ export class Shop {
         buyButton.disabled = true;
       }
       buyButton.addEventListener('click', handler);
+      // Only for simulator.
+      buyButton.clickSim = handler;
       buyDiv.appendChild(buyButton);
       shopItemDiv.appendChild(buyDiv);
       return shopItemDiv;
@@ -99,7 +101,7 @@ export class Shop {
           descriptionLong: () => '',
         },
         this.refreshCost,
-        async () => {
+        async (e) => {
           game.shop.refreshCount++;
           if (game.inventory.money > this.refreshCost) {
             await Promise.all([
@@ -108,7 +110,7 @@ export class Shop {
             ]);
             this.refreshCost *= 2;
             this.isOpen = false;
-            this.open(game);
+            await this.open(game);
           }
         },
         /*buttonText=*/ '🔀'
