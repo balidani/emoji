@@ -3,7 +3,7 @@ import { GameSettings } from './game_settings.js';
 import { Catalog } from './catalog.js';
 import { Board } from './board.js';
 import { Inventory } from './inventory.js';
-import { Shop } from './shop.js'; ``
+import { Shop } from './shop.js';
 import { Game } from './game.js';
 import { Progression } from './progression.js';
 
@@ -29,7 +29,9 @@ export const loadSettings = async (settings = GameSettings.instance()) => {
       const symbol = game.catalog.symbol(emoji);
       if (symbol) {
         const interactiveDescription = Util.createInteractiveDescription(
-          symbol.descriptionLong(), /*emoji=*/symbol.emoji());
+          symbol.descriptionLong(),
+          /*emoji=*/ symbol.emoji()
+        );
         Util.drawText(game.info, interactiveDescription, true);
       }
     }
@@ -37,14 +39,24 @@ export const loadSettings = async (settings = GameSettings.instance()) => {
   return game;
 };
 
-export const loadListener = async (event) => {
+export const loadListener = async (_) => {
   document.querySelector('body').removeEventListener('click', loadListener);
   loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
 };
 
+if (window.location.hash === '#dev') {
+  document.querySelectorAll('.dev-hidden').forEach((e) => {
+    e.classList.remove('dev-hidden');
+  });
+}
+
 loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
 
 ///// TEST RELATED CODE BELOW //////
+
+class SimBoard extends Board {
+  redrawCell(_, __, ___) {}
+}
 
 class AutoGame {
   constructor(gameSettings, catalog, buyAlways, buyOnce, buyRandom) {
@@ -55,7 +67,7 @@ class AutoGame {
       this.catalog.symbolsFromString(this.gameSettings.startingSet)
     );
     this.inventory.update();
-    this.board = new Board(this.gameSettings, this.catalog);
+    this.board = new SimBoard(this.gameSettings, this.catalog);
     this.shop = new Shop(this.catalog);
     this.totalTurns = 0;
     this.buyAlways = new Set(buyAlways);
@@ -206,7 +218,7 @@ window.simulate = async (
     const avg = (scores.reduce((acc, val) => acc + val, 0) / scores.length) | 0;
     const max = Math.max(...scores);
     const min = Math.min(...scores);
-    console.log(`${i}\tscore ${score}\tavg ${avg}\tmax ${max}`);
+    console.log(`${i}\tscore ${score}\tavg ${avg}\tmax ${max}\tmin ${min}`);
     if (game.totalTurns === 200) {
       console.log('inf!');
     }

@@ -1,11 +1,11 @@
-import * as Util from "./util.js";
+import * as Util from './util.js';
 
 export class Inventory {
   constructor(turns, symbols) {
     this.symbols = symbols;
-    this.symbolsDiv = document.querySelector(".game .inventory");
-    this.uiDiv = document.querySelector(".game .ui");
-    this.infoDiv = document.querySelector(".info");
+    this.symbolsDiv = document.querySelector('.game .inventory');
+    this.uiDiv = document.querySelector('.game .ui');
+    this.infoDiv = document.querySelector('.info');
     this.money = 1;
     this.luckBonus = 0;
     this.lastLuckBonus = 0;
@@ -27,17 +27,19 @@ export class Inventory {
       });
     });
     map.forEach(({ count, description }, name) => {
-      const symbolDiv = document.createElement("div");
-      symbolDiv.addEventListener("click", (e) => {
+      const symbolDiv = document.createElement('div');
+      symbolDiv.addEventListener('click', (_) => {
         const interactiveDescription = Util.createInteractiveDescription(
-          description, /*emoji=*/name);
+          description,
+          /*emoji=*/ name
+        );
         Util.drawText(this.infoDiv, interactiveDescription, true);
       });
-      symbolDiv.classList.add("inventoryEntry");
+      symbolDiv.classList.add('inventoryEntry');
       symbolDiv.innerText = name;
 
-      const countSpan = document.createElement("span");
-      countSpan.classList.add("inventoryEntryCount");
+      const countSpan = document.createElement('span');
+      countSpan.classList.add('inventoryEntryCount');
       countSpan.innerText = count;
       symbolDiv.appendChild(countSpan);
       this.symbolsDiv.appendChild(symbolDiv);
@@ -85,5 +87,9 @@ export class Inventory {
     displayKeyValue('💵', this.money);
     displayKeyValue('⏰', this.turns);
     displayKeyValue('🍀', (this.lastLuckBonus * 100) | 0);
+  }
+  // Note: This does NOT return a Symbol. It returns an emoji text character for animation purposes.
+  getRandomOwnedEmoji() {
+    return Util.randomChoose(this.symbols).emoji();
   }
 }

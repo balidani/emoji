@@ -1,13 +1,14 @@
-import { CATEGORY_UNBUYABLE, Symb } from './symbol.js';
-import * as Util from './util.js';
+import { CATEGORY_UNBUYABLE, Symb } from '../symbol.js';
+import * as Util from '../util.js';
 
 export class Catalog {
   constructor(symbolSources) {
-    this.symbolSources = symbolSources || ['./symbol.js'];
+    this.symbolSources = symbolSources || [];
   }
   async updateSymbols() {
     this.symbols = new Map();
     this.categories = new Map();
+    this.symbolSources.unshift('./symbol.js'); // All symbol lists require this
     for (let source of this.symbolSources) {
       try {
         let symModule = await import(source);

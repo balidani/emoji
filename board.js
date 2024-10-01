@@ -9,37 +9,44 @@ export class Board {
     this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
     this.empty = this.catalog.symbol('⬜');
-    for (let i = 0; i < this.gameSettings.boardY; ++i) {
+    for (let y = 0; y < this.gameSettings.boardY; ++y) {
       const row = [];
       const rowDiv = document.createElement('div');
       rowDiv.classList.add('row');
-      for (let j = 0; j < this.gameSettings.boardX; ++j) {
+      for (let x = 0; x < this.gameSettings.boardX; ++x) {
         row.push(this.empty.copy());
-        const cellDiv = document.createElement('div');
-        cellDiv.classList.add('cell');
-        const symbolDiv = document.createElement('div');
-        symbolDiv.classList.add('symbol');
-        symbolDiv.innerText = '⬜';
-        const counterDiv = document.createElement('div');
-        counterDiv.classList.add('symbolCounter');
-        counterDiv.innerText = '';
-        cellDiv.appendChild(symbolDiv);
-        cellDiv.appendChild(counterDiv);
-        rowDiv.appendChild(cellDiv);
+        const cellContainer = this.createCellDiv(x, y);
+        rowDiv.appendChild(cellContainer);
       }
       this.cells.push(row);
       this.gridDiv.appendChild(rowDiv);
     }
   }
-  getSymbolDiv(x, y) {
-    return this.gridDiv.children[y].children[x].children[0];
+  createCellDiv(x, y) {
+    const cellContainer = document.createElement('div');
+    cellContainer.classList.add('cell-container');
+    const cellDiv = document.createElement('div');
+    cellDiv.classList.add('cell');
+    cellDiv.classList.add(`cell-${x}-${y}`);
+    const symbolDiv = document.createElement('div');
+    symbolDiv.classList.add('symbol');
+    symbolDiv.innerText = '⬜';
+    const counterDiv = document.createElement('div');
+    counterDiv.classList.add('symbol-counter');
+    counterDiv.innerText = '';
+    cellDiv.appendChild(symbolDiv);
+    cellDiv.appendChild(counterDiv);
+    cellContainer.appendChild(cellDiv);
+    return cellContainer;
   }
-  updateCounter(game, x, y) {
-    const counterDiv = this.gridDiv.children[y].children[x].children[1];
-    const counter = this.cells[y][x].counter(game);
-    if (counter !== null) {
-      counterDiv.innerText = counter;
-    }
+  getSymbolDiv(x, y) {
+    return document.querySelector(`.cell-${y}-${x} .symbol`);
+  }
+  getCellDiv(x, y) {
+    return document.querySelector(`.cell-${y}-${x}`);
+  }
+  redrawCell(game, x, y) {
+    this.getCellDiv(x, y).replaceChildren(this.cells[y][x].render(game));
   }
   getCounterDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[1];
@@ -54,60 +61,39 @@ export class Board {
     this.gridDiv.removeChild(moneyDiv);
   }
   clearCell(x, y) {
-    this.getCounterDiv(x, y).innerText = '';
+    const counterDiv = this.getCounterDiv(x, y);
+    if (counterDiv) {
+      this.getCounterDiv(x, y).innerText = '';
+    }
     this.cells[y][x] = this.empty.copy();
   }
-  // TODO: Remove duplicate code between spinDiv and spinDivOnce.
   async spinDiv(game, x, y, symbol) {
     await Util.delay(Util.random(600));
-    const div = this.getSymbolDiv(x, y);
-    const counterDiv = this.getCounterDiv(x, y);
-    counterDiv.innerText = '';
-    const randomSymbol = () => {
-      const set = new Set();
-      for (const symbol of Object.values(game.inventory.symbols)) {
-        set.add(symbol.emoji());
-      }
-      div.innerText = Util.randomChoose([...set]);
-    };
-    await Util.animate(div, 'startSpin', 0.1);
+    const cellDiv = this.getCellDiv(x, y);
+
+    // Rolling animation portion
+    await Util.animate(cellDiv, 'startSpin', 0.1);
+    const fakeDiv = Util.createDiv(null, 'symbol');
+    cellDiv.replaceChildren(fakeDiv);
     for (let i = 0; i < 6; ++i) {
-      randomSymbol();
-      await Util.animate(div, 'spin', 0.12 + i * 0.02);
+      fakeDiv.innerText = game.inventory.getRandomOwnedEmoji();
+      await Util.animate(fakeDiv, 'spin', 0.12 + i * 0.02);
     }
-    div.innerText = symbol.emoji();
-    div.removeEventListener('click', div.clickEvent);
-    div.clickEvent = () => {
-      const interactiveDescription = Util.createInteractiveDescription(
-        symbol.descriptionLong(), /*symbol=*/symbol.emoji());
-      Util.drawText(game.info, interactiveDescription, true);
-    };
-    div.addEventListener('click', div.clickEvent);
-    await Util.animate(div, 'endSpin', 0.3);
-    await Util.animate(div, 'bounce', 0.1);
-    if (symbol.counter(game) != null) {
-      counterDiv.innerText = symbol.counter(game);
-    }
+
+    // Set the actual symbol
+    const symbolDiv = symbol.render(game);
+    cellDiv.replaceChildren(symbolDiv);
+
+    await Util.animate(symbolDiv, 'endSpin', 0.3);
+    await Util.animate(symbolDiv, 'bounce', 0.1);
   }
   async spinDivOnce(game, x, y) {
-    const div = this.getSymbolDiv(x, y);
-    const counterDiv = this.getCounterDiv(x, y);
-    counterDiv.innerText = '';
-    await Util.animate(div, 'startSpin', 0.1);
-    const symbol = this.cells[y][x];
-    div.innerText = symbol.emoji();
-    div.removeEventListener('click', div.clickEvent);
-    div.clickEvent = () => {
-      const interactiveDescription = Util.createInteractiveDescription(
-        symbol.descriptionLong(), /*symbol=*/symbol.emoji());
-      Util.drawText(game.info, interactiveDescription, true);
-    };
-    div.addEventListener('click', div.clickEvent);
-    await Util.animate(div, 'endSpin', 0.3);
-    await Util.animate(div, 'bounce', 0.1);
-    if (symbol.counter(game) != null) {
-      counterDiv.innerText = symbol.counter(game);
-    }
+    const cellDiv = this.getCellDiv(x, y);
+    await Util.animate(cellDiv, 'startSpin', 0.1);
+    const symbolDiv = this.cells[y][x].render(game);
+    cellDiv.replaceChildren(symbolDiv);
+    await Util.animate(symbolDiv, 'endSpin', 0.3);
+    await Util.animate(symbolDiv, 'bounce', 0.1);
   }
   async roll(game) {
     const symbols = [...game.inventory.symbols];
@@ -139,11 +125,11 @@ export class Board {
     await Promise.all(tasks);
   }
   async evaluate(game) {
-    this.forAllCells((cell, x, y) => {
+    this.forAllCells((cell, _, __) => {
       cell.turns++;
     });
     this.forAllCells((cell, x, y) => {
-      this.updateCounter(game, x, y);
+      this.redrawCell(game, x, y);
     });
     const evaluateRound = async (f) => {
       const tasks = [];
@@ -160,7 +146,7 @@ export class Board {
         await task();
       }
       this.forAllCells((cell, x, y) => {
-        this.updateCounter(game, x, y);
+        this.redrawCell(game, x, y);
       });
     };
     await evaluateRound((c, g, x, y) => c.evaluateConsume(g, x, y));
@@ -208,7 +194,7 @@ export class Board {
       this.cells[y][x] = sym;
       await this.spinDivOnce(game, x, y);
     }
-    this.updateCounter(game, x, y);
+    this.redrawCell(game, x, y);
   }
   async removeSymbol(game, x, y) {
     game.inventory.remove(this.cells[y][x]);

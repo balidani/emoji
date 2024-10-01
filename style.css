@@ -67,7 +67,7 @@ body {
   font-size: 16pt;
 }
 
-.ui>div {
+.ui > div {
   display: inline-flex;
   align-items: center;
   cursor: pointer;
@@ -147,15 +147,18 @@ body {
 
 .cell {
   font-size: 26pt;
-  width: 34pt;
-  height: 34pt;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  overflow: hidden;
   position: relative;
   cursor: pointer;
+}
+
+.cell-container {
+  width: 34pt;
+  height: 34pt;
+  overflow: hidden;
 }
 
 .symbol {
@@ -163,11 +166,28 @@ body {
   cursor: pointer;
 }
 
-.symbolCounter {
+.symbol-counter {
   position: absolute;
   bottom: 0;
   right: 0;
   font-size: 10pt;
+}
+
+.symbol-multiplier {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: 10pt;
+  color: blue;
+}
+
+.interactive-emoji {
+  cursor: pointer;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+.interactive-emoji:hover {
+  transform: scale(1.25);
 }
 
 .moneyEarned {
@@ -230,7 +250,9 @@ body {
   border-radius: 5px;
   cursor: pointer;
   background-color: #f0f0f0;
-  transition: border 0.3s, background-color 0.3s;
+  transition:
+    border 0.3s,
+    background-color 0.3s;
   display: flex;
   justify-content: space-between;
   flex-direction: row;
@@ -293,8 +315,6 @@ body {
   }
 }
 
-
-
 .wipe-button {
   text-align: center;
   padding: 2px 3px;
@@ -304,7 +324,9 @@ body {
   color: white;
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
+  transition:
+    background-color 0.3s,
+    transform 0.3s;
   margin-top: 20px;
 }
 
@@ -316,6 +338,76 @@ body {
 .wipe-button:active {
   background-color: #ff6347;
   transform: scale(0.95);
+}
+
+/* Settings */
+
+.open-settings {
+  position: fixed;
+  top: 1;
+  right: 0;
+  margin: 4pt;
+}
+
+.settings-box {
+  border: 1px solid #ccc;
+  padding: 20pt;
+  width: 256pt;
+  overflow: hidden;
+  position: fixed;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.settings-box label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.settings-box input,
+.settings-box textarea {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.settings-box button {
+  padding: 10px 20px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.settings-box button:last-child {
+  margin-right: 0;
+}
+
+.settings-box button:hover {
+  background-color: #0056b3;
+}
+
+.settings-box .button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Misc */
+
+.hidden {
+  display: none;
+}
+
+.dev-hidden {
+  display: none;
 }
 
 /* Animations */
@@ -509,79 +601,4 @@ body {
     opacity: 0;
     transform: translateY(16pt);
   }
-}
-
-/* Misc */
-
-.hidden {
-  display: none;
-}
-
-/* Settings */
-
-.open-settings {
-  position: fixed;
-  top: 1;
-  right: 0;
-  margin: 4pt;
-}
-
-.settings-box {
-  border: 1px solid #ccc;
-  padding: 20pt;
-  width: 256pt;
-  overflow: hidden;
-  position: fixed;
-  bottom: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #f9f9f9;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.settings-box label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.settings-box input,
-.settings-box textarea {
-  width: 100%;
-  margin-bottom: 15px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.settings-box button {
-  padding: 10px 20px;
-  margin-right: 10px;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-}
-
-.settings-box button:last-child {
-  margin-right: 0;
-}
-
-.settings-box button:hover {
-  background-color: #0056b3;
-}
-
-.settings-box .button-container {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.interactive-emoji {
-  cursor: pointer;
-  display: inline-block;
-  transition: transform 0.2s ease;
-}
-.interactive-emoji:hover {
-  transform: scale(1.25);
 }
