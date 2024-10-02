@@ -2,15 +2,28 @@ import { GameSettings } from './game_settings.js';
 import { loadSettings } from './main.js';
 import * as Util from './util.js';
 
+// Demo
+// import { Snail, Rocket } from './symbols/advanced.js';
+
 const tutorialLevelSettings = new GameSettings(
   'Tutorial #1',
   4,
   4,
   15,
-  '🍒🍒🪨',
+  '🍒🍒🪙',
   ['./symbols/tutorial.js'],
   { 100: '🥇' },
   { 50: 'Welcome to the Tutorial!' }
+  // {
+  //   '1,2': {
+  //     duration: 5,
+  //     symbol: new Snail(),
+  //   },
+  //   '3,2': {
+  //     duration: -1,
+  //     symbol: new Rocket(),
+  //   },
+  // }
 );
 const standardGameSettings = new GameSettings();
 
@@ -31,7 +44,7 @@ export class Progression {
   constructor() {
     this.uiDiv = document.querySelector('.progression');
     this.levelData = [tutorialLevelSettings, standardGameSettings];
-    this.activeLevel = 1;
+    this.activeLevel = 0;
     this.levelResults = new Map();
   }
   load() {
