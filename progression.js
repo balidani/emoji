@@ -44,7 +44,7 @@ export class Progression {
   constructor() {
     this.uiDiv = document.querySelector('.progression');
     this.levelData = [tutorialLevelSettings, standardGameSettings];
-    this.activeLevel = 0;
+    this.activeLevel = 1;
     this.levelResults = new Map();
   }
   load() {

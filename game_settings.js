@@ -58,7 +58,6 @@ export class GameSettings {
       48: 'you can double tap the roll (🕹️) button to skip animation.',
       47: 'you can tap on any symbol, on the board or in the shop, to get more information.',
     };
-    // TODO put demo here in comment even if unused?
     this.initiallyLockedCells = initiallyLockedCells || {};
   }
 
