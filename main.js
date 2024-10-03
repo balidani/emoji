@@ -181,12 +181,7 @@ class AutoGame {
   }
 }
 
-window.simulate = async (
-  buyAlways,
-  buyOnce,
-  rounds = 1,
-  buyRandom = false
-) => {
+window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
   Util.toggleAnimation();
 
   const template = document.querySelector('.template');

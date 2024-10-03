@@ -6,6 +6,7 @@ export class Board {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
     this.cells = [];
+    this.lockedCells = this.gameSettings.initiallyLockedCells;
     this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
     this.empty = this.catalog.symbol('⬜');
@@ -14,7 +15,8 @@ export class Board {
       const rowDiv = document.createElement('div');
       rowDiv.classList.add('row');
       for (let x = 0; x < this.gameSettings.boardX; ++x) {
-        row.push(this.empty.copy());
+        const ilc = this.lockedCells[`${x},${y}`];
+        row.push(!ilc ? this.empty.copy() : ilc.symbol);
         const cellContainer = this.createCellDiv(x, y);
         rowDiv.appendChild(cellContainer);
       }
@@ -98,17 +100,32 @@ export class Board {
   async roll(game) {
     const symbols = [...game.inventory.symbols];
     const empties = [];
-    for (let i = 0; i < game.gameSettings.boardY; ++i) {
-      for (let j = 0; j < game.gameSettings.boardX; ++j) {
-        empties.push([j, i]);
-        this.cells[i][j] = this.empty.copy();
+
+    for (let y = 0; y < game.gameSettings.boardY; ++y) {
+      for (let x = 0; x < game.gameSettings.boardX; ++x) {
+        const addr = `${x},${y}`;
+        const lockedSymbol = this.lockedCells[addr];
+        if (lockedSymbol) {
+          // If there is a locked symbol,
+          this.cells[y][x] = lockedSymbol.symbol;
+
+          if (lockedSymbol.duration === 0) {
+            // Only remove on exactly 0 so that negative numbers indicate permanently locked slots - unlikely to have people roll two billion plus times per game. Fun easter egg if anyone finds it.
+            delete this.lockedCells[addr];
+          } else {
+            this.lockedCells[addr].duration--;
+          }
+        } else {
+          empties.push([x, y]);
+          this.cells[y][x] = this.empty.copy();
+        }
       }
     }
-    for (
-      let i = 0;
-      i < game.gameSettings.boardY * game.gameSettings.boardX;
-      ++i
-    ) {
+
+    const numCellsToBeFilled =
+      game.gameSettings.boardY * game.gameSettings.boardX -
+      Object.keys(this.lockedCells).length;
+    for (let i = 0; i < numCellsToBeFilled; ++i) {
       if (symbols.length === 0) {
         break;
       }
@@ -116,10 +133,11 @@ export class Board {
       const [x, y] = Util.randomRemove(empties);
       this.cells[y][x] = symbol;
     }
+
     const tasks = [];
-    for (let i = 0; i < game.gameSettings.boardY; ++i) {
-      for (let j = 0; j < game.gameSettings.boardX; ++j) {
-        tasks.push(this.spinDiv(game, j, i, this.cells[i][j]));
+    for (let y = 0; y < game.gameSettings.boardY; ++y) {
+      for (let x = 0; x < game.gameSettings.boardX; ++x) {
+        tasks.push(this.spinDiv(game, x, y, this.cells[y][x]));
       }
     }
     await Promise.all(tasks);
@@ -201,6 +219,20 @@ export class Board {
     this.clearCell(x, y);
     await Util.animate(this.getSymbolDiv(x, y), 'flip', 0.15);
     await this.spinDivOnce(game, x, y);
+  }
+
+  async lockCell(x, y, symbol, duration) {
+    this.lockedCells[`${x},${y}`] = {
+      symbol: symbol,
+      duration: duration,
+    };
+    await Util.animate(this.getSymbolDiv(x, y), 'bounce', 0.05);
+  }
+
+  async unlockCell(x, y) {
+    delete this.lockedCells[`${x},${y}`];
+    this.clearCell(x, y);
+    await Util.animate(this.getSymbolDiv(x, y), 'bounce', 0.05);
   }
 
   nextToCoords(x, y) {

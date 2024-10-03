@@ -15,3 +15,6 @@ export {
 export { Clover } from './advanced.js';
 export { Coin, Bank, MoneyBag, Briefcase } from './money.js';
 export { Diamond } from './rocks.js';
+
+// Temp
+// export { Lock } from '../extra-symbols/lock.js';
