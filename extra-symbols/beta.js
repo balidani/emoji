@@ -1,10 +1,10 @@
 import * as Util from '../util.js';
-import { Symb } from '../symbol.js';
+import { Symb, chance } from '../symbol.js';
 
 /* This file contains symbols still in testing. They may be broken or unbalanced */
 
 export class FreeTurn extends Symb {
-  static name = '🎟️';
+  static emoji = '🎟️';
   constructor() {
     super();
     this.rarity = 0.03;
@@ -29,7 +29,7 @@ export class FreeTurn extends Symb {
 }
 
 export class Grave extends Symb {
-  static name = '🪦';
+  static emoji = '🪦';
   constructor() {
     super();
     this.rarity = 0.06;
