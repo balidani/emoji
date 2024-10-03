@@ -72,7 +72,7 @@ export class Storm extends Symb {
     if (coords.length === 0) {
       return;
     }
-    if (chance(game, 0.1, x, y)) {
+    if (chance(game, 0.0, x, y)) {
       const [boatX, boatY] = Util.randomRemove(coords);
       await game.board.removeSymbol(game, boatX, boatY);
       await game.over('🌩️');
@@ -99,12 +99,22 @@ export class Wind extends Symb {
     const coords = game.board.nextToSymbol(x, y, Sailboat.emoji);
     for (const coord of coords) {
       const [boatX, boatY] = coord;
-      // Animate moving the boat
-      await Util.animate(game.board.getSymbolDiv(boatX, boatY), 'bounce', 0.15);
-      // game.board.moveSymbol(game, boatX, boatY, 0, 1); -- doesn't exist yet
-      // Implement it here:
-      // game.board.removeSymbol(game, boatX, boatY);
-      // game.board.addSymbol(game, new Sailboat(), boatX, boatY + 1);
+      const destinations = [[boatX + 1, boatY], [boatX, boatY + 1]];
+      const candidates = [];
+      for (const [destX, destY] of destinations) {
+        if (game.board.cells[destY][destX] === undefined) {
+          continue;
+        }
+        if (game.board.cells[destY][destX].emoji() === '🟦') {
+          candidates.push([destX, destY]);
+        }
+      }
+      if (candidates.length === 0) {
+        break;
+      }
+      const [toX, toY] = Util.randomChoose(candidates);
+      console.log('moving from', boatX, boatY, 'to', toX, toY);
+      game.board.moveSymbol(game, boatX, boatY, toX, toY);
     }
   }
   descriptionLong() { return this.description(); }

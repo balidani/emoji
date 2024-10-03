@@ -202,6 +202,31 @@ export class Board {
     await Util.animate(this.getSymbolDiv(x, y), 'flip', 0.15);
     await this.spinDivOnce(game, x, y);
   }
+  async moveSymbol(game, fromX, fromY, toX, toY) {
+    // Destination needs to be empty.
+    const source = this.cells[fromY][fromX];
+    const destination = this.cells[toY][toX];
+
+    if (source === undefined || destination === undefined) {
+      return;
+    }
+
+    const empties = this.catalog.categories.get(CATEGORY_EMPTY_SPACE);    
+    if (!empties.includes(destination.emoji())) {
+      return;
+    }
+
+    await Util.animate(this.getSymbolDiv(fromX, fromY), 'startSpin', 0.15);
+    this.cells[fromY][fromX] = this.empty.copy();
+    this.redrawCell(game, fromX, fromY);
+    await Promise.all([
+       Util.animate(this.getSymbolDiv(fromX, fromY), 'endSpin', 0.15),
+       Util.animate(this.getSymbolDiv(toX, toY), 'startSpin', 0.15)
+      ]);
+    this.cells[toY][toX] = source;
+    this.redrawCell(game, toX, toY);
+    await Util.animate(this.getSymbolDiv(toX, toY), 'endSpin', 0.15);
+  }
 
   nextToCoords(x, y) {
     const coords = [];
