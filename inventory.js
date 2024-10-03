@@ -61,6 +61,10 @@ export class Inventory {
     this.money += value;
     this.updateUi();
   }
+  async addTurn(value) {
+    this.turns += value;
+    this.updateUi();
+  }
   addLuck(bonus) {
     this.luckBonus += bonus;
     // Not needed!

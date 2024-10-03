@@ -3,13 +3,13 @@ import * as Utils from './util.js';
 import { loadSettings } from './main.js';
 
 const ALL_TESTED_SYMBOL_FILES = [
-  './symbols/advanced.js',
-  './symbols/animals.js',
-  './symbols/food.js',
-  './symbols/money.js',
-  './symbols/music.js',
+  // './symbols/advanced.js',
+  // './symbols/animals.js',
+  // './symbols/food.js',
+  // './symbols/money.js',
+  // './symbols/music.js',
   './symbols/rocks.js',
-  './symbols/things.js',
+  './symbols/sail.js',
 ];
 
 export class GameSettings {
@@ -42,7 +42,7 @@ export class GameSettings {
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
-    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
+    this.startingSet = startingSetString || '⛵🌊🌊🌊🌩️🗼🌬️';
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
       // NOTE: These temporarily are assumed to be sorted such that the hardest score is first.

@@ -28,20 +28,20 @@ export class Game {
       .addEventListener('click', () => this.roll());
     console.log(this);
   }
-  async over() {
+  async over(t='💩') {
     document.querySelector('.game .roll').disabled = true;
     await this.board.finalScore(this);
-    {
-      const scoreContainer = document.createElement('div');
-      scoreContainer.classList.add('scoreContainer');
-      const scoreDiv = document.createElement('div');
-      scoreDiv.classList.add('score');
-      scoreDiv.innerText = '💵' + this.inventory.money;
-      scoreContainer.appendChild(scoreDiv);
-      document.querySelector('.game').appendChild(scoreContainer);
-      await Util.animate(scoreDiv, 'scoreIn', 0.4);
-    }
-    let trophy = '💩';
+    // {
+    //   const scoreContainer = document.createElement('div');
+    //   scoreContainer.classList.add('scoreContainer');
+    //   const scoreDiv = document.createElement('div');
+    //   scoreDiv.classList.add('score');
+    //   scoreDiv.innerText = '💵' + this.inventory.money;
+    //   scoreContainer.appendChild(scoreDiv);
+    //   document.querySelector('.game').appendChild(scoreContainer);
+    //   await Util.animate(scoreDiv, 'scoreIn', 0.4);
+    // }
+    let trophy = t;
     for (const [requirement, reward] of Object.entries(
       this.gameSettings.resultLookup
     )) {

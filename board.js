@@ -8,7 +8,7 @@ export class Board {
     this.cells = [];
     this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
-    this.empty = this.catalog.symbol('⬜');
+    this.empty = this.catalog.symbol('🟦');
     for (let y = 0; y < this.gameSettings.boardY; ++y) {
       const row = [];
       const rowDiv = document.createElement('div');
@@ -30,7 +30,7 @@ export class Board {
     cellDiv.classList.add(`cell-${x}-${y}`);
     const symbolDiv = document.createElement('div');
     symbolDiv.classList.add('symbol');
-    symbolDiv.innerText = '⬜';
+    symbolDiv.innerText = '🟦';
     const counterDiv = document.createElement('div');
     counterDiv.classList.add('symbol-counter');
     counterDiv.innerText = '';

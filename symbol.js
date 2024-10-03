@@ -96,7 +96,7 @@ export class Symb {
 }
 
 export class Empty extends Symb {
-  static emoji = '⬜';
+  static emoji = '🟦';
   constructor() {
     super();
   }
