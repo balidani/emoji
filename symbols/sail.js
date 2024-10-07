@@ -1,8 +1,3 @@
-
-
-// ...
-
-
 import { chance, Symb } from '../symbol.js';
 import * as Util from '../util.js';
 
@@ -18,14 +13,16 @@ export class Sailboat extends Symb {
 
   async score(game, x, y) {
     await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
+      // Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
       this.addMoney(game, 6, x, y),
     ]);
   }
   description() {
     return 'The sailboat moves forward and collects rewards.';
   }
-  descriptionLong() { return this.description(); }
+  descriptionLong() {
+    return this.description();
+  }
 }
 
 export class Wave extends Symb {
@@ -44,7 +41,7 @@ export class Wave extends Symb {
     }
     for (const coord of coords) {
       const [boatX, boatY] = coord;
-      // Animate flipping the boat 
+      // Animate flipping the boat
       await Util.animate(game.board.getSymbolDiv(boatX, boatY), 'flip', 0.15);
       game.inventory.addTurn(-1);
     }
@@ -52,7 +49,9 @@ export class Wave extends Symb {
   description() {
     return 'this is a wave. if it touches the boat, lose 1⏰';
   }
-  descriptionLong() { return this.description(); }
+  descriptionLong() {
+    return this.description();
+  }
 }
 
 export class Storm extends Symb {
@@ -77,9 +76,10 @@ export class Storm extends Symb {
       await game.board.removeSymbol(game, boatX, boatY);
       await game.over('🌩️');
     }
-
   }
-  descriptionLong() { return this.description(); }
+  descriptionLong() {
+    return this.description();
+  }
 }
 
 export class Wind extends Symb {
@@ -99,7 +99,10 @@ export class Wind extends Symb {
     const coords = game.board.nextToSymbol(x, y, Sailboat.emoji);
     for (const coord of coords) {
       const [boatX, boatY] = coord;
-      const destinations = [[boatX + 1, boatY], [boatX, boatY + 1]];
+      const destinations = [
+        [boatX + 1, boatY],
+        [boatX, boatY + 1],
+      ];
       const candidates = [];
       for (const [destX, destY] of destinations) {
         if (game.board.cells[destY][destX] === undefined) {
@@ -113,11 +116,15 @@ export class Wind extends Symb {
         break;
       }
       const [toX, toY] = Util.randomChoose(candidates);
-      console.log('moving from', boatX, boatY, 'to', toX, toY);
-      game.board.moveSymbol(game, boatX, boatY, toX, toY);
+      await Promise.all([
+        Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2),
+        await game.board.moveSymbol(game, boatX, boatY, toX, toY),
+      ]);
     }
   }
-  descriptionLong() { return this.description(); }
+  descriptionLong() {
+    return this.description();
+  }
 }
 
 export class Lighthouse extends Symb {
@@ -138,7 +145,9 @@ export class Lighthouse extends Symb {
   description() {
     return 'this is a lighthouse. it protects the sailboat from waves and storms.';
   }
-  descriptionLong() { return this.description(); }
+  descriptionLong() {
+    return this.description();
+  }
 }
 
 export class Anchor extends Symb {
@@ -159,5 +168,7 @@ export class Anchor extends Symb {
   description() {
     return 'this is an anchor. it does not let ⛵ move this turn.';
   }
-  descriptionLong() { return this.description(); }
+  descriptionLong() {
+    return this.description();
+  }
 }

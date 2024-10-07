@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import * as Utils from './util.js';
 
 import { loadSettings } from './main.js';
@@ -43,8 +44,10 @@ export class GameSettings {
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
-    this.startingSet = startingSetString || '⛵🌊🌊🌊🌩️🗼🌬️';
-    this.initiallyLockedCells = initiallyLockedCells || {};
+    this.startingSet = startingSetString || '⛵🌬️🗼🌩️🌊🌊🌊';
+    this.initiallyLockedCells = initiallyLockedCells || {
+      '0,0': { emoji: '⛵', duration: -1 },
+    };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
       // NOTE: These temporarily are assumed to be sorted such that the hardest score is first.

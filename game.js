@@ -25,7 +25,7 @@ export class Game {
       .addEventListener('click', () => this.roll());
     console.log(this);
   }
-  async over(t='💩') {
+  async over(t = '💩') {
     document.querySelector('.game .roll').disabled = true;
     await this.board.finalScore(this);
     // {

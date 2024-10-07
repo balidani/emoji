@@ -264,21 +264,32 @@ export class Board {
       return;
     }
 
-    const empties = this.catalog.categories.get(CATEGORY_EMPTY_SPACE);    
+    const empties = this.catalog.categories.get(CATEGORY_EMPTY_SPACE);
     if (!empties.includes(destination.emoji())) {
       return;
     }
 
-    await Util.animate(this.getSymbolDiv(fromX, fromY), 'startSpin', 0.15);
+    // Update locked cells.
+    const oldAddr = `${fromX},${fromY}`;
+    const newAddr = `${toX},${toY}`;
+    if (this.lockedCells[oldAddr]) {
+      console.log(`moving from ${oldAddr} to ${newAddr}`);
+      const oldLockedCell = this.lockedCells[oldAddr];
+      this.lockedCells[newAddr] = oldLockedCell;
+      delete this.lockedCells[oldAddr];
+    }
+
+    await Util.animate(this.getSymbolDiv(fromX, fromY), 'startSpin', 0.3);
     this.cells[fromY][fromX] = this.empty.copy();
     this.redrawCell(game, fromX, fromY);
     await Promise.all([
-       Util.animate(this.getSymbolDiv(fromX, fromY), 'endSpin', 0.15),
-       Util.animate(this.getSymbolDiv(toX, toY), 'startSpin', 0.15)
-      ]);
+      Util.animate(this.getSymbolDiv(fromX, fromY), 'endSpin', 0.3),
+      Util.animate(this.getSymbolDiv(toX, toY), 'startSpin', 0.3),
+    ]);
     this.cells[toY][toX] = source;
     this.redrawCell(game, toX, toY);
-    await Util.animate(this.getSymbolDiv(toX, toY), 'endSpin', 0.15);
+    await Util.animate(this.getSymbolDiv(toX, toY), 'endSpin', 0.3);
+    await Util.animate(this.getSymbolDiv(toX, toY), 'bounce', 0.1);
   }
 
   async lockCell(x, y, symbol, duration) {
