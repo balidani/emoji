@@ -2,11 +2,38 @@ import { CATEGORY_EMPTY_SPACE } from './symbol.js';
 import * as Util from './util.js';
 
 export class Board {
-  constructor(gameSettings, catalog) {
+  constructor(gameSettings, catalog, inventory) {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
     this.cells = [];
-    this.lockedCells = this.gameSettings.initiallyLockedCells;
+
+    // Create lockedCells from the settings and the inventory.
+    this.lockedCells = [];
+    const usedSymbols = new Set();
+    for (const [addr, { emoji, duration }] of Object.entries(
+      this.gameSettings.initiallyLockedCells
+    )) {
+      let lockedSymbol = null;
+      for (const inventorySymbol of inventory.symbols) {
+        if (inventorySymbol.emoji() === emoji) {
+          if (usedSymbols.has(inventorySymbol)) {
+            continue;
+          }
+          lockedSymbol = inventorySymbol;
+          usedSymbols.add(inventorySymbol);
+          break;
+        }
+      }
+      if (lockedSymbol === null) {
+        console.error('Could not find symbol for locked cell:', emoji);
+        break;
+      }
+      this.lockedCells[addr] = {
+        symbol: lockedSymbol,
+        duration: duration,
+      };
+    }
+
     this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
     this.empty = this.catalog.symbol('⬜');
@@ -101,6 +128,7 @@ export class Board {
     const symbols = [...game.inventory.symbols];
     const empties = [];
 
+    const lockedSet = new Set();
     for (let y = 0; y < game.gameSettings.boardY; ++y) {
       for (let x = 0; x < game.gameSettings.boardX; ++x) {
         const addr = `${x},${y}`;
@@ -108,16 +136,20 @@ export class Board {
         if (lockedSymbol) {
           // If there is a locked symbol,
           this.cells[y][x] = lockedSymbol.symbol;
-
-          if (lockedSymbol.duration === 0) {
-            // Only remove on exactly 0 so that negative numbers indicate permanently locked slots - unlikely to have people roll two billion plus times per game. Fun easter egg if anyone finds it.
-            delete this.lockedCells[addr];
-          } else {
-            this.lockedCells[addr].duration--;
-          }
+          lockedSet.add(lockedSymbol.symbol);
         } else {
           empties.push([x, y]);
           this.cells[y][x] = this.empty.copy();
+        }
+
+        if (lockedSymbol) {
+          lockedSymbol.duration--;
+          // Only remove on exactly 0 so that negative numbers indicate permanently locked slots.
+          // Unlikely to have people roll two billion plus times per game.
+          // Fun easter egg if anyone finds it.
+          if (lockedSymbol.duration === 0) {
+            delete this.lockedCells[addr];
+          }
         }
       }
     }
@@ -130,6 +162,9 @@ export class Board {
         break;
       }
       const symbol = Util.randomRemove(symbols);
+      if (lockedSet.has(symbol)) {
+        continue;
+      }
       const [x, y] = Util.randomRemove(empties);
       this.cells[y][x] = symbol;
     }

@@ -44,6 +44,7 @@ export class GameSettings {
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
     this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
+    this.initiallyLockedCells = initiallyLockedCells || {};
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
       // NOTE: These temporarily are assumed to be sorted such that the hardest score is first.
@@ -58,7 +59,6 @@ export class GameSettings {
       48: 'you can double tap the roll (🕹️) button to skip animation.',
       47: 'you can tap on any symbol, on the board or in the shop, to get more information.',
     };
-    this.initiallyLockedCells = initiallyLockedCells || {};
   }
 
   async open(_game) {

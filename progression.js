@@ -2,9 +2,6 @@ import { GameSettings } from './game_settings.js';
 import { loadSettings } from './main.js';
 import * as Util from './util.js';
 
-// Demo
-// import { Snail, Rocket } from './symbols/advanced.js';
-
 const tutorialLevelSettings = new GameSettings(
   'Tutorial #1',
   4,
@@ -14,20 +11,10 @@ const tutorialLevelSettings = new GameSettings(
   ['./symbols/tutorial.js'],
   { 100: '🥇' },
   { 50: 'Welcome to the Tutorial!' }
-  // {
-  //   '1,2': {
-  //     duration: 5,
-  //     symbol: new Snail(),
-  //   },
-  //   '3,2': {
-  //     duration: -1,
-  //     symbol: new Rocket(),
-  //   },
-  // }
 );
 const standardGameSettings = new GameSettings();
 
-const CURRENT_VERSION = '0.1.6';
+const CURRENT_VERSION = '0.1.7';
 const CURRENT_VERSION_KEY = 'CurrentVersion';
 const PROGRESSION_LEVEL_DATA = 'ProgressionLevelData';
 const PROGRESSION_ACTIVE_LEVEL = 'ProgressionActiveLevel';

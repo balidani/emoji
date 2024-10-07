@@ -1,15 +1,15 @@
 import * as Util from './util.js';
 
 export class Inventory {
-  constructor(turns, symbols) {
-    this.symbols = symbols;
+  constructor(settings, catalog) {
+    this.symbols = catalog.symbolsFromString(settings.startingSet);
     this.symbolsDiv = document.querySelector('.game .inventory');
     this.uiDiv = document.querySelector('.game .ui');
     this.infoDiv = document.querySelector('.info');
     this.money = 1;
     this.luckBonus = 0;
     this.lastLuckBonus = 0;
-    this.turns = turns;
+    this.turns = settings.gameLength;
     this.updateUi();
     this.graveyard = [];
   }

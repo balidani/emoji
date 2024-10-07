@@ -9,12 +9,9 @@ export class Game {
     this.progression = progression;
     this.gameSettings = gameSettings;
     this.catalog = catalog;
-    this.inventory = new Inventory(
-      this.gameSettings.gameLength,
-      this.catalog.symbolsFromString(this.gameSettings.startingSet)
-    );
+    this.inventory = new Inventory(this.gameSettings, this.catalog);
     this.inventory.update();
-    this.board = new Board(this.gameSettings, this.catalog);
+    this.board = new Board(this.gameSettings, this.catalog, this.inventory);
     this.shop = new Shop(this.catalog);
     this.rolling = false;
     this.info = document.querySelector('.game .info');
