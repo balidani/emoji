@@ -62,12 +62,9 @@ class AutoGame {
   constructor(gameSettings, catalog, buyAlways, buyOnce, buyRandom) {
     this.gameSettings = gameSettings;
     this.catalog = catalog;
-    this.inventory = new Inventory(
-      gameSettings.gameLength,
-      this.catalog.symbolsFromString(this.gameSettings.startingSet)
-    );
+    this.inventory = new Inventory(gameSettings, this.catalog);
     this.inventory.update();
-    this.board = new SimBoard(this.gameSettings, this.catalog);
+    this.board = new SimBoard(this.gameSettings, this.catalog, this.inventory);
     this.shop = new Shop(this.catalog);
     this.totalTurns = 0;
     this.buyAlways = new Set(buyAlways);
@@ -232,5 +229,5 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
 };
 
 // This is our "integration test" for now, lol.
-// simulate('', '',/*rounds=*/100,/*buyRandom=*/true);
-// simulate(/*buyAlways=*/'❎🪙', /*buyOnce=*/'🐛💰🔮🪄🏦🏦🏦', 10);
+// simulate('', '', /*rounds=*/ 100, /*buyRandom=*/ true);
+// simulate(/*buyAlways=*/ '❎💼🕳️🪄🎯🔮', /*buyOnce=*/ '🐛🐉🐉🐉', 100);
