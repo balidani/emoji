@@ -1,4 +1,4 @@
-import { CATEGORY_EMPTY_SPACE } from './symbol.js';
+import { CATEGORY_EMPTY_SPACE, Empty } from './symbol.js';
 import * as Util from './util.js';
 
 export class Board {
@@ -36,7 +36,7 @@ export class Board {
 
     this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
-    this.empty = this.catalog.symbol('🟦');
+    this.empty = this.catalog.symbol(Empty.emoji);
     for (let y = 0; y < this.gameSettings.boardY; ++y) {
       const row = [];
       const rowDiv = document.createElement('div');
@@ -59,7 +59,7 @@ export class Board {
     cellDiv.classList.add(`cell-${x}-${y}`);
     const symbolDiv = document.createElement('div');
     symbolDiv.classList.add('symbol');
-    symbolDiv.innerText = '🟦';
+    symbolDiv.innerText = Empty.emoji;
     const counterDiv = document.createElement('div');
     counterDiv.classList.add('symbol-counter');
     counterDiv.innerText = '';
@@ -250,6 +250,16 @@ export class Board {
     this.redrawCell(game, x, y);
   }
   async removeSymbol(game, x, y) {
+    if (this.cells[y][x].emoji() === Empty.emoji) {
+      return;
+    }
+
+    // Remove locked cells.
+    const addr = `${x},${y}`;
+    if (this.lockedCells[addr]) {
+      delete this.lockedCells[addr];
+    }
+
     game.inventory.remove(this.cells[y][x]);
     this.clearCell(x, y);
     await Util.animate(this.getSymbolDiv(x, y), 'flip', 0.15);
@@ -273,7 +283,6 @@ export class Board {
     const oldAddr = `${fromX},${fromY}`;
     const newAddr = `${toX},${toY}`;
     if (this.lockedCells[oldAddr]) {
-      console.log(`moving from ${oldAddr} to ${newAddr}`);
       const oldLockedCell = this.lockedCells[oldAddr];
       this.lockedCells[newAddr] = oldLockedCell;
       delete this.lockedCells[oldAddr];
