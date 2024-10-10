@@ -4,7 +4,7 @@ body {
 
 button {
   font-size: 20pt;
-  padding: 2pt;
+  padding: 0pt;
   width: 32pt;
   height: 32pt;
 }
@@ -34,7 +34,7 @@ body {
   left: 0pt;
   bottom: 0pt;
   width: 100%;
-  letter-spacing: 4pt;
+  letter-spacing: 2pt;
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
@@ -60,7 +60,7 @@ body {
   top: 0pt;
   width: 800pt;
   display: block;
-  letter-spacing: 4pt;
+  letter-spacing: 2pt;
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
@@ -146,7 +146,7 @@ body {
 }
 
 .cell {
-  font-size: 26pt;
+  font-size: 22pt;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -156,8 +156,8 @@ body {
 }
 
 .cell-container {
-  width: 34pt;
-  height: 34pt;
+  width: 29pt;
+  height: 29pt;
   overflow: hidden;
 }
 

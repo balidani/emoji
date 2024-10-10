@@ -74,19 +74,19 @@ export class Game {
       Util.drawText(this.info, textToDraw);
     }
 
-    if (this.inventory.money > 0) {
-      this.inventory.turns--;
-      this.inventory.updateUi();
-      this.inventory.addMoney(-1);
-      this.inventory.symbols.forEach((s) => s.reset());
-      await this.shop.close(this);
+    this.inventory.turns--;
+    this.inventory.symbols.forEach((s) => s.reset());
+    await this.shop.close(this);
+
+    // First time, initialize resources.
+    if (this.inventory.turns === this.gameSettings.gameLength - 1) {
       await this.board.roll(this);
-      await this.board.evaluate(this);
-      await this.board.score(this);
-      this.inventory.resetLuck();
-    } else {
-      // Handle the case where player ran out of money
     }
+
+    await this.board.evaluate(this);
+    await this.board.score(this);
+    this.inventory.resetLuck();
+
     if (this.inventory.turns === 0) {
       await this.over();
     } else {

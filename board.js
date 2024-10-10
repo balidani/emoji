@@ -1,4 +1,4 @@
-import { CATEGORY_EMPTY_SPACE } from './symbol.js';
+import { CATEGORY_EMPTY_SPACE, Empty } from './symbol.js';
 import * as Util from './util.js';
 
 export class Board {
@@ -254,6 +254,20 @@ export class Board {
     this.clearCell(x, y);
     await Util.animate(this.getSymbolDiv(x, y), 'flip', 0.15);
     await this.spinDivOnce(game, x, y);
+  }
+  async placeSymbol(game, symbol) {
+    Util.drawText(
+      game.info,
+      'click an empty space on the board to place the new symbol.'
+    );
+    this.cells.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        if (cell.emoji() !== Empty.emoji) {
+          return;
+        }
+        // ... and add a click listener to each empty cell.
+      });
+    });
   }
 
   async lockCell(x, y, symbol, duration) {

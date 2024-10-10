@@ -79,6 +79,7 @@ export class Shop {
             game.inventory.addMoney(-symbolCost),
           ]);
           game.inventory.add(symbol);
+          await game.board.placeSymbol(game, symbol);
         }
         if (game.shop.buyCount > 0) {
           const div = e.srcElement.parentElement.parentElement;
