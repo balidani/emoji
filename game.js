@@ -39,14 +39,14 @@ export class Game {
       await Util.animate(scoreDiv, 'scoreIn', 0.4);
     }
     let trophy = '💩';
-    for (const [requirement, reward] of Object.entries(
-      this.gameSettings.resultLookup
-    )) {
-      if (this.inventory.money >= requirement) {
-        trophy = reward;
-        break;
+    const sortedKeys = Object.keys(this.gameSettings.resultLookup)
+      .sort((a, b) => b > a);
+    sortedKeys.forEach(req => {
+      if (this.inventory.money >= req) {
+        trophy = this.gameSettings.resultLookup[req];
+        return;
       }
-    }
+    });
     {
       this.progression.postResultAndAdvance(this.inventory.money, trophy);
       const trophyContainer = document.createElement('div');

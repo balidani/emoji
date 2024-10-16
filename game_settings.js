@@ -47,7 +47,6 @@ export class GameSettings {
     this.initiallyLockedCells = initiallyLockedCells || {};
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
-      // NOTE: These temporarily are assumed to be sorted such that the hardest score is first.
       25000: '🏆',
       20000: '🥇',
       15000: '🥈',
