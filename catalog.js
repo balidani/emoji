@@ -1,5 +1,5 @@
-import { CATEGORY_UNBUYABLE, Symb } from '../symbol.js';
-import * as Util from '../util.js';
+import { CATEGORY_UNBUYABLE, Symb } from './symbol.js';
+import * as Util from './util.js';
 
 export class Catalog {
   constructor(symbolSources) {
