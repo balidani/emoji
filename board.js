@@ -81,12 +81,11 @@ export class Board {
   getCounterDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[1];
   }
-  async showMoneyEarned(x, y, value) {
+  async showResourceEarned(key, value) {
     const moneyDiv = document.createElement('div');
     moneyDiv.classList.add('moneyEarned');
-    moneyDiv.innerText = `${Const.MONEY}${value}`;
+    moneyDiv.innerText = `${key}${value}`;
     this.gridDiv.appendChild(moneyDiv);
-
     await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.3);
     this.gridDiv.removeChild(moneyDiv);
   }

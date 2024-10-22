@@ -81,9 +81,8 @@ class AutoGame {
     if (this.isOver) {
       return;
     }
-    if (this.inventory.getResource(Const.MONEY) > 0) {
+    if (this.inventory.getResource(Const.TURNS) > 0) {
       await this.inventory.addResource(Const.TURNS, -1);
-      await this.inventory.addResource(Const.MONEY, -1);
       this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);
       await this.board.roll(this);
@@ -229,4 +228,4 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
 };
 
 // This is our "integration test" for now, lol.
-simulate('', '', /*rounds=*/ 100, /*buyRandom=*/ true);
+// simulate('', '', /*rounds=*/ 100, /*buyRandom=*/ true);

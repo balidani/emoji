@@ -77,18 +77,16 @@ export class Game {
       Util.drawText(this.info, textToDraw);
     }
 
-    if (this.inventory.getResource(Const.MONEY) > 0) {
+    if (this.inventory.getResource(Const.TURNS) > 0) {
       await this.inventory.addResource(Const.TURNS, -1);
-      await this.inventory.addResource(Const.MONEY, -1);
       this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);
       await this.board.roll(this);
       await this.board.evaluate(this);
       await this.board.score(this);
       this.inventory.resetLuck();
-    } else {
-      // Handle the case where player ran out of money
     }
+
     if (this.inventory.getResource(Const.TURNS) === 0) {
       await this.over();
     } else {

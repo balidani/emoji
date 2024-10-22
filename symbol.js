@@ -32,7 +32,7 @@ export class Symb {
   async finalScore(_game, _x, _y) {}
   async score(_game, _x, _y) {}
   cost() {
-    return 0;
+    return {};
   }
   categories() {
     return [];
@@ -42,6 +42,12 @@ export class Symb {
   }
   descriptionLong() {
     throw new Error('Trying to get long description of base class.');
+  }
+  async addResource(game, key, value) {
+    await Promise.all([
+      game.board.showResourceEarned(key, value),
+      game.inventory.addResource(key, value),
+    ]);
   }
   async addMoney(game, score, x, y) {
     const value = score * this.multiplier;
@@ -55,10 +61,7 @@ export class Symb {
         1
       );
     }
-    await Promise.all([
-      game.board.showMoneyEarned(x, y, value),
-      game.inventory.addResource(Const.MONEY, score * this.multiplier),
-    ]);
+    this.addResource(game, Const.MONEY, value);
   }
   emoji() {
     return this.constructor.emoji;

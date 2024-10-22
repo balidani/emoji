@@ -47,9 +47,10 @@ export class Shop {
 
       const costDiv = document.createElement('div');
       costDiv.classList.add('cost');
-
-      if (symbolCost > 0) {
-        costDiv.innerHTML = Const.MONEY + symbolCost;
+      for (const [key, value] of Object.entries(symbolCost)) {
+        const resourceDiv = document.createElement('div');
+        resourceDiv.innerHTML = key + value;
+        costDiv.appendChild(resourceDiv);
       }
       shopItemDiv.appendChild(costDiv);
 
@@ -58,9 +59,18 @@ export class Shop {
       const buyButton = document.createElement('button');
       buyButton.classList.add('buyButton');
       buyButton.innerText = buttonText;
-      if (game.inventory.getResource(Const.MONEY) < symbolCost) {
+
+      let canBuy = true;
+      for (const [key, value] of Object.entries(symbolCost)) {
+        if (game.inventory.getResource(key) < value) {
+          canBuy = false;
+          break;
+        }
+      }
+      if (!canBuy) {
         buyButton.disabled = true;
       }
+
       buyButton.addEventListener('click', handler);
       // Only for simulator.
       buyButton.clickSim = handler;
@@ -73,13 +83,28 @@ export class Shop {
       // Support for dynamically generated cost -- report the same value that is subtracted later.
       const symbolCost = symbol.cost();
       const shopItemDiv = makeShopItem(symbol, symbolCost, async (e) => {
-        if (game.shop.buyCount > 0 && game.inventory.getResource(Const.MONEY) > symbolCost) {
+        let canBuy = true;
+        for (const [key, value] of Object.entries(symbolCost)) {
+          if (game.inventory.getResource(key) < value) {
+            canBuy = false;
+            break;
+          }
+        }
+        if (game.shop.buyCount > 0 && canBuy) {
           game.shop.buyCount--;
-          await Promise.all([
-            game.board.showMoneyEarned(0, 0, -symbolCost),
-            game.inventory.addResource(Const.MONEY, -symbolCost),
-          ]);
+          for (const [key, value] of Object.entries(symbolCost)) {
+            await Promise.all([
+              game.board.showResourceEarned(key, -value),
+              game.inventory.addResource(key, -value),
+            ]);
+          }
           game.inventory.add(symbol);
+        } else if (!canBuy) {
+          // Disable button.
+          // This is not the best solution, we should disable the button
+          // once we know the player doesn't have enough resources.
+          e.target.disabled = true;
+          return;
         }
         if (game.shop.buyCount > 0) {
           const div = e.srcElement.parentElement.parentElement;
@@ -101,12 +126,12 @@ export class Shop {
           description: () => '',
           descriptionLong: () => '',
         },
-        this.refreshCost,
+        {'💵': this.refreshCost},
         async (e) => {
           game.shop.refreshCount++;
           if (game.inventory.getResource(Const.MONEY) > this.refreshCost) {
             await Promise.all([
-              game.board.showMoneyEarned(0, 0, -this.refreshCost),
+              game.board.showResourceEarned(Const.MONEY, -this.refreshCost),
               game.inventory.addResource(Const.MONEY, -this.refreshCost),
             ]);
             this.refreshCost *= 2;
