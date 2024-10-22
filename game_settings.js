@@ -44,7 +44,9 @@ export class GameSettings {
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
     this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
-    this.initiallyLockedCells = initiallyLockedCells || {};
+    this.initiallyLockedCells = initiallyLockedCells || {
+      // '2,2': {emoji: '🪙', duration: 3},
+    };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
       25000: '🏆',

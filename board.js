@@ -44,12 +44,17 @@ export class Board {
       rowDiv.classList.add('row');
       for (let x = 0; x < this.settings.boardX; ++x) {
         const ilc = this.lockedCells[`${x},${y}`];
-        row.push(!ilc ? this.empty.copy() : ilc.symbol);
+        const symbol = !ilc ? this.empty.copy() : ilc.symbol;
+        row.push(symbol);
         const cellContainer = this.createCellDiv(x, y);
         rowDiv.appendChild(cellContainer);
       }
       this.cells.push(row);
       this.gridDiv.appendChild(rowDiv);
+    }
+    for (const addr of Object.keys(this.lockedCells)) {
+      const [x, y] = addr.split(',').map(Number);
+      this.spinDivOnce(game, x, y);
     }
   }
   createCellDiv(x, y) {
@@ -129,6 +134,7 @@ export class Board {
     const empties = [];
 
     const lockedSet = new Set();
+    const lockedAtStart = {...this.lockedCells};
     for (let y = 0; y < game.settings.boardY; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
         const addr = `${x},${y}`;
@@ -172,6 +178,10 @@ export class Board {
     const tasks = [];
     for (let y = 0; y < game.settings.boardY; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
+        const addr = `${x},${y}`;
+        if (lockedAtStart[addr]) {
+          continue;
+        }
         tasks.push(this.spinDiv(game, x, y, this.cells[y][x]));
       }
     }
