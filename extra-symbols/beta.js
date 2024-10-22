@@ -1,3 +1,4 @@
+import * as Const from '../consts.js';
 import * as Util from '../util.js';
 import { Symb, chance } from '../symbol.js';
 
@@ -15,7 +16,7 @@ export class FreeTurn extends Symb {
   async evaluate(game, x, y) {
     if (chance(game, 0.1, x, y)) {
       await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3);
-      game.inventory.turns++;
+      game.inventory.addResource(Const.TURNS, 1);
       game.inventory.updateUi();
       await game.board.removeSymbol(game, x, y);
     }

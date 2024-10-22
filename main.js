@@ -1,3 +1,4 @@
+import * as Const from './consts.js';
 import * as Util from './util.js';
 import { GameSettings } from './game_settings.js';
 import { Catalog } from './catalog.js';
@@ -80,10 +81,9 @@ class AutoGame {
     if (this.isOver) {
       return;
     }
-    if (this.inventory.money > 0) {
-      this.inventory.turns--;
-      this.inventory.updateUi();
-      await this.inventory.addMoney(-1);
+    if (this.inventory.getResource(Const.MONEY) > 0) {
+      await this.inventory.addResource(Const.TURNS, -1);
+      await this.inventory.addResource(Const.MONEY, -1);
       this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);
       await this.board.roll(this);
@@ -144,7 +144,7 @@ class AutoGame {
           if (tryOnce()) {
             buys--;
           } else {
-            if (this.inventory.turns <= 10) {
+            if (this.inventory.getResource(Const.TURNS) <= 10) {
               // No more refresh.
               break;
             }
@@ -153,7 +153,7 @@ class AutoGame {
             );
             const refreshButton = buttons.splice(3, 1)[0];
             if (refreshButton !== undefined && !refreshButton.disabled) {
-              if ((this.shop.refreshCost >= this.inventory.money / 2) | 0) {
+              if ((this.shop.refreshCost >= this.inventory.getResource(Const.MONEY) / 2) | 0) {
                 break;
               }
               await refreshButton.clickSim();
@@ -165,7 +165,7 @@ class AutoGame {
       }
     }
 
-    if (this.inventory.turns <= 0) {
+    if (this.inventory.getResource(Const.TURNS) <= 0) {
       await this.over();
     } else {
       this.totalTurns++;
@@ -206,7 +206,7 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
       buyRandom
     );
     await game.simulate();
-    const score = game.inventory.money;
+    const score = game.inventory.getResource(Const.MONEY);
     scores.push(score);
     const avg = (scores.reduce((acc, val) => acc + val, 0) / scores.length) | 0;
     const max = Math.max(...scores);
@@ -229,5 +229,4 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
 };
 
 // This is our "integration test" for now, lol.
-// simulate('', '', /*rounds=*/ 100, /*buyRandom=*/ true);
-// simulate(/*buyAlways=*/ '❎💼🕳️🪄🎯🔮', /*buyOnce=*/ '🐛🐉🐉🐉', 100);
+simulate('', '', /*rounds=*/ 100, /*buyRandom=*/ true);

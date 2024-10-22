@@ -1,6 +1,6 @@
-import { chance, Symb, Empty, CATEGORY_EMPTY_SPACE } from '../symbol.js';
 import * as Util from '../util.js';
 
+import { chance, Symb, Empty, CATEGORY_EMPTY_SPACE } from '../symbol.js';
 import { CATEGORY_ANIMAL } from './animals.js';
 import { CATEGORY_FOOD, CATEGORY_VEGETABLES } from './food.js';
 
@@ -155,7 +155,7 @@ export class Clover extends Symb {
     return 'this is a clover. it gives you luck. symbols having a chance to do something will succeed more. and you get rarer items to choose from in the shop.';
   }
   async score(game, x, y) {
-    game.inventory.addLuck(0.01);
+    game.inventory.addLuck(1);
     await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
   }
 }
@@ -176,7 +176,7 @@ export class CrystalBall extends Symb {
     return 'this is a crystal ball. symbols having a chance to do something will succeed more. and you get rarer items to choose from in the shop.';
   }
   async score(game, x, y) {
-    game.inventory.addLuck(0.03);
+    game.inventory.addLuck(3);
     await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
   }
 }

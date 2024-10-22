@@ -1,3 +1,4 @@
+import * as Const from './consts.js';
 import * as Util from './util.js';
 
 export class Inventory {
@@ -6,10 +7,12 @@ export class Inventory {
     this.symbolsDiv = document.querySelector('.game .inventory');
     this.uiDiv = document.querySelector('.game .ui');
     this.infoDiv = document.querySelector('.info');
-    this.money = 1;
-    this.luckBonus = 0;
-    this.lastLuckBonus = 0;
-    this.turns = settings.gameLength;
+    
+    this.resources = {};
+    this.resources[Const.MONEY] = 1;
+    this.resources[Const.TURNS] = settings.gameLength;
+    this.resources[Const.LUCK] = 0;
+    this.tempLuckBonus = 0;
     this.updateUi();
     this.graveyard = [];
   }
@@ -57,20 +60,22 @@ export class Inventory {
     this.symbols.push(symbol);
     this.update();
   }
-  async addMoney(value) {
-    this.money += value;
+  getResource(key) {
+    return this.resources[key];
+  }
+  async addResource(key, value) {
+    this.resources[key] += value;
     this.updateUi();
   }
   addLuck(bonus) {
-    this.luckBonus += bonus;
-    // Not needed!
-    // resetLuck is the function to call when luck calculation finished in last turn's Board::score.
+    this.tempLuckBonus += bonus;
+    // `this.updateUi()` -- This call is not needed here!
+    // `resetLuck`` is the function to call when luck calculation finished in last turn's Board::score.
     // We technically always use last turn's luck to avoid another round of scoring.
-    // this.updateUi();
   }
   resetLuck() {
-    this.lastLuckBonus = this.luckBonus;
-    this.luckBonus = 0;
+    this.resources[Const.LUCK] = this.tempLuckBonus;
+    this.tempLuckBonus = 0;
     this.updateUi();
   }
   updateUi() {
@@ -84,9 +89,9 @@ export class Inventory {
       symbolDiv.appendChild(countSpan);
       this.uiDiv.appendChild(symbolDiv);
     };
-    displayKeyValue('💵', this.money);
-    displayKeyValue('⏰', this.turns);
-    displayKeyValue('🍀', (this.lastLuckBonus * 100) | 0);
+    for (const [key, value] of Object.entries(this.resources)) {
+      displayKeyValue(key, value);
+    }
   }
   // Note: This does NOT return a Symbol. It returns an emoji text character for animation purposes.
   getRandomOwnedEmoji() {

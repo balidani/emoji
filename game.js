@@ -1,8 +1,10 @@
-import { Inventory } from './inventory.js';
-import { Board } from './board.js';
-import { Shop } from './shop.js';
+import * as Const from './consts.js';
 import * as Util from './util.js';
+
+import { Board } from './board.js';
+import { Inventory } from './inventory.js';
 import { loadListener } from './main.js'; // Semi-Circular import, but it works.
+import { Shop } from './shop.js';
 
 export class Game {
   constructor(progression, gameSettings, catalog) {
@@ -33,7 +35,7 @@ export class Game {
       scoreContainer.classList.add('scoreContainer');
       const scoreDiv = document.createElement('div');
       scoreDiv.classList.add('score');
-      scoreDiv.innerText = '💵' + this.inventory.money;
+      scoreDiv.innerText = Const.MONEY + this.inventory.getResource(Const.MONEY);
       scoreContainer.appendChild(scoreDiv);
       document.querySelector('.game').appendChild(scoreContainer);
       await Util.animate(scoreDiv, 'scoreIn', 0.4);
@@ -42,13 +44,14 @@ export class Game {
     const sortedKeys = Object.keys(this.gameSettings.resultLookup)
       .sort((a, b) => b > a);
     sortedKeys.forEach(req => {
-      if (this.inventory.money >= req) {
+      if (this.inventory.getResource(Const.MONEY) >= req) {
         trophy = this.gameSettings.resultLookup[req];
         return;
       }
     });
     {
-      this.progression.postResultAndAdvance(this.inventory.money, trophy);
+      this.progression.postResultAndAdvance(
+        this.inventory.getResource(Const.MONEY), trophy);
       const trophyContainer = document.createElement('div');
       trophyContainer.classList.add('scoreContainer');
       const trophyDiv = document.createElement('div');
@@ -69,15 +72,14 @@ export class Game {
     }
     this.rolling = true;
     Util.deleteText(this.info);
-    const textToDraw = this.gameSettings.textLookup[this.inventory.turns];
+    const textToDraw = this.gameSettings.textLookup[this.inventory.getResource(Const.TURNS)];
     if (textToDraw) {
       Util.drawText(this.info, textToDraw);
     }
 
-    if (this.inventory.money > 0) {
-      this.inventory.turns--;
-      this.inventory.updateUi();
-      this.inventory.addMoney(-1);
+    if (this.inventory.getResource(Const.MONEY) > 0) {
+      await this.inventory.addResource(Const.TURNS, -1);
+      await this.inventory.addResource(Const.MONEY, -1);
       this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);
       await this.board.roll(this);
@@ -87,7 +89,7 @@ export class Game {
     } else {
       // Handle the case where player ran out of money
     }
-    if (this.inventory.turns === 0) {
+    if (this.inventory.getResource(Const.TURNS) === 0) {
       await this.over();
     } else {
       await this.shop.open(this);

@@ -1,5 +1,6 @@
-import { CATEGORY_EMPTY_SPACE } from './symbol.js';
+import * as Const from './consts.js';
 import * as Util from './util.js';
+import { CATEGORY_EMPTY_SPACE } from './symbol.js';
 
 export class Board {
   constructor(gameSettings, catalog, inventory) {
@@ -83,7 +84,7 @@ export class Board {
   async showMoneyEarned(x, y, value) {
     const moneyDiv = document.createElement('div');
     moneyDiv.classList.add('moneyEarned');
-    moneyDiv.innerText = `💵${value}`;
+    moneyDiv.innerText = `${Const.MONEY}${value}`;
     this.gridDiv.appendChild(moneyDiv);
 
     await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.3);

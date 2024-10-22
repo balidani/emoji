@@ -1,3 +1,4 @@
+import * as Const from './consts.js';
 import * as Util from './util.js';
 
 export class Shop {
@@ -19,10 +20,10 @@ export class Shop {
     this.shopDiv.replaceChildren();
     const newCatalog = this.catalog.generateShop(
       3,
-      game.inventory.lastLuckBonus
+      game.inventory.getResource(Const.LUCK)
     );
 
-    const makeShopItem = (symbol, symbolCost, handler, buttonText = '✅') => {
+    const makeShopItem = (symbol, symbolCost, handler, buttonText = Const.BUY) => {
       const shopItemDiv = document.createElement('div');
       shopItemDiv.classList.add('shopItem');
       const symbolDiv = document.createElement('div');
@@ -48,7 +49,7 @@ export class Shop {
       costDiv.classList.add('cost');
 
       if (symbolCost > 0) {
-        costDiv.innerHTML = '💵' + symbolCost;
+        costDiv.innerHTML = Const.MONEY + symbolCost;
       }
       shopItemDiv.appendChild(costDiv);
 
@@ -57,7 +58,7 @@ export class Shop {
       const buyButton = document.createElement('button');
       buyButton.classList.add('buyButton');
       buyButton.innerText = buttonText;
-      if (game.inventory.money < symbolCost) {
+      if (game.inventory.getResource(Const.MONEY) < symbolCost) {
         buyButton.disabled = true;
       }
       buyButton.addEventListener('click', handler);
@@ -72,11 +73,11 @@ export class Shop {
       // Support for dynamically generated cost -- report the same value that is subtracted later.
       const symbolCost = symbol.cost();
       const shopItemDiv = makeShopItem(symbol, symbolCost, async (e) => {
-        if (game.shop.buyCount > 0 && game.inventory.money > symbolCost) {
+        if (game.shop.buyCount > 0 && game.inventory.getResource(Const.MONEY) > symbolCost) {
           game.shop.buyCount--;
           await Promise.all([
             game.board.showMoneyEarned(0, 0, -symbolCost),
-            game.inventory.addMoney(-symbolCost),
+            game.inventory.addResource(Const.MONEY, -symbolCost),
           ]);
           game.inventory.add(symbol);
         }
@@ -103,17 +104,17 @@ export class Shop {
         this.refreshCost,
         async (e) => {
           game.shop.refreshCount++;
-          if (game.inventory.money > this.refreshCost) {
+          if (game.inventory.getResource(Const.MONEY) > this.refreshCost) {
             await Promise.all([
               game.board.showMoneyEarned(0, 0, -this.refreshCost),
-              game.inventory.addMoney(-this.refreshCost),
+              game.inventory.addResource(Const.MONEY, -this.refreshCost),
             ]);
             this.refreshCost *= 2;
             this.isOpen = false;
             await this.open(game);
           }
         },
-        /*buttonText=*/ '🔀'
+        /*buttonText=*/ Const.REFRESH
       );
       this.shopDiv.appendChild(shopItemDiv);
     }
@@ -125,7 +126,7 @@ export class Shop {
       return;
     }
     this.refreshable = false;
-    this.refreshCost = (1 + game.inventory.money * 0.01) | 0;
+    this.refreshCost = (1 + game.inventory.getResource(Const.MONEY) * 0.01) | 0;
     this.refreshCount = 0;
 
     this.buyCount = 1;

@@ -1,10 +1,10 @@
+import * as Const from './consts.js';
 import * as Util from './util.js';
 
 export const CATEGORY_EMPTY_SPACE = Symbol('Empty Space');
 export const CATEGORY_UNBUYABLE = Symbol('Unbuyable');
 
 /* Since we aren't using typescript, relax the patterns somewhat for autocomplete */
-
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_.*$", "varsIgnorePattern": "^_.*$" }] */
 
 const luckyChance = (game, chance, x, y) => {
@@ -12,7 +12,7 @@ const luckyChance = (game, chance, x, y) => {
   if (game.board.nextToSymbol(x, y, '🎯').length > 0) {
     return 1.0;
   }
-  return chance + game.inventory.lastLuckBonus;
+  return chance + game.inventory.getResource(Const.LUCK) / 100.0;
 };
 export const chance = (game, percent, x, y) =>
   Math.random() < luckyChance(game, percent, x, y);
@@ -45,7 +45,7 @@ export class Symb {
   }
   async addMoney(game, score, x, y) {
     const value = score * this.multiplier;
-    const coords = game.board.nextToSymbol(x, y, '❎');
+    const coords = game.board.nextToSymbol(x, y, Const.MULT);
     for (const coord of coords) {
       const [multX, multY] = coord;
       await Util.animate(
@@ -57,7 +57,7 @@ export class Symb {
     }
     await Promise.all([
       game.board.showMoneyEarned(x, y, value),
-      game.inventory.addMoney(score * this.multiplier),
+      game.inventory.addResource(Const.MONEY, score * this.multiplier),
     ]);
   }
   emoji() {
