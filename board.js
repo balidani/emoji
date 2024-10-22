@@ -3,19 +3,19 @@ import * as Util from './util.js';
 import { CATEGORY_EMPTY_SPACE } from './symbol.js';
 
 export class Board {
-  constructor(gameSettings, catalog, inventory) {
-    this.gameSettings = gameSettings;
-    this.catalog = catalog;
+  constructor(game) {
+    this.settings = game.settings;
+    this.catalog = game.catalog;
     this.cells = [];
 
     // Create lockedCells from the settings and the inventory.
     this.lockedCells = [];
     const usedSymbols = new Set();
     for (const [addr, { emoji, duration }] of Object.entries(
-      this.gameSettings.initiallyLockedCells
+      this.settings.initiallyLockedCells
     )) {
       let lockedSymbol = null;
-      for (const inventorySymbol of inventory.symbols) {
+      for (const inventorySymbol of game.inventory.symbols) {
         if (inventorySymbol.emoji() === emoji) {
           if (usedSymbols.has(inventorySymbol)) {
             continue;
@@ -38,11 +38,11 @@ export class Board {
     this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
     this.empty = this.catalog.symbol('⬜');
-    for (let y = 0; y < this.gameSettings.boardY; ++y) {
+    for (let y = 0; y < this.settings.boardY; ++y) {
       const row = [];
       const rowDiv = document.createElement('div');
       rowDiv.classList.add('row');
-      for (let x = 0; x < this.gameSettings.boardX; ++x) {
+      for (let x = 0; x < this.settings.boardX; ++x) {
         const ilc = this.lockedCells[`${x},${y}`];
         row.push(!ilc ? this.empty.copy() : ilc.symbol);
         const cellContainer = this.createCellDiv(x, y);
@@ -129,8 +129,8 @@ export class Board {
     const empties = [];
 
     const lockedSet = new Set();
-    for (let y = 0; y < game.gameSettings.boardY; ++y) {
-      for (let x = 0; x < game.gameSettings.boardX; ++x) {
+    for (let y = 0; y < game.settings.boardY; ++y) {
+      for (let x = 0; x < game.settings.boardX; ++x) {
         const addr = `${x},${y}`;
         const lockedSymbol = this.lockedCells[addr];
         if (lockedSymbol) {
@@ -155,7 +155,7 @@ export class Board {
     }
 
     const numCellsToBeFilled =
-      game.gameSettings.boardY * game.gameSettings.boardX -
+      game.settings.boardY * game.settings.boardX -
       Object.keys(this.lockedCells).length;
     for (let i = 0; i < numCellsToBeFilled; ++i) {
       if (symbols.length === 0) {
@@ -170,8 +170,8 @@ export class Board {
     }
 
     const tasks = [];
-    for (let y = 0; y < game.gameSettings.boardY; ++y) {
-      for (let x = 0; x < game.gameSettings.boardX; ++x) {
+    for (let y = 0; y < game.settings.boardY; ++y) {
+      for (let x = 0; x < game.settings.boardX; ++x) {
         tasks.push(this.spinDiv(game, x, y, this.cells[y][x]));
       }
     }
@@ -275,9 +275,9 @@ export class Board {
     const add = (x, y) => {
       if (
         x >= 0 &&
-        x < this.gameSettings.boardX &&
+        x < this.settings.boardX &&
         y >= 0 &&
-        y < this.gameSettings.boardY
+        y < this.settings.boardY
       ) {
         coords.push([x, y]);
       }

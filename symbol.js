@@ -61,7 +61,7 @@ export class Symb {
         1
       );
     }
-    this.addResource(game, Const.MONEY, value);
+    await this.addResource(game, Const.MONEY, value);
   }
   emoji() {
     return this.constructor.emoji;

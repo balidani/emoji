@@ -7,13 +7,13 @@ import { loadListener } from './main.js'; // Semi-Circular import, but it works.
 import { Shop } from './shop.js';
 
 export class Game {
-  constructor(progression, gameSettings, catalog) {
+  constructor(progression, settings, catalog) {
     this.progression = progression;
-    this.gameSettings = gameSettings;
+    this.settings = settings;
     this.catalog = catalog;
-    this.inventory = new Inventory(this.gameSettings, this.catalog);
+    this.inventory = new Inventory(this.settings, this.catalog);
     this.inventory.update();
-    this.board = new Board(this.gameSettings, this.catalog, this.inventory);
+    this.board = new Board(this);
     this.shop = new Shop(this.catalog);
     this.rolling = false;
     this.info = document.querySelector('.game .info');
@@ -41,11 +41,11 @@ export class Game {
       await Util.animate(scoreDiv, 'scoreIn', 0.4);
     }
     let trophy = '💩';
-    const sortedKeys = Object.keys(this.gameSettings.resultLookup)
+    const sortedKeys = Object.keys(this.settings.resultLookup)
       .sort((a, b) => b > a);
     sortedKeys.forEach(req => {
       if (this.inventory.getResource(Const.MONEY) >= req) {
-        trophy = this.gameSettings.resultLookup[req];
+        trophy = this.settings.resultLookup[req];
         return;
       }
     });
@@ -72,7 +72,7 @@ export class Game {
     }
     this.rolling = true;
     Util.deleteText(this.info);
-    const textToDraw = this.gameSettings.textLookup[this.inventory.getResource(Const.TURNS)];
+    const textToDraw = this.settings.textLookup[this.inventory.getResource(Const.TURNS)];
     if (textToDraw) {
       Util.drawText(this.info, textToDraw);
     }

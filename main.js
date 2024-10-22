@@ -60,12 +60,12 @@ class SimBoard extends Board {
 }
 
 class AutoGame {
-  constructor(gameSettings, catalog, buyAlways, buyOnce, buyRandom) {
-    this.gameSettings = gameSettings;
+  constructor(settings, catalog, buyAlways, buyOnce, buyRandom) {
+    this.settings = settings;
     this.catalog = catalog;
-    this.inventory = new Inventory(gameSettings, this.catalog);
+    this.inventory = new Inventory(settings, this.catalog);
     this.inventory.update();
-    this.board = new SimBoard(this.gameSettings, this.catalog, this.inventory);
+    this.board = new SimBoard(this);
     this.shop = new Shop(this.catalog);
     this.totalTurns = 0;
     this.buyAlways = new Set(buyAlways);

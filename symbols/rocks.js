@@ -65,8 +65,8 @@ export class Volcano extends Symb {
   }
   async evaluateProduce(game, x, y) {
     if (chance(game, 0.1, x, y)) {
-      const newX = Util.random(game.gameSettings.boardX);
-      const newY = Util.random(game.gameSettings.boardY);
+      const newX = Util.random(game.settings.boardX);
+      const newY = Util.random(game.settings.boardY);
       await game.board.removeSymbol(game, newX, newY);
       await game.board.addSymbol(game, new Rock(), newX, newY);
     }
