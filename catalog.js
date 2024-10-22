@@ -45,7 +45,7 @@ export class Catalog {
         if (item.categories().includes(CATEGORY_UNBUYABLE)) {
           continue;
         }
-        if (Math.random() < item.rarity + luck) {
+        if (Math.random() < item.rarity + luck / 100.0) {
           bag.push(item.copy());
         }
       }
