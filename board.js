@@ -58,33 +58,31 @@ export class Board {
     }
   }
   createCellDiv(x, y) {
-    const cellContainer = document.createElement('div');
-    cellContainer.classList.add('cell-container');
-    const cellDiv = document.createElement('div');
-    cellDiv.classList.add('cell');
-    cellDiv.classList.add(`cell-${x}-${y}`);
-    const symbolDiv = document.createElement('div');
-    symbolDiv.classList.add('symbol');
-    symbolDiv.innerText = '⬜';
-    const counterDiv = document.createElement('div');
-    counterDiv.classList.add('symbol-counter');
-    counterDiv.innerText = '';
+    const cellContainer = Util.createDiv('', 'cell-container');
+    const cellDiv = Util.createDiv('', 'cell', `cell-${x}-${y}`);
+    const symbolDiv = Util.createDiv('⬜', 'symbol');
+    const counterDiv = Util.createDiv('', 'symbol-counter');
+    const multiplierDiv = Util.createDiv('', 'symbol-multiplier', 'hidden');
     cellDiv.appendChild(symbolDiv);
     cellDiv.appendChild(counterDiv);
+    cellDiv.appendChild(multiplierDiv);
     cellContainer.appendChild(cellDiv);
     return cellContainer;
-  }
-  getSymbolDiv(x, y) {
-    return document.querySelector(`.cell-${y}-${x} .symbol`);
   }
   getCellDiv(x, y) {
     return document.querySelector(`.cell-${y}-${x}`);
   }
-  redrawCell(game, x, y) {
-    this.getCellDiv(x, y).replaceChildren(this.cells[y][x].render(game));
+  getSymbolDiv(x, y) {
+    return document.querySelector(`.cell-${y}-${x} .symbol`);
   }
   getCounterDiv(x, y) {
-    return this.gridDiv.children[y].children[x].children[1];
+    return document.querySelector(`.cell-${y}-${x} .symbol-counter`);
+  }
+  getMultiplierDiv(x, y) {
+    return document.querySelector(`.cell-${y}-${x} .symbol-multiplier`);
+  }
+  redrawCell(game, x, y) {
+    this.cells[y][x].render(game, x, y);
   }
   async showResourceEarned(key, value) {
     const moneyDiv = document.createElement('div');
@@ -103,31 +101,36 @@ export class Board {
   }
   async spinDiv(game, x, y, symbol) {
     await Util.delay(Util.random(600));
+    const symbolDiv = this.getSymbolDiv(x, y);
     const cellDiv = this.getCellDiv(x, y);
+    const container = cellDiv.parentElement;
 
     // Rolling animation portion
-    await Util.animate(cellDiv, 'startSpin', 0.1);
+    await Util.animate(cellDiv, 'startSpin', 0.15);
+    cellDiv.classList.add('hidden');
+
     const fakeDiv = Util.createDiv(null, 'symbol');
-    cellDiv.replaceChildren(fakeDiv);
-    for (let i = 0; i < 6; ++i) {
+    container.appendChild(fakeDiv);
+    for (let i = 0; i < 4 + Math.random() * 4 | 0; ++i) {
       fakeDiv.innerText = game.inventory.getRandomOwnedEmoji();
       await Util.animate(fakeDiv, 'spin', 0.12 + i * 0.02);
     }
 
-    // Set the actual symbol
-    const symbolDiv = symbol.render(game);
-    cellDiv.replaceChildren(symbolDiv);
+    container.removeChild(fakeDiv);
 
-    await Util.animate(symbolDiv, 'endSpin', 0.3);
-    await Util.animate(symbolDiv, 'bounce', 0.1);
+    // Set the actual symbol
+    cellDiv.classList.remove('hidden');
+    symbol.render(game, x, y);
+    await Util.animate(cellDiv, 'endSpin', 0.3);
+    await Util.animate(container, 'bounce', 0.1);
   }
   async spinDivOnce(game, x, y) {
     const cellDiv = this.getCellDiv(x, y);
+    const container = cellDiv.parentElement;
     await Util.animate(cellDiv, 'startSpin', 0.1);
-    const symbolDiv = this.cells[y][x].render(game);
-    cellDiv.replaceChildren(symbolDiv);
-    await Util.animate(symbolDiv, 'endSpin', 0.3);
-    await Util.animate(symbolDiv, 'bounce', 0.1);
+    this.cells[y][x].render(game, x, y)
+    await Util.animate(cellDiv, 'endSpin', 0.3);
+    await Util.animate(container, 'bounce', 0.1);
   }
   async roll(game) {
     const symbols = [...game.inventory.symbols];

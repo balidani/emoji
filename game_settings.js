@@ -45,7 +45,7 @@ export class GameSettings {
     this.gameLength = gameLength || 50;
     this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
     this.initiallyLockedCells = initiallyLockedCells || {
-      // '2,2': {emoji: '🪙', duration: 3},
+      // '2,2': {emoji: '🌝', duration: 30},
     };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {

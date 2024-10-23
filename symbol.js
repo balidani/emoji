@@ -72,21 +72,19 @@ export class Symb {
   counter(_game) {
     return null;
   }
-  render(game) {
-    const symbolDiv = Util.createDiv(this.emoji(), 'symbol');
-    const counterDiv = Util.createDiv(
-      this.counter(game) || '',
-      'symbol-counter'
-    );
-    const mult = this.multiplier !== 1 ? this.multiplier : undefined;
-    const multiplierDiv = Util.createDiv(mult, 'symbol-multiplier', 'hidden');
-
+  render(game, x, y) {
+    const symbolDiv = game.board.getSymbolDiv(x, y);
+    symbolDiv.textContent = this.emoji();
+    symbolDiv.offsetHeight;  // Force reflow
     symbolDiv.addEventListener('click', this.clickHandler(game));
 
-    symbolDiv.appendChild(counterDiv);
-    symbolDiv.appendChild(multiplierDiv);
+    const counterDiv = game.board.getCounterDiv(x, y);
+    const counter = this.counter(game);
+    counterDiv.textContent = counter ? counter : '';
 
-    return symbolDiv;
+    const multiplierDiv = game.board.getMultiplierDiv(x, y);
+    const mult = this.multiplier;
+    multiplierDiv.textContent = mult !== 1 ? mult : '';
   }
   clickHandler(game) {
     const interactiveDescription = Util.createInteractiveDescription(
