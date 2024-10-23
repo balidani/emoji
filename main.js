@@ -228,4 +228,4 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
 };
 
 // This is our "integration test" for now, lol.
-simulate('', '', /*rounds=*/ 100, /*buyRandom=*/ true);
+// simulate('', '', /*rounds=*/ 100, /*buyRandom=*/ true);
