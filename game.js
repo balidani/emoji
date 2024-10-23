@@ -65,6 +65,7 @@ export class Game {
   }
   async roll() {
     if (this.rolling) {
+      await Util.delay(10);
       Util.animationOff();
       return;
     } else {
