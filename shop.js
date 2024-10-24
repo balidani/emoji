@@ -23,7 +23,12 @@ export class Shop {
       game.inventory.getResource(Const.LUCK)
     );
 
-    const makeShopItem = (symbol, symbolCost, handler, buttonText = Const.BUY) => {
+    const makeShopItem = (
+      symbol,
+      symbolCost,
+      handler,
+      buttonText = Const.BUY
+    ) => {
       const shopItemDiv = document.createElement('div');
       shopItemDiv.classList.add('shopItem');
       const symbolDiv = document.createElement('div');
@@ -126,10 +131,10 @@ export class Shop {
           description: () => '',
           descriptionLong: () => '',
         },
-        {'💵': this.refreshCost},
+        { '💵': this.refreshCost },
         async (e) => {
           game.shop.refreshCount++;
-          if (game.inventory.getResource(Const.MONEY) > this.refreshCost) {
+          if (game.inventory.getResource(Const.MONEY) >= this.refreshCost) {
             await Promise.all([
               game.board.showResourceEarned(Const.MONEY, -this.refreshCost),
               game.inventory.addResource(Const.MONEY, -this.refreshCost),

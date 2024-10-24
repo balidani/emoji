@@ -7,11 +7,13 @@ export class Inventory {
     this.symbolsDiv = document.querySelector('.game .inventory');
     this.uiDiv = document.querySelector('.game .ui');
     this.infoDiv = document.querySelector('.info');
-    
-    this.resources = {};
-    this.resources[Const.MONEY] = 1;
-    this.resources[Const.TURNS] = settings.gameLength;
-    this.resources[Const.LUCK] = 0;
+
+    this.resources = {
+      '🫀': 10,
+      '⏰': 50,
+      '💵': 10,
+      '🍀': 0,
+    };
     this.tempLuckBonus = 0;
     this.updateUi();
     this.graveyard = [];
@@ -61,9 +63,15 @@ export class Inventory {
     this.update();
   }
   getResource(key) {
+    if (this.resources[key] === undefined) {
+      return 0;
+    }
     return this.resources[key];
   }
   async addResource(key, value) {
+    if (this.resources[key] === undefined) {
+      this.resources[key] = 0;
+    }
     this.resources[key] += value;
     this.updateUi();
   }

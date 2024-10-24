@@ -2,16 +2,7 @@ import * as Utils from './util.js';
 
 import { loadSettings } from './main.js';
 
-const ALL_TESTED_SYMBOL_FILES = [
-  './symbols/advanced.js',
-  './symbols/animals.js',
-  './symbols/food.js',
-  './symbols/money.js',
-  './symbols/music.js',
-  './symbols/rocks.js',
-  './symbols/things.js',
-  './symbols/boss.js',
-];
+const ALL_TESTED_SYMBOL_FILES = ['./symbols/boss.js'];
 
 export class GameSettings {
   static settings = null;
@@ -44,9 +35,9 @@ export class GameSettings {
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
-    this.startingSet = startingSetString || '🧙‍♂️🪨';
+    this.startingSet = startingSetString || '🧙‍♂️🪨🪨🌲';
     this.initiallyLockedCells = initiallyLockedCells || {
-      '2,2': {emoji: '🧙‍♂️', duration: -1},
+      '2,2': { emoji: '🧙‍♂️', duration: -1 },
     };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {

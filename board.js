@@ -134,7 +134,7 @@ export class Board {
     const empties = [];
 
     const lockedSet = new Set();
-    const lockedAtStart = {...this.lockedCells};
+    const lockedAtStart = { ...this.lockedCells };
     for (let y = 0; y < game.settings.boardY; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
         const addr = `${x},${y}`;
@@ -238,13 +238,6 @@ export class Board {
       await task();
     }
   }
-  forAllCells(f) {
-    this.cells.forEach((row, y) => {
-      row.forEach((cell, x) => {
-        f(cell, x, y);
-      });
-    });
-  }
   async addSymbol(game, sym, x, y) {
     game.inventory.add(sym);
     if (this.cells[y][x].emoji() === '🕳️') {
@@ -337,5 +330,32 @@ export class Board {
 
   nextToEmpty(x, y) {
     return this.nextToCategory(x, y, CATEGORY_EMPTY_SPACE);
+  }
+
+  forAllCells(f) {
+    this.cells.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        f(cell, x, y);
+      });
+    });
+  }
+
+  findExpr(expr) {
+    const coords = [];
+    this.forAllCells((coord, x, y) => {
+      if (expr(this.cells[y][x], x, y)) {
+        coords.push([x, y]);
+      }
+    });
+    return coords;
+  }
+  findCategory(category_name) {
+    const category_symbols = this.catalog.categories.get(category_name);
+    if (!category_symbols || category_symbols.length === 0) {
+      return [];
+    }
+    return this.findExpr((sym, _, __) =>
+      category_symbols.includes(sym.emoji())
+    );
   }
 }
