@@ -10,6 +10,7 @@ const ALL_TESTED_SYMBOL_FILES = [
   './symbols/music.js',
   './symbols/rocks.js',
   './symbols/things.js',
+  './symbols/boss.js',
 ];
 
 export class GameSettings {
@@ -39,13 +40,13 @@ export class GameSettings {
     });
 
     this.isOpen = false;
-    this.name = name || 'Default Game Settings';
+    this.name = name || 'Boss Fight Prototype';
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
-    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
+    this.startingSet = startingSetString || '🧙‍♂️🪨';
     this.initiallyLockedCells = initiallyLockedCells || {
-      // '2,2': {emoji: '🪙', duration: 3},
+      '2,2': {emoji: '🧙‍♂️', duration: -1},
     };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
@@ -55,10 +56,7 @@ export class GameSettings {
       10000: '🥉',
     };
     this.textLookup = textLookup || {
-      50: 'you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.',
-      49: 'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!',
-      48: 'you can double tap the roll (🕹️) button to skip animation.',
-      47: 'you can tap on any symbol, on the board or in the shop, to get more information.',
+      50: ' ',
     };
   }
 
