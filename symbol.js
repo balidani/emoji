@@ -7,15 +7,26 @@ export const CATEGORY_UNBUYABLE = Symbol('Unbuyable');
 /* Since we aren't using typescript, relax the patterns somewhat for autocomplete */
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_.*$", "varsIgnorePattern": "^_.*$" }] */
 
-const luckyChance = (game, chance, x, y) => {
-  // TODO FIX reference to BullsEye.emoji this hardcoding IS TEMPORARY
+export const chance = (game, percent, x, y) => {
+  let luckyChance = 0;
   if (game.board.nextToSymbol(x, y, '🎯').length > 0) {
-    return 1.0;
+    luckyChance = 1.0;
+  } else {
+    luckyChance = percent + game.inventory.getResource(Const.LUCK) / 100.0;
   }
-  return chance + game.inventory.getResource(Const.LUCK) / 100.0;
+  return Math.random() < luckyChance;
 };
-export const chance = (game, percent, x, y) =>
-  Math.random() < luckyChance(game, percent, x, y);
+
+// Used for negative effects.
+export const badChance = (game, percent, x, y) => {
+  let badLuckChance = 0;
+  if (game.board.nextToSymbol(x, y, '🎯').length > 0) {
+    badLuckChance = 0.0;
+  } else {
+    badLuckChance = percent - game.inventory.getResource(Const.LUCK) / 100.0;
+  }
+  return Math.random() < badLuckChance;
+};
 
 export class Symb {
   static emoji = '⬛';
@@ -41,7 +52,7 @@ export class Symb {
     throw new Error('Trying to get description of base class.');
   }
   descriptionLong() {
-    throw new Error('Trying to get long description of base class.');
+    return this.description();
   }
   async addResource(game, key, value) {
     await Promise.all([

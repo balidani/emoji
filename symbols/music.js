@@ -42,7 +42,7 @@ export class Bell extends Symb {
   static emoji = '🔔';
   constructor() {
     super();
-    this.rarity = 0.4;
+    this.rarity = 0.3;
   }
   copy() {
     return new Bell();
@@ -50,7 +50,7 @@ export class Bell extends Symb {
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 11, x, y),
+      this.addMoney(game, 9, x, y),
     ]);
   }
   async evaluateProduce(game, x, y) {
@@ -66,10 +66,10 @@ export class Bell extends Symb {
     }
   }
   description() {
-    return '💵11<br>20% chance: makes 🎵';
+    return '💵9<br>20% chance: makes 🎵';
   }
   descriptionLong() {
-    return 'this is a bell. it pays 💵11, and it has a 20% chance to create 🎵 on a neighboring empty space.';
+    return 'this is a bell. it pays 💵9, and it has a 20% chance to create 🎵 on a neighboring empty space.';
   }
 }
 
@@ -105,7 +105,7 @@ export class Drums extends Symb {
   static emoji = '🥁';
   constructor() {
     super();
-    this.rarity = 0.25;
+    this.rarity = 0.35;
   }
   copy() {
     return new Drums();

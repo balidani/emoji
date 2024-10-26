@@ -34,7 +34,7 @@ body {
   left: 0pt;
   bottom: 0pt;
   width: 100%;
-  letter-spacing: 4pt;
+  letter-spacing: 2pt;
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
@@ -46,6 +46,7 @@ body {
   display: inline-flex;
   align-items: center;
   cursor: pointer;
+  padding-right: 2pt;
 }
 
 .inventoryEntryCount {
@@ -60,7 +61,7 @@ body {
   top: 0pt;
   width: 800pt;
   display: block;
-  letter-spacing: 4pt;
+  letter-spacing: 2pt;
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
@@ -71,6 +72,7 @@ body {
   display: inline-flex;
   align-items: center;
   cursor: pointer;
+  padding-right: 4pt;
 }
 
 .info {

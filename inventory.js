@@ -61,9 +61,15 @@ export class Inventory {
     this.update();
   }
   getResource(key) {
+    if (this.resources[key] === undefined) {
+      return 0;
+    }
     return this.resources[key];
   }
   async addResource(key, value) {
+    if (this.resources[key] === undefined) {
+      this.resources[key] = 0;
+    }
     this.resources[key] += value;
     this.updateUi();
   }

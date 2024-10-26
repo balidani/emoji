@@ -97,7 +97,7 @@ export class Moon extends Symb {
   static emoji = '🌝';
   constructor(turns = 0) {
     super();
-    this.rarity = 0.28;
+    this.rarity = 0.31;
     this.turns = turns;
   }
   copy() {
@@ -109,7 +109,7 @@ export class Moon extends Symb {
       game.board.redrawCell(game, x, y);
       await Promise.all([
         Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.3),
-        this.addMoney(game, 555, x, y),
+        this.addMoney(game, 600, x, y),
       ]);
     }
     this.moonScore = 0;
@@ -118,7 +118,7 @@ export class Moon extends Symb {
     return 31 - this.turns;
   }
   description() {
-    return 'every 31 turns: 💵555';
+    return 'every 31 turns: 💵600';
   }
   descriptionLong() {
     return 'this is a moon. every 31 turns, it gives 💵555.';

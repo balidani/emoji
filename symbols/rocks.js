@@ -15,19 +15,19 @@ export class Diamond extends Symb {
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
-      this.addMoney(game, 6, x, y),
+      this.addMoney(game, 7, x, y),
     ]);
     const coords = game.board.nextToSymbol(x, y, Diamond.emoji);
     if (coords.length === 0) {
       return;
     }
-    await this.addMoney(game, coords.length * 5, x, y);
+    await this.addMoney(game, coords.length * 7, x, y);
   }
   description() {
-    return '💵6<br>💵5 for each neighboring 💎';
+    return '💵7<br>💵7 for each neighboring 💎';
   }
   descriptionLong() {
-    return 'this is a diamond. it pays 💵6 and 💵5 for each other 💎 next to it.';
+    return 'this is a diamond. it pays 💵7 and 💵7 for each other 💎 next to it.';
   }
 }
 

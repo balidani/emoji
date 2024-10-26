@@ -1,3 +1,4 @@
+import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
 import { chance, Symb, Empty, CATEGORY_EMPTY_SPACE } from '../symbol.js';
@@ -178,6 +179,30 @@ export class CrystalBall extends Symb {
   async score(game, x, y) {
     game.inventory.addLuck(3);
     await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+  }
+}
+
+export class FortuneCookie extends Symb {
+  static emoji = '🥠';
+  constructor() {
+    super();
+    this.rarity = 0.11;
+  }
+  copy() {
+    return new FortuneCookie();
+  }
+  description() {
+    return '💵7 for each point of luck you have';
+  }
+  descriptionLong() {
+    return 'this is a fortune cookie. it pays 💵7 for each percent of luck you have.';
+  }
+  async score(game, x, y) {
+    const value = game.inventory.getResource(Const.LUCK) * 7;
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
+      this.addMoney(game, value, x, y),
+    ]);
   }
 }
 
