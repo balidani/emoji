@@ -64,7 +64,7 @@ export class Axe extends Symb {
     return new Axe();
   }
   description() {
-    return 'this is an axe. convert 🌲 to 🪵3.';
+    return 'this is an axe. converts 🌲 to 🪵3.';
   }
   async evaluateConsume(game, x, y) {
     const coords = game.board.nextToSymbol(x, y, '🌲');
@@ -92,7 +92,7 @@ export class Dagger extends Symb {
     return new Dagger();
   }
   description() {
-    return 'this is a dagger. it does 🫀1 damage to all enemies nearby.';
+    return 'this is a dagger. deals 🫀1 damage to all enemies nearby.';
   }
   async score(game, x, y) {
     const coords = game.board.nextToCategory(x, y, CATEGORY_ENEMY);
@@ -126,11 +126,14 @@ export class Bow extends Symb {
     return new Bow();
   }
   description() {
-    return 'this is a bow. it does 🫀3 damage to a random enemy.';
+    return 'this is a bow. 10% chance: deals 🫀3 damage to a random enemy.';
   }
   async score(game, x, y) {
     const coords = game.board.findCategory(CATEGORY_ENEMY);
     if (coords.length === 0) {
+      return;
+    }
+    if (!chance(game, 0.1, x, y)) {
       return;
     }
     const [enemyX, enemyY] = Util.randomChoose(coords);
@@ -154,6 +157,9 @@ export class Storm extends Symb {
   }
   copy() {
     return new Storm();
+  }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
   }
   description() {
     return 'this is a storm. 10% chance to hurt you for 🫀1.';
@@ -201,7 +207,7 @@ export class Factory extends Symb {
     return new Factory();
   }
   description() {
-    return 'this is a factory. convert 🪨 to 🔩.';
+    return 'this is a factory. converts 🪨 to 🔩.';
   }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToSymbol(x, y, '🪨');
