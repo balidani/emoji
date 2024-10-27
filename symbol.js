@@ -92,7 +92,9 @@ export class Symb {
     const mult = this.multiplier !== 1 ? this.multiplier : undefined;
     const multiplierDiv = Util.createDiv(mult, 'symbol-multiplier', 'hidden');
 
-    symbolDiv.addEventListener('click', this.clickHandler(game));
+    // The lambda is required, otherwise there is a bug with the info text.
+    // This should probably be fixed in the future.
+    symbolDiv.addEventListener('click', () => this.clickHandler(game));
 
     symbolDiv.appendChild(counterDiv);
     symbolDiv.appendChild(multiplierDiv);
@@ -162,5 +164,26 @@ export class Turn extends Symb {
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
+  }
+}
+
+export class PlayButton extends Symb {
+  static emoji = '🕹️';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new PlayButton();
+  }
+  description() {
+    return 'click to play';
+  }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
+  }
+  async evaluateConsume(game, x, y) {
+    if (this.turns >= 1) {
+      await game.board.removeSymbol(game, x, y);
+    }
   }
 }

@@ -51,7 +51,8 @@ if (window.location.hash === '#dev') {
   });
 }
 
-await loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
+const game = await loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
+console.log(game);
 
 ///// TEST RELATED CODE BELOW //////
 
@@ -182,8 +183,7 @@ class AutoGame {
 }
 
 window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
-  Util.toggleAnimation();
-
+  // console.log('strategy', buyAlways, buyOnce);
   const template = document.querySelector('.template');
   const gameDiv = document.querySelector('.game');
   gameDiv.replaceChildren();
@@ -195,6 +195,8 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
   let over10k = 0;
   let over15k = 0;
   let over20k = 0;
+  let lastMax = 0;
+  let lastAvg = 0;
 
   const settings = GameSettings.instance();
 
@@ -227,9 +229,12 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
     if (score > 20000) {
       over20k++;
     }
+    lastMax = max;
+    lastAvg = avg;
   }
-  console.log(over10k, over15k, over20k);
+  console.log(over10k, over15k, over20k, lastMax, lastAvg);
 };
 
-// This is our "integration test" for now, lol.
-// simulate('', '', /*rounds=*/ 100, /*buyRandom=*/ true);
+// const simulate = window.simulate;
+// Util.toggleAnimation();
+// await simulate('', '', 100, true);

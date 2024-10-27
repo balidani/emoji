@@ -120,7 +120,7 @@ export class CreditCard extends Symb {
     }
   }
   description() {
-    return '💵1000 now<br>💵-1100 on last turn';
+    return '💵1000 now.<br>💵-1100 on last turn';
   }
   descriptionLong() {
     return "this is a credit card. it pays 💵1000, but takes 💵1100 on your last turn. if it's not on the board on your last turn, however ...";
@@ -161,7 +161,7 @@ export class MoneyBag extends Symb {
     return this.coins;
   }
   description() {
-    return '💵2 for each 🪙 collected<br>collects neighboring 🪙';
+    return '💵2 for each 🪙 collected.<br>collects neighboring 🪙';
   }
   descriptionLong() {
     return 'this is a money bag. it collects neighboring 🪙 and permanently gives 💵2 more for each 🪙 collected.';

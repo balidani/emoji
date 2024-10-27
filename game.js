@@ -18,14 +18,12 @@ export class Game {
     this.rolling = false;
     this.info = document.querySelector('.game .info');
     this.progression.updateUi();
-    Util.drawText(
-      this.info,
-      'press the roll button (🕹️) when you are ready to play.'
-    );
+    if (settings.textLookup['greeting'] !== undefined) {
+      Util.drawText(this.info, settings.textLookup['greeting']);
+    }
     document
-      .querySelector('.game .roll')
+      .querySelector('.game .grid')
       .addEventListener('click', () => this.roll());
-    console.log(this);
   }
   async over() {
     document.querySelector('.game .roll').disabled = true;
@@ -35,15 +33,17 @@ export class Game {
       scoreContainer.classList.add('scoreContainer');
       const scoreDiv = document.createElement('div');
       scoreDiv.classList.add('score');
-      scoreDiv.innerText = Const.MONEY + this.inventory.getResource(Const.MONEY);
+      scoreDiv.innerText =
+        Const.MONEY + this.inventory.getResource(Const.MONEY);
       scoreContainer.appendChild(scoreDiv);
       document.querySelector('.game').appendChild(scoreContainer);
       await Util.animate(scoreDiv, 'scoreIn', 0.4);
     }
     let trophy = '💩';
-    const sortedKeys = Object.keys(this.settings.resultLookup)
-      .sort((a, b) => b > a);
-    sortedKeys.forEach(req => {
+    const sortedKeys = Object.keys(this.settings.resultLookup).sort(
+      (a, b) => b > a
+    );
+    sortedKeys.forEach((req) => {
       if (this.inventory.getResource(Const.MONEY) >= req) {
         trophy = this.settings.resultLookup[req];
         return;
@@ -51,7 +51,9 @@ export class Game {
     });
     {
       this.progression.postResultAndAdvance(
-        this.inventory.getResource(Const.MONEY), trophy);
+        this.inventory.getResource(Const.MONEY),
+        trophy
+      );
       const trophyContainer = document.createElement('div');
       trophyContainer.classList.add('scoreContainer');
       const trophyDiv = document.createElement('div');
@@ -72,7 +74,8 @@ export class Game {
     }
     this.rolling = true;
     Util.deleteText(this.info);
-    const textToDraw = this.settings.textLookup[this.inventory.getResource(Const.TURNS)];
+    const textToDraw =
+      this.settings.textLookup[this.inventory.getResource(Const.TURNS)];
     if (textToDraw) {
       Util.drawText(this.info, textToDraw);
     }

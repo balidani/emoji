@@ -7,7 +7,7 @@ export class Diamond extends Symb {
   static emoji = '💎';
   constructor() {
     super();
-    this.rarity = 0.3;
+    this.rarity = 0.1;
   }
   copy() {
     return new Diamond();
@@ -15,19 +15,19 @@ export class Diamond extends Symb {
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
-      this.addMoney(game, 7, x, y),
+      this.addMoney(game, 8, x, y),
     ]);
     const coords = game.board.nextToSymbol(x, y, Diamond.emoji);
     if (coords.length === 0) {
       return;
     }
-    await this.addMoney(game, coords.length * 7, x, y);
+    await this.addMoney(game, coords.length * 8, x, y);
   }
   description() {
-    return '💵7<br>💵7 for each neighboring 💎';
+    return '💵8<br>💵8 for each neighboring 💎';
   }
   descriptionLong() {
-    return 'this is a diamond. it pays 💵7 and 💵7 for each other 💎 next to it.';
+    return 'this is a diamond. it pays 💵8 and 💵8 for each other 💎 next to it.';
   }
 }
 
@@ -58,7 +58,7 @@ export class Volcano extends Symb {
   static emoji = '🌋';
   constructor() {
     super();
-    this.rarity = 0.4;
+    this.rarity = 0.1;
   }
   copy() {
     return new Volcano();
@@ -68,14 +68,19 @@ export class Volcano extends Symb {
       const newX = Util.random(game.settings.boardX);
       const newY = Util.random(game.settings.boardY);
       await game.board.removeSymbol(game, newX, newY);
+      await game.board.addSymbol(game, game.catalog.symbol('🕳️'), newX, newY);
+      await game.board.addSymbol(game, new Rock(), newX, newY);
+      await game.board.addSymbol(game, new Rock(), newX, newY);
+      await game.board.addSymbol(game, new Rock(), newX, newY);
+      await game.board.addSymbol(game, new Rock(), newX, newY);
       await game.board.addSymbol(game, new Rock(), newX, newY);
     }
   }
   description() {
-    return '10% chance: replaces random tile with 🪨';
+    return '10% chance: replaces random tile with 🪨x5';
   }
   descriptionLong() {
-    return 'this is a volcano. it has a 10% chance to replace a random tile on the board with 🪨.';
+    return 'this is a volcano. it has a 10% chance to replace a random tile on the board with five 🪨.';
   }
 }
 

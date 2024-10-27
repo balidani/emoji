@@ -43,9 +43,9 @@ export class GameSettings {
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
-    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
+    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀🕹️';
     this.initiallyLockedCells = initiallyLockedCells || {
-      // '2,2': {emoji: '🪙', duration: 3},
+      '2,2': { emoji: '🕹️', duration: -1 },
     };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
@@ -55,14 +55,16 @@ export class GameSettings {
       10000: '🥉',
     };
     this.textLookup = textLookup || {
-      50: 'you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.',
-      49: 'you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!',
-      48: 'you can double tap the roll (🕹️) button to skip animation.',
-      47: 'you can tap on any symbol, on the board or in the shop, to get more information.',
+      greeting:
+        '💬: welcome to emoji slots. press anywhere on the board above when you are ready to play (🕹️)',
+      50: '💬: now you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.',
+      49: '💬: you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!',
+      48: '💬: you can double tap the grid to skip animation.',
+      47: '💬: you can tap on any symbol, on the board or in the shop, to get more information.',
     };
   }
 
-  async open(_game) {
+  async open(_) {
     if (this.isOpen) {
       return;
     }
@@ -139,7 +141,7 @@ export class GameSettings {
     this.close();
     loadSettings(this);
   }
-  async close(_game) {
+  async close(_) {
     if (!this.isOpen) {
       return;
     }

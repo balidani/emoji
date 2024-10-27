@@ -153,7 +153,7 @@ export class Clover extends Symb {
     return '+1% luck';
   }
   descriptionLong() {
-    return 'this is a clover. it gives you luck. symbols having a chance to do something will succeed more. and you get rarer items to choose from in the shop.';
+    return 'this is a clover. it gives you luck. symbols having a chance to do something good will succeed more. rare items show up more frequently in the shop.';
   }
   async score(game, x, y) {
     game.inventory.addLuck(1);
@@ -174,7 +174,7 @@ export class CrystalBall extends Symb {
     return '+3% luck';
   }
   descriptionLong() {
-    return 'this is a crystal ball. symbols having a chance to do something will succeed more. and you get rarer items to choose from in the shop.';
+    return 'this is a crystal ball. it gives you luck. symbols having a chance to do something good will succeed more. rare items show up more frequently in the shop.';
   }
   async score(game, x, y) {
     game.inventory.addLuck(3);

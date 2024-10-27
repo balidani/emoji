@@ -34,12 +34,23 @@ export class Catalog {
   }
   symbol(emoji) {
     if (this.symbols.has(emoji)) {
-      return this.symbols.get(emoji);
+      return this.symbols.get(emoji).copy();
     }
     throw new Error('Unknown symbol: ' + emoji);
   }
-  generateShop(count, luck) {
+  generateShop(count, luck, rareOnly = false) {
     const bag = [];
+    if (rareOnly) {
+      for (const [_, item] of this.symbols) {
+        if (item.categories().includes(CATEGORY_UNBUYABLE)) {
+          continue;
+        }
+        if (item.rarity < 0.1) {
+          bag.push(item.copy());
+        }
+      }
+      return bag;
+    }
     while (bag.length <= count) {
       for (const [_, item] of this.symbols) {
         if (item.categories().includes(CATEGORY_UNBUYABLE)) {
@@ -58,7 +69,7 @@ export class Catalog {
       try {
         const sym = this.symbol(emoji);
         if (sym != null) {
-          result.push(sym.copy());
+          result.push(sym);
         }
       } catch (e) {
         console.error(e);

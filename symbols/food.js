@@ -17,7 +17,7 @@ export class Butter extends Symb {
     return new Butter();
   }
   async evaluateConsume(game, x, y) {
-    if (this.turns >= 7) {
+    if (this.turns >= 5) {
       await game.board.removeSymbol(game, x, y);
     }
   }
@@ -28,10 +28,10 @@ export class Butter extends Symb {
     return [CATEGORY_FOOD];
   }
   description() {
-    return 'x3 to neighboring 🍿<br>melts after 7 turns';
+    return 'x4 to neighboring 🍿<br>melts after 5 turns';
   }
   descriptionLong() {
-    return 'this is butter. it triples the value of all neighboring 🍿. it disappears after 7 turns.';
+    return 'this is butter. it quadruples the value of all neighboring 🍿. it disappears after 7 turns.';
   }
 }
 
@@ -69,7 +69,7 @@ export class Corn extends Symb {
   static emoji = '🌽';
   constructor() {
     super();
-    this.rarity = 0.25;
+    this.rarity = 0.2;
   }
   copy() {
     return new Corn();
@@ -77,7 +77,7 @@ export class Corn extends Symb {
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 20, x, y),
+      this.addMoney(game, 21, x, y),
     ]);
   }
   async evaluateProduce(game, x, y) {
@@ -98,10 +98,10 @@ export class Corn extends Symb {
     return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
   }
   description() {
-    return '💵20<br>10% chance: pops 🍿';
+    return '💵21<br>10% chance: pops 🍿';
   }
   descriptionLong() {
-    return 'this is corn. it pays 💵20, and has a 10% chance to pop, making 🍿 on all empty space nearby.';
+    return 'this is corn. it pays 💵21, and has a 10% chance to pop, making 🍿 on all empty space nearby.';
   }
 }
 
@@ -181,7 +181,7 @@ export class Popcorn extends Symb {
     const butter = game.board.nextToSymbol(x, y, Butter.emoji);
     let score = 17;
     for (const _ of butter) {
-      score *= 3;
+      score *= 4;
     }
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -275,7 +275,7 @@ export class Cocktail extends Symb {
     return this.cherryScore;
   }
   description() {
-    return '💵2 per 🍒 removed<br>💵4 per 🍍 removed<br>x2 per 🍾 removed';
+    return '💵2 per 🍒 removed.<br>💵4 per 🍍 removed.<br>x2 per 🍾 removed.';
   }
   descriptionLong() {
     return 'this is a cocktail. it permanently gives more 💵 by removing neighboring 🍒 (💵2), 🍍 (💵4) and 🍾 (x2).';

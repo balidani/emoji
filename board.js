@@ -1,4 +1,3 @@
-import * as Const from './consts.js';
 import * as Util from './util.js';
 import { CATEGORY_EMPTY_SPACE } from './symbol.js';
 
@@ -134,7 +133,7 @@ export class Board {
     const empties = [];
 
     const lockedSet = new Set();
-    const lockedAtStart = {...this.lockedCells};
+    const lockedAtStart = { ...this.lockedCells };
     for (let y = 0; y < game.settings.boardY; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
         const addr = `${x},${y}`;

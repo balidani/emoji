@@ -20,10 +20,16 @@ export class Shop {
     this.shopDiv.replaceChildren();
     const newCatalog = this.catalog.generateShop(
       3,
-      game.inventory.getResource(Const.LUCK)
+      game.inventory.getResource(Const.LUCK),
+      /* rareOnly= */ false // game.inventory.getResource(Const.TURNS) === game.settings.gameLength - 1
     );
 
-    const makeShopItem = (symbol, symbolCost, handler, buttonText = Const.BUY) => {
+    const makeShopItem = (
+      symbol,
+      symbolCost,
+      handler,
+      buttonText = Const.BUY
+    ) => {
       const shopItemDiv = document.createElement('div');
       shopItemDiv.classList.add('shopItem');
       const symbolDiv = document.createElement('div');
@@ -126,8 +132,8 @@ export class Shop {
           description: () => '',
           descriptionLong: () => '',
         },
-        {'💵': this.refreshCost},
-        async (e) => {
+        { '💵': this.refreshCost },
+        async (_) => {
           game.shop.refreshCount++;
           if (game.inventory.getResource(Const.MONEY) >= this.refreshCost) {
             await Promise.all([

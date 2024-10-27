@@ -3,11 +3,12 @@ import * as Util from './util.js';
 
 export class Inventory {
   constructor(settings, catalog) {
+    this.catalog = catalog;
     this.symbols = catalog.symbolsFromString(settings.startingSet);
     this.symbolsDiv = document.querySelector('.game .inventory');
     this.uiDiv = document.querySelector('.game .ui');
     this.infoDiv = document.querySelector('.info');
-    
+
     this.resources = {};
     this.resources[Const.MONEY] = 1;
     this.resources[Const.TURNS] = settings.gameLength;
@@ -89,6 +90,13 @@ export class Inventory {
     const displayKeyValue = (key, value) => {
       const symbolDiv = document.createElement('div');
       symbolDiv.innerText = key;
+      symbolDiv.addEventListener('click', (_) => {
+        const interactiveDescription = Util.createInteractiveDescription(
+          this.catalog.symbol(key).descriptionLong(),
+          /*emoji=*/ key
+        );
+        Util.drawText(this.infoDiv, interactiveDescription, true);
+      });
       const countSpan = document.createElement('span');
       countSpan.classList.add('inventoryEntryCount');
       countSpan.innerText = value;

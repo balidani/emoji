@@ -1,12 +1,15 @@
 body {
   font-family: monospace;
+  user-select: none;
 }
 
 button {
   font-size: 20pt;
-  padding: 2pt;
+  padding: 0;
+  margin: 0;
   width: 32pt;
   height: 32pt;
+  text-align: center;
 }
 
 html,
@@ -97,6 +100,10 @@ body {
 .shopItem {
   display: flex;
   padding-bottom: 8pt;
+}
+
+.shopItem .shopEmoji {
+  cursor: pointer;
 }
 
 .description {

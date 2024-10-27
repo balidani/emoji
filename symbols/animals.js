@@ -159,7 +159,7 @@ export class Fox extends Symb {
     return 5 - this.turns;
   }
   description() {
-    return 'eats 🐔 for 💵20<br>eats 🐣 for 💵10<br>leaves after 5 turns with no food';
+    return 'eats 🐔 for 💵20.<br>eats 🐣 for 💵10.<br>leaves after 5 turns with no food';
   }
   descriptionLong() {
     return 'this is a fox. it will eat 🐣 and 🐔 neighbors and pay 💵10 and 💵20 respectively. it disappears after 5 turns with no food.';
@@ -235,7 +235,7 @@ export class Bug extends Symb {
     return 5 - this.turns;
   }
   description() {
-    return 'eats nearby food for 💵8 each<br>leaves after 5 turns with no food';
+    return 'eats nearby food for 💵8 each.<br>leaves after 5 turns with no food';
   }
   descriptionLong() {
     return 'this is a bug. it will eat all edible neighbors and pay out 💵8 for each item eaten. it disappears after 5 turns with no food.';

@@ -1,4 +1,10 @@
-import { badChance, chance, Symb, Empty } from '../symbol.js';
+import {
+  badChance,
+  chance,
+  Symb,
+  Empty,
+  CATEGORY_UNBUYABLE,
+} from '../symbol.js';
 import * as Util from '../util.js';
 
 // I am aware this is a bad name for the file. This file contains the "item" like emoji -
@@ -39,6 +45,9 @@ export class Bomb extends Symb {
     super();
     this.rarity = 0.15;
   }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
+  }
   copy() {
     return new Bomb();
   }
@@ -70,6 +79,9 @@ export class Firefighter extends Symb {
   constructor() {
     super();
     this.rarity = 0.15;
+  }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
   }
   copy() {
     return new Firefighter();
@@ -121,6 +133,33 @@ export class Moon extends Symb {
     return 'every 31 turns: 💵600';
   }
   descriptionLong() {
-    return 'this is a moon. every 31 turns, it gives 💵555.';
+    return 'this is a moon. every 31 turns, it gives 💵600.';
+  }
+}
+
+export class SewingKit extends Symb {
+  static emoji = '🧵';
+  constructor() {
+    super();
+    this.rarity = 0.1;
+  }
+  copy() {
+    return new SewingKit();
+  }
+  async evaluateConsume(game, x, y) {
+    const coords = game.board.nextToSymbol(x, y, '🕳️');
+    if (coords.length === 0) {
+      return;
+    }
+    for (const coord of coords) {
+      const [deleteX, deleteY] = coord;
+      await game.board.removeSymbol(game, deleteX, deleteY);
+    }
+  }
+  description() {
+    return 'removes neighboring 🕳️';
+  }
+  descriptionLong() {
+    return 'this is a thread. it removes neighboring 🕳️.';
   }
 }
