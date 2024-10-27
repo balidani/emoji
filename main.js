@@ -152,7 +152,11 @@ class AutoGame {
             );
             const refreshButton = buttons.splice(3, 1)[0];
             if (refreshButton !== undefined && !refreshButton.disabled) {
-              if ((this.shop.refreshCost >= this.inventory.getResource(Const.MONEY) / 2) | 0) {
+              if (
+                (this.shop.refreshCost >=
+                  this.inventory.getResource(Const.MONEY) / 2) |
+                0
+              ) {
                 break;
               }
               await refreshButton.clickSim();

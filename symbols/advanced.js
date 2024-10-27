@@ -191,14 +191,17 @@ export class FortuneCookie extends Symb {
   copy() {
     return new FortuneCookie();
   }
+  categories() {
+    return [CATEGORY_FOOD];
+  }
   description() {
-    return '💵7 for each point of luck you have';
+    return '💵5 for each point of luck you have';
   }
   descriptionLong() {
-    return 'this is a fortune cookie. it pays 💵7 for each percent of luck you have.';
+    return 'this is a fortune cookie. it pays 💵5 for each percent of luck you have.';
   }
   async score(game, x, y) {
-    const value = game.inventory.getResource(Const.LUCK) * 7;
+    const value = game.inventory.getResource(Const.LUCK) * 5;
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
       this.addMoney(game, value, x, y),

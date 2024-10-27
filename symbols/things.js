@@ -1,4 +1,4 @@
-import { chance, Symb, Empty } from '../symbol.js';
+import { badChance, chance, Symb, Empty } from '../symbol.js';
 import * as Util from '../util.js';
 
 // I am aware this is a bad name for the file. This file contains the "item" like emoji -
@@ -9,7 +9,7 @@ export class Balloon extends Symb {
   static emoji = '🎈';
   constructor() {
     super();
-    this.rarity = 0.1;
+    this.rarity = 0.14;
   }
   copy() {
     return new Balloon();
@@ -21,7 +21,7 @@ export class Balloon extends Symb {
     ]);
   }
   async evaluateConsume(game, x, y) {
-    if (chance(game, 0.5, x, y)) {
+    if (badChance(game, 0.5, x, y)) {
       await game.board.removeSymbol(game, x, y);
     }
   }
