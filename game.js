@@ -26,7 +26,7 @@ export class Game {
       .addEventListener('click', () => this.roll());
   }
   async over() {
-    document.querySelector('.game .roll').disabled = true;
+    document.querySelector('.game .grid').disabled = true;
     await this.board.finalScore(this);
     {
       const scoreContainer = document.createElement('div');
