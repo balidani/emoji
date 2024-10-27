@@ -252,6 +252,9 @@ export class Board {
     this.redrawCell(game, x, y);
   }
   async removeSymbol(game, x, y) {
+    if (this.lockedCells[`${x},${y}`] !== undefined) {
+      delete this.lockedCells[`${x},${y}`];
+    }
     game.inventory.remove(this.cells[y][x]);
     this.clearCell(x, y);
     await Util.animate(this.getSymbolDiv(x, y), 'flip', 0.15);
