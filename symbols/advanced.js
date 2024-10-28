@@ -191,6 +191,9 @@ export class FortuneCookie extends Symb {
   copy() {
     return new FortuneCookie();
   }
+  counter(game) {
+    return game.inventory.getResource(Const.LUCK) * 5;
+  }
   categories() {
     return [CATEGORY_FOOD];
   }
@@ -201,7 +204,7 @@ export class FortuneCookie extends Symb {
     return 'this is a fortune cookie. it pays 💵5 for each percent of luck you have.';
   }
   async score(game, x, y) {
-    const value = game.inventory.getResource(Const.LUCK) * 5;
+    const value = this.counter(game);
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
       this.addMoney(game, value, x, y),
