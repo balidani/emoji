@@ -24,7 +24,7 @@ export class Game {
     const grid = document
       .querySelector('.game .grid');
     grid.addEventListener('click', () => this.roll());
-    grid.ontouchstart = (e) => { e.preventDefault(); };
+    // grid.ontouchstart = (e) => { e.preventDefault(); };
   }
   async over() {
     document.querySelector('.game .grid').disabled = true;
