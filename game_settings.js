@@ -8,6 +8,7 @@ const ALL_TESTED_SYMBOL_FILES = [
   './symbols/food.js',
   './symbols/money.js',
   './symbols/music.js',
+  './symbols/research.js',
   './symbols/rocks.js',
   './symbols/things.js',
 ];

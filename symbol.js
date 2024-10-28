@@ -1,9 +1,6 @@
 import * as Const from './consts.js';
 import * as Util from './util.js';
 
-export const CATEGORY_EMPTY_SPACE = Symbol('Empty Space');
-export const CATEGORY_UNBUYABLE = Symbol('Unbuyable');
-
 /* Since we aren't using typescript, relax the patterns somewhat for autocomplete */
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_.*$", "varsIgnorePattern": "^_.*$" }] */
 
@@ -109,6 +106,9 @@ export class Symb {
     return () =>
       Util.drawText(game.info, interactiveDescription, /*isHtml=*/ true);
   }
+  onBuy(_) {
+    throw new Error('Trying to buy non-research symbol in the research shop.');
+  }
 }
 
 export class Empty extends Symb {
@@ -126,7 +126,7 @@ export class Empty extends Symb {
     return "this is empty space. it's not part of your inventory.";
   }
   categories() {
-    return [CATEGORY_EMPTY_SPACE, CATEGORY_UNBUYABLE];
+    return [Const.CATEGORY_EMPTY_SPACE, Const.CATEGORY_UNBUYABLE];
   }
 }
 
@@ -145,7 +145,7 @@ export class Money extends Symb {
     return 'this is money. you should get as much as possible before the game ends.';
   }
   categories() {
-    return [CATEGORY_UNBUYABLE];
+    return [Const.CATEGORY_UNBUYABLE];
   }
 }
 export class Turn extends Symb {
@@ -163,7 +163,7 @@ export class Turn extends Symb {
     return 'this is how many turns you have left.';
   }
   categories() {
-    return [CATEGORY_UNBUYABLE];
+    return [Const.CATEGORY_UNBUYABLE];
   }
 }
 
@@ -179,7 +179,7 @@ export class PlayButton extends Symb {
     return 'click to play';
   }
   categories() {
-    return [CATEGORY_UNBUYABLE];
+    return [Const.CATEGORY_UNBUYABLE];
   }
   async evaluateConsume(game, x, y) {
     if (this.turns >= 1) {

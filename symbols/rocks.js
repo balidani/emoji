@@ -1,5 +1,6 @@
-import { chance, Symb } from '../symbol.js';
 import * as Util from '../util.js';
+
+import { chance, Symb } from '../symbol.js';
 
 // Symbols in this file have to do with either Rock (🪨) or Diamond (💎) generally.
 

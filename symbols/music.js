@@ -1,5 +1,7 @@
-import { chance, Symb, CATEGORY_UNBUYABLE } from '../symbol.js';
+import * as Const from '../consts.js';
 import * as Util from '../util.js';
+
+import { chance, Symb } from '../symbol.js';
 
 // This file organizes symbols related to music
 // Most of them interact with MusicalNote (🎵) in some way
@@ -28,7 +30,7 @@ export class MusicalNote extends Symb {
     return 3 - this.turns;
   }
   categories() {
-    return [CATEGORY_UNBUYABLE];
+    return [Const.ATEGORY_UNBUYABLE];
   }
   description() {
     return '💵4<br>disappears after 3 turns';

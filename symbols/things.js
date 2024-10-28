@@ -1,11 +1,6 @@
-import {
-  badChance,
-  chance,
-  Symb,
-  Empty,
-  CATEGORY_UNBUYABLE,
-} from '../symbol.js';
+import * as Const from '../consts.js';
 import * as Util from '../util.js';
+import { badChance, chance, Symb, Empty } from '../symbol.js';
 
 // I am aware this is a bad name for the file. This file contains the "item" like emoji -
 //    It's also a dumping ground for anything that's tested enough to put into production,
@@ -46,7 +41,7 @@ export class Bomb extends Symb {
     this.rarity = 0.15;
   }
   categories() {
-    return [CATEGORY_UNBUYABLE];
+    return [Const.CATEGORY_UNBUYABLE];
   }
   copy() {
     return new Bomb();
@@ -81,7 +76,7 @@ export class Firefighter extends Symb {
     this.rarity = 0.15;
   }
   categories() {
-    return [CATEGORY_UNBUYABLE];
+    return [Const.CATEGORY_UNBUYABLE];
   }
   copy() {
     return new Firefighter();

@@ -3,8 +3,8 @@ import * as Util from './util.js';
 
 import { Board } from './board.js';
 import { Inventory } from './inventory.js';
-import { loadListener } from './main.js'; // Semi-Circular import, but it works.
 import { Shop } from './shop.js';
+import { ResearchShop } from './research_shop.js';
 
 export class Game {
   constructor(progression, settings, catalog) {
@@ -15,6 +15,7 @@ export class Game {
     this.inventory.update();
     this.board = new Board(this);
     this.shop = new Shop(this.catalog);
+    this.researchShop = new ResearchShop(this.catalog);
     this.rolling = false;
     this.info = document.querySelector('.game .info');
     this.progression.updateUi();
@@ -58,7 +59,7 @@ export class Game {
         '💬: you won! you can spend your 🧬 on upgrades.'
       );
     }
-    this.shop.open(this);
+    this.researchShop.open(this);
     // document.querySelector('body').addEventListener('click', loadListener);
   }
   async roll() {

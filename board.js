@@ -1,5 +1,5 @@
+import * as Const from './consts.js';
 import * as Util from './util.js';
-import { CATEGORY_EMPTY_SPACE } from './symbol.js';
 
 export class Board {
   constructor(game) {
@@ -331,7 +331,7 @@ export class Board {
   }
 
   nextToEmpty(x, y) {
-    return this.nextToCategory(x, y, CATEGORY_EMPTY_SPACE);
+    return this.nextToCategory(x, y, Const.CATEGORY_EMPTY_SPACE);
   }
 
   forAllCells(f) {

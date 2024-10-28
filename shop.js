@@ -66,20 +66,22 @@ export class Shop {
     shopItemDiv.appendChild(buyDiv);
     return shopItemDiv;
   }
+  makeCatalog(game) {
+    return this.catalog.generateShop(
+      3,
+      game.inventory.getResource(Const.LUCK),
+      /* rareOnly= */ false
+    );
+  }
   async open(game) {
     if (this.isOpen) {
       return;
     }
     this.isOpen = true;
-
     this.shopDiv.replaceChildren();
-    const newCatalog = this.catalog.generateShop(
-      3,
-      game.inventory.getResource(Const.LUCK),
-      /* rareOnly= */ false // game.inventory.getResource(Const.TURNS) === game.settings.gameLength - 1
-    );
+    const catalog = this.makeCatalog(game);
     for (let i = 0; i < 3; ++i) {
-      const symbol = Util.randomRemove(newCatalog);
+      const symbol = Util.randomRemove(catalog);
       // Support for dynamically generated cost -- report the same value that is subtracted later.
       const symbolCost = symbol.cost();
       const shopItemDiv = this.makeShopItem(
@@ -102,7 +104,11 @@ export class Shop {
                 game.inventory.addResource(key, -value),
               ]);
             }
-            game.inventory.add(symbol);
+            if (symbol.categories().includes(Const.CATEGORY_RESEARCH)) {
+              symbol.onBuy(game);
+            } else {
+              game.inventory.add(symbol);
+            }
           } else if (!canBuy) {
             // Disable button.
             // This is not the best solution, we should disable the button
@@ -116,13 +122,12 @@ export class Shop {
             div.classList.add('hidden');
           }
           if (game.shop.buyCount === 0) {
-            await game.shop.close(game);
+            await this.close(game);
           }
         }
       );
       this.shopDiv.appendChild(shopItemDiv);
     }
-
     // Refresh
     if (game.shop.refreshable || game.shop.refreshCount === 0) {
       const shopItemDiv = this.makeShopItem(
@@ -149,7 +154,6 @@ export class Shop {
       );
       this.shopDiv.appendChild(shopItemDiv);
     }
-
     await Util.animate(this.shopDiv, 'openShop', 0.4);
   }
   async close(game) {

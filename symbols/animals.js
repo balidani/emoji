@@ -1,9 +1,7 @@
-import { chance, Symb } from '../symbol.js';
+import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
-import { CATEGORY_FOOD } from './food.js';
-
-export const CATEGORY_ANIMAL = Symbol('Animal');
+import { chance, Symb } from '../symbol.js';
 
 // This file is for animal-related symbols.
 
@@ -72,7 +70,7 @@ export class Chicken extends Symb {
     }
   }
   categories() {
-    return [CATEGORY_ANIMAL];
+    return [Const.CATEGORY_ANIMAL];
   }
   description() {
     return '💵3<br>10% chance: lays up to 3 🥚';
@@ -153,7 +151,7 @@ export class Fox extends Symb {
     }
   }
   categories() {
-    return [CATEGORY_ANIMAL];
+    return [Const.CATEGORY_ANIMAL];
   }
   counter(_) {
     return 5 - this.turns;
@@ -182,7 +180,7 @@ export class Dragon extends Symb {
     ]);
   }
   categories() {
-    return [CATEGORY_ANIMAL];
+    return [Const.CATEGORY_ANIMAL];
   }
   description() {
     return '💵42';
@@ -213,7 +211,7 @@ export class Bug extends Symb {
     this.foodScore = 0;
   }
   async evaluateConsume(game, x, y) {
-    const coords = game.board.nextToCategory(x, y, CATEGORY_FOOD);
+    const coords = game.board.nextToCategory(x, y, Const.CATEGORY_FOOD);
     if (coords.length === 0) {
       if (this.turns >= 5) {
         await game.board.removeSymbol(game, x, y);
@@ -229,7 +227,7 @@ export class Bug extends Symb {
     }
   }
   categories() {
-    return [CATEGORY_ANIMAL];
+    return [Const.CATEGORY_ANIMAL];
   }
   counter(_) {
     return 5 - this.turns;

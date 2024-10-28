@@ -1,10 +1,9 @@
-import { chance, Symb } from '../symbol.js';
+import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
-// Most symbols in here are related to Coin (🪙), with some gambling related stuff thrown in for good measure.
+import { chance, Symb } from '../symbol.js';
 
-export const CATEGORY_GAMBLING = Symbol('Gambling');
-export const CATEGORY_BUSINESS = Symbol('Business');
+// Most symbols in here are related to Coin (🪙), with some gambling related stuff thrown in for good measure.
 
 export class Coin extends Symb {
   static emoji = '🪙';
@@ -47,7 +46,7 @@ export class Briefcase extends Symb {
     ]);
   }
   catgories() {
-    return [CATEGORY_BUSINESS];
+    return [Const.CATEGORY_BUSINESS];
   }
   counter(game) {
     return ((game.inventory.symbols.length / 4) | 0) * 5;
@@ -84,7 +83,7 @@ export class Bank extends Symb {
     await mint();
   }
   catgories() {
-    return [CATEGORY_BUSINESS];
+    return [Const.CATEGORY_BUSINESS];
   }
   description() {
     return 'every turn: makes 🪙';
@@ -185,7 +184,7 @@ export class Slots extends Symb {
     ]);
   }
   catgories() {
-    return [CATEGORY_GAMBLING];
+    return [Const.CATEGORY_GAMBLING];
   }
   counter(game) {
     return new Set(game.inventory.symbols.map((s) => s.emoji())).size * 2;
@@ -216,7 +215,7 @@ export class Dice extends Symb {
     }
   }
   catgories() {
-    return [CATEGORY_GAMBLING];
+    return [Const.CATEGORY_GAMBLING];
   }
   description() {
     return '1% chance: 💵52';

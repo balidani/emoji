@@ -1,9 +1,7 @@
-import { chance, Symb, Empty, CATEGORY_UNBUYABLE } from '../symbol.js';
+import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
-export const CATEGORY_FOOD = Symbol('Food');
-export const CATEGORY_FRUIT = Symbol('Fruit');
-export const CATEGORY_VEGETABLES = Symbol('Vegetables');
+import { chance, Symb, Empty } from '../symbol.js';
 
 // Symbols in this file are related to food, beverages, or ingredients
 
@@ -25,7 +23,7 @@ export class Butter extends Symb {
     return 7 - this.turns;
   }
   categories() {
-    return [CATEGORY_FOOD];
+    return [Const.CATEGORY_FOOD];
   }
   description() {
     return 'x4 to neighboring 🍿<br>melts after 5 turns';
@@ -55,7 +53,7 @@ export class Cherry extends Symb {
     ]);
   }
   categories() {
-    return [CATEGORY_FOOD, CATEGORY_FRUIT];
+    return [Const.CATEGORY_FOOD, Const.CATEGORY_FRUIT];
   }
   description() {
     return '💵2 for each neighboring 🍒';
@@ -95,7 +93,7 @@ export class Corn extends Symb {
     }
   }
   categories() {
-    return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
+    return [Const.CATEGORY_FOOD, Const.CATEGORY_VEGETABLES];
   }
   description() {
     return '💵21<br>10% chance: pops 🍿';
@@ -115,7 +113,7 @@ export class Mango extends Symb {
     return new Mango();
   }
   async evaluateScore(game, x, y) {
-    const coords = game.board.nextToCategory(x, y, CATEGORY_FRUIT);
+    const coords = game.board.nextToCategory(x, y, Const.CATEGORY_FRUIT);
     if (coords.length === 0) {
       return;
     }
@@ -126,7 +124,7 @@ export class Mango extends Symb {
     }
   }
   categories() {
-    return [CATEGORY_FRUIT, CATEGORY_FOOD];
+    return [Const.CATEGORY_FOOD, Const.CATEGORY_FRUIT];
   }
   description() {
     return 'x2 to neighboring fruit';
@@ -157,7 +155,7 @@ export class Pineapple extends Symb {
     ]);
   }
   categories() {
-    return [CATEGORY_FRUIT, CATEGORY_FOOD];
+    return [Const.CATEGORY_FOOD, Const.CATEGORY_FRUIT];
   }
   description() {
     return '💵12<br>💵-2 for all non-empty neighbors';
@@ -197,7 +195,7 @@ export class Popcorn extends Symb {
     return this.timeToLive - this.turns;
   }
   categories() {
-    return [CATEGORY_FOOD];
+    return [Const.CATEGORY_FOOD];
   }
   description() {
     return '💵17<br>disappears after 2-5 turns';
@@ -232,7 +230,7 @@ export class Bubble extends Symb {
     return "this is a bubble. it doesn't really do anything. it will disappear after 3 turns.";
   }
   categories() {
-    return [CATEGORY_UNBUYABLE];
+    return [Const.CATEGORY_UNBUYABLE];
   }
 }
 

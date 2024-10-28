@@ -1,9 +1,7 @@
 import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
-import { chance, Symb, Empty, CATEGORY_EMPTY_SPACE } from '../symbol.js';
-import { CATEGORY_ANIMAL } from './animals.js';
-import { CATEGORY_FOOD, CATEGORY_VEGETABLES } from './food.js';
+import { chance, Symb, Empty } from '../symbol.js';
 
 // The symbols in this file are mostly grouped by the fact that they manipulate the game itself rather than reward money
 
@@ -133,7 +131,7 @@ export class Hole extends Symb {
     return 'this is a hole. it works like an empty space, other symbols can be created here and they will go into your inventory.';
   }
   categories() {
-    return [CATEGORY_EMPTY_SPACE];
+    return [Const.CATEGORY_EMPTY_SPACE];
   }
 }
 
@@ -147,7 +145,7 @@ export class Clover extends Symb {
     return new Clover();
   }
   categories() {
-    return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
+    return [Const.CATEGORY_FOOD, Const.CATEGORY_VEGETABLES];
   }
   description() {
     return '+1% luck';
@@ -195,7 +193,7 @@ export class FortuneCookie extends Symb {
     return game.inventory.getResource(Const.LUCK) * 5;
   }
   categories() {
-    return [CATEGORY_FOOD];
+    return [Const.CATEGORY_FOOD];
   }
   description() {
     return '💵5 for each point of luck you have';
@@ -271,7 +269,7 @@ export class Snail extends Symb {
     }
   }
   categories() {
-    return [CATEGORY_ANIMAL];
+    return [Const.CATEGORY_ANIMAL];
   }
   description() {
     return 'slows down neighbors by 1 turn';

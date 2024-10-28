@@ -1,5 +1,7 @@
-import { CATEGORY_UNBUYABLE, Symb } from './symbol.js';
+import * as Const from './consts.js';
 import * as Util from './util.js';
+
+import { Symb } from './symbol.js';
 
 export class Catalog {
   constructor(symbolSources) {
@@ -42,7 +44,7 @@ export class Catalog {
     const bag = [];
     if (rareOnly) {
       for (const [_, item] of this.symbols) {
-        if (item.categories().includes(CATEGORY_UNBUYABLE)) {
+        if (item.categories().includes(Const.CATEGORY_UNBUYABLE)) {
           continue;
         }
         if (item.rarity < 0.1) {
@@ -53,10 +55,24 @@ export class Catalog {
     }
     while (bag.length <= count) {
       for (const [_, item] of this.symbols) {
-        if (item.categories().includes(CATEGORY_UNBUYABLE)) {
+        if (item.categories().includes(Const.CATEGORY_UNBUYABLE)) {
           continue;
         }
         if (Math.random() < item.rarity + luck / 100.0) {
+          bag.push(item.copy());
+        }
+      }
+    }
+    return bag;
+  }
+  generateResearchShop(count) {
+    const bag = [];
+    while (bag.length <= count) {
+      for (const [_, item] of this.symbols) {
+        if (!item.categories().includes(Const.CATEGORY_RESEARCH)) {
+          continue;
+        }
+        if (Math.random() < item.rarity) {
           bag.push(item.copy());
         }
       }
