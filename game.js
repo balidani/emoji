@@ -21,24 +21,12 @@ export class Game {
     if (settings.textLookup['greeting'] !== undefined) {
       Util.drawText(this.info, settings.textLookup['greeting']);
     }
-    const grid = document
-      .querySelector('.game .grid');
+    const grid = document.querySelector('.game .grid');
     grid.addEventListener('click', () => this.roll());
   }
   async over() {
     document.querySelector('.game .grid').disabled = true;
     await this.board.finalScore(this);
-    {
-      const scoreContainer = document.createElement('div');
-      scoreContainer.classList.add('scoreContainer');
-      const scoreDiv = document.createElement('div');
-      scoreDiv.classList.add('score');
-      scoreDiv.innerText =
-        Const.MONEY + this.inventory.getResource(Const.MONEY);
-      scoreContainer.appendChild(scoreDiv);
-      document.querySelector('.game').appendChild(scoreContainer);
-      await Util.animate(scoreDiv, 'scoreIn', 0.4);
-    }
     let trophy = '💩';
     const sortedKeys = Object.keys(this.settings.resultLookup).sort(
       (a, b) => b > a
@@ -50,20 +38,18 @@ export class Game {
       }
     });
     {
-      this.progression.postResultAndAdvance(
-        this.inventory.getResource(Const.MONEY),
-        trophy
-      );
-      const trophyContainer = document.createElement('div');
-      trophyContainer.classList.add('scoreContainer');
-      const trophyDiv = document.createElement('div');
-      trophyDiv.classList.add('trophy');
-      trophyDiv.innerText = trophy;
-      trophyContainer.appendChild(trophyDiv);
-      document.querySelector('.game').appendChild(trophyContainer);
-      await Util.animate(trophyDiv, 'scoreIn', 0.4);
+      const scoreContainer = document.createElement('div');
+      scoreContainer.classList.add('scoreContainer');
+      const scoreDiv = document.createElement('div');
+      scoreDiv.classList.add('score');
+      scoreDiv.innerHTML = `${trophy}<br>${Const.MONEY + this.inventory.getResource(Const.MONEY)}`;
+      scoreContainer.appendChild(scoreDiv);
+      document.querySelector('.game').appendChild(scoreContainer);
+      await Util.animate(scoreDiv, 'scoreIn', 0.4);
     }
-    document.querySelector('body').addEventListener('click', loadListener);
+    Util.drawText(this.info, '💬: game over. click anywhere to continue.');
+    this.shop.open(this);
+    // document.querySelector('body').addEventListener('click', loadListener);
   }
   async roll() {
     if (this.rolling) {

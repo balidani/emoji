@@ -214,19 +214,13 @@ body {
 /* Score */
 .scoreContainer {
   position: fixed;
-  /* Keep the container fixed relative to the viewport */
-  top: 0;
+  top: 24pt;
   left: 0;
   width: 100vw;
-  /* Full viewport width */
-  height: 100vh;
-  /* Full viewport height */
   display: flex;
-  /* Flexbox for centering */
   justify-content: center;
-  /* Horizontal centering */
   align-items: center;
-  /* Vertical centering */
+  text-align: center;
 }
 
 .score {
