@@ -21,9 +21,10 @@ export class Game {
     if (settings.textLookup['greeting'] !== undefined) {
       Util.drawText(this.info, settings.textLookup['greeting']);
     }
-    document
-      .querySelector('.game .grid')
-      .addEventListener('click', () => this.roll());
+    const grid = document
+      .querySelector('.game .grid');
+    grid.addEventListener('click', () => this.roll());
+    grid.ontouchstart = (e) => { e.preventDefault(); };
   }
   async over() {
     document.querySelector('.game .grid').disabled = true;
