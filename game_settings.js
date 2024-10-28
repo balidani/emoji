@@ -60,7 +60,7 @@ export class GameSettings {
       50: '💬: now you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.',
       49: '💬: you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!',
       48: '💬: you can double tap the grid to skip animation.',
-      47: '💬: you can tap on any symbol, on the board or in the shop, to get more information.',
+      47: '💬: you can tap on any symbol in the shop and in your inventory to get more information.',
     };
   }
 
