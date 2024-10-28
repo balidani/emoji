@@ -1,5 +1,6 @@
 body {
   font-family: monospace;
+  user-select: none;
 }
 
 button {
@@ -146,7 +147,11 @@ body {
   display: flex;
   justify-content: center;
   width: 240pt;
-  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.grid:focus {
+  outline: none; /* Removes any focus outline */
 }
 
 .row {
@@ -237,7 +242,7 @@ body {
   font-weight: 900;
 }
 
-.discord {
+.socials {
   position: fixed;
   top: 0;
   right: 0;
