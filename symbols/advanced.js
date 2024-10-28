@@ -14,6 +14,9 @@ export class MagicWand extends Symb {
   copy() {
     return new MagicWand();
   }
+  packs() {
+    return [Const.PACK_MAGIC];
+  }
   async evaluateProduce(game, x, y) {
     const emptyCoords = game.board.nextToEmpty(x, y);
     if (emptyCoords.length === 0) {
@@ -52,6 +55,9 @@ export class Multiplier extends Symb {
   copy() {
     return new Multiplier();
   }
+  packs() {
+    return [Const.PACK_BASE];
+  }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToExpr(
       x,
@@ -83,6 +89,9 @@ export class Refresh extends Symb {
   copy() {
     return new Refresh();
   }
+  packs() {
+    return [Const.PACK_SHOP];
+  }
   async evaluateProduce(game, _, __) {
     game.shop.refreshable = true;
     game.shop.refreshCount = 0;
@@ -104,6 +113,9 @@ export class ShoppingBag extends Symb {
   copy() {
     return new ShoppingBag();
   }
+  packs() {
+    return [Const.PACK_SHOP];
+  }
   async evaluateProduce(game, _, __) {
     game.shop.buyCount++;
   }
@@ -123,6 +135,9 @@ export class Hole extends Symb {
   }
   copy() {
     return new Hole();
+  }
+  packs() {
+    return [Const.PACK_MAGIC];
   }
   description() {
     return 'always empty';
@@ -147,6 +162,9 @@ export class Clover extends Symb {
   categories() {
     return [Const.CATEGORY_FOOD, Const.CATEGORY_VEGETABLES];
   }
+  packs() {
+    return [Const.PACK_LUCK];
+  }
   description() {
     return '+1% luck';
   }
@@ -167,6 +185,9 @@ export class CrystalBall extends Symb {
   }
   copy() {
     return new CrystalBall();
+  }
+  packs() {
+    return [Const.PACK_LUCK];
   }
   description() {
     return '+3% luck';
@@ -189,11 +210,14 @@ export class FortuneCookie extends Symb {
   copy() {
     return new FortuneCookie();
   }
-  counter(game) {
-    return game.inventory.getResource(Const.LUCK) * 5;
-  }
   categories() {
     return [Const.CATEGORY_FOOD];
+  }
+  packs() {
+    return [Const.PACK_LUCK];
+  }
+  counter(game) {
+    return game.inventory.getResource(Const.LUCK) * 5;
   }
   description() {
     return '💵5 for each point of luck you have';
@@ -219,6 +243,9 @@ export class BullsEye extends Symb {
   copy() {
     return new BullsEye();
   }
+  packs() {
+    return [Const.PACK_LUCK];
+  }
   description() {
     return 'neighboring rolls always succeed';
   }
@@ -236,6 +263,9 @@ export class Rocket extends Symb {
   copy() {
     return new Rocket();
   }
+  packs() {
+    return [Const.PACK_FACTORY];
+  }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToCoords(x, y);
     for (const cell of coords) {
@@ -251,15 +281,17 @@ export class Rocket extends Symb {
   }
 }
 
-// This one is questionable if it belongs in animal or advanced. It's here because Rocket is, and they form a paired set.
-export class Snail extends Symb {
-  static emoji = '🐌';
+export class Ice extends Symb {
+  static emoji = '🧊';
   constructor() {
     super();
     this.rarity = 0.12;
   }
   copy() {
-    return new Snail();
+    return new Ice();
+  }
+  packs() {
+    return [Const.PACK_FACTORY];
   }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToCoords(x, y);
@@ -268,13 +300,10 @@ export class Snail extends Symb {
       game.board.cells[neighborY][neighborX].turns--;
     }
   }
-  categories() {
-    return [Const.CATEGORY_ANIMAL];
-  }
   description() {
     return 'slows down neighbors by 1 turn';
   }
   descriptionLong() {
-    return 'this is a snail. all neighboring symbols that have a timer will take one more turn to complete.';
+    return 'this is ice. all neighboring symbols that have a timer will take one more turn to complete.';
   }
 }

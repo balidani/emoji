@@ -14,6 +14,9 @@ export class Coin extends Symb {
   copy() {
     return new Coin();
   }
+  packs() {
+    return [Const.PACK_MONEY];
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -37,6 +40,9 @@ export class Briefcase extends Symb {
   }
   copy() {
     return new Briefcase();
+  }
+  packs() {
+    return [Const.PACK_MONEY];
   }
   async score(game, x, y) {
     const value = this.counter(game);
@@ -68,6 +74,9 @@ export class Bank extends Symb {
   }
   copy() {
     return new Bank();
+  }
+  packs() {
+    return [Const.PACK_MONEY];
   }
   async evaluateProduce(game, x, y) {
     const mint = async () => {
@@ -103,6 +112,9 @@ export class CreditCard extends Symb {
   copy() {
     return new CreditCard();
   }
+  packs() {
+    return [Const.PACK_MONEY];
+  }
   async finalScore(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3),
@@ -135,6 +147,9 @@ export class MoneyBag extends Symb {
   }
   copy() {
     return new MoneyBag(this.coins);
+  }
+  packs() {
+    return [Const.PACK_MONEY];
   }
   async score(game, x, y) {
     if (this.coins > 0) {
@@ -176,6 +191,9 @@ export class Slots extends Symb {
   copy() {
     return new Slots();
   }
+  packs() {
+    return [Const.PACK_CASINO];
+  }
   async score(game, x, y) {
     const value = this.counter(game);
     await Promise.all([
@@ -205,6 +223,9 @@ export class Dice extends Symb {
   }
   copy() {
     return new Dice();
+  }
+  packs() {
+    return [Const.PACK_CASINO];
   }
   async score(game, x, y) {
     if (chance(game, 0.01, x, y)) {

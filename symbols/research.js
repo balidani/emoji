@@ -10,14 +10,14 @@ export class Package extends Symb {
     super();
     this.rarity = 0.5;
   }
+  copy() {
+    return new Package();
+  }
   categories() {
     return [Const.CATEGORY_UNBUYABLE, Const.CATEGORY_RESEARCH];
   }
   cost() {
     return { '🧬': 1 };
-  }
-  copy() {
-    return new Package();
   }
   description() {
     return 'test';

@@ -14,6 +14,12 @@ export class Butter extends Symb {
   copy() {
     return new Butter();
   }
+  categories() {
+    return [Const.CATEGORY_FOOD];
+  }
+  packs() {
+    return [Const.PACK_FARM];
+  }
   async evaluateConsume(game, x, y) {
     if (this.turns >= 5) {
       await game.board.removeSymbol(game, x, y);
@@ -21,9 +27,6 @@ export class Butter extends Symb {
   }
   counter() {
     return 7 - this.turns;
-  }
-  categories() {
-    return [Const.CATEGORY_FOOD];
   }
   description() {
     return 'x4 to neighboring 🍿<br>melts after 5 turns';
@@ -42,6 +45,12 @@ export class Cherry extends Symb {
   copy() {
     return new Cherry();
   }
+  categories() {
+    return [Const.CATEGORY_FOOD, Const.CATEGORY_FRUIT];
+  }
+  packs() {
+    return [Const.PACK_FARM];
+  }
   async score(game, x, y) {
     const coords = game.board.nextToSymbol(x, y, Cherry.emoji);
     if (coords.length === 0) {
@@ -51,9 +60,6 @@ export class Cherry extends Symb {
       Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
       this.addMoney(game, coords.length * 2, x, y),
     ]);
-  }
-  categories() {
-    return [Const.CATEGORY_FOOD, Const.CATEGORY_FRUIT];
   }
   description() {
     return '💵2 for each neighboring 🍒';
@@ -71,6 +77,12 @@ export class Corn extends Symb {
   }
   copy() {
     return new Corn();
+  }
+  categories() {
+    return [Const.CATEGORY_FOOD, Const.CATEGORY_VEGETABLES];
+  }
+  packs() {
+    return [Const.PACK_FARM];
   }
   async score(game, x, y) {
     await Promise.all([
@@ -92,9 +104,6 @@ export class Corn extends Symb {
       }
     }
   }
-  categories() {
-    return [Const.CATEGORY_FOOD, Const.CATEGORY_VEGETABLES];
-  }
   description() {
     return '💵21<br>10% chance: pops 🍿';
   }
@@ -112,6 +121,12 @@ export class Mango extends Symb {
   copy() {
     return new Mango();
   }
+  categories() {
+    return [Const.CATEGORY_FOOD, Const.CATEGORY_FRUIT];
+  }
+  packs() {
+    return [Const.PACK_FARM];
+  }
   async evaluateScore(game, x, y) {
     const coords = game.board.nextToCategory(x, y, Const.CATEGORY_FRUIT);
     if (coords.length === 0) {
@@ -122,9 +137,6 @@ export class Mango extends Symb {
       const [neighborX, neighborY] = coord;
       game.board.cells[neighborY][neighborX].multiplier *= 2;
     }
-  }
-  categories() {
-    return [Const.CATEGORY_FOOD, Const.CATEGORY_FRUIT];
   }
   description() {
     return 'x2 to neighboring fruit';
@@ -143,6 +155,12 @@ export class Pineapple extends Symb {
   copy() {
     return new Pineapple();
   }
+  categories() {
+    return [Const.CATEGORY_FOOD, Const.CATEGORY_FRUIT];
+  }
+  packs() {
+    return [Const.PACK_FARM];
+  }
   async score(game, x, y) {
     const coords = game.board.nextToExpr(
       x,
@@ -153,9 +171,6 @@ export class Pineapple extends Symb {
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
       this.addMoney(game, 12 - coords.length * 2, x, y),
     ]);
-  }
-  categories() {
-    return [Const.CATEGORY_FOOD, Const.CATEGORY_FRUIT];
   }
   description() {
     return '💵12<br>💵-2 for all non-empty neighbors';
@@ -175,6 +190,12 @@ export class Popcorn extends Symb {
   copy() {
     return new Popcorn();
   }
+  categories() {
+    return [Const.CATEGORY_FOOD];
+  }
+  packs() {
+    return [Const.PACK_FARM];
+  }
   async score(game, x, y) {
     const butter = game.board.nextToSymbol(x, y, Butter.emoji);
     let score = 17;
@@ -193,9 +214,6 @@ export class Popcorn extends Symb {
   }
   counter(_) {
     return this.timeToLive - this.turns;
-  }
-  categories() {
-    return [Const.CATEGORY_FOOD];
   }
   description() {
     return '💵17<br>disappears after 2-5 turns';
@@ -244,6 +262,9 @@ export class Cocktail extends Symb {
   copy() {
     return new Cocktail(this.cherryScore);
   }
+  packs() {
+    return [Const.PACK_PARTY];
+  }
   async score(game, x, y) {
     if (this.cherryScore > 0) {
       await Promise.all([
@@ -289,6 +310,9 @@ export class Champagne extends Symb {
   copy() {
     return new Champagne();
   }
+  packs() {
+    return [Const.PACK_PARTY];
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -331,6 +355,9 @@ export class Tree extends Symb {
   }
   copy() {
     return new Tree();
+  }
+  packs() {
+    return [Const.PACK_FARM];
   }
   async evaluateProduce(game, x, y) {
     const grow = async () => {

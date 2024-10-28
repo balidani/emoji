@@ -1,3 +1,4 @@
+import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
 import { chance, Symb } from '../symbol.js';
@@ -12,6 +13,9 @@ export class Diamond extends Symb {
   }
   copy() {
     return new Diamond();
+  }
+  packs() {
+    return [Const.PACK_ROCK];
   }
   async score(game, x, y) {
     await Promise.all([
@@ -41,6 +45,9 @@ export class Rock extends Symb {
   copy() {
     return new Rock();
   }
+  packs() {
+    return [Const.PACK_ROCK];
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -63,6 +70,9 @@ export class Volcano extends Symb {
   }
   copy() {
     return new Volcano();
+  }
+  packs() {
+    return [Const.PACK_ROCK];
   }
   async evaluateProduce(game, x, y) {
     if (chance(game, 0.1, x, y)) {
@@ -93,6 +103,9 @@ export class Worker extends Symb {
   }
   copy() {
     return new Worker();
+  }
+  packs() {
+    return [Const.PACK_ROCK];
   }
   async evaluateConsume(game, x, y) {
     const coords = game.board.nextToSymbol(x, y, Rock.emoji);

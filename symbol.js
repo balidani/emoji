@@ -39,10 +39,16 @@ export class Symb {
   async evaluateProduce() {}
   async finalScore(_game, _x, _y) {}
   async score(_game, _x, _y) {}
+  onBuy(_) {
+    throw new Error('Trying to buy non-research symbol in the research shop.');
+  }
   cost() {
     return {};
   }
   categories() {
+    return [];
+  }
+  packs() {
     return [];
   }
   description() {
@@ -105,9 +111,6 @@ export class Symb {
     );
     return () =>
       Util.drawText(game.info, interactiveDescription, /*isHtml=*/ true);
-  }
-  onBuy(_) {
-    throw new Error('Trying to buy non-research symbol in the research shop.');
   }
 }
 

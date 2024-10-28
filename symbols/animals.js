@@ -16,6 +16,9 @@ export class Chick extends Symb {
   copy() {
     return new Chick(this.timeToGrow);
   }
+  packs() {
+    return [Const.PACK_FARM];
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -48,6 +51,12 @@ export class Chicken extends Symb {
   copy() {
     return new Chicken();
   }
+  categories() {
+    return [Const.CATEGORY_ANIMAL];
+  }
+  packs() {
+    return [Const.PACK_FARM];
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -69,9 +78,6 @@ export class Chicken extends Symb {
       }
     }
   }
-  categories() {
-    return [Const.CATEGORY_ANIMAL];
-  }
   description() {
     return '💵3<br>10% chance: lays up to 3 🥚';
   }
@@ -89,6 +95,9 @@ export class Egg extends Symb {
   }
   copy() {
     return new Egg();
+  }
+  packs() {
+    return [Const.PACK_FARM];
   }
   async evaluateConsume(game, x, y) {
     if (this.turns >= this.timeToHatch) {
@@ -121,6 +130,12 @@ export class Fox extends Symb {
   copy() {
     return new Fox();
   }
+  categories() {
+    return [Const.CATEGORY_ANIMAL];
+  }
+  packs() {
+    return [Const.PACK_FARM];
+  }
   async score(game, x, y) {
     if (this.eatenScore > 0) {
       await Promise.all([
@@ -150,9 +165,6 @@ export class Fox extends Symb {
       await game.board.removeSymbol(game, x, y);
     }
   }
-  categories() {
-    return [Const.CATEGORY_ANIMAL];
-  }
   counter(_) {
     return 5 - this.turns;
   }
@@ -173,14 +185,17 @@ export class Dragon extends Symb {
   copy() {
     return new Dragon();
   }
+  categories() {
+    return [Const.CATEGORY_ANIMAL];
+  }
+  packs() {
+    return [Const.PACK_CASINO];
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
       this.addMoney(game, 42, x, y),
     ]);
-  }
-  categories() {
-    return [Const.CATEGORY_ANIMAL];
   }
   description() {
     return '💵42';
@@ -200,6 +215,12 @@ export class Bug extends Symb {
   }
   copy() {
     return new Bug();
+  }
+  categories() {
+    return [Const.CATEGORY_ANIMAL];
+  }
+  packs() {
+    return [Const.PACK_FARM];
   }
   async score(game, x, y) {
     if (this.foodScore > 0) {
@@ -225,9 +246,6 @@ export class Bug extends Symb {
         await game.board.removeSymbol(game, deleteX, deleteY);
       }
     }
-  }
-  categories() {
-    return [Const.CATEGORY_ANIMAL];
   }
   counter(_) {
     return 5 - this.turns;

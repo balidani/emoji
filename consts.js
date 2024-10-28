@@ -15,3 +15,15 @@ export const CATEGORY_VEGETABLES = Symbol('Vegetables');
 export const CATEGORY_GAMBLING = Symbol('Gambling');
 export const CATEGORY_BUSINESS = Symbol('Business');
 export const CATEGORY_RESEARCH = Symbol('Research');
+
+export const PACK_BASE = Symbol('Base');
+export const PACK_CASINO = Symbol('Casino');
+export const PACK_FACTORY = Symbol('Factory');
+export const PACK_FARM = Symbol('Farm');
+export const PACK_LUCK = Symbol('Luck');
+export const PACK_MAGIC = Symbol('Magic');
+export const PACK_MONEY = Symbol('Money');
+export const PACK_MUSIC = Symbol('Music');
+export const PACK_PARTY = Symbol('Party');
+export const PACK_ROCK = Symbol('Rock');
+export const PACK_SHOP = Symbol('Shop');

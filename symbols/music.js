@@ -15,6 +15,9 @@ export class MusicalNote extends Symb {
   copy() {
     return new MusicalNote();
   }
+  packs() {
+    return [Const.PACK_MUSIC];
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -30,7 +33,7 @@ export class MusicalNote extends Symb {
     return 3 - this.turns;
   }
   categories() {
-    return [Const.ATEGORY_UNBUYABLE];
+    return [Const.CATEGORY_UNBUYABLE];
   }
   description() {
     return '💵4<br>disappears after 3 turns';
@@ -48,6 +51,9 @@ export class Bell extends Symb {
   }
   copy() {
     return new Bell();
+  }
+  packs() {
+    return [Const.PACK_MUSIC];
   }
   async score(game, x, y) {
     await Promise.all([
@@ -85,6 +91,9 @@ export class Dancer extends Symb {
   copy() {
     return new Dancer();
   }
+  packs() {
+    return [Const.PACK_MUSIC];
+  }
   async score(game, x, y) {
     const coords = game.board.nextToSymbol(x, y, MusicalNote.emoji);
     if (coords.length === 0) {
@@ -111,6 +120,9 @@ export class Drums extends Symb {
   }
   copy() {
     return new Drums();
+  }
+  packs() {
+    return [Const.PACK_MUSIC];
   }
   async evaluateProduce(game, x, y) {
     if (this.turns % 3 === 0) {
@@ -143,6 +155,9 @@ export class Record extends Symb {
   }
   copy() {
     return new Record(this.notes);
+  }
+  packs() {
+    return [Const.PACK_MUSIC];
   }
   async score(game, x, y) {
     if (this.notes > 0) {

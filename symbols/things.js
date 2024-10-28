@@ -15,6 +15,9 @@ export class Balloon extends Symb {
   copy() {
     return new Balloon();
   }
+  packs() {
+    return [Const.PACK_PARTY];
+  }
   async score(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
@@ -110,6 +113,9 @@ export class Moon extends Symb {
   copy() {
     return new Moon(this.turns);
   }
+  packs() {
+    return [Const.PACK_ROCK];
+  }
   async score(game, x, y) {
     if (this.turns >= 31) {
       this.turns = 0;
@@ -140,6 +146,9 @@ export class SewingKit extends Symb {
   }
   copy() {
     return new SewingKit();
+  }
+  packs() {
+    return [Const.PACK_MAGIC];
   }
   async evaluateConsume(game, x, y) {
     const coords = game.board.nextToSymbol(x, y, '🕳️');
