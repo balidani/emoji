@@ -187,3 +187,24 @@ export class PlayButton extends Symb {
     }
   }
 }
+
+export class ResearchPoint extends Symb {
+  static emoji = '🧬';
+  constructor() {
+    super();
+    this.rarity = 0.05;
+  }
+  copy() {
+    return new ResearchPoint();
+  }
+  description() {
+    return 'gain 🧬1, then disappear';
+  }
+  descriptionLong() {
+    return 'this is a research token. it is used to buy upgrades.';
+  }
+  async evaluateConsume(game, x, y) {
+    game.inventory.addResource(Const.RESEARCH_POINTS, 1);
+    await game.board.removeSymbol(game, x, y);
+  }
+}

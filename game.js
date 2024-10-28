@@ -45,9 +45,19 @@ export class Game {
       scoreDiv.innerHTML = `${trophy}<br>${Const.MONEY + this.inventory.getResource(Const.MONEY)}`;
       scoreContainer.appendChild(scoreDiv);
       document.querySelector('.game').appendChild(scoreContainer);
-      await Util.animate(scoreDiv, 'scoreIn', 0.4);
+      await Util.animate(scoreDiv, 'scoreIn', 0.65);
     }
-    Util.drawText(this.info, '💬: game over. click anywhere to continue.');
+    if (trophy === '💩') {
+      Util.drawText(
+        this.info,
+        "💬: game over. you did not make it to a medal, so you don't gain 🧬 this time. try again."
+      );
+    } else {
+      Util.drawText(
+        this.info,
+        '💬: you won! you can spend your 🧬 on upgrades.'
+      );
+    }
     this.shop.open(this);
     // document.querySelector('body').addEventListener('click', loadListener);
   }

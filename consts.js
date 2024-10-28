@@ -4,3 +4,4 @@ export const LUCK = '🍀';
 export const MULT = '❎';
 export const REFRESH = '🔀';
 export const BUY = '✅';
+export const RESEARCH_POINTS = '🧬';
