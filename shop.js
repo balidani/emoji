@@ -68,6 +68,7 @@ export class Shop {
   }
   makeCatalog(game) {
     return this.catalog.generateShop(
+      game.enabledPackages,
       3,
       game.inventory.getResource(Const.LUCK),
       /* rareOnly= */ false

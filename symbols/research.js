@@ -4,14 +4,14 @@ import { Symb } from '../symbol.js';
 
 // Symbols in this file have to do with reasearch upgrades.
 
-export class Package extends Symb {
+export class CasinoPackage extends Symb {
   static emoji = '📦';
   constructor() {
     super();
     this.rarity = 0.5;
   }
   copy() {
-    return new Package();
+    return new CasinoPackage();
   }
   categories() {
     return [Const.CATEGORY_UNBUYABLE, Const.CATEGORY_RESEARCH];
@@ -19,8 +19,10 @@ export class Package extends Symb {
   cost() {
     return { '🧬': 1 };
   }
-  description() {
-    return 'test';
+  onBuy(game) {
+    game.enabledPackages.add(Const.PACK_CASINO);
   }
-  onBuy(_) {}
+  description() {
+    return 'contains 🐉🎰🎲.';
+  }
 }

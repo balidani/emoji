@@ -40,11 +40,28 @@ export class Catalog {
     }
     throw new Error('Unknown symbol: ' + emoji);
   }
-  generateShop(count, luck, rareOnly = false) {
+  checkPacks(enabledPackages, item) {
+    for (const pack of item.packs()) {
+      if (enabledPackages.has(pack)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  generateShop(enabledPackages, count, luck, rareOnly = false) {
     const bag = [];
+    const checkItem = (item) => {
+      if (!this.checkPacks(enabledPackages, item)) {
+        return false;
+      }
+      if (item.categories().includes(Const.CATEGORY_UNBUYABLE)) {
+        return false;
+      }
+      return true;
+    };
     if (rareOnly) {
       for (const [_, item] of this.symbols) {
-        if (item.categories().includes(Const.CATEGORY_UNBUYABLE)) {
+        if (!checkItem(item)) {
           continue;
         }
         if (item.rarity < 0.1) {
@@ -55,7 +72,7 @@ export class Catalog {
     }
     while (bag.length <= count) {
       for (const [_, item] of this.symbols) {
-        if (item.categories().includes(Const.CATEGORY_UNBUYABLE)) {
+        if (!checkItem(item)) {
           continue;
         }
         if (Math.random() < item.rarity + luck / 100.0) {

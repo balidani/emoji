@@ -10,6 +10,7 @@ export class Game {
   constructor(progression, settings, catalog) {
     this.progression = progression;
     this.settings = settings;
+    this.enabledPackages = settings.enabledPackages;
     this.catalog = catalog;
     this.inventory = new Inventory(this.settings, this.catalog);
     this.inventory.update();
