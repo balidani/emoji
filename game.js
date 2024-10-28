@@ -21,8 +21,7 @@ export class Game {
     if (settings.textLookup['greeting'] !== undefined) {
       Util.drawText(this.info, settings.textLookup['greeting']);
     }
-    const grid = document
-      .querySelector('.game .grid');
+    const grid = document.querySelector('.game .grid');
     grid.addEventListener('click', () => this.roll());
   }
   async over() {
