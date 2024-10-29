@@ -186,6 +186,17 @@ export class Board {
     }
     await Promise.all(tasks);
   }
+  async clear(game) {
+    const tasks = [];
+    for (let y = 0; y < game.settings.boardY; ++y) {
+      for (let x = 0; x < game.settings.boardX; ++x) {
+        const addr = `${x},${y}`;
+        this.cells[y][x] = this.empty.copy();
+        await Util.delay(100);
+        this.spinDivOnce(game, x, y);
+      }
+    }
+  }
   async evaluate(game) {
     this.forAllCells((cell, _, __) => {
       cell.turns++;

@@ -29,6 +29,8 @@ export class Game {
   async over() {
     document.querySelector('.game .grid').disabled = true;
     await this.board.finalScore(this);
+
+    // Display trophy.
     let trophy = '💩';
     const sortedKeys = Object.keys(this.settings.resultLookup).sort(
       (a, b) => b > a
@@ -39,16 +41,20 @@ export class Game {
         return;
       }
     });
-    {
-      const scoreContainer = document.createElement('div');
-      scoreContainer.classList.add('scoreContainer');
-      const scoreDiv = document.createElement('div');
-      scoreDiv.classList.add('score');
-      scoreDiv.innerHTML = `${trophy}<br>${Const.MONEY + this.inventory.getResource(Const.MONEY)}`;
-      scoreContainer.appendChild(scoreDiv);
-      document.querySelector('.game').appendChild(scoreContainer);
-      await Util.animate(scoreDiv, 'scoreIn', 0.65);
-    }
+    const scoreContainer = Util.createDiv('', 'scoreContainer');
+    const scoreDiv = Util.createDiv('', 'score');
+    scoreDiv.innerHTML = `${trophy}<br>${Const.MONEY + this.inventory.getResource(Const.MONEY)}`;
+    scoreContainer.appendChild(scoreDiv);
+    document.querySelector('.game').appendChild(scoreContainer);
+    await Util.animate(scoreDiv, 'scoreIn', 0.65);
+    await Util.delay(1000);
+    await Util.animate(scoreDiv, 'scoreOut', 0.65);
+    document.querySelector('.game').removeChild(scoreContainer);
+
+    // Clear board.
+    await this.board.clear(this);
+
+    // Update info text.
     if (trophy === '💩') {
       Util.drawText(
         this.info,
@@ -60,6 +66,8 @@ export class Game {
         '💬: you won! you can spend your 🧬 on upgrades.'
       );
     }
+
+    // Open research shop.
     this.researchShop.open(this);
     // document.querySelector('body').addEventListener('click', loadListener);
   }

@@ -23,6 +23,6 @@ export class CasinoPackage extends Symb {
     game.enabledPackages.add(Const.PACK_CASINO);
   }
   description() {
-    return 'contains 🐉🎰🎲.';
+    return 'contains 🐉 🎰 🎲.';
   }
 }
