@@ -93,7 +93,7 @@ export class Refresh extends Symb {
     return [Const.PACK_SHOP];
   }
   async evaluateProduce(game, _, __) {
-    game.shop.refreshable = true;
+    game.shop.haveRefreshSymbol = true;
     game.shop.refreshCount = 0;
   }
   description() {

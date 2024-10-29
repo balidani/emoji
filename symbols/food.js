@@ -159,7 +159,7 @@ export class Pineapple extends Symb {
     return [Const.CATEGORY_FOOD, Const.CATEGORY_FRUIT];
   }
   packs() {
-    return [Const.PACK_FARM];
+    return [Const.PACK_PARTY];
   }
   async score(game, x, y) {
     const coords = game.board.nextToExpr(

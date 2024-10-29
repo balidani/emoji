@@ -17,6 +17,7 @@ export class Game {
     this.board = new Board(this);
     this.shop = new Shop(this.catalog);
     this.researchShop = new ResearchShop(this.catalog);
+    this.permanentResearchPoints = 0;
     this.rolling = false;
     this.info = document.querySelector('.game .info');
     this.progression.updateUi();
@@ -27,7 +28,6 @@ export class Game {
     grid.addEventListener('click', () => this.roll());
   }
   async over() {
-    document.querySelector('.game .grid').disabled = true;
     await this.board.finalScore(this);
 
     // Display trophy.
@@ -45,33 +45,50 @@ export class Game {
     const scoreDiv = Util.createDiv('', 'score');
     scoreDiv.innerHTML = `${trophy}<br>${Const.MONEY + this.inventory.getResource(Const.MONEY)}`;
     scoreContainer.appendChild(scoreDiv);
+
+    await this.board.clear(this);
     document.querySelector('.game').appendChild(scoreContainer);
     await Util.animate(scoreDiv, 'scoreIn', 0.65);
-    await Util.delay(1000);
-    await Util.animate(scoreDiv, 'scoreOut', 0.65);
-    document.querySelector('.game').removeChild(scoreContainer);
-
-    // Clear board.
-    await this.board.clear(this);
 
     // Update info text.
+    let infoText = '💬: ';
     if (trophy === '💩') {
-      Util.drawText(
-        this.info,
-        "💬: game over. you did not make it to a medal, so you don't gain 🧬 this time. try again."
-      );
+      infoText +=
+        "game over. you did not make it to a medal, so you don't gain 🧬 this time.";
     } else {
-      Util.drawText(
-        this.info,
-        '💬: you won! you can spend your 🧬 on upgrades.'
+      infoText += 'you won! you can spend your 🧬 on upgrades.';
+    }
+    infoText += ' click the board to play again.';
+    Util.drawText(this.info, infoText);
+
+    if (trophy !== '💩') {
+      this.permanentResearchPoints += this.inventory.getResource(
+        Const.RESEARCH_POINTS
       );
     }
+    this.inventory.symbols = [];
+    this.inventory.resources = { '🧬': this.permanentResearchPoints };
+    this.inventory.update();
+    this.inventory.updateUi();
 
     // Open research shop.
     this.researchShop.open(this);
-    // document.querySelector('body').addEventListener('click', loadListener);
   }
   async roll() {
+    // Remove previous score.
+    const scoreDiv = document.querySelector('.game .scoreContainer .score');
+    if (scoreDiv !== null) {
+      // Reset inventory.
+      this.inventory.reset();
+      this.inventory.update();
+      this.inventory.updateUi();
+      await Util.animate(scoreDiv, 'scoreOut', 0.65);
+      document.querySelector('.game .scoreContainer')?.remove();
+    }
+    if (this.researchShop.isOpen) {
+      await this.researchShop.close(this);
+    }
+
     if (this.rolling) {
       Util.animationOff();
       return;

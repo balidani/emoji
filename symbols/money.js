@@ -15,7 +15,7 @@ export class Coin extends Symb {
     return new Coin();
   }
   packs() {
-    return [Const.PACK_MONEY];
+    return [Const.PACK_BASE];
   }
   async score(game, x, y) {
     await Promise.all([

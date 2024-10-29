@@ -3,19 +3,22 @@ import * as Util from './util.js';
 
 export class Inventory {
   constructor(settings, catalog) {
+    this.settings = settings;
     this.catalog = catalog;
-    this.symbols = catalog.symbolsFromString(settings.startingSet);
     this.symbolsDiv = document.querySelector('.game .inventory');
     this.uiDiv = document.querySelector('.game .ui');
     this.infoDiv = document.querySelector('.info');
-
-    this.resources = {};
-    this.resources[Const.MONEY] = 1;
-    this.resources[Const.TURNS] = settings.gameLength;
-    this.resources[Const.LUCK] = 0;
-    this.tempLuckBonus = 0;
+    this.reset();
     this.updateUi();
     this.graveyard = [];
+  }
+  reset() {
+    this.symbols = this.catalog.symbolsFromString(this.settings.startingSet);
+    this.resources = {};
+    this.resources[Const.MONEY] = 0;
+    this.resources[Const.TURNS] = this.settings.gameLength;
+    this.resources[Const.LUCK] = 0;
+    this.tempLuckBonus = 0;
   }
   update() {
     this.symbolsDiv.replaceChildren();

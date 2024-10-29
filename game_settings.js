@@ -50,10 +50,12 @@ export class GameSettings {
       Const.PACK_FARM,
       Const.PACK_ROCK,
     ]);
-    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀🕹️';
-    this.initiallyLockedCells = initiallyLockedCells || {
-      '2,2': { emoji: '🕹️', duration: -1 },
-    };
+    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
+    this.initiallyLockedCells =
+      initiallyLockedCells ||
+      {
+        // '2,2': { emoji: '🕹️', duration: -1 },
+      };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
       25000: '🏆',

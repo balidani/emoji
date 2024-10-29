@@ -8,7 +8,8 @@ export class Shop {
     this.isOpen = false;
     this.refreshCost = 1;
     this.refreshCount = 0;
-    this.refreshable = false;
+    this.allowRefresh = true;
+    this.haveRefreshSymbol = false;
     this.buyCount = 1;
   }
   makeShopItem(game, symbol, symbolCost, handler, buttonText = Const.BUY) {
@@ -97,8 +98,8 @@ export class Shop {
               break;
             }
           }
-          if (game.shop.buyCount > 0 && canBuy) {
-            game.shop.buyCount--;
+          if (this.buyCount > 0 && canBuy) {
+            this.buyCount--;
             for (const [key, value] of Object.entries(symbolCost)) {
               await Promise.all([
                 game.board.showResourceEarned(key, -value),
@@ -117,12 +118,12 @@ export class Shop {
             e.target.disabled = true;
             return;
           }
-          if (game.shop.buyCount > 0) {
+          if (this.buyCount > 0) {
             const div = e.srcElement.parentElement.parentElement;
             await Util.animate(div, 'closeShop', 0.2);
             div.classList.add('hidden');
           }
-          if (game.shop.buyCount === 0) {
+          if (this.buyCount === 0) {
             await this.close(game);
           }
         }
@@ -130,7 +131,10 @@ export class Shop {
       this.shopDiv.appendChild(shopItemDiv);
     }
     // Refresh
-    if (game.shop.refreshable || game.shop.refreshCount === 0) {
+    if (
+      this.allowRefresh &&
+      (this.haveRefreshSymbol || this.refreshCount === 0)
+    ) {
       const shopItemDiv = this.makeShopItem(
         game,
         {
@@ -140,7 +144,7 @@ export class Shop {
         },
         { '💵': this.refreshCost },
         async (_) => {
-          game.shop.refreshCount++;
+          this.refreshCount++;
           if (game.inventory.getResource(Const.MONEY) >= this.refreshCost) {
             await Promise.all([
               game.board.showResourceEarned(Const.MONEY, -this.refreshCost),
@@ -161,7 +165,7 @@ export class Shop {
     if (!this.isOpen) {
       return;
     }
-    this.refreshable = false;
+    this.haveRefreshSymbol = false;
     this.refreshCost = (1 + game.inventory.getResource(Const.MONEY) * 0.01) | 0;
     this.refreshCount = 0;
 

@@ -213,6 +213,9 @@ body {
 
 /* Score */
 .scoreContainer {
+  pointer-events: none;
+  cursor: pointer;
+
   position: fixed;
   top: 24pt;
   left: 0;
@@ -454,7 +457,7 @@ body {
   }
 
   100% {
-    transform: translateY(110vh);
+    transform: translateY(-100vh);
   }
 }
 

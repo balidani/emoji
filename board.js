@@ -1,6 +1,8 @@
 import * as Const from './consts.js';
 import * as Util from './util.js';
 
+import { PlayButton } from './symbol.js';
+
 export class Board {
   constructor(game) {
     this.settings = game.settings;
@@ -51,23 +53,21 @@ export class Board {
       this.cells.push(row);
       this.gridDiv.appendChild(rowDiv);
     }
+
+    // Show play button in the center in the beginning.
+    this.cells[2][2] = new PlayButton();
+    this.spinDivOnce(game, 2, 2);
+
     for (const addr of Object.keys(this.lockedCells)) {
       const [x, y] = addr.split(',').map(Number);
       this.spinDivOnce(game, x, y);
     }
   }
   createCellDiv(x, y) {
-    const cellContainer = document.createElement('div');
-    cellContainer.classList.add('cell-container');
-    const cellDiv = document.createElement('div');
-    cellDiv.classList.add('cell');
-    cellDiv.classList.add(`cell-${x}-${y}`);
-    const symbolDiv = document.createElement('div');
-    symbolDiv.classList.add('symbol');
-    symbolDiv.innerText = '⬜';
-    const counterDiv = document.createElement('div');
-    counterDiv.classList.add('symbol-counter');
-    counterDiv.innerText = '';
+    const cellContainer = Util.createDiv('', 'cell-container');
+    const cellDiv = Util.createDiv('', 'cell', `cell-${x}-${y}`);
+    const symbolDiv = Util.createDiv(this.empty.emoji(), 'symbol');
+    const counterDiv = Util.createDiv('', 'symbol-counter');
     cellDiv.appendChild(symbolDiv);
     cellDiv.appendChild(counterDiv);
     cellContainer.appendChild(cellDiv);
@@ -187,10 +187,8 @@ export class Board {
     await Promise.all(tasks);
   }
   async clear(game) {
-    const tasks = [];
     for (let y = 0; y < game.settings.boardY; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
-        const addr = `${x},${y}`;
         this.cells[y][x] = this.empty.copy();
         await Util.delay(100);
         this.spinDivOnce(game, x, y);
