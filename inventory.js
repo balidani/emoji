@@ -31,7 +31,7 @@ export class Inventory {
       });
     });
     map.forEach(({ count, description }, name) => {
-      const symbolDiv = document.createElement('div');
+      const symbolDiv = Util.createDiv(name, 'inventoryEntry');
       symbolDiv.addEventListener('click', (_) => {
         const interactiveDescription = Util.createInteractiveDescription(
           description,
@@ -39,13 +39,8 @@ export class Inventory {
         );
         Util.drawText(this.infoDiv, interactiveDescription, true);
       });
-      symbolDiv.classList.add('inventoryEntry');
-      symbolDiv.innerText = name;
-
-      const countSpan = document.createElement('span');
-      countSpan.classList.add('inventoryEntryCount');
-      countSpan.innerText = count;
-      symbolDiv.appendChild(countSpan);
+      const countDiv = Util.createDiv(count, 'inventoryEntryCount');
+      symbolDiv.appendChild(countDiv);
       this.symbolsDiv.appendChild(symbolDiv);
     });
   }
@@ -88,8 +83,7 @@ export class Inventory {
   updateUi() {
     this.uiDiv.replaceChildren();
     const displayKeyValue = (key, value) => {
-      const symbolDiv = document.createElement('div');
-      symbolDiv.innerText = key;
+      const symbolDiv = Util.createDiv(key, 'inventoryEntry');
       symbolDiv.addEventListener('click', (_) => {
         const interactiveDescription = Util.createInteractiveDescription(
           this.catalog.symbol(key).descriptionLong(),
@@ -97,9 +91,7 @@ export class Inventory {
         );
         Util.drawText(this.infoDiv, interactiveDescription, true);
       });
-      const countSpan = document.createElement('span');
-      countSpan.classList.add('inventoryEntryCount');
-      countSpan.innerText = value;
+      const countSpan = Util.createDiv(value + '', 'inventoryEntryCount');
       symbolDiv.appendChild(countSpan);
       this.uiDiv.appendChild(symbolDiv);
     };

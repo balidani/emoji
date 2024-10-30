@@ -23,27 +23,21 @@ export class Shop {
     });
     shopItemDiv.appendChild(symbolDiv);
 
-    const descriptionDiv = document.createElement('div');
-    descriptionDiv.classList.add('description');
+    const descriptionDiv = Util.createDiv('', 'description');
     descriptionDiv.innerHTML = Util.createInteractiveDescription(
       symbol.description()
     );
     shopItemDiv.appendChild(descriptionDiv);
 
-    const costDiv = document.createElement('div');
-    costDiv.classList.add('cost');
+    const costDiv = Util.createDiv('', 'cost');
     for (const [key, value] of Object.entries(symbolCost)) {
-      const resourceDiv = document.createElement('div');
-      resourceDiv.innerHTML = key + value;
+      const resourceDiv = Util.createDiv(key + value, 'div');
       costDiv.appendChild(resourceDiv);
     }
     shopItemDiv.appendChild(costDiv);
 
-    const buyDiv = document.createElement('div');
-    buyDiv.classList.add('buy');
-    const buyButton = document.createElement('button');
-    buyButton.classList.add('buyButton');
-    buyButton.innerText = buttonText;
+    const buyDiv = Util.createDiv('', 'buy');
+    const buyButton = Util.createDiv(buttonText, 'buyButton');
 
     let canBuy = true;
     for (const [key, value] of Object.entries(symbolCost)) {

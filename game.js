@@ -28,12 +28,10 @@ export class Game {
     document.querySelector('.game .grid').disabled = true;
     await this.board.finalScore(this);
     {
-      const scoreContainer = document.createElement('div');
-      scoreContainer.classList.add('scoreContainer');
-      const scoreDiv = document.createElement('div');
-      scoreDiv.classList.add('score');
-      scoreDiv.innerText =
-        Const.MONEY + this.inventory.getResource(Const.MONEY);
+      const scoreContainer = Util.createDiv('', 'scoreContainer');
+      const scoreDiv = Util.createDiv(
+        Const.MONEY + this.inventory.getResource(Const.MONEY),
+        'score');
       scoreContainer.appendChild(scoreDiv);
       document.querySelector('.game').appendChild(scoreContainer);
       await Util.animate(scoreDiv, 'scoreIn', 0.4);
@@ -53,11 +51,8 @@ export class Game {
         this.inventory.getResource(Const.MONEY),
         trophy
       );
-      const trophyContainer = document.createElement('div');
-      trophyContainer.classList.add('scoreContainer');
-      const trophyDiv = document.createElement('div');
-      trophyDiv.classList.add('trophy');
-      trophyDiv.innerText = trophy;
+      const trophyContainer = Util.createDiv('', 'scoreContainer');
+      const trophyDiv = Util.createDiv(trophy, 'trophy');
       trophyContainer.appendChild(trophyDiv);
       document.querySelector('.game').appendChild(trophyContainer);
       await Util.animate(trophyDiv, 'scoreIn', 0.4);

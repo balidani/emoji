@@ -39,8 +39,7 @@ export class Board {
     this.empty = this.catalog.symbol('⬜');
     for (let y = 0; y < this.settings.boardY; ++y) {
       const row = [];
-      const rowDiv = document.createElement('div');
-      rowDiv.classList.add('row');
+      const rowDiv = Util.createDiv('', 'row');
       for (let x = 0; x < this.settings.boardX; ++x) {
         const ilc = this.lockedCells[`${x},${y}`];
         const symbol = !ilc ? this.empty.copy() : ilc.symbol;
@@ -57,16 +56,10 @@ export class Board {
     }
   }
   createCellDiv(x, y) {
-    const cellContainer = document.createElement('div');
-    cellContainer.classList.add('cell-container');
-    const cellDiv = document.createElement('div');
-    cellDiv.classList.add('cell');
-    cellDiv.classList.add(`cell-${x}-${y}`);
-    const symbolDiv = document.createElement('div');
-    symbolDiv.classList.add('symbol');
-    symbolDiv.innerText = '⬜';
-    const counterDiv = document.createElement('div');
-    counterDiv.classList.add('symbol-counter');
+    const cellContainer = Util.createDiv('', 'cell-container');
+    const cellDiv = Util.createDiv('', 'cell', `cell-${x}-${y}`);
+    const symbolDiv = Util.createDiv('⬜', 'symbol');
+    const counterDiv = Util.createDiv('', 'symbol-counter');
     counterDiv.innerText = '';
     cellDiv.appendChild(symbolDiv);
     cellDiv.appendChild(counterDiv);
@@ -86,8 +79,7 @@ export class Board {
     return this.gridDiv.children[y].children[x].children[1];
   }
   async showResourceEarned(key, value) {
-    const moneyDiv = document.createElement('div');
-    moneyDiv.classList.add('moneyEarned');
+    const moneyDiv = Util.createDiv('', 'moneyEarned');
     moneyDiv.innerText = `${key}${value}`;
     this.gridDiv.appendChild(moneyDiv);
     await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.3);

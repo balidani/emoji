@@ -110,8 +110,7 @@ export class GameSettings {
     );
 
     // Append elements to the settings div
-    const settingsBoxDiv = document.createElement('div');
-    settingsBoxDiv.classList.add('settings-box');
+    const settingsBoxDiv = Util.createDiv('', 'settings-box');
     settingsBoxDiv.append(numRowsInput.label, numRowsInput.input);
     settingsBoxDiv.append(numColumnsInput.label, numColumnsInput.input);
     settingsBoxDiv.append(gameLengthInput.label, gameLengthInput.input);
