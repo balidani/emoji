@@ -182,6 +182,12 @@ export class Shop {
     if (!this.isOpen) {
       return;
     }
+    this.reset(game);
+    await Util.animate(this.shopDiv, 'closeShop', 0.2);
+    this.shopDiv.replaceChildren();
+    this.isOpen = false;
+  }
+  reset(game) {
     this.haveRefreshSymbol = false;
     this.refreshCost =
       (1 +
@@ -189,11 +195,6 @@ export class Shop {
           this.refreshCostInitialMult) |
       0;
     this.refreshCount = 0;
-
     this.buyCount = 1;
-    await Util.animate(this.shopDiv, 'closeShop', 0.2);
-    this.shopDiv;
-    this.shopDiv.replaceChildren();
-    this.isOpen = false;
   }
 }

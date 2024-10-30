@@ -62,23 +62,18 @@ export class Game {
     infoText += ' click the board to play again.';
     Util.drawText(this.info, infoText);
 
-    if (trophy !== '💩') {
-      this.permanentResearchPoints += this.inventory.getResource(
-        Const.RESEARCH_POINT
-      );
-    }
-
     // Replace inventory with the permanent "research" version.
     this.inventory.symbols = [];
     this.inventory.update();
-    this.researchInventory.addResource(
-      Const.RESEARCH_POINT,
-      this.inventory.getResource(Const.RESEARCH_POINT)
-    );
+    if (trophy !== '💩') {
+      this.researchInventory.addResource(
+        Const.RESEARCH_POINT,
+        this.inventory.getResource(Const.RESEARCH_POINT)
+      );
+    }
     this.researchInventory.updateUi();
 
     // Open research shop.
-    // TODO: research points should be deducted from `permanentResearchPoints`.
     this.researchShop.open(this);
   }
   async roll() {
@@ -89,6 +84,8 @@ export class Game {
       this.inventory.reset();
       this.inventory.update();
       this.inventory.updateUi();
+      // Reset shop
+      this.shop.reset(this);
       await Util.animate(scoreDiv, 'scoreOut', 0.65);
       document.querySelector('.game .scoreContainer')?.remove();
     }
