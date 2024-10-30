@@ -11,6 +11,10 @@ export class Shop {
     this.allowRefresh = true;
     this.haveRefreshSymbol = false;
     this.buyCount = 1;
+    this.refreshCostResource = Const.MONEY;
+    this.refreshCostIncrease = 0;
+    this.refreshCostMult = 2;
+    this.refreshCostInitialMult = 0.01;
   }
   makeShopItem(game, symbol, symbolCost, handler, buttonText = Const.BUY) {
     const shopItemDiv = document.createElement('div');
@@ -51,7 +55,7 @@ export class Shop {
 
     let canBuy = true;
     for (const [key, value] of Object.entries(symbolCost)) {
-      if (game.inventory.getResource(key) < value) {
+      if (this.getInventory(game).getResource(key) < value) {
         canBuy = false;
         break;
       }
@@ -71,9 +75,12 @@ export class Shop {
     return this.catalog.generateShop(
       game.enabledPackages,
       3,
-      game.inventory.getResource(Const.LUCK),
+      this.getInventory(game).getResource(Const.LUCK),
       /* rareOnly= */ false
     );
+  }
+  getInventory(game) {
+    return game.inventory;
   }
   async open(game) {
     if (this.isOpen) {
@@ -93,7 +100,7 @@ export class Shop {
         async (e) => {
           let canBuy = true;
           for (const [key, value] of Object.entries(symbolCost)) {
-            if (game.inventory.getResource(key) < value) {
+            if (this.getInventory(game).getResource(key) < value) {
               canBuy = false;
               break;
             }
@@ -103,13 +110,13 @@ export class Shop {
             for (const [key, value] of Object.entries(symbolCost)) {
               await Promise.all([
                 game.board.showResourceEarned(key, -value),
-                game.inventory.addResource(key, -value),
+                this.getInventory(game).addResource(key, -value),
               ]);
             }
             if (symbol.categories().includes(Const.CATEGORY_RESEARCH)) {
               symbol.onBuy(game);
             } else {
-              game.inventory.add(symbol);
+              this.getInventory(game).add(symbol);
             }
           } else if (!canBuy) {
             // Disable button.
@@ -142,15 +149,25 @@ export class Shop {
           description: () => '',
           descriptionLong: () => '',
         },
-        { '💵': this.refreshCost },
+        { [this.refreshCostResource]: this.refreshCost },
         async (_) => {
           this.refreshCount++;
-          if (game.inventory.getResource(Const.MONEY) >= this.refreshCost) {
+          if (
+            this.getInventory(game).getResource(this.refreshCostResource) >=
+            this.refreshCost
+          ) {
             await Promise.all([
-              game.board.showResourceEarned(Const.MONEY, -this.refreshCost),
-              game.inventory.addResource(Const.MONEY, -this.refreshCost),
+              game.board.showResourceEarned(
+                this.refreshCostResource,
+                -this.refreshCost
+              ),
+              this.getInventory(game).addResource(
+                this.refreshCostResource,
+                -this.refreshCost
+              ),
             ]);
-            this.refreshCost *= 2;
+            this.refreshCost += this.refreshCostIncrease;
+            this.refreshCost *= this.refreshCostMult;
             this.isOpen = false;
             await this.open(game);
           }
@@ -166,7 +183,11 @@ export class Shop {
       return;
     }
     this.haveRefreshSymbol = false;
-    this.refreshCost = (1 + game.inventory.getResource(Const.MONEY) * 0.01) | 0;
+    this.refreshCost =
+      (1 +
+        this.getInventory(game).getResource(this.refreshCostResource) *
+          this.refreshCostInitialMult) |
+      0;
     this.refreshCount = 0;
 
     this.buyCount = 1;

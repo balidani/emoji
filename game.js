@@ -4,6 +4,7 @@ import * as Util from './util.js';
 import { Board } from './board.js';
 import { Inventory } from './inventory.js';
 import { Shop } from './shop.js';
+import { ResearchInventory } from './research_inventory.js';
 import { ResearchShop } from './research_shop.js';
 
 export class Game {
@@ -17,7 +18,7 @@ export class Game {
     this.board = new Board(this);
     this.shop = new Shop(this.catalog);
     this.researchShop = new ResearchShop(this.catalog);
-    this.permanentResearchPoints = 0;
+    this.researchInventory = new ResearchInventory(this.settings, this.catalog);
     this.rolling = false;
     this.info = document.querySelector('.game .info');
     this.progression.updateUi();
@@ -66,10 +67,15 @@ export class Game {
         Const.RESEARCH_POINT
       );
     }
+
+    // Replace inventory with the permanent "research" version.
     this.inventory.symbols = [];
-    this.inventory.resources = { '🧬': this.permanentResearchPoints };
     this.inventory.update();
-    this.inventory.updateUi();
+    this.researchInventory.addResource(
+      Const.RESEARCH_POINT,
+      this.inventory.getResource(Const.RESEARCH_POINT)
+    );
+    this.researchInventory.updateUi();
 
     // Open research shop.
     // TODO: research points should be deducted from `permanentResearchPoints`.
