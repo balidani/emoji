@@ -1,3 +1,6 @@
+import * as Const from '../consts.js';
+import * as Util from '../util.js';
+
 import {
   badChance,
   chance,
@@ -5,7 +8,6 @@ import {
   Empty,
   CATEGORY_UNBUYABLE,
 } from '../symbol.js';
-import * as Util from '../util.js';
 
 // I am aware this is a bad name for the file. This file contains the "item" like emoji -
 //    It's also a dumping ground for anything that's tested enough to put into production,
@@ -141,7 +143,7 @@ export class SewingKit extends Symb {
   static emoji = '🧵';
   constructor() {
     super();
-    this.rarity = 0.1;
+    this.rarity = 0.08;
   }
   copy() {
     return new SewingKit();
@@ -160,6 +162,32 @@ export class SewingKit extends Symb {
     return 'removes neighboring 🕳️';
   }
   descriptionLong() {
-    return 'this is a thread. it removes neighboring 🕳️.';
+    return 'this is thread. it removes neighboring 🕳️.';
+  }
+}
+
+export class Lootbox extends Symb {
+  static emoji = '🎁';
+  constructor() {
+    super();
+    this.rarity = 0.1;
+  }
+  copy() {
+    return new Lootbox();
+  }
+  async evaluateProduce(game, x, y) {
+    const rareOnly = chance(game, 0.2, x, y);
+    const bag = game.catalog.generateShop(
+      1,
+      game.inventory.getResource(Const.LUCK),
+      /* rareOnly= */ rareOnly);
+    await game.board.removeSymbol(game, x, y);
+    await game.board.addSymbol(game, Util.randomChoose(bag), x, y);
+  }
+  description() {
+    return "opens and turns into a random symbol. 20% chance: it's a rare.";
+  }
+  descriptionLong() {
+    return "this is a lootbox. opens and turns into a random symbol. 20% chance: it's a rare.";
   }
 }

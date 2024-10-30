@@ -38,20 +38,20 @@ export class Catalog {
     }
     throw new Error('Unknown symbol: ' + emoji);
   }
-  generateShop(count, luck, rareOnly = false) {
+  generateShop(minCount, luck, rareOnly = false) {
     const bag = [];
     if (rareOnly) {
       for (const [_, item] of this.symbols) {
         if (item.categories().includes(CATEGORY_UNBUYABLE)) {
           continue;
         }
-        if (item.rarity < 0.1) {
+        if (item.rarity < 0.101) {
           bag.push(item.copy());
         }
       }
       return bag;
     }
-    while (bag.length <= count) {
+    while (bag.length <= minCount) {
       for (const [_, item] of this.symbols) {
         if (item.categories().includes(CATEGORY_UNBUYABLE)) {
           continue;
