@@ -61,9 +61,17 @@ class SimBoard extends Board {
 }
 
 class AutoGame {
-  constructor(settings, catalog, buyAlways, buyOnce, buyRandom) {
+  constructor(
+    settings,
+    catalog,
+    enabledPackages,
+    buyAlways,
+    buyOnce,
+    buyRandom
+  ) {
     this.settings = settings;
     this.catalog = catalog;
+    this.enabledPackages = enabledPackages;
     this.inventory = new Inventory(settings, this.catalog);
     this.inventory.update();
     this.board = new SimBoard(this);
@@ -182,7 +190,13 @@ class AutoGame {
   }
 }
 
-window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
+window.simulate = async (
+  enabledPackages,
+  buyAlways,
+  buyOnce,
+  rounds = 1,
+  buyRandom = false
+) => {
   // console.log('strategy', buyAlways, buyOnce);
   const template = document.querySelector('.template');
   const gameDiv = document.querySelector('.game');
@@ -206,6 +220,7 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
     const game = new AutoGame(
       settings,
       catalog,
+      new Set(enabledPackages),
       catalog.symbolsFromString(buyAlways),
       catalog.symbolsFromString(buyOnce),
       buyRandom
@@ -237,4 +252,27 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
 
 // const simulate = window.simulate;
 // Util.toggleAnimation();
-// await simulate('', '', 100, true);
+// await simulate(
+//   [Const.PACK_BASE, Const.PACK_FARM, Const.PACK_ROCK],
+//   '',
+//   '',
+//   100,
+//   true
+// );
+
+// const simulate = window.simulate;
+// Util.toggleAnimation();
+// await simulate(
+//   [Const.PACK_BASE, Const.PACK_FARM, Const.PACK_ROCK],
+//   '❎🍿🧈',
+//   '🌽🌽🌽🌽',
+//   100,
+//   false
+// );
+// await simulate(
+//   [Const.PACK_BASE, Const.PACK_FARM, Const.PACK_ROCK],
+//   '❎💎🪨🧬',
+//   '🐛👷🌋',
+//   100,
+//   false
+// );
