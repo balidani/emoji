@@ -4,6 +4,32 @@ import { Symb } from '../symbol.js';
 
 // Symbols in this file have to do with reasearch upgrades.
 
+export class ResearchPoint extends Symb {
+  static emoji = '🧬';
+  constructor() {
+    super();
+    this.rarity = 0.1;
+  }
+  packs() {
+    return [Const.PACK_BASE];
+  }
+  copy() {
+    return new ResearchPoint();
+  }
+  async finalScore(game, _x, _y) {
+    await Promise.all([
+      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15),
+      game.inventory.addResource(Const.RESEARCH_POINT, 1),
+    ]);
+  }
+  description() {
+    return 'gain 🧬1 if you earn at least 🥉';
+  }
+  descriptionLong() {
+    return 'this is a research token. you gain 🧬1 at the end of the game if you earn at least 🥉.';
+  }
+}
+
 export class MoneyPackage extends Symb {
   static emoji = '🎩';
   constructor() {

@@ -190,23 +190,3 @@ export class PlayButton extends Symb {
     }
   }
 }
-
-export class ResearchPoint extends Symb {
-  static emoji = '🧬';
-  constructor() {
-    super();
-    this.rarity = 0.1;
-  }
-  packs() {
-    return [Const.PACK_BASE];
-  }
-  copy() {
-    return new ResearchPoint();
-  }
-  description() {
-    return 'gain 🧬1 if you earn at least 🥉';
-  }
-  descriptionLong() {
-    return 'this is a research token. you gain 🧬1 at the end of the game if you earn at least 🥉.';
-  }
-}
