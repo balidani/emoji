@@ -1,4 +1,5 @@
 import * as Const from '../consts.js';
+import * as Util from '../util.js';
 
 import { Symb } from '../symbol.js';
 
@@ -16,7 +17,7 @@ export class ResearchPoint extends Symb {
   copy() {
     return new ResearchPoint();
   }
-  async finalScore(game, _x, _y) {
+  async finalScore(game, x, y) {
     await Promise.all([
       Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15),
       game.inventory.addResource(Const.RESEARCH_POINT, 1),

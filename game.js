@@ -63,7 +63,7 @@ export class Game {
 
     if (trophy !== '💩') {
       this.permanentResearchPoints += this.inventory.getResource(
-        Const.RESEARCH_POINTS
+        Const.RESEARCH_POINT
       );
     }
     this.inventory.symbols = [];
@@ -72,6 +72,7 @@ export class Game {
     this.inventory.updateUi();
 
     // Open research shop.
+    // TODO: research points should be deducted from `permanentResearchPoints`.
     this.researchShop.open(this);
   }
   async roll() {
