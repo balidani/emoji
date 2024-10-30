@@ -44,7 +44,7 @@ export class GameSettings {
     this.name = name || 'Default Game Settings';
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
-    this.gameLength = gameLength || 3;
+    this.gameLength = gameLength || 50;
     this.enabledPackages = new Set([
       Const.PACK_BASE,
       Const.PACK_FARM,
