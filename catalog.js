@@ -83,7 +83,6 @@ export class Catalog {
     return bag;
   }
   generateResearchShop(perksOwned, count = 3) {
-    console.log(perksOwned);
     const bag = [];
     const unownedPerks = Array.from(
       this.categories.get(Const.CATEGORY_RESEARCH)
