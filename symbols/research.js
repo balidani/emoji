@@ -237,3 +237,26 @@ export class RareStartPerk extends Symb {
     return 'always get rare items in the first shop.';
   }
 }
+
+export class CleanSlatePerk extends Symb {
+  static emoji = '🧼';
+  constructor() {
+    super();
+    this.rarity = 0.5;
+  }
+  copy() {
+    return new CleanSlatePerk();
+  }
+  categories() {
+    return [Const.CATEGORY_UNBUYABLE, Const.CATEGORY_RESEARCH];
+  }
+  cost() {
+    return { '🧬': 5 };
+  }
+  onBuy(game) {
+    game.inventory.startingSet = '';
+  }
+  description() {
+    return 'start with a clean slate.';
+  }
+}

@@ -4,6 +4,7 @@ import * as Util from './util.js';
 export class Inventory {
   constructor(settings, catalog) {
     this.settings = settings;
+    this.startingSet = settings.startingSet;
     this.catalog = catalog;
     this.symbolsDiv = document.querySelector('.game .inventory');
     this.uiDiv = document.querySelector('.game .ui');
@@ -13,7 +14,7 @@ export class Inventory {
     this.graveyard = [];
   }
   reset() {
-    this.symbols = this.catalog.symbolsFromString(this.settings.startingSet);
+    this.symbols = this.catalog.symbolsFromString(this.startingSet);
     this.resources = {};
     this.resources[Const.MONEY] = 0;
     this.resources[Const.TURNS] = this.settings.gameLength;
@@ -112,6 +113,9 @@ export class Inventory {
   }
   // Note: This does NOT return a Symbol. It returns an emoji text character for animation purposes.
   getRandomOwnedEmoji() {
+    if (this.symbols.length === 0) {
+      return Const.EMPTY;
+    }
     return Util.randomChoose(this.symbols).emoji();
   }
 }

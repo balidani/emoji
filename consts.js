@@ -5,6 +5,7 @@ export const MULT = '❎';
 export const REFRESH = '🔀';
 export const BUY = '✅';
 export const RESEARCH_POINT = '🧬';
+export const EMPTY = '⬜';
 
 export const CATEGORY_EMPTY_SPACE = Symbol('Empty Space');
 export const CATEGORY_UNBUYABLE = Symbol('Unbuyable');
