@@ -15,6 +15,7 @@ export class Shop {
     this.refreshCostIncrease = 0;
     this.refreshCostMult = 2;
     this.refreshCostInitialMult = 0.01;
+    this.firstTurnRare = false;
   }
   makeShopItem(game, symbol, symbolCost, handler, buttonText = Const.BUY) {
     const shopItemDiv = document.createElement('div');
@@ -72,11 +73,14 @@ export class Shop {
     return shopItemDiv;
   }
   makeCatalog(game) {
+    const rareOnly =
+      game.inventory.getResource(Const.TURNS) ===
+        game.settings.gameLength - 1 && this.firstTurnRare;
     return this.catalog.generateShop(
       game.enabledPackages,
       3,
       this.getInventory(game).getResource(Const.LUCK),
-      /* rareOnly= */ false
+      /* rareOnly= */ rareOnly
     );
   }
   getInventory(game) {
@@ -90,6 +94,9 @@ export class Shop {
     this.shopDiv.replaceChildren();
     const catalog = this.makeCatalog(game);
     for (let i = 0; i < 3; ++i) {
+      if (catalog.length === 0) {
+        break;
+      }
       const symbol = Util.randomRemove(catalog);
       // Support for dynamically generated cost -- report the same value that is subtracted later.
       const symbolCost = symbol.cost();
@@ -113,11 +120,8 @@ export class Shop {
                 this.getInventory(game).addResource(key, -value),
               ]);
             }
-            if (symbol.categories().includes(Const.CATEGORY_RESEARCH)) {
-              symbol.onBuy(game);
-            } else {
-              this.getInventory(game).add(symbol);
-            }
+            this.getInventory(game).add(symbol);
+            symbol.onBuy(game);
           } else if (!canBuy) {
             // Disable button.
             // This is not the best solution, we should disable the button

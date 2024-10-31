@@ -64,13 +64,14 @@ export class Game {
 
     // Replace inventory with the permanent "research" version.
     this.inventory.symbols = [];
-    this.inventory.update();
+    this.researchInventory.update();
     if (trophy !== '💩') {
       this.researchInventory.addResource(
         Const.RESEARCH_POINT,
         this.inventory.getResource(Const.RESEARCH_POINT)
       );
     }
+    this.researchInventory.update();
     this.researchInventory.updateUi();
 
     // Open research shop.

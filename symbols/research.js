@@ -55,7 +55,7 @@ export class MoneyPackage extends Symb {
 }
 
 export class CasinoPackage extends Symb {
-  static emoji = '🏮';
+  static emoji = '🃏';
   constructor() {
     super();
     this.rarity = 0.5;
@@ -212,5 +212,28 @@ export class ShoppingPackage extends Symb {
   }
   description() {
     return 'shopping bundle. contains 🔀 🛍️.';
+  }
+}
+
+export class RareStartPerk extends Symb {
+  static emoji = '👑';
+  constructor() {
+    super();
+    this.rarity = 0.5;
+  }
+  copy() {
+    return new RareStartPerk();
+  }
+  categories() {
+    return [Const.CATEGORY_UNBUYABLE, Const.CATEGORY_RESEARCH];
+  }
+  cost() {
+    return { '🧬': 5 };
+  }
+  onBuy(game) {
+    game.shop.firstTurnRare = true;
+  }
+  description() {
+    return 'always get rare items in the first shop.';
   }
 }

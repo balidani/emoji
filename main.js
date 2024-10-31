@@ -52,7 +52,8 @@ if (window.location.hash === '#dev') {
 }
 
 const game = await loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
-console.log(game);
+// Debug
+window.game = game;
 
 ///// TEST RELATED CODE BELOW //////
 
@@ -260,8 +261,6 @@ window.simulate = async (
 //   true
 // );
 
-// const simulate = window.simulate;
-// Util.toggleAnimation();
 // await simulate(
 //   [Const.PACK_BASE, Const.PACK_FARM, Const.PACK_ROCK],
 //   '❎🍿🧈',

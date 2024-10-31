@@ -10,8 +10,10 @@ export class ResearchShop extends Shop {
     this.refreshCostMult = 1;
     this.refreshCostInitialMult = 0;
   }
-  makeCatalog(_) {
-    return this.catalog.generateResearchShop(3);
+  makeCatalog(game) {
+    return this.catalog.generateResearchShop(
+      game.researchInventory.symbols.map((e) => e.emoji())
+    );
   }
   getInventory(game) {
     return game.researchInventory;

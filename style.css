@@ -124,6 +124,8 @@ body {
 
 .shopItem {
   display: flex;
+  align-items: center; /* Vertically centers the inner div */
+  justify-content: center; /* Optional: centers the inner div horizontally */
   padding-bottom: 8pt;
 }
 
@@ -168,21 +170,26 @@ body {
 /* Action Bar */
 
 .action-bar {
+  width: 100%;
+  font-size: 20pt;
 }
 
 /* Inventory */
-
-.inventory {
-  pointer-events: none;
+.footer {
   position: fixed;
   left: 0pt;
   bottom: 0pt;
-  width: 100%;
+  flex-direction: column !important;
   letter-spacing: 2pt;
   padding-top: 4pt;
   padding-left: 4pt;
   padding-bottom: 4pt;
+}
+
+.inventory {
+  width: 100%;
   font-size: 16pt;
+  pointer-events: none;
 }
 
 .inventoryEntry {
@@ -618,6 +625,11 @@ button {
   font: inherit;
   cursor: pointer;
   outline: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .blur {

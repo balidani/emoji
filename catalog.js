@@ -82,19 +82,40 @@ export class Catalog {
     }
     return bag;
   }
-  generateResearchShop(count) {
+  generateResearchShop(perksOwned, count = 3) {
+    console.log(perksOwned);
     const bag = [];
-    while (bag.length <= count) {
+    const unownedPerks = Array.from(
+      this.categories.get(Const.CATEGORY_RESEARCH)
+    ).filter((e) => !perksOwned.includes(e));
+    if (unownedPerks.length === 0) {
+      return [];
+    }
+    const checkItem = (item) => {
+      if (!item.categories().includes(Const.CATEGORY_RESEARCH)) {
+        return false;
+      }
+      if (Math.random() > item.rarity) {
+        return false;
+      }
+      return !perksOwned.includes(item.emoji());
+    };
+    while (bag.length < count) {
       for (const [_, item] of this.symbols) {
-        if (!item.categories().includes(Const.CATEGORY_RESEARCH)) {
-          continue;
-        }
-        if (Math.random() < item.rarity) {
+        if (checkItem(item)) {
           bag.push(item.copy());
         }
       }
     }
-    return bag;
+    // Remove duplicates
+    const seen = new Set();
+    return bag.filter((item) => {
+      if (seen.has(item.emoji())) {
+        return false;
+      }
+      seen.add(item.emoji());
+      return true;
+    });
   }
   symbolsFromString(input) {
     const result = [];
