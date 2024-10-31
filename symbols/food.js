@@ -1,7 +1,8 @@
 import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
-import { chance, Symb, Empty } from '../symbol.js';
+import { chance, Symb } from '../symbol.js';
+import { Empty } from './ui.js';
 
 // Symbols in this file are related to food, beverages, or ingredients
 

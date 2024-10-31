@@ -1,7 +1,7 @@
 import * as Const from './consts.js';
 import * as Util from './util.js';
 
-import { PlayButton } from './symbol.js';
+import { PlayButton } from './symbols/ui.js';
 
 export class Board {
   constructor(game) {

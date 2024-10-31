@@ -1,7 +1,8 @@
 import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
-import { chance, Symb, Empty } from '../symbol.js';
+import { chance, Symb } from '../symbol.js';
+import { Empty } from './ui.js';
 
 // The symbols in this file are mostly grouped by the fact that they manipulate the game itself rather than reward money
 
