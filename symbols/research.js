@@ -216,7 +216,7 @@ export class ShoppingPackage extends Symb {
 }
 
 export class RareStartPerk extends Symb {
-  static emoji = '👑';
+  static emoji = '✨';
   constructor() {
     super();
     this.rarity = 0.5;

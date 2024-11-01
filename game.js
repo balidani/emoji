@@ -23,7 +23,11 @@ export class Game {
     this.info = document.querySelector('.game .info');
     this.progression.updateUi();
     if (settings.textLookup['greeting'] !== undefined) {
-      Util.drawText(this.info, settings.textLookup['greeting']);
+      Util.drawText(
+        this.info,
+        Util.createInteractiveDescription(settings.textLookup['greeting']),
+        /* isHtml= */ true
+      );
     }
     const grid = document.querySelector('.game .grid');
     grid.addEventListener('click', () => this.roll());
@@ -60,11 +64,31 @@ export class Game {
       infoText += 'you won! you can spend your 🧬 on upgrades.';
     }
     infoText += ' click the board to play again.';
-    Util.drawText(this.info, infoText);
+    Util.drawText(
+      this.info,
+      Util.createInteractiveDescription(infoText),
+      /* isHtml= */ true
+    );
 
     // Replace inventory with the permanent "research" version.
     this.inventory.symbols = [];
     this.researchInventory.update();
+    switch (trophy) {
+      case '🏆':
+        this.inventory.addResource(Const.RESEARCH_POINT, 4);
+        break;
+      case '🥇':
+        this.inventory.addResource(Const.RESEARCH_POINT, 3);
+        break;
+      case '🥈':
+        this.inventory.addResource(Const.RESEARCH_POINT, 2);
+        break;
+      case '🥉':
+        this.inventory.addResource(Const.RESEARCH_POINT, 1);
+        break;
+      default:
+        break;
+    }
     if (trophy !== '💩') {
       this.researchInventory.addResource(
         Const.RESEARCH_POINT,
@@ -105,7 +129,11 @@ export class Game {
     const textToDraw =
       this.settings.textLookup[this.inventory.getResource(Const.TURNS)];
     if (textToDraw) {
-      Util.drawText(this.info, textToDraw);
+      Util.drawText(
+        this.info,
+        Util.createInteractiveDescription(textToDraw),
+        /* isHtml= */ true
+      );
     }
 
     if (this.inventory.getResource(Const.TURNS) > 0) {

@@ -79,3 +79,115 @@ export class PlayButton extends Symb {
     }
   }
 }
+
+export class BronzeMedal extends Symb {
+  static emoji = '🥉';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new BronzeMedal();
+  }
+  description() {
+    return 'this is a bronze medal. it is awarded when you earn 💵10000. you also earn 🧬1';
+  }
+  categories() {
+    return [Const.CATEGORY_UNBUYABLE];
+  }
+}
+
+export class SilverMedal extends Symb {
+  static emoji = '🥈';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new SilverMedal();
+  }
+  description() {
+    return 'this is a silver medal. it is awarded when you earn 💵15000. you also earn 🧬2';
+  }
+  categories() {
+    return [Const.CATEGORY_UNBUYABLE];
+  }
+}
+
+export class GoldMedal extends Symb {
+  static emoji = '🥇';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new GoldMedal();
+  }
+  description() {
+    return 'this is a gold medal. it is awarded when you earn 💵20000. you also earn 🧬3';
+  }
+  categories() {
+    return [Const.CATEGORY_UNBUYABLE];
+  }
+}
+
+export class Trophy extends Symb {
+  static emoji = '🏆';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new Trophy();
+  }
+  description() {
+    return 'this is a trophy. it is awarded when you earn 💵25000. you also earn 🧬4';
+  }
+  categories() {
+    return [Const.CATEGORY_UNBUYABLE];
+  }
+}
+
+export class Crown extends Symb {
+  static emoji = '👑';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new Crown();
+  }
+  description() {
+    return 'this is a crown. it is awarded when you earn 💵100000. at this point, you have completed the game.';
+  }
+  categories() {
+    return [Const.CATEGORY_UNBUYABLE];
+  }
+}
+
+export class SpeechBubble extends Symb {
+  static emoji = '💬';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new SpeechBubble();
+  }
+  description() {
+    return "this is a speech bubble. it doesn't do anything, but it looks nice.";
+  }
+  categories() {
+    return [Const.CATEGORY_UNBUYABLE];
+  }
+}
+
+export class BuyButton extends Symb {
+  static emoji = '✅';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new BuyButton();
+  }
+  description() {
+    return 'this is a buy button. click on it to add an emoji to your inventory.';
+  }
+  categories() {
+    return [Const.CATEGORY_UNBUYABLE];
+  }
+}

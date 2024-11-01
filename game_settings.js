@@ -59,6 +59,7 @@ export class GameSettings {
       };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
+      100000: '👑',
       25000: '🏆',
       20000: '🥇',
       15000: '🥈',
@@ -66,11 +67,15 @@ export class GameSettings {
     };
     this.textLookup = textLookup || {
       greeting:
-        '💬: welcome to emoji slots. press anywhere on the board above when you are ready to play (🕹️)',
-      50: '💬: now you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.',
-      49: '💬: you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!',
-      48: '💬: you can double tap the grid to skip animation.',
-      47: '💬: you can tap on any symbol in the shop and in your inventory to get more information.',
+        '💬: welcome to emoji slots. press anywhere on the board above when you are ready to play 🕹️',
+      50: '💬: now you can add an emoji to your inventory. press ✅ to do that, refresh the shop 🔀, or roll again.',
+      49: '💬: if you want to find out more about an emoji, tap on it. for example, try tapping here: 🌋.',
+      48: '💬: you have 47 turns left. earn 💵 to get a trophy: 🥉, 🥈, 🥇, 🏆.',
+      47: '💬: by the way, you can double tap the grid to skip animation.',
+      46: '💬: you can unlock upgrades at the end of the game.',
+      45: '💬: upgrades cost 🧬. you get 🧬 awarded if you earn at least 🥉.',
+      44: '💬: you can also get 🧬 from some of the emoji, but these are only awarded if you earned a trophy.',
+      43: '💬: the ultimate goal is to reach 💵100000 for the 👑 trophy. good luck!',
     };
   }
 
