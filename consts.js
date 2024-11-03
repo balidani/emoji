@@ -28,3 +28,4 @@ export const PACK_MUSIC = Symbol('Music');
 export const PACK_PARTY = Symbol('Party');
 export const PACK_ROCK = Symbol('Rock');
 export const PACK_SHOP = Symbol('Shop');
+export const PACK_RESEARCH = Symbol('Research');

@@ -245,7 +245,7 @@ export class BullsEye extends Symb {
     return new BullsEye();
   }
   packs() {
-    return [Const.PACK_LUCK];
+    return [Const.PACK_CASINO];
   }
   description() {
     return 'neighboring rolls always succeed';

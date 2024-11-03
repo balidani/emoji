@@ -31,6 +31,33 @@ export class ResearchPoint extends Symb {
   }
 }
 
+export class Microscope extends Symb {
+  static emoji = '🔬';
+  constructor() {
+    super();
+    this.rarity = 0.15;
+  }
+  packs() {
+    return [Const.PACK_RESEARCH];
+  }
+  copy() {
+    return new Microscope();
+  }
+  async evaluateConsume(game, x, y) {
+    const coords = game.board.nextToSymbol(x, y, '🪙');
+    if (coords.length === 0) {
+      return;
+    }
+    for (const [deleteX, deleteY] of coords) {
+      await game.board.removeSymbol(game, deleteX, deleteY);
+      await game.board.addSymbol(game, new ResearchPoint(), deleteX, deleteY);
+    }
+  }
+  description() {
+    return 'turn neighboring 🪙 into 🧬.';
+  }
+}
+
 export class MoneyPackage extends Symb {
   static emoji = '🎩';
   constructor() {
@@ -212,6 +239,28 @@ export class ShoppingPackage extends Symb {
   }
   description() {
     return 'shopping bundle. contains 🔀 🛍️.';
+  }
+}
+export class ResearchPackage extends Symb {
+  static emoji = '📊';
+  constructor() {
+    super();
+    this.rarity = 0.5;
+  }
+  copy() {
+    return new ResearchPackage();
+  }
+  categories() {
+    return [Const.CATEGORY_UNBUYABLE, Const.CATEGORY_RESEARCH];
+  }
+  cost() {
+    return { '🧬': 3 };
+  }
+  onBuy(game) {
+    game.enabledPackages.add(Const.PACK_RESEARCH);
+  }
+  description() {
+    return 'research bundle. contains 🔬.';
   }
 }
 
