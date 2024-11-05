@@ -1,5 +1,7 @@
-import { chance, Symb } from '../symbol.js';
+import * as Const from '../consts.js';
 import * as Util from '../util.js';
+
+import { chance, Symb } from '../symbol.js';
 
 // Most symbols in here are related to Coin (🪙), with some gambling related stuff thrown in for good measure.
 

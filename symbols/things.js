@@ -5,9 +5,9 @@ import {
   badChance,
   chance,
   Symb,
-  Empty,
   CATEGORY_UNBUYABLE,
 } from '../symbol.js';
+import {Empty} from './ui.js'
 
 // I am aware this is a bad name for the file. This file contains the "item" like emoji -
 //    It's also a dumping ground for anything that's tested enough to put into production,

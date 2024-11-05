@@ -1,7 +1,8 @@
 import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
-import { chance, Symb, Empty, CATEGORY_EMPTY_SPACE } from '../symbol.js';
+import { chance, Symb, CATEGORY_EMPTY_SPACE } from '../symbol.js';
+import { Empty } from './ui.js';
 import { CATEGORY_ANIMAL } from './animals.js';
 import { CATEGORY_FOOD, CATEGORY_VEGETABLES } from './food.js';
 
@@ -86,7 +87,7 @@ export class Refresh extends Symb {
     return new Refresh();
   }
   async evaluateProduce(game, _, __) {
-    game.shop.refreshable = true;
+    game.shop.haveRefreshSymbol = true;
     game.shop.refreshCount = 0;
   }
   description() {
@@ -253,15 +254,14 @@ export class Rocket extends Symb {
   }
 }
 
-// This one is questionable if it belongs in animal or advanced. It's here because Rocket is, and they form a paired set.
-export class Snail extends Symb {
-  static emoji = '🐌';
+export class Ice extends Symb {
+  static emoji = '🧊';
   constructor() {
     super();
     this.rarity = 0.12;
   }
   copy() {
-    return new Snail();
+    return new Ice();
   }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToCoords(x, y);
@@ -270,13 +270,10 @@ export class Snail extends Symb {
       game.board.cells[neighborY][neighborX].turns--;
     }
   }
-  categories() {
-    return [CATEGORY_ANIMAL];
-  }
   description() {
     return 'slows down neighbors by 1 turn';
   }
   descriptionLong() {
-    return 'this is a snail. all neighboring symbols that have a timer will take one more turn to complete.';
+    return 'this is ice. all neighboring symbols that have a timer will take one more turn to complete.';
   }
 }

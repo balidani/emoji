@@ -1,5 +1,7 @@
 import * as Util from './util.js';
+
 import { CATEGORY_EMPTY_SPACE } from './symbol.js';
+import { PlayButton } from './symbols/ui.js';
 
 export class Board {
   constructor(game) {
@@ -50,6 +52,11 @@ export class Board {
       this.cells.push(row);
       this.gridDiv.appendChild(rowDiv);
     }
+
+    // Show play button in the center in the beginning.
+    this.cells[2][2] = new PlayButton();
+    this.spinDivOnce(game, 2, 2);
+
     for (const addr of Object.keys(this.lockedCells)) {
       const [x, y] = addr.split(',').map(Number);
       this.spinDivOnce(game, x, y);
@@ -177,6 +184,15 @@ export class Board {
       }
     }
     await Promise.all(tasks);
+  }
+  async clear(game) {
+    for (let y = 0; y < game.settings.boardY; ++y) {
+      for (let x = 0; x < game.settings.boardX; ++x) {
+        this.cells[y][x] = this.empty.copy();
+        await Util.delay(100);
+        this.spinDivOnce(game, x, y);
+      }
+    }
   }
   async evaluate(game) {
     this.forAllCells((cell, _, __) => {

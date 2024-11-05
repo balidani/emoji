@@ -1,11 +1,11 @@
 import * as Const from './consts.js';
 import * as Util from './util.js';
 
-export const CATEGORY_EMPTY_SPACE = Symbol('Empty Space');
-export const CATEGORY_UNBUYABLE = Symbol('Unbuyable');
-
 /* Since we aren't using typescript, relax the patterns somewhat for autocomplete */
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_.*$", "varsIgnorePattern": "^_.*$" }] */
+
+export const CATEGORY_EMPTY_SPACE = Symbol('Empty Space');
+export const CATEGORY_UNBUYABLE = Symbol('Unbuyable');
 
 export const chance = (game, percent, x, y) => {
   let luckyChance = 0;
@@ -42,6 +42,7 @@ export class Symb {
   async evaluateProduce() {}
   async finalScore(_game, _x, _y) {}
   async score(_game, _x, _y) {}
+  onBuy(_) {}
   cost() {
     return {};
   }
@@ -108,82 +109,5 @@ export class Symb {
     );
     return () =>
       Util.drawText(game.info, interactiveDescription, /*isHtml=*/ true);
-  }
-}
-
-export class Empty extends Symb {
-  static emoji = '⬜';
-  constructor() {
-    super();
-  }
-  copy() {
-    return new Empty();
-  }
-  description() {
-    return 'you should not be seeing this';
-  }
-  descriptionLong() {
-    return "this is empty space. it's not part of your inventory.";
-  }
-  categories() {
-    return [CATEGORY_EMPTY_SPACE, CATEGORY_UNBUYABLE];
-  }
-}
-
-export class Money extends Symb {
-  static emoji = '💵';
-  constructor() {
-    super();
-  }
-  copy() {
-    return new Money();
-  }
-  description() {
-    return 'this is money';
-  }
-  descriptionLong() {
-    return 'this is money. you should get as much as possible before the game ends.';
-  }
-  categories() {
-    return [CATEGORY_UNBUYABLE];
-  }
-}
-export class Turn extends Symb {
-  static emoji = '⏰';
-  constructor() {
-    super();
-  }
-  copy() {
-    return new Turn();
-  }
-  description() {
-    return 'this is how many turns you have left';
-  }
-  descriptionLong() {
-    return 'this is how many turns you have left.';
-  }
-  categories() {
-    return [CATEGORY_UNBUYABLE];
-  }
-}
-
-export class PlayButton extends Symb {
-  static emoji = '🕹️';
-  constructor() {
-    super();
-  }
-  copy() {
-    return new PlayButton();
-  }
-  description() {
-    return 'click to play';
-  }
-  categories() {
-    return [CATEGORY_UNBUYABLE];
-  }
-  async evaluateConsume(game, x, y) {
-    if (this.turns >= 1) {
-      await game.board.removeSymbol(game, x, y);
-    }
   }
 }

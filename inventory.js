@@ -3,6 +3,7 @@ import * as Util from './util.js';
 
 export class Inventory {
   constructor(settings, catalog) {
+    this.settings = settings;
     this.catalog = catalog;
     this.symbols = catalog.symbolsFromString(settings.startingSet);
     this.symbolsDiv = document.querySelector('.game .inventory');
@@ -101,6 +102,9 @@ export class Inventory {
   }
   // Note: This does NOT return a Symbol. It returns an emoji text character for animation purposes.
   getRandomOwnedEmoji() {
+    if (this.symbols.length === 0) {
+      return Const.EMPTY;
+    }
     return Util.randomChoose(this.symbols).emoji();
   }
 }

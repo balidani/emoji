@@ -10,6 +10,7 @@ const ALL_TESTED_SYMBOL_FILES = [
   './symbols/music.js',
   './symbols/rocks.js',
   './symbols/things.js',
+  './symbols/ui.js',
 ];
 
 export class GameSettings {
@@ -43,12 +44,13 @@ export class GameSettings {
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
-    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀🕹️';
+    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
     this.initiallyLockedCells = initiallyLockedCells || {
-      '2,2': { emoji: '🕹️', duration: -1 },
+      // '2,2': { emoji: '🕹️', duration: -1 },
     };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
+      50000: '👑',
       25000: '🏆',
       20000: '🥇',
       15000: '🥈',
@@ -57,10 +59,11 @@ export class GameSettings {
     this.textLookup = textLookup || {
       greeting:
         '💬: welcome to emoji slots. press anywhere on the board above when you are ready to play (🕹️)',
-      50: '💬: now you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again.',
-      49: '💬: you have 48 turns left. earn 💵10000 for 🥉, 💵15000 for 🥈, 💵20000 for 🥇, 💵25000 for 🏆. good luck!',
-      48: '💬: you can double tap the grid to skip animation.',
-      47: '💬: you can tap on any symbol in the shop and in your inventory to get more information.',
+      50: '💬: now you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again',
+      49: '💬: if you want to find out more about an emoji, tap on it. for example, try tapping here: 🌋',
+      48: '💬: you have 47 turns left. earn 💵 to get a trophy: 🥉, 🥈, 🥇, 🏆, 👑',
+      47: '💬: you can double tap the grid to skip animation',
+      46: '💬: you can tap on any symbol in the shop and in your inventory to get more information',
     };
   }
 

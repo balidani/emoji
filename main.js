@@ -52,7 +52,8 @@ if (window.location.hash === '#dev') {
 }
 
 const game = await loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
-console.log(game);
+// Debug
+window.game = game;
 
 ///// TEST RELATED CODE BELOW //////
 

@@ -19,7 +19,11 @@ export class Game {
     this.info = document.querySelector('.game .info');
     this.progression.updateUi();
     if (settings.textLookup['greeting'] !== undefined) {
-      Util.drawText(this.info, settings.textLookup['greeting']);
+      Util.drawText(
+        this.info,
+        Util.createInteractiveDescription(settings.textLookup['greeting']),
+        /* isHtml= */ true
+      );
     }
     const grid = document.querySelector('.game .grid');
     grid.addEventListener('click', () => this.roll());
@@ -27,15 +31,7 @@ export class Game {
   async over() {
     document.querySelector('.game .grid').disabled = true;
     await this.board.finalScore(this);
-    {
-      const scoreContainer = Util.createDiv('', 'scoreContainer');
-      const scoreDiv = Util.createDiv(
-        Const.MONEY + this.inventory.getResource(Const.MONEY),
-        'score');
-      scoreContainer.appendChild(scoreDiv);
-      document.querySelector('.game').appendChild(scoreContainer);
-      await Util.animate(scoreDiv, 'scoreIn', 0.4);
-    }
+    
     let trophy = '💩';
     const sortedKeys = Object.keys(this.settings.resultLookup).sort(
       (a, b) => b > a
@@ -46,17 +42,15 @@ export class Game {
         return;
       }
     });
-    {
-      this.progression.postResultAndAdvance(
-        this.inventory.getResource(Const.MONEY),
-        trophy
-      );
-      const trophyContainer = Util.createDiv('', 'scoreContainer');
-      const trophyDiv = Util.createDiv(trophy, 'trophy');
-      trophyContainer.appendChild(trophyDiv);
-      document.querySelector('.game').appendChild(trophyContainer);
-      await Util.animate(trophyDiv, 'scoreIn', 0.4);
-    }
+    const scoreContainer = Util.createDiv('', 'scoreContainer');
+    const scoreDiv = Util.createDiv('', 'score');
+    scoreDiv.innerHTML = `${trophy}<br>${Const.MONEY + this.inventory.getResource(Const.MONEY)}`;
+    scoreContainer.appendChild(scoreDiv);
+
+    await this.board.clear(this);
+    document.querySelector('.game').appendChild(scoreContainer);
+    await Util.animate(scoreDiv, 'scoreIn', 0.65);
+
     document.querySelector('body').addEventListener('click', loadListener);
   }
   async roll() {
@@ -71,7 +65,11 @@ export class Game {
     const textToDraw =
       this.settings.textLookup[this.inventory.getResource(Const.TURNS)];
     if (textToDraw) {
-      Util.drawText(this.info, textToDraw);
+      Util.drawText(
+        this.info,
+        Util.createInteractiveDescription(textToDraw),
+        /* isHtml= */ true
+      );
     }
 
     if (this.inventory.getResource(Const.TURNS) > 0) {

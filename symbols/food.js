@@ -1,11 +1,13 @@
-import { chance, Symb, Empty, CATEGORY_UNBUYABLE } from '../symbol.js';
 import * as Util from '../util.js';
+
+import { chance, Symb, CATEGORY_UNBUYABLE } from '../symbol.js';
+import { Empty } from './ui.js';
+
+// Symbols in this file are related to food, beverages, or ingredients
 
 export const CATEGORY_FOOD = Symbol('Food');
 export const CATEGORY_FRUIT = Symbol('Fruit');
 export const CATEGORY_VEGETABLES = Symbol('Vegetables');
-
-// Symbols in this file are related to food, beverages, or ingredients
 
 export class Butter extends Symb {
   static emoji = '🧈';
@@ -105,36 +107,36 @@ export class Corn extends Symb {
   }
 }
 
-export class Mango extends Symb {
-  static emoji = '🥭';
-  constructor() {
-    super();
-    this.rarity = 0.06;
-  }
-  copy() {
-    return new Mango();
-  }
-  async evaluateScore(game, x, y) {
-    const coords = game.board.nextToCategory(x, y, CATEGORY_FRUIT);
-    if (coords.length === 0) {
-      return;
-    }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
-    for (const coord of coords) {
-      const [neighborX, neighborY] = coord;
-      game.board.cells[neighborY][neighborX].multiplier *= 2;
-    }
-  }
-  categories() {
-    return [CATEGORY_FRUIT, CATEGORY_FOOD];
-  }
-  description() {
-    return 'x2 to neighboring fruit';
-  }
-  descriptionLong() {
-    return 'this is a mango. it makes nearby fruit give double 💵.';
-  }
-}
+// export class Mango extends Symb {
+//   static emoji = '🥭';
+//   constructor() {
+//     super();
+//     this.rarity = 0.06;
+//   }
+//   copy() {
+//     return new Mango();
+//   }
+//   async evaluateScore(game, x, y) {
+//     const coords = game.board.nextToCategory(x, y, CATEGORY_FRUIT);
+//     if (coords.length === 0) {
+//       return;
+//     }
+//     await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
+//     for (const coord of coords) {
+//       const [neighborX, neighborY] = coord;
+//       game.board.cells[neighborY][neighborX].multiplier *= 2;
+//     }
+//   }
+//   categories() {
+//     return [CATEGORY_FRUIT, CATEGORY_FOOD];
+//   }
+//   description() {
+//     return 'x2 to neighboring fruit';
+//   }
+//   descriptionLong() {
+//     return 'this is a mango. it makes nearby fruit give double 💵.';
+//   }
+// }
 
 export class Pineapple extends Symb {
   static emoji = '🍍';

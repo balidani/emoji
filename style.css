@@ -3,60 +3,13 @@ body {
   user-select: none;
 }
 
-button {
-  font-size: 20pt;
-  padding: 0;
-  margin: 0;
-  width: 32pt;
-  height: 32pt;
-  text-align: center;
-}
-
 html,
 body {
   height: 100%;
   scrollbar-width: none;
 }
 
-.blur {
-  height: 100%;
-  /* filter: blur(6px); */
-}
-
-.wrapper {
-  display: flex;
-  justify-content: center;
-  font-size: 22pt;
-}
-
-/* Inventory */
-
-.inventory {
-  pointer-events: none;
-  position: fixed;
-  left: 0pt;
-  bottom: 0pt;
-  width: 100%;
-  letter-spacing: 2pt;
-  padding-top: 4pt;
-  padding-left: 4pt;
-  padding-bottom: 4pt;
-  font-size: 16pt;
-}
-
-.inventoryEntry {
-  pointer-events: auto;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-  padding-right: 2pt;
-}
-
-.inventoryEntryCount {
-  font-size: 10pt;
-  letter-spacing: 0pt;
-  padding-right: 2pt;
-}
+/* Resoruces */
 
 .ui {
   position: fixed;
@@ -78,66 +31,11 @@ body {
   padding-right: 4pt;
 }
 
-.info {
-  width: 240pt;
-  height: 44pt;
-  font-size: 10pt;
-  line-height: 12pt;
-  vertical-align: bottom;
-  padding: 8pt;
-  text-align: center;
-}
-
-/* Shop */
-
-.shop {
-  padding-top: 12pt;
-  padding-bottom: 12pt;
-  width: 256pt;
-  overflow: hidden;
-}
-
-.shopItem {
-  display: flex;
-  padding-bottom: 8pt;
-}
-
-.shopItem .shopEmoji {
-  cursor: pointer;
-}
-
-.description {
-  padding-left: 8pt;
-  font-size: 10pt;
-  width: 180pt;
-}
-
-.shopEmoji {
-  width: 24pt;
-  font-size: 20pt;
-}
-
-.description {
-  padding-left: 4pt;
-  font-size: 10pt;
-  width: 180pt;
-}
-
-.cost {
-  padding-left: 2pt;
-  text-align: right;
-  width: 36pt;
-  font-size: 10pt;
-}
-
-.refreshDescription {
-  text-align: right;
-}
-
-.buy {
-  z-index: 1;
-  margin-left: auto;
-  padding-left: 4pt;
+.moneyEarned {
+  position: absolute;
+  top: 20pt;
+  left: 4pt;
+  font-size: 12pt;
 }
 
 /* Grid */
@@ -204,29 +102,123 @@ body {
   transform: scale(1.25);
 }
 
-.moneyEarned {
-  position: absolute;
-  top: 20pt;
-  left: 4pt;
-  font-size: 12pt;
+/* Info */
+.info {
+  width: 240pt;
+  height: 44pt;
+  font-size: 10pt;
+  line-height: 12pt;
+  vertical-align: bottom;
+  padding: 8pt;
+  text-align: center;
+}
+
+/* Shop */
+
+.shop {
+  padding-top: 12pt;
+  padding-bottom: 12pt;
+  width: 256pt;
+  overflow: hidden;
+}
+
+.shopItem {
+  display: flex;
+  align-items: center; /* Vertically centers the inner div */
+  justify-content: center; /* Optional: centers the inner div horizontally */
+  padding-bottom: 8pt;
+}
+
+.shopItem .shopEmoji {
+  cursor: pointer;
+}
+
+.description {
+  padding-left: 8pt;
+  font-size: 10pt;
+  width: 180pt;
+}
+
+.shopEmoji {
+  width: 24pt;
+  font-size: 20pt;
+}
+
+.description {
+  padding-left: 4pt;
+  font-size: 10pt;
+  width: 180pt;
+}
+
+.cost {
+  padding-left: 2pt;
+  text-align: right;
+  width: 36pt;
+  font-size: 10pt;
+}
+
+.refreshDescription {
+  text-align: right;
+}
+
+.buy {
+  z-index: 1;
+  margin-left: auto;
+  padding-left: 4pt;
+}
+
+/* Action Bar */
+
+.action-bar {
+  width: 100%;
+  font-size: 20pt;
+}
+
+/* Inventory */
+.footer {
+  position: fixed;
+  left: 0pt;
+  bottom: 0pt;
+  flex-direction: column !important;
+  letter-spacing: 2pt;
+  padding-top: 4pt;
+  padding-left: 4pt;
+  padding-bottom: 4pt;
+}
+
+.inventory {
+  width: 100%;
+  font-size: 16pt;
+  pointer-events: none;
+}
+
+.inventoryEntry {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding-right: 2pt;
+}
+
+.inventoryEntryCount {
+  font-size: 10pt;
+  letter-spacing: 0pt;
+  padding-right: 2pt;
 }
 
 /* Score */
 .scoreContainer {
+  pointer-events: none;
+  cursor: pointer;
+
   position: fixed;
-  /* Keep the container fixed relative to the viewport */
-  top: 0;
+  top: 24pt;
   left: 0;
   width: 100vw;
-  /* Full viewport width */
-  height: 100vh;
-  /* Full viewport height */
   display: flex;
-  /* Flexbox for centering */
   justify-content: center;
-  /* Horizontal centering */
   align-items: center;
-  /* Vertical centering */
+  text-align: center;
 }
 
 .score {
@@ -414,16 +406,6 @@ body {
   justify-content: flex-end;
 }
 
-/* Misc */
-
-.hidden {
-  display: none;
-}
-
-.dev-hidden {
-  display: none;
-}
-
 /* Animations */
 
 @keyframes blurStart {
@@ -451,6 +433,16 @@ body {
 
   100% {
     transform: translateY(0pt);
+  }
+}
+
+@keyframes scoreOut {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-100vh);
   }
 }
 
@@ -615,4 +607,46 @@ body {
     opacity: 0;
     transform: translateY(16pt);
   }
+}
+
+/* Misc */
+
+button {
+  font-size: 20pt;
+  padding: 0;
+  margin: 0;
+  width: 32pt;
+  height: 32pt;
+  text-align: center;
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.blur {
+  height: 100%;
+  /* filter: blur(6px); */
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  font-size: 22pt;
+}
+
+.hidden {
+  display: none;
+}
+
+.dev-hidden {
+  display: none;
 }

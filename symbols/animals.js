@@ -1,11 +1,12 @@
-import { chance, Symb } from '../symbol.js';
 import * as Util from '../util.js';
+import * as Const from '../consts.js';
 
+import { chance, Symb } from '../symbol.js';
 import { CATEGORY_FOOD } from './food.js';
 
-export const CATEGORY_ANIMAL = Symbol('Animal');
-
 // This file is for animal-related symbols.
+
+export const CATEGORY_ANIMAL = Symbol('Animal');
 
 export class Chick extends Symb {
   static emoji = '🐣';
