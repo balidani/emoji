@@ -100,7 +100,7 @@ export class CasinoPackage extends Symb {
     game.enabledPackages.add(Const.PACK_CASINO);
   }
   description() {
-    return 'casino bundle. contains 🐉 🎰 🎲.';
+    return 'casino bundle. contains 🐉 🎰 🎲 🎯';
   }
 }
 
@@ -146,7 +146,7 @@ export class LuckPackage extends Symb {
     game.enabledPackages.add(Const.PACK_LUCK);
   }
   description() {
-    return 'lucky bundle. contains 🍀 🔮 🥠 🎯.';
+    return 'lucky bundle. contains 🍀 🔮 🥠';
   }
 }
 
