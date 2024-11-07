@@ -18,6 +18,7 @@ export class Game {
     this.rolling = false;
     this.info = document.querySelector('.game .info');
     this.progression.updateUi();
+    this.isOver = false;
     if (settings.textLookup['greeting'] !== undefined) {
       Util.drawText(
         this.info,
@@ -29,6 +30,7 @@ export class Game {
     grid.addEventListener('click', () => this.roll());
   }
   async over() {
+    this.isOver = true;
     document.querySelector('.game .grid').disabled = true;
     await this.board.finalScore(this);
     
@@ -51,9 +53,13 @@ export class Game {
     document.querySelector('.game').appendChild(scoreContainer);
     await Util.animate(scoreDiv, 'scoreIn', 0.65);
 
+    // TODO: Remove loadListener and reset the board without having to recreate `Game`.
     document.querySelector('body').addEventListener('click', loadListener);
   }
   async roll() {
+    if (this.isOver) {
+      return;
+    }
     if (this.rolling) {
       Util.animationOff();
       return;

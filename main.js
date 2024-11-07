@@ -41,6 +41,11 @@ export const loadSettings = async (settings = GameSettings.instance()) => {
 };
 
 export const loadListener = async (_) => {
+  const scoreContainer = document.querySelector('.game .scoreContainer');
+  const scoreDiv = document.querySelector('.game .scoreContainer .score');
+  await Util.animate(scoreDiv, 'scoreOut', 0.65);
+  document.querySelector('.game').removeChild(scoreContainer);
+
   document.querySelector('body').removeEventListener('click', loadListener);
   loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
 };
