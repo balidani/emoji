@@ -2,16 +2,7 @@ import * as Utils from './util.js';
 
 import { loadSettings } from './main.js';
 
-const ALL_TESTED_SYMBOL_FILES = [
-  './symbols/advanced.js',
-  './symbols/animals.js',
-  './symbols/food.js',
-  './symbols/money.js',
-  './symbols/music.js',
-  './symbols/rocks.js',
-  './symbols/things.js',
-  './symbols/ui.js',
-];
+const ALL_TESTED_SYMBOL_FILES = ['./symbols/rocks.js'];
 
 export class GameSettings {
   static settings = null;
@@ -44,10 +35,12 @@ export class GameSettings {
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
-    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
-    this.initiallyLockedCells = initiallyLockedCells || {
-      // '2,2': { emoji: '🕹️', duration: -1 },
-    };
+    this.startingSet = startingSetString || '🪨🪨🪨';
+    this.initiallyLockedCells =
+      initiallyLockedCells ||
+      {
+        // '2,2': { emoji: '🕹️', duration: -1 },
+      };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
       50000: '👑',
@@ -57,13 +50,8 @@ export class GameSettings {
       10000: '🥉',
     };
     this.textLookup = textLookup || {
-      greeting:
-        '💬: welcome to emoji slots. press anywhere on the board above when you are ready to play (🕹️)',
+      greeting: '💬: press ▶️',
       50: '💬: now you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again',
-      49: '💬: if you want to find out more about an emoji, tap on it. for example, try tapping here: 🌋',
-      48: '💬: you have 47 turns left. earn 💵 to get a trophy: 🥉, 🥈, 🥇, 🏆, 👑',
-      47: '💬: you can double tap the grid to skip animation',
-      46: '💬: you can tap on any symbol in the shop and in your inventory to get more information',
     };
   }
 

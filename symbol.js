@@ -7,27 +7,6 @@ import * as Util from './util.js';
 export const CATEGORY_EMPTY_SPACE = Symbol('Empty Space');
 export const CATEGORY_UNBUYABLE = Symbol('Unbuyable');
 
-export const chance = (game, percent, x, y) => {
-  let luckyChance = 0;
-  if (game.board.nextToSymbol(x, y, '🎯').length > 0) {
-    luckyChance = 1.0;
-  } else {
-    luckyChance = percent + game.inventory.getResource(Const.LUCK) / 100.0;
-  }
-  return Math.random() < luckyChance;
-};
-
-// Used for negative effects.
-export const badChance = (game, percent, x, y) => {
-  let badLuckChance = 0;
-  if (game.board.nextToSymbol(x, y, '🎯').length > 0) {
-    badLuckChance = 0.0;
-  } else {
-    badLuckChance = percent - game.inventory.getResource(Const.LUCK) / 100.0;
-  }
-  return Math.random() < badLuckChance;
-};
-
 export class Symb {
   static emoji = '⬛';
   constructor() {
@@ -56,24 +35,7 @@ export class Symb {
     return this.description();
   }
   async addResource(game, key, value) {
-    await Promise.all([
-      game.board.showResourceEarned(key, value),
-      game.inventory.addResource(key, value),
-    ]);
-  }
-  async addMoney(game, score, x, y) {
-    const value = score * this.multiplier;
-    const coords = game.board.nextToSymbol(x, y, Const.MULT);
-    for (const coord of coords) {
-      const [multX, multY] = coord;
-      await Util.animate(
-        game.board.getSymbolDiv(multX, multY),
-        'flip',
-        0.15,
-        1
-      );
-    }
-    await this.addResource(game, Const.MONEY, value);
+    await Promise.all([game.inventory.addResource(key, value)]);
   }
   emoji() {
     return this.constructor.emoji;

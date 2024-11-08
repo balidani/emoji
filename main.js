@@ -2,7 +2,6 @@ import * as Const from './consts.js';
 import * as Util from './util.js';
 import { GameSettings } from './game_settings.js';
 import { Catalog } from './catalog.js';
-import { Board } from './board.js';
 import { Inventory } from './inventory.js';
 import { Shop } from './shop.js';
 import { Game } from './game.js';
@@ -62,17 +61,13 @@ window.game = game;
 
 ///// TEST RELATED CODE BELOW //////
 
-class SimBoard extends Board {
-  redrawCell(_, __, ___) {}
-}
-
 class AutoGame {
   constructor(settings, catalog, buyAlways, buyOnce, buyRandom) {
     this.settings = settings;
     this.catalog = catalog;
     this.inventory = new Inventory(settings, this.catalog);
     this.inventory.update();
-    this.board = new SimBoard(this);
+    // this.board = new SimBoard(this);
     this.shop = new Shop(this.catalog);
     this.totalTurns = 0;
     this.buyAlways = new Set(buyAlways);
@@ -82,105 +77,9 @@ class AutoGame {
   }
   async over() {
     this.isOver = true;
-    await this.board.finalScore(this);
+    // await this.board.finalScore(this);
   }
-  async roll() {
-    if (this.isOver) {
-      return;
-    }
-    if (this.inventory.getResource(Const.TURNS) > 0) {
-      await this.inventory.addResource(Const.TURNS, -1);
-      this.inventory.symbols.forEach((s) => s.reset());
-      await this.shop.close(this);
-      await this.board.roll(this);
-      await this.board.evaluate(this);
-      await this.board.score(this);
-      await this.shop.open(this);
-      this.inventory.resetLuck();
-    } else {
-      await this.over();
-      return;
-    }
-
-    if (this.buyRandom) {
-      Array.from(document.getElementsByClassName('buyButton'))[
-        Util.random(3)
-      ].click();
-    } else {
-      // Choose item to buy
-      if (this.inventory.symbols.length < this.symbolLimit) {
-        const tryOnce = () => {
-          const buttons = Array.from(
-            document.getElementsByClassName('buyButton')
-          );
-          let bought = false;
-          const tryBuy = (sym) => {
-            for (const button of buttons) {
-              if (button.disabled) {
-                return true;
-              }
-              if (
-                button.parentElement.parentElement.children[0].innerText ===
-                sym.emoji()
-              ) {
-                button.click();
-                button.disabled = true;
-                return true;
-              }
-            }
-            return false;
-          };
-          for (let i = 0; i < this.buyOnce.length; ++i) {
-            bought |= tryBuy(this.buyOnce[i]);
-            if (bought) {
-              this.buyOnce.splice(i, 1);
-              return true;
-            }
-          }
-          for (const sym of this.buyAlways) {
-            bought |= tryBuy(sym);
-            if (bought) {
-              return true;
-            }
-          }
-          return false;
-        };
-        let buys = this.shop.buyCount;
-        while (buys >= 1) {
-          if (tryOnce()) {
-            buys--;
-          } else {
-            if (this.inventory.getResource(Const.TURNS) <= 10) {
-              // No more refresh.
-              break;
-            }
-            const buttons = Array.from(
-              document.getElementsByClassName('buyButton')
-            );
-            const refreshButton = buttons.splice(3, 1)[0];
-            if (refreshButton !== undefined && !refreshButton.disabled) {
-              if (
-                (this.shop.refreshCost >=
-                  this.inventory.getResource(Const.MONEY) / 2) |
-                0
-              ) {
-                break;
-              }
-              await refreshButton.clickSim();
-            } else {
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    if (this.inventory.getResource(Const.TURNS) <= 0) {
-      await this.over();
-    } else {
-      this.totalTurns++;
-    }
-  }
+  async roll() {}
   async simulate() {
     for (let i = 0; i < 200 && !this.isOver; ++i) {
       await this.roll();

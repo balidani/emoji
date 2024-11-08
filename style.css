@@ -175,10 +175,10 @@ body {
 }
 
 /* Inventory */
-.footer {
+.header {
   position: fixed;
   left: 0pt;
-  bottom: 0pt;
+  top: 0pt;
   flex-direction: column !important;
   letter-spacing: 2pt;
   padding-top: 4pt;

@@ -73,13 +73,10 @@ export class Shop {
     return shopItemDiv;
   }
   makeCatalog(game) {
-    const rareOnly =
-      (game.inventory.getResource(Const.TURNS) ===
-        game.settings.gameLength - 1) && this.firstTurnRare;
     return this.catalog.generateShop(
       3,
       this.getInventory(game).getResource(Const.LUCK),
-      /* rareOnly= */ rareOnly
+      /* rareOnly= */ false
     );
   }
   getInventory(game) {
@@ -113,12 +110,6 @@ export class Shop {
           }
           if (this.buyCount > 0 && canBuy) {
             this.buyCount--;
-            for (const [key, value] of Object.entries(symbolCost)) {
-              await Promise.all([
-                game.board.showResourceEarned(key, -value),
-                this.getInventory(game).addResource(key, -value),
-              ]);
-            }
             this.getInventory(game).add(symbol);
             symbol.onBuy(game);
           } else if (!canBuy) {
@@ -159,16 +150,10 @@ export class Shop {
             this.getInventory(game).getResource(this.refreshCostResource) >=
             this.refreshCost
           ) {
-            await Promise.all([
-              game.board.showResourceEarned(
-                this.refreshCostResource,
-                -this.refreshCost
-              ),
-              this.getInventory(game).addResource(
-                this.refreshCostResource,
-                -this.refreshCost
-              ),
-            ]);
+            await this.getInventory(game).addResource(
+              this.refreshCostResource,
+              -this.refreshCost
+            );
             this.refreshCost += this.refreshCostIncrease;
             this.refreshCost *= this.refreshCostMult;
             this.isOpen = false;
