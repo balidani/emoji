@@ -10,7 +10,7 @@ export class Game {
     this.progression = progression;
     this.settings = settings;
     this.catalog = catalog;
-    this.inventory = new Inventory(this.settings, this.catalog);
+    this.inventory = new Inventory(this);
     this.inventory.update();
     this.shop = new Shop(this.catalog);
     this.rolling = false;

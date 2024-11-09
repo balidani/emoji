@@ -2,7 +2,7 @@ import * as Utils from './util.js';
 
 import { loadSettings } from './main.js';
 
-const ALL_TESTED_SYMBOL_FILES = ['./symbols/rocks.js'];
+const ALL_TESTED_SYMBOL_FILES = ['./symbols/game.js', './symbols/ui.js'];
 
 export class GameSettings {
   static settings = null;

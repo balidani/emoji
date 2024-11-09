@@ -72,4 +72,5 @@ export class Symb {
     return () =>
       Util.drawText(game.info, interactiveDescription, /*isHtml=*/ true);
   }
+  onClick(_) {}
 }

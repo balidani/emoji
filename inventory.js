@@ -2,10 +2,11 @@ import * as Const from './consts.js';
 import * as Util from './util.js';
 
 export class Inventory {
-  constructor(settings, catalog) {
-    this.settings = settings;
-    this.catalog = catalog;
-    this.symbols = catalog.symbolsFromString(settings.startingSet);
+  constructor(game) {
+    this.game = game;
+    this.settings = game.settings;
+    this.catalog = game.catalog;
+    this.symbols = this.catalog.symbolsFromString(this.settings.startingSet);
     this.symbolsDiv = document.querySelector('.game .inventory');
     this.infoDiv = document.querySelector('.info');
 
@@ -14,12 +15,13 @@ export class Inventory {
     this.resources[Const.TURNS] = 0;
     this.graveyard = [];
   }
-  update() {
+  async update() {
     this.symbolsDiv.replaceChildren();
 
-    const displayKeyValue = (key, value) => {
+    const displayKeyValue = async (key, value) => {
       const symbolDiv = Util.createDiv(key, 'inventoryEntry');
-      symbolDiv.addEventListener('click', (_) => {
+      symbolDiv.addEventListener('click', async (_) => {
+        // await this.game.catalog.symbol(key).onClick(this.game);
         const interactiveDescription = Util.createInteractiveDescription(
           this.catalog.symbol(key).descriptionLong(),
           /*emoji=*/ key
@@ -31,7 +33,7 @@ export class Inventory {
       this.symbolsDiv.appendChild(symbolDiv);
     };
     for (const [key, value] of Object.entries(this.resources)) {
-      displayKeyValue(key, value);
+      await displayKeyValue(key, value);
     }
 
     const map = new Map();
@@ -47,12 +49,13 @@ export class Inventory {
     });
     map.forEach(({ count, description }, name) => {
       const symbolDiv = Util.createDiv(name, 'inventoryEntry');
-      symbolDiv.addEventListener('click', (_) => {
+      symbolDiv.addEventListener('click', async (_) => {
         const interactiveDescription = Util.createInteractiveDescription(
           description,
           /*emoji=*/ name
         );
         Util.drawText(this.infoDiv, interactiveDescription, true);
+        // await this.getOwned(name).onClick(this.game);
       });
       const countDiv = Util.createDiv(count, 'inventoryEntryCount');
       symbolDiv.appendChild(countDiv);
@@ -90,5 +93,13 @@ export class Inventory {
       return Const.EMPTY;
     }
     return Util.randomChoose(this.symbols).emoji();
+  }
+  getOwned(emoji) {
+    if (this.symbols.length === 0) {
+      return Const.EMPTY;
+    }
+    return Util.randomChoose(
+      this.symbols.filter((symbol) => symbol.emoji() === emoji)
+    );
   }
 }

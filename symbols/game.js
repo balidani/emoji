@@ -28,6 +28,20 @@ export class Rice extends Symb {
   }
 }
 
+export class Meat extends Symb {
+  static emoji = '🍗';
+  constructor() {
+    super();
+    this.rarity = 1.0;
+  }
+  copy() {
+    return new Meat();
+  }
+  description() {
+    return 'chicken meat';
+  }
+}
+
 export class Chicken extends Symb {
   static emoji = '🐔';
   constructor() {
@@ -41,11 +55,7 @@ export class Chicken extends Symb {
     return 'chicken';
   }
   async evaluateConsume(game) {
-    await game.inventory.addSymbols(game, '🍗', 2);
-  }
-  async evaluateProduce(game) {
-    if (this.turns % 8 === 0) {
-      await this.addResource(game, '🥚', 1);
-    }
+    await game.inventory.add(game.catalog.symbol('🍗'));
+    await game.inventory.add(game.catalog.symbol('🍗'));
   }
 }

@@ -65,7 +65,7 @@ class AutoGame {
   constructor(settings, catalog, buyAlways, buyOnce, buyRandom) {
     this.settings = settings;
     this.catalog = catalog;
-    this.inventory = new Inventory(settings, this.catalog);
+    this.inventory = new Inventory(this);
     this.inventory.update();
     // this.board = new SimBoard(this);
     this.shop = new Shop(this.catalog);
