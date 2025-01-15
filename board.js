@@ -163,7 +163,10 @@ export class Board {
       Object.keys(this.lockedCells).length;
     for (let i = 0; i < numCellsToBeFilled; ++i) {
       if (symbols.length === 0) {
-        break;
+        // Make replaying the same seed a bit easier.
+        Util.randomRemove([0]);
+        Util.randomRemove([0]);
+        continue;
       }
       const symbol = Util.randomRemove(symbols);
       if (lockedSet.has(symbol)) {

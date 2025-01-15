@@ -48,8 +48,11 @@ if (seedPhrase) {
   await setRandomSeed();
 }
 
-export const randomFloat = sfc32Instance;
-export const random = (lim) => (randomFloat() * lim) | 0;
+export const randomFloat = (lim) => {
+  console.log('randomed', lim);
+  return sfc32Instance();
+};
+export const random = (lim) => (randomFloat(lim) * lim) | 0;
 export const randomChoose = (arr) => arr[random(arr.length)];
 export const randomRemove = (arr) => arr.splice(random(arr.length), 1)[0];
 export const delay = (ms) => {
