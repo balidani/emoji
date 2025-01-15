@@ -100,7 +100,7 @@ export class Board {
     this.cells[y][x] = this.empty.copy();
   }
   async spinDiv(game, x, y, symbol) {
-    await Util.delay(Util.random(600));
+    await Util.delay(Math.random() * 600 | 0);
     const cellDiv = this.getCellDiv(x, y);
 
     // Rolling animation portion
