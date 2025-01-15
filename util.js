@@ -8,7 +8,48 @@ export const animationOff = () => {
 export const animationOn = () => {
   ANIMATION = true;
 };
-export const random = (lim) => (Math.random() * lim) | 0;
+
+const sfc32 = (a, b, c, d) => {
+  return function() {
+    a |= 0; b |= 0; c |= 0; d |= 0;
+    let t = (a + b | 0) + d | 0;
+    d = d + 1 | 0;
+    a = b ^ b >>> 9;
+    b = c + (c << 3) | 0;
+    c = (c << 21 | c >>> 11);
+    c = c + t | 0;
+    return (t >>> 0) / 4294967296;
+  }
+};
+let sfc32Instance = null;
+const setSeed = async () => {
+  const sha1 = (str) => {
+    const buffer = new TextEncoder().encode(str);
+    return crypto.subtle.digest("SHA-1", buffer);
+  };
+  const convertSeed = async (seedPhrase) => {
+    const buf = await sha1(seedPhrase);
+    const arr = new Uint32Array(buf);
+    sfc32Instance = sfc32(...arr);
+  }
+  await convertSeed(seedPhrase);
+};
+export const setRandomSeed = async () => {
+  seedPhrase = Array.from({ length: 8 }, () =>
+      String.fromCharCode(97 + Math.floor(Math.random() * 26))
+  ).join('');
+  // window.location.hash = seedPhrase;
+  await setSeed();
+};
+let seedPhrase = window.location.hash.substr(1);
+if (seedPhrase) {
+  await setSeed();
+} else {
+  await setRandomSeed();
+}
+
+export const randomFloat = sfc32Instance;
+export const random = (lim) => (randomFloat() * lim) | 0;
 export const randomChoose = (arr) => arr[random(arr.length)];
 export const randomRemove = (arr) => arr.splice(random(arr.length), 1)[0];
 export const delay = (ms) => {

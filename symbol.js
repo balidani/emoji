@@ -14,7 +14,7 @@ export const chance = (game, percent, x, y) => {
   } else {
     luckyChance = percent + game.inventory.getResource(Const.LUCK) / 100.0;
   }
-  return Math.random() < luckyChance;
+  return Util.randomFloat() < luckyChance;
 };
 
 // Used for negative effects.
@@ -25,7 +25,7 @@ export const badChance = (game, percent, x, y) => {
   } else {
     badLuckChance = percent - game.inventory.getResource(Const.LUCK) / 100.0;
   }
-  return Math.random() < badLuckChance;
+  return Util.randomFloat() < badLuckChance;
 };
 
 export class Symb {
