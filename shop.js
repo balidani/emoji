@@ -96,7 +96,7 @@ export class Shop {
       if (catalog.length === 0) {
         break;
       }
-      const symbol = Util.randomRemove(catalog);
+      const symbol = Util.randomRemove(catalog, /* shop= */ true);
       // Support for dynamically generated cost -- report the same value that is subtracted later.
       const symbolCost = symbol.cost();
       const shopItemDiv = this.makeShopItem(

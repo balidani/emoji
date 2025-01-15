@@ -22,39 +22,47 @@ const sfc32 = (a, b, c, d) => {
   }
 };
 let sfc32Instance = null;
-const setSeed = async () => {
+let sfc32ShopInstance = null;
+const setSeed = async (phrase) => {
   const sha1 = (str) => {
     const buffer = new TextEncoder().encode(str);
     return crypto.subtle.digest("SHA-1", buffer);
   };
-  const convertSeed = async (seedPhrase) => {
-    const buf = await sha1(seedPhrase);
+  const convertSeed = async (phrase, shop=false) => {
+    const buf = await sha1(phrase);
     const arr = new Uint32Array(buf);
-    sfc32Instance = sfc32(...arr);
+    if (shop) {
+      sfc32ShopInstance = sfc32(...arr);
+    } else {
+      sfc32Instance = sfc32(...arr);
+    }
   }
-  await convertSeed(seedPhrase);
+  await convertSeed(phrase);
+  await convertSeed(phrase + 'shop', /* shop= */ true);
 };
 export const setRandomSeed = async () => {
   seedPhrase = Array.from({ length: 8 }, () =>
       String.fromCharCode(97 + Math.floor(Math.random() * 26))
   ).join('');
   // window.location.hash = seedPhrase;
-  await setSeed();
+  await setSeed(seedPhrase);
 };
 let seedPhrase = window.location.hash.substr(1);
 if (seedPhrase) {
-  await setSeed();
+  await setSeed(seedPhrase);
 } else {
   await setRandomSeed();
 }
 
-export const randomFloat = (lim) => {
-  console.log('randomed', lim);
+export const randomFloat = (shop=false) => {
+  if (shop) {
+    return sfc32ShopInstance();
+  }
   return sfc32Instance();
 };
-export const random = (lim) => (randomFloat(lim) * lim) | 0;
-export const randomChoose = (arr) => arr[random(arr.length)];
-export const randomRemove = (arr) => arr.splice(random(arr.length), 1)[0];
+export const random = (lim, shop=false) => (randomFloat(shop) * lim) | 0;
+export const randomChoose = (arr, shop=false) => arr[random(arr.length, shop)];
+export const randomRemove = (arr, shop=false) => arr.splice(random(arr.length, shop), 1)[0];
 export const delay = (ms) => {
   if (!ANIMATION) {
     return Promise.resolve();
