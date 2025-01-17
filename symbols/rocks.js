@@ -50,7 +50,7 @@ export class Rock extends Symb {
     return '💵1';
   }
   descriptionLong() {
-    return "this is a rock. it pays 💵1. i'm not sure what you expected.";
+    return "this is a rock. it pays 💵1.";
   }
 }
 
