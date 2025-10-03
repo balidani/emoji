@@ -78,7 +78,7 @@ export class Multiplier extends Symb {
 }
 
 export class Refresh extends Symb {
-  static emoji = '🔀';
+  static emoji = '♾️';
   constructor() {
     super();
     this.rarity = 0.05;
