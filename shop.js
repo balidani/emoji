@@ -115,7 +115,7 @@ export class Shop {
             this.buyCount--;
             for (const [key, value] of Object.entries(symbolCost)) {
               await Promise.all([
-                game.board.showResourceEarned(key, -value),
+                game.board.showResourceEarned(key, -value, Const.SHOPPING_CART),
                 this.getInventory(game).addResource(key, -value),
               ]);
             }
@@ -162,7 +162,8 @@ export class Shop {
             await Promise.all([
               game.board.showResourceEarned(
                 this.refreshCostResource,
-                -this.refreshCost
+                -this.refreshCost,
+                Const.REFRESH
               ),
               this.getInventory(game).addResource(
                 this.refreshCostResource,

@@ -5,3 +5,4 @@ export const MULT = '❎';
 export const REFRESH = '🔀';
 export const BUY = '✅';
 export const EMPTY = '⬜';
+export const SHOPPING_CART = '🛒';

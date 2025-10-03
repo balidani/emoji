@@ -55,14 +55,15 @@ export class Symb {
   descriptionLong() {
     return this.description();
   }
-  async addResource(game, key, value) {
+  async addResource(game, key, value, source='❓') {
     await Promise.all([
-      game.board.showResourceEarned(key, value),
+      game.board.showResourceEarned(key, value, source),
       game.inventory.addResource(key, value),
     ]);
   }
   async addMoney(game, score, x, y) {
     const value = score * this.multiplier;
+    const source = game.board.getEmoji(x, y);
     const coords = game.board.nextToSymbol(x, y, Const.MULT);
     for (const coord of coords) {
       const [multX, multY] = coord;
@@ -73,7 +74,7 @@ export class Symb {
         1
       );
     }
-    await this.addResource(game, Const.MONEY, value);
+    await this.addResource(game, Const.MONEY, value, source);
   }
   emoji() {
     return this.constructor.emoji;

@@ -38,6 +38,29 @@ body {
   font-size: 12pt;
 }
 
+.event-log {
+  position: fixed;
+  top: 24pt;
+  left: 0pt;
+  width: 300pt;
+  padding-top: 4pt;
+  padding-left: 4pt;
+  font-size: 10pt;
+  pointer-events: none; /* Allow clicks to pass through */
+  
+}
+
+.fade-text {
+  /* The magic */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+}
+
 /* Grid */
 
 .grid {

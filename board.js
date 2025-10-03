@@ -8,6 +8,7 @@ export class Board {
     this.settings = game.settings;
     this.catalog = game.catalog;
     this.cells = [];
+    this.logLines = 0;
 
     // Create lockedCells from the settings and the inventory.
     this.lockedCells = [];
@@ -85,12 +86,23 @@ export class Board {
   getCounterDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[1];
   }
-  async showResourceEarned(key, value) {
-    const moneyDiv = Util.createDiv('', 'moneyEarned');
-    moneyDiv.innerText = `${key}${value}`;
-    this.gridDiv.appendChild(moneyDiv);
-    await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.3);
-    this.gridDiv.removeChild(moneyDiv);
+  async showResourceEarned(key, value, source='❓') {
+    const text = `${source}→${key}${value}`;
+    const logLines = document.getElementsByClassName('event-log')[0];
+    logLines.innerHTML = `${text}<br>${logLines.innerHTML}`;
+    this.logLines++;
+    if (this.logLines > 20) {
+      logLines.innerHTML = logLines.innerHTML
+        .split('<br>')
+        .slice(0, 20)
+        .join('<br>');
+      this.logLines = 20;
+    }
+    // const moneyDiv = Util.createDiv('', 'moneyEarned');
+    // moneyDiv.innerText = text;
+    // this.gridDiv.appendChild(moneyDiv);
+    // await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.3);
+    // this.gridDiv.removeChild(moneyDiv);
   }
   clearCell(x, y) {
     const counterDiv = this.getCounterDiv(x, y);
@@ -315,6 +327,10 @@ export class Board {
       }
     });
     return coords;
+  }
+
+  getEmoji(x, y) {
+    return this.cells[y][x].emoji();
   }
 
   nextToExpr(x, y, expr) {
