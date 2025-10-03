@@ -44,17 +44,17 @@ export class GameSettings {
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
-    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀';
+    this.startingSet = startingSetString || '🍒🍒🍒🪙🍀🔀';
     this.initiallyLockedCells = initiallyLockedCells || {
       // '2,2': { emoji: '🕹️', duration: -1 },
     };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
-      50000: '👑',
-      25000: '🏆',
+      100000: '👑',
+      50000: '🏆',
       20000: '🥇',
-      15000: '🥈',
-      10000: '🥉',
+      10000: '🥈',
+      5000: '🥉',
     };
     this.textLookup = textLookup || {
       greeting:

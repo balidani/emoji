@@ -46,6 +46,7 @@ export const setRandomSeed = async () => {
   ).join('');
   // window.location.hash = seedPhrase;
   await setSeed(seedPhrase);
+  return seedPhrase;
 };
 let seedPhrase = window.location.hash.substr(1);
 if (seedPhrase) {

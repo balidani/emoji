@@ -12,8 +12,8 @@ export class Shop {
     this.haveRefreshSymbol = false;
     this.buyCount = 1;
     this.refreshCostResource = Const.MONEY;
-    this.refreshCostIncrease = 0;
-    this.refreshCostMult = 2;
+    this.refreshCostIncrease = 1;
+    this.refreshCostMult = 1.5;
     this.refreshCostInitialMult = 0.01;
     this.firstTurnRare = false;
   }
@@ -170,7 +170,7 @@ export class Shop {
               ),
             ]);
             this.refreshCost += this.refreshCostIncrease;
-            this.refreshCost *= this.refreshCostMult;
+            this.refreshCost = this.refreshCost * this.refreshCostMult | 0;
             this.isOpen = false;
             await this.open(game);
           }

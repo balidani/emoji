@@ -188,7 +188,7 @@ class AutoGame {
   }
 }
 
-window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
+window.simulate = async (buyAlways, buyOnce, rounds = 100, buyRandom = false) => {
   // console.log('strategy', buyAlways, buyOnce);
   const template = document.querySelector('.template');
   const gameDiv = document.querySelector('.game');
@@ -198,8 +198,8 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
   gameDiv.appendChild(templateClone.children[0]);
 
   const scores = [];
+  let over5k = 0;
   let over10k = 0;
-  let over15k = 0;
   let over20k = 0;
   let lastMax = 0;
   let lastAvg = 0;
@@ -226,11 +226,11 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
     if (game.totalTurns === 200) {
       console.log('inf!');
     }
+    if (score > 5000) {
+      over5k++;
+    }
     if (score > 10000) {
       over10k++;
-    }
-    if (score > 15000) {
-      over15k++;
     }
     if (score > 20000) {
       over20k++;
@@ -238,9 +238,83 @@ window.simulate = async (buyAlways, buyOnce, rounds = 1, buyRandom = false) => {
     lastMax = max;
     lastAvg = avg;
   }
-  console.log(over10k, over15k, over20k, lastMax, lastAvg);
+  console.log(over5k, over10k, over20k, lastMax, lastAvg);
 };
 
-// const simulate = window.simulate;
-// Util.toggleAnimation();
-// await simulate('', '', 100, true);
+const simulate = window.simulate;
+Util.toggleAnimation();
+
+// await simulate(/*buyAlways=*/'❎🪙', /*buyOnce=*/'🐛💰🔮🪄🏦🏦🏦');
+// await simulate(/*buyAlways=*/'❎💎🪨', /*buyOnce=*/'🐛👷🌋🔮🪄🎯');
+// await simulate(/*buyAlways=*/'🍾❎', /*buyOnce=*/'🍹🔮🔮🧊🧊🧊🍍🍍🍍🌳🌳');
+// await simulate(/*buyAlways=*/'❎🐉🎲', /*buyOnce=*/'🐛🪄🪄🎯🎯🔮🔮');
+// await simulate(/*buyAlways=*/'❎', /*buyOnce=*/'📀🐛🎯🪄🔮🔮🥁🥁🔔🔔🚀');
+// await simulate(/*buyAlways=*/'❎💳🕳️🪄', /*buyOnce=*/'🐛🎯🎯🎯🔮🔮🔮');
+// await simulate(/*buyAlways=*/'❎🥚🐉🦊', /*buyOnce=*/'🐛🪄🎯🎯🎯🔮🔮');
+// await simulate(/*buyAlways=*/'❎💼🕳️🪄🎯🔮', /*buyOnce=*/'🐛🐉🐉🐉');
+// await simulate(/*buyAlways=*/'❎🌝🚀', /*buyOnce=*/'🐛🔮🪄🎯');
+// await simulate(/*buyAlways=*/'❎🧈🍿🌽', /*buyOnce=*/'🐛🔮🔮🪄🧊🧊🧊🧊🎯🎯');
+
+// Find seed
+
+// let bestPhrase = '';
+// let bestScore = 0;
+// const settings = GameSettings.instance();
+// const catalog = new Catalog(settings.symbolSources);
+// await catalog.updateSymbols();
+// for (let k = 0; k < 1000000; ++k) {
+//   if (k % 100 === 0) console.log(k, bestPhrase, bestScore);
+//   const phrase = await Util.setRandomSeed();
+//   let hasRefresh = false;
+//   let hasCocktail = false;
+//   for (let t = 0; t < 4; ++t) {
+//     const selection = catalog.generateShop(3, 1, false);
+//     for (let i = 0; i < 3; ++i) {
+//       const sym = Util.randomRemove(selection, /* shop= */ true);
+//       if (sym.emoji() === '🔀') {
+//         hasRefresh = true;
+//       }
+//       if (sym.emoji() === '🍹') {
+//         hasCocktail = true;
+//       }
+//     }
+//   }
+//   if (hasRefresh && hasCocktail) {
+//     let score = 0;
+//     for (let t = 0; t < 20; ++t) {
+//       const selection = catalog.generateShop(3, 1, false);
+//       for (let i = 0; i < 3; ++i) {
+//         const sym = Util.randomRemove(selection, /* shop= */ true);
+//         if (sym.emoji() === '❎') {
+//           score += 1;
+//         }
+//         if (sym.emoji() === '🍍') {
+//           score += 1;
+//         }
+//       }
+//     }
+//     for (let t = 0; t < 300; ++t) {
+//       const selection = catalog.generateShop(3, 1, false);
+//       for (let i = 0; i < 3; ++i) {
+//         const sym = Util.randomRemove(selection, /* shop= */ true);
+//         if (sym.emoji() === '❎') {
+//           score += 1;
+//         }
+//         if (sym.emoji() === '🍾') {
+//           score += 2;
+//         }
+//       }
+//     }
+//     if (score > bestScore) {
+//       bestScore = score;
+//       bestPhrase = phrase;
+//     }
+//   }
+// }
+
+// console.log('found', bestPhrase, bestScore);
+
+// poxjtboi 64
+// qaabkxuc 70
+// wsztoddp 71
+// oomebzbp 77

@@ -87,7 +87,7 @@ export class Corn extends Symb {
     if (coords.length === 0) {
       return;
     }
-    if (chance(game, 0.1, x, y)) {
+    if (chance(game, 0.15, x, y)) {
       for (let i = 0; i < coords.length; ++i) {
         const [newX, newY] = coords[i];
         const popcorn = new Popcorn();
@@ -100,10 +100,10 @@ export class Corn extends Symb {
     return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
   }
   description() {
-    return '💵21<br>10% chance: pops 🍿';
+    return '💵21<br>15% chance: pops 🍿';
   }
   descriptionLong() {
-    return 'this is corn. it pays 💵21, and has a 10% chance to pop, making 🍿 on all empty space nearby.';
+    return 'this is corn. it pays 💵21, and has a 15% chance to pop, making 🍿 on all empty space nearby.';
   }
 }
 
@@ -174,7 +174,7 @@ export class Popcorn extends Symb {
   constructor() {
     super();
     this.rarity = 0;
-    this.timeToLive = 2 + Util.random(4);
+    this.timeToLive = 2 + Util.random(6);
   }
   copy() {
     return new Popcorn();
@@ -202,10 +202,10 @@ export class Popcorn extends Symb {
     return [CATEGORY_FOOD];
   }
   description() {
-    return '💵17<br>disappears after 2-5 turns';
+    return '💵17<br>disappears after 2-7 turns';
   }
   descriptionLong() {
-    return 'this is popcorn. it pays 💵17 and disappears after 2-5 turns.';
+    return 'this is popcorn. it pays 💵17 and disappears after 2-7 turns.';
   }
 }
 
@@ -271,16 +271,16 @@ export class Cocktail extends Symb {
     };
     await remove(Cherry, (v) => v + 2);
     await remove(Pineapple, (v) => v + 4);
-    await remove(Champagne, (v) => v * 2);
+    await remove(Champagne, (v) => (v * 1.5) | 0);
   }
   counter(_) {
     return this.cherryScore;
   }
   description() {
-    return '💵2 per 🍒 removed.<br>💵4 per 🍍 removed.<br>x2 per 🍾 removed.';
+    return '💵2 per 🍒 removed.<br>💵4 per 🍍 removed.<br>x1.5 per 🍾 removed.';
   }
   descriptionLong() {
-    return 'this is a cocktail. it permanently gives more 💵 by removing neighboring 🍒 (💵2), 🍍 (💵4) and 🍾 (x2).';
+    return 'this is a cocktail. it permanently gives more 💵 by removing neighboring 🍒 (💵2), 🍍 (💵4) and 🍾 (x1.5).';
   }
 }
 

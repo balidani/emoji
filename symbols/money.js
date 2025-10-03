@@ -125,7 +125,7 @@ export class CreditCard extends Symb {
     return '💵1000 now.<br>💵-1100 on last turn';
   }
   descriptionLong() {
-    return "this is a credit card. it pays 💵1000, but takes 💵1100 on your last turn. if it's not on the board on your last turn, however ...";
+    return "this is a credit card. it pays 💵1000, but takes 💵1100 when on board on your last turn.";
   }
 }
 
