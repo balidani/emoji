@@ -45,8 +45,15 @@ export class Game {
       }
     });
     const scoreContainer = Util.createDiv('', 'scoreContainer');
-    const scoreDiv = Util.createDiv('', 'score');
-    scoreDiv.innerHTML = `${trophy}<br>${Const.MONEY + this.inventory.getResource(Const.MONEY)}`;
+    const scoreDiv = Util.createDiv(trophy, 'score');
+    const scoreText = `${Const.MONEY + this.inventory.getResource(Const.MONEY)}`;
+    const scoreSubDiv = Util.createDiv('', 'finalScore');
+    const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+    const letters = [...segmenter.segment(scoreText)].map(x => x.segment);
+    scoreSubDiv.innerHTML = letters
+      .map((char, i) => `<span style="animation-delay:${i * 0.25}s">${char}</span>`)
+      .join('');
+    scoreDiv.appendChild(scoreSubDiv);
     scoreContainer.appendChild(scoreDiv);
 
     await this.board.clear(this);

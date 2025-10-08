@@ -255,6 +255,20 @@ body {
   font-weight: 900;
 }
 
+.finalScore span {
+  display: inline-block;
+  animation: wave 1.5s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(15pt);
+  }
+}
+
 .trophy {
   padding: 4pt;
   padding-bottom: 120pt;
