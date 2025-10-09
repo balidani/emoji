@@ -42,7 +42,9 @@ export class Symb {
   async evaluateProduce() {}
   async finalScore(_game, _x, _y) {}
   async score(_game, _x, _y) {}
-  onBuy(_) {}
+  async onBuy(game) {
+    game.inventory.add(this);
+  }
   cost() {
     return {};
   }

@@ -119,8 +119,7 @@ export class Shop {
                 this.getInventory(game).addResource(key, -value),
               ]);
             }
-            this.getInventory(game).add(symbol);
-            symbol.onBuy(game);
+            await symbol.onBuy(game);
           } else if (!canBuy) {
             // Disable button.
             // This is not the best solution, we should disable the button
@@ -190,6 +189,12 @@ export class Shop {
     await Util.animate(this.shopDiv, 'closeShop', 0.2);
     this.shopDiv.replaceChildren();
     this.isOpen = false;
+  }
+  hide() {
+    this.shopDiv.classList.add('hidden');
+  }
+  show() {
+    this.shopDiv.classList.remove('hidden');
   }
   reset(game) {
     this.haveRefreshSymbol = false;

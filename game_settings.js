@@ -10,6 +10,7 @@ const ALL_TESTED_SYMBOL_FILES = [
   './symbols/music.js',
   './symbols/rocks.js',
   './symbols/things.js',
+  './symbols/tools.js',
   './symbols/ui.js',
 ];
 

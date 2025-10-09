@@ -385,4 +385,52 @@ export class Board {
       category_symbols.includes(sym.emoji())
     );
   }
+
+  async getClickCoord(expr) {
+    return new Promise((resolve) => {
+      const onclick = (e) => {
+        const classes = e.target.parentElement.classList;
+        if (!classes.contains('cell')) {
+          return;
+        }
+        const [_, y, x] = classes
+          .toString()
+          .split(' ')
+          .find((c) => c.startsWith('cell-'))
+          .split('-')
+          .map(Number);
+        if (!expr(this.cells[y][x], x, y)) {
+          return;
+        }
+        document
+          .querySelectorAll('.cell')
+          .forEach((div) => div.removeEventListener('click', onclick));
+        resolve([x, y]);
+      };
+      document.querySelectorAll('.cell').forEach((div) => {
+        div.addEventListener('click', onclick);
+      });
+    });
+  }
+
+  pinCell(x, y) {
+    this.lockedCells[`${x},${y}`] = {
+      symbol: this.cells[y][x],
+      duration: -1,
+    };
+  }
+
+  addClickListener(game) {
+    if (!this.clickListener) {
+      this.clickListener = () => game.roll();
+    }
+    const grid = document.querySelector('.game .grid');
+    grid.addEventListener('click', this.clickListener);
+  }
+
+  removeClickListener() {
+    const grid = document.querySelector('.game .grid');
+    grid.removeEventListener('click', this.clickListener);
+  }
+
 }

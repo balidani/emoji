@@ -26,8 +26,7 @@ export class Game {
         /* isHtml= */ true
       );
     }
-    const grid = document.querySelector('.game .grid');
-    grid.addEventListener('click', () => this.roll());
+    this.board.addClickListener(this);
   }
   async over() {
     this.isOver = true;

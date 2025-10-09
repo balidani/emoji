@@ -19,7 +19,7 @@ export class Butter extends Symb {
     return new Butter();
   }
   async evaluateConsume(game, x, y) {
-    if (this.turns >= 5) {
+    if (this.turns >= 7) {
       await game.board.removeSymbol(game, x, y);
     }
   }
