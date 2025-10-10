@@ -44,7 +44,7 @@ export class GameSettings {
     this.name = name || 'Default Game Settings';
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
-    this.gameLength = gameLength || 5;
+    this.gameLength = gameLength || 50;
     this.startingSet = startingSetString || '🍒🍒🍒🪙🍀🔀';
     this.initiallyLockedCells = initiallyLockedCells || {
       // '2,2': { emoji: '🕹️', duration: -1 },
