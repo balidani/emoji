@@ -196,17 +196,13 @@ export class Board {
       }
     }
 
-    const numCellsToBeFilled =
-      game.settings.boardY * game.settings.boardX -
-      Object.keys(this.lockedCells).length;
+    const pool = [...game.inventory.symbols].filter(s => !lockedSet.has(s));
+    const numCellsToBeFilled = empties.length;
     for (let i = 0; i < numCellsToBeFilled; ++i) {
-      if (symbols.length === 0) {
+      if (pool.length === 0) {
         break;
       }
-      const symbol = Util.randomRemove(symbols);
-      if (lockedSet.has(symbol)) {
-        continue;
-      }
+      const symbol = Util.randomRemove(pool);
       const [x, y] = Util.randomRemove(empties);
       this.cells[y][x] = symbol;
     }
