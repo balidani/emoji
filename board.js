@@ -208,10 +208,11 @@ export class Board {
     await Promise.all(tasks);
   }
   async clear(game) {
+    this.lockedCells = [];
     for (let y = 0; y < game.settings.boardY; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
         this.cells[y][x] = this.empty.copy();
-        await Util.delay(100);
+        await Util.delay(80);
         this.spinDivOnce(game, x, y);
       }
     }
