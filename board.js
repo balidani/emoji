@@ -446,4 +446,8 @@ export class Board {
     grid.removeEventListener('click', this.clickListener);
   }
 
+  async makePassive(game, x, y) {
+    
+  }
+
 }

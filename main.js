@@ -188,7 +188,7 @@ class AutoGame {
   }
 }
 
-window.simulate = async (buyAlways, buyOnce, rounds = 100, buyRandom = false) => {
+window.simulate = async (buyAlways, buyOnce, rounds = 10, buyRandom = false) => {
   // console.log('strategy', buyAlways, buyOnce);
   const template = document.querySelector('.template');
   const gameDiv = document.querySelector('.game');

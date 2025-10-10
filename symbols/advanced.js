@@ -118,6 +118,26 @@ export class ShoppingBag extends Symb {
   }
 }
 
+export class PostBox extends Symb {
+  static emoji = '📮';
+  constructor() {
+    super();
+    this.rarity = 1.06;
+  }
+  copy() {
+    return new PostBox();
+  }
+  async evaluateProduce(game, _, __) {
+    game.shop.buyLines++;
+  }
+  description() {
+    return 'shop has 1 more item';
+  }
+  descriptionLong() {
+    return 'this is a post box. you get one more option to buy in the shop.';
+  }
+}
+
 export class Hole extends Symb {
   static emoji = '🕳️';
   constructor() {

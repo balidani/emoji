@@ -11,6 +11,7 @@ export class Shop {
     this.allowRefresh = true;
     this.haveRefreshSymbol = false;
     this.buyCount = 1;
+    this.buyLines = 3;
     this.refreshCostResource = Const.MONEY;
     this.refreshCostIncrease = 1;
     this.refreshCostMult = 1.5;
@@ -77,7 +78,7 @@ export class Shop {
       (game.inventory.getResource(Const.TURNS) ===
         game.settings.gameLength - 1) && this.firstTurnRare;
     return this.catalog.generateShop(
-      3,
+      this.buyLines,
       this.getInventory(game).getResource(Const.LUCK),
       /* rareOnly= */ rareOnly
     );
@@ -92,7 +93,7 @@ export class Shop {
     this.isOpen = true;
     this.shopDiv.replaceChildren();
     const catalog = this.makeCatalog(game);
-    for (let i = 0; i < 3; ++i) {
+    for (let i = 0; i < this.buyLines; ++i) {
       if (catalog.length === 0) {
         break;
       }
@@ -205,5 +206,6 @@ export class Shop {
       0;
     this.refreshCount = 0;
     this.buyCount = 1;
+    this.buyLines = 3;
   }
 }

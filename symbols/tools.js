@@ -53,7 +53,7 @@ export class Axe extends Symb {
   static emoji = '🪓';
   constructor() {
     super();
-    this.rarity = 0.08;
+    this.rarity = 0.07;
   }
   categories() {
     return [CATEGORY_TOOL];
@@ -70,6 +70,31 @@ export class Axe extends Symb {
   async onBuy(game) {
     await onToolBuy(game, 'click on a symbol to remove', async (game, x, y) => {
       await game.board.removeSymbol(game, x, y);
+    });
+  }
+}
+
+export class Eye extends Symb {
+  static emoji = '🧿';
+  constructor() {
+    super();
+    this.rarity = 0.06;
+  }
+  categories() {
+    return [CATEGORY_TOOL];
+  }
+  copy() {
+    return new Eye();
+  }
+  description() {
+    return 'converts a symbol into a passive ability';
+  }
+  descriptionLong() {
+    return 'this is a tool. it converts a symbol into a passive ability. this doesn\'t appear on the board as a symbol.';
+  }
+  async onBuy(game) {
+    await onToolBuy(game, 'click on a symbol to convert', async (game, x, y) => {
+      await game.board.makePassive(game, x, y);
     });
   }
 }
