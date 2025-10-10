@@ -252,7 +252,7 @@ Util.toggleAnimation();
 // await simulate(/*buyAlways=*/'❎🥚🐉🦊', /*buyOnce=*/'🐛🪄🎯🎯🎯🔮🔮');
 // await simulate(/*buyAlways=*/'❎💼🕳️🪄🎯🔮', /*buyOnce=*/'🐛🐉🐉🐉');
 // await simulate(/*buyAlways=*/'❎🌝🚀', /*buyOnce=*/'🐛🔮🪄🎯');
-// await simulate(/*buyAlways=*/'❎🧈🍿🌽', /*buyOnce=*/'🐛🔮🔮🪄🧊🧊🧊🧊🎯🎯');
+// await simulate(/*buyAlways=*/'❎🧈🍿', /*buyOnce=*/'🔮🔮🪄🌽🌽🌽🧊🧊🧊🎯🎯');
 
 // Find seed
 

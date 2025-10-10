@@ -78,7 +78,7 @@ export class Eye extends Symb {
   static emoji = '🧿';
   constructor() {
     super();
-    this.rarity = 1.06;
+    this.rarity = 0.06;
   }
   categories() {
     return [CATEGORY_TOOL];
