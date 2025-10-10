@@ -86,7 +86,7 @@ export class BronzeMedal extends Symb {
     return new BronzeMedal();
   }
   description() {
-    return 'this is a bronze medal. it is awarded when you earn 💵5000';
+    return 'this is a bronze medal. it is awarded when you earn 💵10000';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -102,7 +102,7 @@ export class SilverMedal extends Symb {
     return new SilverMedal();
   }
   description() {
-    return 'this is a silver medal. it is awarded when you earn 💵10000';
+    return 'this is a silver medal. it is awarded when you earn 💵25000';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -118,7 +118,7 @@ export class GoldMedal extends Symb {
     return new GoldMedal();
   }
   description() {
-    return 'this is a gold medal. it is awarded when you earn 💵20000';
+    return 'this is a gold medal. it is awarded when you earn 💵50000';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -134,7 +134,7 @@ export class Trophy extends Symb {
     return new Trophy();
   }
   description() {
-    return 'this is a trophy. it is awarded when you earn 💵50000';
+    return 'this is a trophy. it is awarded when you earn 💵100000';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -150,7 +150,7 @@ export class Crown extends Symb {
     return new Crown();
   }
   description() {
-    return 'this is a crown. it is awarded when you earn 💵100000';
+    return 'this is a crown. it is awarded when you earn 💵1000000';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];

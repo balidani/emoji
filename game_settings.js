@@ -51,11 +51,13 @@ export class GameSettings {
     };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
-      100000: '👑',
-      50000: '🏆',
-      20000: '🥇',
-      10000: '🥈',
-      5000: '🥉',
+      10000000: '🐐',
+      1000000: '👑',
+      10000: '🏆',
+      50000: '🥇',
+      25000: '🥈',
+      10000: '🥉',
+      5000: '😞',
     };
     this.textLookup = textLookup || {
       greeting:
