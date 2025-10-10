@@ -19,7 +19,7 @@ const onToolBuy = async (game, prompt, effect) => {
     return;
   }
   const [x, y] = coord;
-  effect(game, x, y);
+  await effect(game, x, y);
   game.board.addClickListener(game);
   game.shop.show();
 }
@@ -43,8 +43,8 @@ export class Pin extends Symb {
     return 'this is a tool. it allows pinning a symbol in place. it doesn\'t appear on the board as a symbol.';
   }
   async onBuy(game) {
-    onToolBuy(game, 'click on a symbol to pin in place', (game, x, y) => {
-      game.board.pinCell(game, x, y);
+    await onToolBuy(game, 'click on a symbol to pin in place', async (game, x, y) => {
+      await game.board.pinCell(game, x, y);
     });
   }
 }
@@ -68,8 +68,8 @@ export class Axe extends Symb {
     return 'this is a tool. it allows removing a symbol from the inventory. it doesn\'t appear on the board as a symbol.';
   }
   async onBuy(game) {
-    onToolBuy(game, 'click on a symbol to remove', (game, x, y) => {
-      game.board.removeSymbol(game, x, y);
+    await onToolBuy(game, 'click on a symbol to remove', async (game, x, y) => {
+      await game.board.removeSymbol(game, x, y);
     });
   }
 }

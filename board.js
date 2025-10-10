@@ -399,6 +399,7 @@ export class Board {
   async getClickCoord(expr) {
     return new Promise((resolve) => {
       const onclick = (e) => {
+        e.stopPropagation();
         const classes = e.target.parentElement.classList;
         if (!classes.contains('cell')) {
           return;
@@ -423,7 +424,7 @@ export class Board {
     });
   }
 
-  pinCell(game, x, y) {
+  async pinCell(game, x, y) {
     this.lockedCells[`${x},${y}`] = {
       symbol: this.cells[y][x],
       duration: -1,
