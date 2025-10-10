@@ -69,8 +69,11 @@ export class Board {
     const symbolDiv = Util.createDiv('⬜', 'symbol');
     const counterDiv = Util.createDiv('', 'symbol-counter');
     counterDiv.innerText = '';
+    const pinDiv = Util.createDiv('', 'symbol-pin');
+    pinDiv.innerText = '';
     cellDiv.appendChild(symbolDiv);
     cellDiv.appendChild(counterDiv);
+    cellDiv.appendChild(pinDiv);
     cellContainer.appendChild(cellDiv);
     return cellContainer;
   }
@@ -81,10 +84,13 @@ export class Board {
     return document.querySelector(`.cell-${y}-${x}`);
   }
   redrawCell(game, x, y) {
-    this.getCellDiv(x, y).replaceChildren(this.cells[y][x].render(game));
+    this.getCellDiv(x, y).replaceChildren(this.cells[y][x].render(game, x, y));
   }
   getCounterDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[1];
+  }
+  getPinDiv(x, y) {
+    return this.gridDiv.children[y].children[x].children[2];
   }
   async showResourceEarned(key, value, source='❓') {
     const text = `${source}→${key}${value}`;
@@ -107,7 +113,11 @@ export class Board {
   clearCell(x, y) {
     const counterDiv = this.getCounterDiv(x, y);
     if (counterDiv) {
-      this.getCounterDiv(x, y).innerText = '';
+      counterDiv.innerText = '';
+    }
+    const pinDiv = this.getPinDiv(x, y);
+    if (pinDiv) {
+      pinDiv.innerText = '';
     }
     this.cells[y][x] = this.empty.copy();
   }
@@ -125,7 +135,7 @@ export class Board {
     }
 
     // Set the actual symbol
-    const symbolDiv = symbol.render(game);
+    const symbolDiv = symbol.render(game, x, y);
     cellDiv.replaceChildren(symbolDiv);
 
     await Util.animate(symbolDiv, 'endSpin', 0.3);
@@ -134,7 +144,7 @@ export class Board {
   async spinDivOnce(game, x, y) {
     const cellDiv = this.getCellDiv(x, y);
     await Util.animate(cellDiv, 'startSpin', 0.1);
-    const symbolDiv = this.cells[y][x].render(game);
+    const symbolDiv = this.cells[y][x].render(game, x, y);
     cellDiv.replaceChildren(symbolDiv);
     await Util.animate(symbolDiv, 'endSpin', 0.3);
     await Util.animate(symbolDiv, 'bounce', 0.1);
@@ -413,11 +423,12 @@ export class Board {
     });
   }
 
-  pinCell(x, y) {
+  pinCell(game, x, y) {
     this.lockedCells[`${x},${y}`] = {
       symbol: this.cells[y][x],
       duration: -1,
     };
+    this.redrawCell(game, x, y);
   }
 
   addClickListener(game) {

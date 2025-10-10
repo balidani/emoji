@@ -87,21 +87,26 @@ export class Symb {
   counter(_game) {
     return null;
   }
-  render(game) {
+  render(game, x, y) {
     const symbolDiv = Util.createDiv(this.emoji(), 'symbol');
     const counterDiv = Util.createDiv(
       this.counter(game) || '',
       'symbol-counter'
     );
-    const mult = this.multiplier !== 1 ? this.multiplier : undefined;
-    const multiplierDiv = Util.createDiv(mult, 'symbol-multiplier', 'hidden');
+    const pinDiv = Util.createDiv(
+      game.board.lockedCells[`${x},${y}`] ? Const.PIN : '', 'symbol-pin');
+
+    // const mult = this.multiplier !== 1 ? this.multiplier : undefined;
+    // const multiplierDiv = Util.createDiv(mult, 'symbol-multiplier', 'hidden');
 
     // The lambda is required, otherwise there is a bug with the info text.
     // This should probably be fixed in the future.
     symbolDiv.addEventListener('click', () => this.clickHandler(game));
 
     symbolDiv.appendChild(counterDiv);
-    symbolDiv.appendChild(multiplierDiv);
+    symbolDiv.appendChild(pinDiv);
+
+    // symbolDiv.appendChild(multiplierDiv);
 
     return symbolDiv;
   }

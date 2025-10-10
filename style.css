@@ -113,6 +113,14 @@ body {
   -webkit-text-stroke-color: black;
 }
 
+.symbol-pin {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 9pt;
+  font-family: sans-serif;
+}
+
 .symbol-multiplier {
   position: absolute;
   bottom: 0;

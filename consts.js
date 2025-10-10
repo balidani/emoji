@@ -6,3 +6,4 @@ export const REFRESH = '🔀';
 export const BUY = '✅';
 export const EMPTY = '⬜';
 export const SHOPPING_CART = '🛒';
+export const PIN = '📌';

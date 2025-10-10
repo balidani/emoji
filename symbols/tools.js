@@ -7,11 +7,11 @@ import {
 
 export const CATEGORY_TOOL = Symbol('Tool');
 
-const onToolBuy = async (game, effect) => {
+const onToolBuy = async (game, prompt, effect) => {
   game.shop.hide();
   game.board.removeClickListener();
-  Util.drawText(game.info, 'click on a symbol to pin in place.', false);
-  const coord = await game.board.getClickCoord((sym) => sym.emoji() !== '⬛');
+  Util.drawText(game.info, prompt, false);
+  const coord = await game.board.getClickCoord((sym) => sym.emoji() !== '⬜');
   if (!coord) {
     return;
   }
@@ -25,7 +25,7 @@ export class Pin extends Symb {
   static emoji = '📌';
   constructor() {
     super();
-    this.rarity = 1.08;
+    this.rarity = 2.08;
   }
   categories() {
     return [CATEGORY_TOOL];
@@ -40,8 +40,33 @@ export class Pin extends Symb {
     return 'this is a tool. it allows pinning a symbol in place. it doesn\'t appear on the board as a symbol.';
   }
   async onBuy(game) {
-    onToolBuy(game, (game, x, y) => {
-      game.board.pinCell(x, y);
+    onToolBuy(game, 'click on a symbol to pin in place', (game, x, y) => {
+      game.board.pinCell(game, x, y);
+    });
+  }
+}
+
+export class Axe extends Symb {
+  static emoji = '🪓';
+  constructor() {
+    super();
+    this.rarity = 1.08;
+  }
+  categories() {
+    return [CATEGORY_TOOL];
+  }
+  copy() {
+    return new Axe();
+  }
+  description() {
+    return 'removes a cell from inventory';
+  }
+  descriptionLong() {
+    return 'this is a tool. it allows removing a symbol from the inventory. it doesn\'t appear on the board as a symbol.';
+  }
+  async onBuy(game) {
+    onToolBuy(game, 'click on a symbol to remove', (game, x, y) => {
+      game.board.removeSymbol(game, x, y);
     });
   }
 }
