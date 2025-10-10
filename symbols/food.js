@@ -51,10 +51,8 @@ export class Cherry extends Symb {
     if (coords.length === 0) {
       return;
     }
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
-      this.addMoney(game, coords.length * 2, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15);
+    await this.addMoney(game, coords.length * 2, x, y);
   }
   categories() {
     return [CATEGORY_FOOD, CATEGORY_FRUIT];
@@ -77,10 +75,8 @@ export class Corn extends Symb {
     return new Corn();
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 21, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 21, x, y);
   }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToEmpty(x, y);
@@ -153,10 +149,8 @@ export class Pineapple extends Symb {
       y,
       (sym) => sym.emoji() !== Empty.emoji
     );
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 12 - coords.length * 2, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 12 - coords.length * 2, x, y);
   }
   categories() {
     return [CATEGORY_FRUIT, CATEGORY_FOOD];
@@ -185,10 +179,8 @@ export class Popcorn extends Symb {
     for (const _ of butter) {
       score *= 4;
     }
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, score, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, score, x, y);
   }
   async evaluateConsume(game, x, y) {
     if (this.turns >= this.timeToLive) {
@@ -250,10 +242,8 @@ export class Cocktail extends Symb {
   }
   async score(game, x, y) {
     if (this.cherryScore > 0) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.cherryScore, x, y),
-      ]);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await this.addMoney(game, this.cherryScore, x, y);
     }
   }
   async evaluateConsume(game, x, y) {
@@ -294,12 +284,13 @@ export class Champagne extends Symb {
     return new Champagne();
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 70, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 70, x, y);
   }
   async evaluateProduce(game, x, y) {
+    if (x === -1 || y === -1) {
+      return;
+    }
     if (this.turns < 3) {
       return;
     }

@@ -18,10 +18,8 @@ export class Coin extends Symb {
     return new Coin();
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 2, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 2, x, y);
   }
   description() {
     return '💵2';
@@ -43,10 +41,8 @@ export class Briefcase extends Symb {
   }
   async score(game, x, y) {
     const value = this.counter(game);
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, value, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, value, x, y);
   }
   catgories() {
     return [CATEGORY_BUSINESS];
@@ -107,18 +103,14 @@ export class CreditCard extends Symb {
     return new CreditCard();
   }
   async finalScore(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3),
-      this.addMoney(game, -1100, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3);
+    await this.addMoney(game, -1100, x, y);
   }
   async score(game, x, y) {
     this.turn += 1;
     if (this.turn === 1) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, 1000, x, y),
-      ]);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await this.addMoney(game, 1000, x, y);
     }
   }
   description() {
@@ -141,10 +133,8 @@ export class MoneyBag extends Symb {
   }
   async score(game, x, y) {
     if (this.coins > 0) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.coins, x, y),
-      ]);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await this.addMoney(game, this.coins, x, y);
     }
   }
   async evaluateConsume(game, x, y) {
@@ -181,10 +171,8 @@ export class Slots extends Symb {
   }
   async score(game, x, y) {
     const value = this.counter(game);
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, value, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, value, x, y);
   }
   catgories() {
     return [CATEGORY_GAMBLING];
@@ -211,10 +199,8 @@ export class Dice extends Symb {
   }
   async score(game, x, y) {
     if (chance(game, 0.01, x, y)) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2),
-        this.addMoney(game, 52, x, y),
-      ]);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
+      await this.addMoney(game, 52, x, y);
     }
   }
   catgories() {

@@ -13,10 +13,8 @@ export class Diamond extends Symb {
     return new Diamond();
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15),
-      this.addMoney(game, 8, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15);
+    await this.addMoney(game, 8, x, y);
     const coords = game.board.nextToSymbol(x, y, Diamond.emoji);
     if (coords.length === 0) {
       return;
@@ -41,10 +39,8 @@ export class Rock extends Symb {
     return new Rock();
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 1, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 1, x, y);
   }
   description() {
     return '💵1';

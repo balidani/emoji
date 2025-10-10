@@ -1,4 +1,5 @@
 import * as Util from './util.js';
+import * as Const from './consts.js';
 
 import { CATEGORY_EMPTY_SPACE } from './symbol.js';
 import { PlayButton } from './symbols/ui.js';
@@ -9,6 +10,7 @@ export class Board {
     this.catalog = game.catalog;
     this.cells = [];
     this.logLines = 0;
+    this.passiveCells = [];
 
     // Create lockedCells from the settings and the inventory.
     this.lockedCells = [];
@@ -39,7 +41,7 @@ export class Board {
 
     this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
-    this.empty = this.catalog.symbol('⬜');
+    this.empty = this.catalog.symbol(Const.EMPTY);
     for (let y = 0; y < this.settings.boardY; ++y) {
       const row = [];
       const rowDiv = Util.createDiv('', 'row');
@@ -66,7 +68,7 @@ export class Board {
   createCellDiv(x, y) {
     const cellContainer = Util.createDiv('', 'cell-container');
     const cellDiv = Util.createDiv('', 'cell', `cell-${x}-${y}`);
-    const symbolDiv = Util.createDiv('⬜', 'symbol');
+    const symbolDiv = Util.createDiv(Const.EMPTY, 'symbol');
     const counterDiv = Util.createDiv('', 'symbol-counter');
     counterDiv.innerText = '';
     const pinDiv = Util.createDiv('', 'symbol-pin');
@@ -78,12 +80,26 @@ export class Board {
     return cellContainer;
   }
   getSymbolDiv(x, y) {
+    if (x === -1) {
+      // Passive symbol, look for the div among inventoryEntry.
+      const emoji = this.passiveCells[y].emoji();
+      const entries = document.getElementsByClassName('inventoryEntry');
+      for (const entry of entries) {
+        if (entry.innerText.includes(emoji)) {
+          return entry;
+        }
+      }
+      return null;
+    }
     return document.querySelector(`.cell-${y}-${x} .symbol`);
   }
   getCellDiv(x, y) {
     return document.querySelector(`.cell-${y}-${x}`);
   }
   redrawCell(game, x, y) {
+    if (x === -1) {
+      return;
+    }
     this.getCellDiv(x, y).replaceChildren(this.cells[y][x].render(game, x, y));
   }
   getCounterDiv(x, y) {
@@ -92,7 +108,7 @@ export class Board {
   getPinDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[2];
   }
-  async showResourceEarned(key, value, source='❓') {
+  async showResourceEarned(key, value, source=Const.UNKNOWN) {
     const text = `${source}→${key}${value}`;
     const logLines = document.getElementsByClassName('event-log')[0];
     logLines.innerHTML = `${text}<br>${logLines.innerHTML}`;
@@ -224,6 +240,12 @@ export class Board {
     this.forAllCells((cell, x, y) => {
       this.redrawCell(game, x, y);
     });
+    // Evaluate passives
+    for (let i = 0; i < this.passiveCells.length; ++i) {
+      const passiveSymbol = this.passiveCells[i];
+      await passiveSymbol.evaluateProduce(game, -1, i);
+    }
+    // Evaluate board symbols
     const evaluateRound = async (f) => {
       const tasks = [];
       this.forAllCells((cell, x, y) =>
@@ -248,6 +270,12 @@ export class Board {
   }
   async finalScore(game) {
     const tasks = [];
+    // Final score passives
+    for (let i = 0; i < this.passiveCells.length; ++i) {
+      const passiveSymbol = this.passiveCells[i];
+      await passiveSymbol.finalScore(game, -1, i);
+    }
+    // Final score board symbols
     this.forAllCells((cell, x, y) => {
       tasks.push(async () => {
         await cell.finalScore(game, x, y);
@@ -259,6 +287,12 @@ export class Board {
   }
   async score(game) {
     const tasks = [];
+    // Score passives
+    for (let i = 0; i < this.passiveCells.length; ++i) {
+      const passiveSymbol = this.passiveCells[i];
+      await passiveSymbol.score(game, -1, i);
+    }
+    // Score board symbols
     this.forAllCells((cell, x, y) => {
       tasks.push(async () => {
         await cell.score(game, x, y);
@@ -270,6 +304,9 @@ export class Board {
   }
   async addSymbol(game, sym, x, y) {
     game.inventory.add(sym);
+    if (x === -1 || y === -1) {
+      return;
+    }
     if (this.cells[y][x].emoji() === '🕳️') {
       const hole = this.cells[y][x];
       this.cells[y][x] = sym;
@@ -283,6 +320,9 @@ export class Board {
     this.redrawCell(game, x, y);
   }
   async removeSymbol(game, x, y) {
+    if (x === -1 || y === -1) {
+      return;
+    }
     if (this.lockedCells[`${x},${y}`] !== undefined) {
       delete this.lockedCells[`${x},${y}`];
     }
@@ -307,6 +347,9 @@ export class Board {
   }
 
   nextToCoords(x, y) {
+    if (x === -1 || y === -1) {
+      return [];
+    }
     const coords = [];
     const add = (x, y) => {
       if (
@@ -330,6 +373,9 @@ export class Board {
   }
 
   nextToSymbol(x, y, emoji) {
+    if (x === -1 || y === -1) {
+      return [];
+    }
     const coords = [];
     this.nextToCoords(x, y).forEach((coord) => {
       const [neighborX, neighborY] = coord;
@@ -341,10 +387,16 @@ export class Board {
   }
 
   getEmoji(x, y) {
+    if (x === -1) {
+      return this.passiveCells[y].emoji();
+    }
     return this.cells[y][x].emoji();
   }
 
   nextToExpr(x, y, expr) {
+    if (x === -1 || y === -1) {
+      return [];
+    }
     const coords = [];
     this.nextToCoords(x, y).forEach((coord) => {
       const [neighborX, neighborY] = coord;
@@ -447,7 +499,14 @@ export class Board {
   }
 
   async makePassive(game, x, y) {
-    
+    const passiveCopy = this.cells[y][x].copy();
+    await this.removeSymbol(game, x, y);
+    this.passiveCells.push(passiveCopy);
+    if (passiveCopy.emoji() !== Const.LUCK) {
+      // Special case for Clover, there is already a luck resource set to the current value,
+      // as it was evaluated before the turn, and luck gets reset every turn.
+      game.inventory.addResource(passiveCopy.emoji(), 1);
+    }
   }
 
 }

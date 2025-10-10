@@ -71,6 +71,9 @@ export const delay = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 export const animate = (element, animation, duration, repeat = 1) => {
+  if (element === null) {
+    return Promise.resolve();
+  }
   if (!ANIMATION) {
     return Promise.resolve();
   }

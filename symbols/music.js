@@ -14,10 +14,8 @@ export class MusicalNote extends Symb {
     return new MusicalNote();
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 4, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 4, x, y);
   }
   async evaluateConsume(game, x, y) {
     if (this.turns >= 3) {
@@ -48,10 +46,8 @@ export class Bell extends Symb {
     return new Bell();
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 9, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 9, x, y);
   }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToEmpty(x, y);
@@ -88,10 +84,8 @@ export class Dancer extends Symb {
     if (coords.length === 0) {
       return;
     }
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, coords.length * 10, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, coords.length * 10, x, y);
   }
   description() {
     return '💵10 for each neighboring 🎵';
@@ -144,10 +138,8 @@ export class Record extends Symb {
   }
   async score(game, x, y) {
     if (this.notes > 0) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.notes, x, y),
-      ]);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await this.addMoney(game, this.notes, x, y);
     }
   }
   async evaluateConsume(game, x, y) {

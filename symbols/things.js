@@ -26,10 +26,8 @@ export class Balloon extends Symb {
     return new Balloon();
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 20, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 20, x, y);
   }
   async evaluateConsume(game, x, y) {
     if (badChance(game, 0.5, x, y)) {
@@ -124,10 +122,8 @@ export class Moon extends Symb {
     if (this.turns >= 31) {
       this.turns = 0;
       game.board.redrawCell(game, x, y);
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.3),
-        this.addMoney(game, 600, x, y),
-      ]);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.3);
+      await this.addMoney(game, 600, x, y);
     }
     this.moonScore = 0;
   }

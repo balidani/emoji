@@ -122,7 +122,7 @@ export class PostBox extends Symb {
   static emoji = '📮';
   constructor() {
     super();
-    this.rarity = 1.06;
+    this.rarity = 0.06;
   }
   copy() {
     return new PostBox();
@@ -176,8 +176,11 @@ export class Clover extends Symb {
   descriptionLong() {
     return 'this is a clover. it gives you luck. symbols having a chance to do something good will succeed more. rare items show up more frequently in the shop.';
   }
-  async score(game, x, y) {
+  async evaluateProduce(game, x, y) {
     game.inventory.addLuck(1);
+    if (x === -1 || y === -1) {
+      return;
+    }
     await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
   }
 }
@@ -197,8 +200,11 @@ export class CrystalBall extends Symb {
   descriptionLong() {
     return 'this is a crystal ball. it gives you luck. symbols having a chance to do something good will succeed more. rare items show up more frequently in the shop.';
   }
-  async score(game, x, y) {
+  async evaluateProduce(game, x, y) {
     game.inventory.addLuck(3);
+    if (x === -1 || y === -1) {
+      return;
+    }
     await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
   }
 }
@@ -226,10 +232,8 @@ export class FortuneCookie extends Symb {
   }
   async score(game, x, y) {
     const value = this.counter(game);
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, value, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, value, x, y);
   }
 }
 

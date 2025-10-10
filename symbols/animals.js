@@ -20,10 +20,8 @@ export class Chick extends Symb {
     return new Chick(this.timeToGrow);
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 1, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 1, x, y);
   }
   async evaluateConsume(game, x, y) {
     if (this.turns >= this.timeToGrow) {
@@ -52,10 +50,8 @@ export class Chicken extends Symb {
     return new Chicken();
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 3, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 3, x, y);
   }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToEmpty(x, y);
@@ -126,10 +122,8 @@ export class Fox extends Symb {
   }
   async score(game, x, y) {
     if (this.eatenScore > 0) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.eatenScore, x, y),
-      ]);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await this.addMoney(game, this.eatenScore, x, y);
       this.eatenScore = 0;
     }
   }
@@ -177,10 +171,8 @@ export class Dragon extends Symb {
     return new Dragon();
   }
   async score(game, x, y) {
-    await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-      this.addMoney(game, 42, x, y),
-    ]);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await this.addMoney(game, 42, x, y);
   }
   categories() {
     return [CATEGORY_ANIMAL];
@@ -206,10 +198,8 @@ export class Bug extends Symb {
   }
   async score(game, x, y) {
     if (this.foodScore > 0) {
-      await Promise.all([
-        Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1),
-        this.addMoney(game, this.foodScore, x, y),
-      ]);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await this.addMoney(game, this.foodScore, x, y);
     }
     this.foodScore = 0;
   }

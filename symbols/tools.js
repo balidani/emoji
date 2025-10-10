@@ -78,7 +78,7 @@ export class Eye extends Symb {
   static emoji = '🧿';
   constructor() {
     super();
-    this.rarity = 0.06;
+    this.rarity = 1.06;
   }
   categories() {
     return [CATEGORY_TOOL];
@@ -90,7 +90,7 @@ export class Eye extends Symb {
     return 'converts a symbol into a passive ability';
   }
   descriptionLong() {
-    return 'this is a tool. it converts a symbol into a passive ability. this doesn\'t appear on the board as a symbol.';
+    return 'this is a tool. it converts a symbol into a passive ability. this doesn\'t appear on the board as a symbol. passive symbols don\'t have neighbors.';
   }
   async onBuy(game) {
     await onToolBuy(game, 'click on a symbol to convert', async (game, x, y) => {
