@@ -8,6 +8,9 @@ import {
 export const CATEGORY_TOOL = Symbol('Tool');
 
 const onToolBuy = async (game, prompt, effect) => {
+  if (game.inventory.symbols.length === 0) {
+    return;
+  }
   game.shop.hide();
   game.board.removeClickListener();
   Util.drawText(game.info, prompt, false);
