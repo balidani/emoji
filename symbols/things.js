@@ -7,7 +7,10 @@ import {
   Symb,
   CATEGORY_UNBUYABLE,
 } from '../symbol.js';
-import {Empty} from './ui.js'
+import {Empty} from './ui.js';
+import {
+  CATEGORY_TOOL
+} from './tools.js';
 
 // I am aware this is a bad name for the file. This file contains the "item" like emoji -
 //    It's also a dumping ground for anything that's tested enough to put into production,
@@ -170,7 +173,7 @@ export class Lootbox extends Symb {
   static emoji = '🎁';
   constructor() {
     super();
-    this.rarity = 0.1;
+    this.rarity = 1.1;
   }
   copy() {
     return new Lootbox();
@@ -180,7 +183,8 @@ export class Lootbox extends Symb {
     const bag = game.catalog.generateShop(
       1,
       game.inventory.getResource(Const.LUCK),
-      /* rareOnly= */ rareOnly);
+      /* rareOnly= */ rareOnly,
+      /* bannedCategories= */[CATEGORY_UNBUYABLE, CATEGORY_TOOL]);
     await game.board.removeSymbol(game, x, y);
     await game.board.addSymbol(game, Util.randomChoose(bag), x, y);
   }

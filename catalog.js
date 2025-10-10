@@ -38,11 +38,19 @@ export class Catalog {
     }
     throw new Error('Unknown symbol: ' + emoji);
   }
-  generateShop(minCount, luck, rareOnly = false) {
+  generateShop(minCount, luck, rareOnly = false, bannedCategories = [CATEGORY_UNBUYABLE]) {
     const bag = [];
+    const checkCategory = (item) => {
+      for (const cat of bannedCategories) {
+        if (item.categories().includes(cat)) {
+          return false;
+        }
+      }
+      return true;
+    };
     if (rareOnly) {
       for (const [_, item] of this.symbols) {
-        if (item.categories().includes(CATEGORY_UNBUYABLE)) {
+        if (!checkCategory(item)) {
           continue;
         }
         if (item.rarity < 0.101) {
@@ -53,7 +61,7 @@ export class Catalog {
     }
     while (bag.length <= minCount) {
       for (const [_, item] of this.symbols) {
-        if (item.categories().includes(CATEGORY_UNBUYABLE)) {
+        if (!checkCategory(item)) {
           continue;
         }
         if (Util.randomFloat(/* shop= */ true) < item.rarity + luck / 100.0) {

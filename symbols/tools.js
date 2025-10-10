@@ -28,7 +28,7 @@ export class Pin extends Symb {
   static emoji = '📌';
   constructor() {
     super();
-    this.rarity = 2.08;
+    this.rarity = 0.08;
   }
   categories() {
     return [CATEGORY_TOOL];
@@ -53,7 +53,7 @@ export class Axe extends Symb {
   static emoji = '🪓';
   constructor() {
     super();
-    this.rarity = 1.08;
+    this.rarity = 0.08;
   }
   categories() {
     return [CATEGORY_TOOL];
