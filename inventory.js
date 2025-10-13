@@ -17,6 +17,7 @@ export class Inventory {
     this.tempLuckBonus = 0;
     this.updateUi();
     this.graveyard = [];
+    this.giftsOpened = 0;
   }
   update() {
     this.symbolsDiv.replaceChildren();

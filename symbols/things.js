@@ -189,11 +189,39 @@ export class Lootbox extends Symb {
     const sym = Util.randomChoose(bag);
     await game.board.showResourceEarned(sym.emoji(), '', this.emoji());
     await game.board.addSymbol(game, sym, x, y);
+    game.inventory.giftsOpened++;
   }
   description() {
     return "opens and turns into a random symbol. 20% chance: it's a rare.";
   }
   descriptionLong() {
     return "this is a lootbox. opens and turns into a random symbol. 20% chance: it's a rare.";
+  }
+}
+
+export class Santa extends Symb {
+  static emoji = Util.randomChoose(['🎅🏻', '🎅🏼', '🎅🏽', '🎅🏾', '🎅🏿']);
+  constructor() {
+    super();
+    this.rarity = 0.07;
+  }
+  copy() {
+    return new Santa();
+  }
+  counter(game) {
+    return game.inventory.giftsOpened;
+  }
+  async score(game, x, y) {
+    const value = 50 * game.inventory.giftsOpened;
+    if (value > 0) {
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await this.addMoney(game, value, x, y);
+    }
+  }
+  description() {
+    return "💵50 for each 🎁 opened";
+  }
+  descriptionLong() {
+    return "this is santa. it gives 💵50 for each 🎁 opened this run.";
   }
 }
