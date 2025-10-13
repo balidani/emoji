@@ -51,9 +51,9 @@ export class GameSettings {
     };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
-      10000000: '🐐',
+      1000000000: '🐐',
       1000000: '👑',
-      10000: '🏆',
+      100000: '🏆',
       50000: '🥇',
       25000: '🥈',
       10000: '🥉',
@@ -62,9 +62,9 @@ export class GameSettings {
     this.textLookup = textLookup || {
       greeting:
         '💬: welcome to emoji slots. press anywhere on the board above when you are ready to play (🕹️)',
-      50: '💬: now you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again',
+      50: '💬: now you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again by pressing on the board',
       49: '💬: if you want to find out more about an emoji, tap on it. for example, try tapping here: 🌋',
-      48: '💬: you have 47 turns left. earn 💵 to get a trophy: 🥉, 🥈, 🥇, 🏆, 👑',
+      48: '💬: you have 47 turns left. earn enough 💵 to get a trophy: 🥉, 🥈, 🥇, 🏆, 👑',
       47: '💬: you can double tap the grid to skip animation',
       46: '💬: you can tap on any symbol in the shop and in your inventory to get more information',
     };
