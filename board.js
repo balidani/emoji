@@ -110,16 +110,14 @@ export class Board {
   }
   async showResourceEarned(key, value, source=Const.UNKNOWN) {
     const text = `${source}→${key}${value}`;
-    const logLines = document.getElementsByClassName('event-log')[0];
-    logLines.innerHTML = `${text}<br>${logLines.innerHTML}`;
-    this.logLines++;
-    if (this.logLines > 20) {
-      logLines.innerHTML = logLines.innerHTML
-        .split('<br>')
-        .slice(0, 20)
-        .join('<br>');
-      this.logLines = 20;
+    const logLines = document.querySelector('.event-log-inner');
+    const logLine = Util.createDiv(text, 'event-log-line');
+    logLines.insertBefore(logLine, logLines.firstChild);
+    while (logLines.children.length > 20) {
+      logLines.removeChild(logLines.lastElementChild);
     }
+    await Util.animate(logLines, 'eventLogScroll', 0.2);
+
     // const moneyDiv = Util.createDiv('', 'moneyEarned');
     // moneyDiv.innerText = text;
     // this.gridDiv.appendChild(moneyDiv);

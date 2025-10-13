@@ -45,10 +45,26 @@ body {
   width: 300pt;
   padding-top: 4pt;
   padding-left: 4pt;
-  font-size: 10pt;
-  pointer-events: none; /* Allow clicks to pass through */
-  
+  pointer-events: none; /* Allow clicks to pass through */ 
 }
+.event-log-inner {
+  overflow: hidden;
+  will-change: transform;
+}
+.event-log-line {
+  font-size: 10pt;
+  list-style: 12pt;
+}
+
+@keyframes eventLogScroll {
+  0% {
+    transform: translateY(-12pt);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 
 .fade-text {
   /* The magic */
