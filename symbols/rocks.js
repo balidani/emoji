@@ -64,7 +64,9 @@ export class Volcano extends Symb {
       const newX = Util.random(game.settings.boardX);
       const newY = Util.random(game.settings.boardY);
       await game.board.removeSymbol(game, newX, newY);
+      await game.board.showResourceEarned('🕳️', '', this.emoji());
       await game.board.addSymbol(game, game.catalog.symbol('🕳️'), newX, newY);
+      await game.board.showResourceEarned('🪨', '5', this.emoji());
       await game.board.addSymbol(game, new Rock(), newX, newY);
       await game.board.addSymbol(game, new Rock(), newX, newY);
       await game.board.addSymbol(game, new Rock(), newX, newY);
@@ -96,9 +98,12 @@ export class Worker extends Symb {
     }
     for (const coord of coords) {
       const [deleteX, deleteY] = coord;
+      await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
       await game.board.removeSymbol(game, deleteX, deleteY);
       if (chance(game, 0.5, x, y)) {
-        await game.board.addSymbol(game, new Diamond(), deleteX, deleteY);
+        const diamond = new Diamond();
+        await game.board.showResourceEarned(diamond.emoji(), '', this.emoji());
+        await game.board.addSymbol(game, diamond, deleteX, deleteY);
       }
     }
   }

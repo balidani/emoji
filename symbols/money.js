@@ -77,6 +77,7 @@ export class Bank extends Symb {
       const coin = new Coin();
       const [newX, newY] = Util.randomChoose(coords);
       await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
+      await game.board.showResourceEarned(coin.emoji(), '', this.emoji());
       await game.board.addSymbol(game, coin, newX, newY);
     };
     await mint();
@@ -145,6 +146,7 @@ export class MoneyBag extends Symb {
     for (const coord of coords) {
       this.coins += 2;
       const [deleteX, deleteY] = coord;
+      await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
       await game.board.removeSymbol(game, deleteX, deleteY);
       game.board.redrawCell(game, x, y);
     }

@@ -36,6 +36,7 @@ export class MagicWand extends Symb {
       const newSymbol = game.board.cells[copyY][copyX].copy();
       await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
       await game.board.addSymbol(game, newSymbol, newX, newY);
+      await game.board.showResourceEarned(newSymbol.emoji(), '', this.emoji());
     }
   }
   description() {

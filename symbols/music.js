@@ -58,6 +58,7 @@ export class Bell extends Symb {
       const note = new MusicalNote();
       const [newX, newY] = Util.randomChoose(coords);
       await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+      await game.board.showResourceEarned(note.emoji(), '', this.emoji());
       await game.board.addSymbol(game, note, newX, newY);
     }
   }
@@ -112,7 +113,9 @@ export class Drums extends Symb {
       }
       const [newX, newY] = Util.randomChoose(coords);
       await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 3);
-      await game.board.addSymbol(game, new MusicalNote(), newX, newY);
+      const note = new MusicalNote();
+      await game.board.showResourceEarned(note.emoji(), '', this.emoji());
+      await game.board.addSymbol(game, note, newX, newY);
     }
   }
   counter(_) {
@@ -151,6 +154,7 @@ export class Record extends Symb {
       this.notes += 6;
       game.board.redrawCell(game, x, y);
       const [deleteX, deleteY] = coord;
+      await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
       await game.board.removeSymbol(game, deleteX, deleteY);
     }
   }

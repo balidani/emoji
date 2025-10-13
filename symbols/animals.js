@@ -26,7 +26,9 @@ export class Chick extends Symb {
   async evaluateConsume(game, x, y) {
     if (this.turns >= this.timeToGrow) {
       await game.board.removeSymbol(game, x, y);
-      await game.board.addSymbol(game, new Chicken(), x, y);
+      const chicken = new Chicken();
+      await game.board.addSymbol(game, chicken, x, y);
+      await game.board.showResourceEarned(chicken.emoji(), '', this.emoji());
     }
   }
   counter(_) {
@@ -65,6 +67,7 @@ export class Chicken extends Symb {
         const egg = new Egg();
         await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
         await game.board.addSymbol(game, egg, newX, newY);
+        await game.board.showResourceEarned(egg.emoji(), '', this.emoji());
       }
     }
   }
@@ -97,6 +100,7 @@ export class Egg extends Symb {
       }
       await game.board.removeSymbol(game, x, y);
       await game.board.addSymbol(game, newSymbol, x, y);
+      await game.board.showResourceEarned(newSymbol.emoji(), '', this.emoji());
     }
   }
   counter(_) {
@@ -136,6 +140,7 @@ export class Fox extends Symb {
       for (const coord of coords) {
         this.eatenScore += reward;
         const [deleteX, deleteY] = coord;
+        await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
         await game.board.removeSymbol(game, deleteX, deleteY);
       }
       this.turns = 0;
@@ -215,6 +220,7 @@ export class Bug extends Symb {
       for (const coord of coords) {
         this.foodScore += 8;
         const [deleteX, deleteY] = coord;
+        await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
         await game.board.removeSymbol(game, deleteX, deleteY);
       }
     }

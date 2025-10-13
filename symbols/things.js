@@ -66,6 +66,8 @@ export class Bomb extends Symb {
       }
       const coord = Util.randomChoose(coords);
       const [deleteX, deleteY] = coord;
+      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.2, 3);
+      await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
       await game.board.removeSymbol(game, deleteX, deleteY);
     }
   }
@@ -96,6 +98,7 @@ export class Firefighter extends Symb {
     }
     for (const coord of coords) {
       const [deleteX, deleteY] = coord;
+      await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
       await game.board.removeSymbol(game, deleteX, deleteY);
     }
     await game.board.removeSymbol(game, x, y);
@@ -154,6 +157,7 @@ export class SewingKit extends Symb {
     }
     for (const coord of coords) {
       const [deleteX, deleteY] = coord;
+      await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
       await game.board.removeSymbol(game, deleteX, deleteY);
     }
   }
@@ -169,7 +173,7 @@ export class Lootbox extends Symb {
   static emoji = '🎁';
   constructor() {
     super();
-    this.rarity = 1.1;
+    this.rarity = 0.25;
   }
   copy() {
     return new Lootbox();
@@ -182,7 +186,9 @@ export class Lootbox extends Symb {
       /* rareOnly= */ rareOnly,
       /* bannedCategories= */[CATEGORY_UNBUYABLE, CATEGORY_TOOL]);
     await game.board.removeSymbol(game, x, y);
-    await game.board.addSymbol(game, Util.randomChoose(bag), x, y);
+    const sym = Util.randomChoose(bag);
+    await game.board.showResourceEarned(sym.emoji(), '', this.emoji());
+    await game.board.addSymbol(game, sym, x, y);
   }
   description() {
     return "opens and turns into a random symbol. 20% chance: it's a rare.";

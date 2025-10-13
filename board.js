@@ -108,21 +108,21 @@ export class Board {
   getPinDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[2];
   }
-  async showResourceEarned(key, value, source=Const.UNKNOWN) {
-    const text = `${source}→${key}${value}`;
+  async showResourceChange(key, value, source=Const.UNKNOWN, arrow='→') {
+    const text = `${source}${arrow}${key}${value}`;
     const logLines = document.querySelector('.event-log-inner');
     const logLine = Util.createDiv(text, 'event-log-line');
     logLines.insertBefore(logLine, logLines.firstChild);
     while (logLines.children.length > 20) {
       logLines.removeChild(logLines.lastElementChild);
     }
-    await Util.animate(logLines, 'eventLogScroll', 0.2);
-
-    // const moneyDiv = Util.createDiv('', 'moneyEarned');
-    // moneyDiv.innerText = text;
-    // this.gridDiv.appendChild(moneyDiv);
-    // await Util.animate(moneyDiv, 'fadeOutMoveDown', 0.3);
-    // this.gridDiv.removeChild(moneyDiv);
+    await Util.animate(logLines, 'eventLogScroll', 0.1);
+  }
+  async showResourceEarned(key, value, source=Const.UNKNOWN) {
+    this.showResourceChange(key, value, source, '→');
+  }
+  async showResourceLost(key, value, source=Const.UNKNOWN) {
+    this.showResourceChange(key, value, source, '←');
   }
   clearCell(x, y) {
     const counterDiv = this.getCounterDiv(x, y);

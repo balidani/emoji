@@ -88,6 +88,7 @@ export class Corn extends Symb {
         const [newX, newY] = coords[i];
         const popcorn = new Popcorn();
         await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+        await game.board.showResourceEarned(popcorn.emoji(), '', this.emoji());
         await game.board.addSymbol(game, popcorn, newX, newY);
       }
     }
@@ -255,6 +256,7 @@ export class Cocktail extends Symb {
       for (const coord of coords) {
         this.cherryScore = reward(this.cherryScore);
         const [deleteX, deleteY] = coord;
+        await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
         await game.board.removeSymbol(game, deleteX, deleteY);
         game.board.redrawCell(game, x, y);
       }
@@ -301,9 +303,12 @@ export class Champagne extends Symb {
     if (coords.length === 0) {
       return;
     }
+    await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
     for (let i = 0; i < coords.length; ++i) {
       const [newX, newY] = coords[i];
-      await game.board.addSymbol(game, new Bubble(), newX, newY);
+      const bubble = new Bubble();
+      await game.board.showResourceEarned(bubble.emoji(), '', this.emoji());
+      await game.board.addSymbol(game, bubble, newX, newY);
     }
   }
   counter(_) {
@@ -336,6 +341,7 @@ export class Tree extends Symb {
       const [newX, newY] = Util.randomRemove(coords);
       const cherry = new Cherry();
       await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+      await game.board.showResourceEarned(cherry.emoji(), '', this.emoji());
       await game.board.addSymbol(game, cherry, newX, newY);
     };
 
