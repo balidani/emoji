@@ -45,6 +45,7 @@ export const setRandomSeed = async () => {
       String.fromCharCode(97 + Math.floor(Math.random() * 26))
   ).join('');
   // window.location.hash = seedPhrase;
+  window.seedPhrase = seedPhrase;
   await setSeed(seedPhrase);
   return seedPhrase;
 };

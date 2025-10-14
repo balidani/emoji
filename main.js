@@ -255,65 +255,44 @@ Util.toggleAnimation();
 // await simulate(/*buyAlways=*/'❎🧈🍿', /*buyOnce=*/'🔮🔮🪄🌽🌽🌽🧊🧊🧊🎯🎯');
 
 // Find seed
+// #nhsvjwcp
 
-// let bestPhrase = '';
-// let bestScore = 0;
 // const settings = GameSettings.instance();
 // const catalog = new Catalog(settings.symbolSources);
 // await catalog.updateSymbols();
-// for (let k = 0; k < 1000000; ++k) {
-//   if (k % 100 === 0) console.log(k, bestPhrase, bestScore);
+// for (let k = 0; k < 100000; ++k) {
 //   const phrase = await Util.setRandomSeed();
-//   let hasRefresh = false;
-//   let hasCocktail = false;
-//   for (let t = 0; t < 4; ++t) {
-//     const selection = catalog.generateShop(3, 1, false);
-//     for (let i = 0; i < 3; ++i) {
-//       const sym = Util.randomRemove(selection, /* shop= */ true);
-//       if (sym.emoji() === '🔀') {
-//         hasRefresh = true;
-//       }
-//       if (sym.emoji() === '🍹') {
-//         hasCocktail = true;
-//       }
+
+//   let hasGift = false;
+//   const selection = catalog.generateShop(3, 1, false);
+//   for (let i = 0; i < 3; ++i) {
+//     const sym = Util.randomRemove(selection, /* shop= */ true);
+//     if (sym.emoji() === '🎁') {
+//       hasGift = true;
 //     }
 //   }
-//   if (hasRefresh && hasCocktail) {
-//     let score = 0;
-//     for (let t = 0; t < 20; ++t) {
-//       const selection = catalog.generateShop(3, 1, false);
-//       for (let i = 0; i < 3; ++i) {
-//         const sym = Util.randomRemove(selection, /* shop= */ true);
-//         if (sym.emoji() === '❎') {
-//           score += 1;
-//         }
-//         if (sym.emoji() === '🍍') {
-//           score += 1;
-//         }
-//       }
-//     }
-//     for (let t = 0; t < 300; ++t) {
-//       const selection = catalog.generateShop(3, 1, false);
-//       for (let i = 0; i < 3; ++i) {
-//         const sym = Util.randomRemove(selection, /* shop= */ true);
-//         if (sym.emoji() === '❎') {
-//           score += 1;
-//         }
-//         if (sym.emoji() === '🍾') {
-//           score += 2;
-//         }
-//       }
-//     }
-//     if (score > bestScore) {
-//       bestScore = score;
-//       bestPhrase = phrase;
-//     }
+//   if (!hasGift) {
+//     continue;
+//   }
+
+//   // Simulate roll
+//   for (let i = 0; i < 166; ++i) {
+//     Util.random(10);
+//   }
+  
+//   for (let i = 0; i < 163; ++i) {
+//     Util.random(10);
+//   }
+
+//   // Generate
+//   let rareOnly = Util.randomFloat() < 0.2;
+//   const bag = catalog.generateShop(
+//     1, 1,
+//     /* rareOnly= */ rareOnly,
+//     /* bannedCategories= */[CATEGORY_UNBUYABLE, CATEGORY_TOOL]);
+//   const sym = Util.randomChoose(bag);
+//   if (sym.emoji() === '🎁') {
+//     console.log(k, 'found', phrase);
+//     break;
 //   }
 // }
-
-// console.log('found', bestPhrase, bestScore);
-
-// poxjtboi 64
-// qaabkxuc 70
-// wsztoddp 71
-// oomebzbp 77
