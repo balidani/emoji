@@ -46,6 +46,7 @@ body {
   padding-top: 4pt;
   padding-left: 4pt;
   pointer-events: none; /* Allow clicks to pass through */ 
+  z-index: -1;
 }
 .event-log-inner {
   overflow: hidden;
@@ -161,7 +162,7 @@ body {
   font-size: 10pt;
   line-height: 12pt;
   vertical-align: bottom;
-  padding: 8pt;
+  padding: 4pt;
   text-align: center;
 }
 
@@ -169,7 +170,7 @@ body {
 
 .shop {
   padding-top: 12pt;
-  padding-bottom: 12pt;
+  padding-bottom: 36pt;
   width: 256pt;
   overflow: hidden;
 }
