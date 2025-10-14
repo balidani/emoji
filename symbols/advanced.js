@@ -34,7 +34,7 @@ export class MagicWand extends Symb {
       const [copyX, copyY] = Util.randomChoose(nonEmptyCoords);
       const [newX, newY] = Util.randomChoose(emptyCoords);
       const newSymbol = game.board.cells[copyY][copyX].copy();
-      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'rotate', 0.15, 1);
       await game.board.addSymbol(game, newSymbol, newX, newY);
       await game.board.showResourceEarned(newSymbol.emoji(), '', this.emoji());
     }
@@ -182,7 +182,7 @@ export class Clover extends Symb {
     if (x === -1 || y === -1) {
       return;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
   }
 }
 
@@ -206,7 +206,7 @@ export class CrystalBall extends Symb {
     if (x === -1 || y === -1) {
       return;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.1, 2);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
   }
 }
 

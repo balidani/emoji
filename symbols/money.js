@@ -76,7 +76,7 @@ export class Bank extends Symb {
       }
       const coin = new Coin();
       const [newX, newY] = Util.randomChoose(coords);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
       await game.board.showResourceEarned(coin.emoji(), '', this.emoji());
       await game.board.addSymbol(game, coin, newX, newY);
     };
@@ -201,11 +201,11 @@ export class Dice extends Symb {
   }
   async score(game, x, y) {
     if (chance(game, 0.01, x, y)) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 3);
       await this.addMoney(game, 52, x, y);
     }
   }
-  catgories() {
+  categories() {
     return [CATEGORY_GAMBLING];
   }
   description() {

@@ -87,7 +87,7 @@ export class Corn extends Symb {
       for (let i = 0; i < coords.length; ++i) {
         const [newX, newY] = coords[i];
         const popcorn = new Popcorn();
-        await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+        await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
         await game.board.showResourceEarned(popcorn.emoji(), '', this.emoji());
         await game.board.addSymbol(game, popcorn, newX, newY);
       }
@@ -298,16 +298,16 @@ export class Champagne extends Symb {
     }
     await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
     await game.board.removeSymbol(game, x, y);
-    await game.board.addSymbol(game, new Bubble(), x, y);
+    const bubble = new Bubble();
+    await game.board.addSymbol(game, bubble, x, y);
     const coords = game.board.nextToEmpty(x, y);
     if (coords.length === 0) {
       return;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+    await game.board.showResourceEarned(bubble.emoji(), (coords.length + 1) + '', this.emoji());
     for (let i = 0; i < coords.length; ++i) {
       const [newX, newY] = coords[i];
       const bubble = new Bubble();
-      await game.board.showResourceEarned(bubble.emoji(), '', this.emoji());
       await game.board.addSymbol(game, bubble, newX, newY);
     }
   }
@@ -340,7 +340,7 @@ export class Tree extends Symb {
       }
       const [newX, newY] = Util.randomRemove(coords);
       const cherry = new Cherry();
-      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
       await game.board.showResourceEarned(cherry.emoji(), '', this.emoji());
       await game.board.addSymbol(game, cherry, newX, newY);
     };

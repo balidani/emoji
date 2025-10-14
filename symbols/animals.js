@@ -65,7 +65,7 @@ export class Chicken extends Symb {
       for (let i = 0; i < Math.min(coords.length, eggCount); ++i) {
         const [newX, newY] = Util.randomRemove(coords);
         const egg = new Egg();
-        await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+        await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
         await game.board.addSymbol(game, egg, newX, newY);
         await game.board.showResourceEarned(egg.emoji(), '', this.emoji());
       }

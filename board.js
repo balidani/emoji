@@ -322,7 +322,7 @@ export class Board {
     }
     game.inventory.remove(this.cells[y][x]);
     this.clearCell(x, y);
-    await Util.animate(this.getSymbolDiv(x, y), 'flip', 0.15);
+    await Util.animate(this.getSymbolDiv(x, y), 'shake', 0.125, 2);
     await this.spinDivOnce(game, x, y);
   }
 

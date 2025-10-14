@@ -57,7 +57,7 @@ export class Bell extends Symb {
     if (chance(game, 0.2, x, y)) {
       const note = new MusicalNote();
       const [newX, newY] = Util.randomChoose(coords);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
       await game.board.showResourceEarned(note.emoji(), '', this.emoji());
       await game.board.addSymbol(game, note, newX, newY);
     }
@@ -112,7 +112,7 @@ export class Drums extends Symb {
         return;
       }
       const [newX, newY] = Util.randomChoose(coords);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 3);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
       const note = new MusicalNote();
       await game.board.showResourceEarned(note.emoji(), '', this.emoji());
       await game.board.addSymbol(game, note, newX, newY);
