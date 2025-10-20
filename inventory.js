@@ -93,7 +93,8 @@ export class Inventory {
         );
         Util.drawText(this.infoDiv, interactiveDescription, true);
       });
-      const countSpan = Util.createDiv(value + '', 'inventoryEntryCount');
+      const countSpan = Util.createDiv(
+        Util.formatBigNumber(value) + '', 'inventoryEntryCount');
       symbolDiv.appendChild(countSpan);
       this.uiDiv.appendChild(symbolDiv);
     };

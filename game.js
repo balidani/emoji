@@ -45,7 +45,8 @@ export class Game {
     });
     const scoreContainer = Util.createDiv('', 'scoreContainer');
     const scoreDiv = Util.createDiv(trophy, 'score');
-    const scoreText = `${Const.MONEY + this.inventory.getResource(Const.MONEY)}`;
+    const scoreNumber = Util.formatBigNumber(this.inventory.getResource(Const.MONEY));
+    const scoreText = `${Const.MONEY + scoreNumber}`;
     const scoreSubDiv = Util.createDiv('', 'finalScore');
     const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
     const letters = [...segmenter.segment(scoreText)].map(x => x.segment);

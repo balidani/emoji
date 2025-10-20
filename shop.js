@@ -44,7 +44,7 @@ export class Shop {
     costDiv.classList.add('cost');
     for (const [key, value] of Object.entries(symbolCost)) {
       const resourceDiv = document.createElement('div');
-      resourceDiv.innerHTML = key + value;
+      resourceDiv.innerHTML = key + Util.formatBigNumber(value);
       costDiv.appendChild(resourceDiv);
     }
     shopItemDiv.appendChild(costDiv);

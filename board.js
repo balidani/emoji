@@ -109,7 +109,7 @@ export class Board {
     return this.gridDiv.children[y].children[x].children[2];
   }
   async showResourceChange(key, value, source=Const.UNKNOWN, arrow='→') {
-    const text = `${source}${arrow}${key}${value}`;
+    const text = `${source}${arrow}${key}${Util.formatBigNumber(value)}`;
     const logLines = document.querySelector('.event-log-inner');
     const logLine = Util.createDiv(text, 'event-log-line');
     logLines.insertBefore(logLine, logLines.firstChild);
