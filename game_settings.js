@@ -116,7 +116,7 @@ export class GameSettings {
     );
 
     // Append elements to the settings div
-    const settingsBoxDiv = Util.createDiv('', 'settings-box');
+    const settingsBoxDiv = Utils.createDiv('', 'settings-box');
     settingsBoxDiv.append(numRowsInput.label, numRowsInput.input);
     settingsBoxDiv.append(numColumnsInput.label, numColumnsInput.input);
     settingsBoxDiv.append(gameLengthInput.label, gameLengthInput.input);
@@ -138,9 +138,9 @@ export class GameSettings {
     symbolSourcesInput,
     startingSymbolsInput
   ) {
-    this.boardX = numRowsInput.input.value;
-    this.boardY = numColsInput.input.value;
-    this.gameLength = gameLengthInput.input.value;
+    this.boardY = parseInt(numColsInput.input.value);
+    this.boardX = parseInt(numRowsInput.input.value);
+    this.gameLength = parseInt(gameLengthInput.input.value);
     this.symbolSources = symbolSourcesInput.input.value.split('\n');
     this.startingSet = startingSymbolsInput.input.value;
     this.close();

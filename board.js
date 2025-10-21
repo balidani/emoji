@@ -67,7 +67,7 @@ export class Board {
   }
   createCellDiv(x, y) {
     const cellContainer = Util.createDiv('', 'cell-container');
-    const cellDiv = Util.createDiv('', 'cell', `cell-${x}-${y}`);
+    const cellDiv = Util.createDiv('', 'cell', `cell-${y}-${x}`);
     const symbolDiv = Util.createDiv(Const.EMPTY, 'symbol');
     const counterDiv = Util.createDiv('', 'symbol-counter');
     counterDiv.innerText = '';
@@ -219,8 +219,8 @@ export class Board {
   }
   async clear(game) {
     this.lockedCells = [];
-    for (let y = 0; y < game.settings.boardY; ++y) {
-      for (let x = 0; x < game.settings.boardX; ++x) {
+    for (let x = 0; x < game.settings.boardX; ++x) {
+      for (let y = 0; y < game.settings.boardY; ++y) {
         this.cells[y][x] = this.empty.copy();
         await Util.delay(80);
         this.spinDivOnce(game, x, y);
