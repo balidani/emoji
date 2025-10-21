@@ -209,7 +209,7 @@ export const formatBigNumber = (n) => {
     const p = 10 ** decimals;
     return (Math.trunc(value * p) / p).toFixed(decimals);
   };
-  if (abs < 100_000) return sign + abs.toLocaleString();
+  if (abs < 100_000) return sign + abs;
   if (abs < 1_000_000) return sign + Math.trunc(abs / 1_000) + "K";
   if (abs < 10_000_000) return sign + truncFixed(abs / 1_000_000, 2) + "M";
   if (abs < 100_000_000) return sign + truncFixed(abs / 1_000_000, 1) + "M";
