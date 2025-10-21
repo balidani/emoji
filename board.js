@@ -443,6 +443,25 @@ export class Board {
     );
   }
 
+  allSameInRow(x, y) {
+    const emoji = this.cells[y][x].emoji();
+    for (let i = 0; i < this.settings.boardX; ++i) {
+      if (this.cells[y][i].emoji() !== emoji) {
+        return false;
+      }
+    }
+    return true;
+  }
+  allSameInColumn(x, y) {
+    const emoji = this.cells[y][x].emoji();
+    for (let i = 0; i < this.settings.boardY; ++i) {
+      if (this.cells[i][x].emoji() !== emoji) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   async getClickCoord(expr) {
     return new Promise((resolve) => {
       const onclick = (e) => {

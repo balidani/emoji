@@ -13,19 +13,24 @@ export class Diamond extends Symb {
     return new Diamond();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15);
-    await this.addMoney(game, 8, x, y);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
     const coords = game.board.nextToSymbol(x, y, Diamond.emoji);
-    if (coords.length === 0) {
-      return;
+    const rowMult = game.board.allSameInRow(x, y) ? 7 : 1;
+    const colMult = game.board.allSameInColumn(x, y) ? 7 : 1;
+    if (rowMult !== 1) {
+      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15);
     }
-    await this.addMoney(game, coords.length * 8, x, y);
+    if (colMult !== 1) {
+      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15);
+    }
+    const score = (7 + (coords.length * 7)) * rowMult * colMult;
+    await this.addMoney(game, score, x, y);
   }
   description() {
-    return '💵8<br>💵8 for each neighboring 💎';
+    return '💵7<br>💵7 for each neighboring 💎<br>x7 if 5 in a row<br>x7 if 5 in a column';
   }
   descriptionLong() {
-    return 'this is a diamond. it pays 💵8 and 💵8 for each other 💎 next to it.';
+    return 'this is a diamond. it pays 💵7 and 💵7 for each other 💎 next to it. x7 if all symbols in a row are 💎. x7 if all symbols in a column are 💎.';
   }
 }
 
