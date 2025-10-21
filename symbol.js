@@ -90,7 +90,7 @@ export class Symb {
   render(game, x, y) {
     const symbolDiv = Util.createDiv(this.emoji(), 'symbol');
     const counterDiv = Util.createDiv(
-      this.counter(game) || '',
+      Util.formatBigNumber(this.counter(game) || ''),
       'symbol-counter'
     );
     const pinDiv = Util.createDiv(
