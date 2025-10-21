@@ -62,8 +62,8 @@ export class GameSettings {
     this.textLookup = textLookup || {
       greeting:
         '💬: welcome to emoji slots. press anywhere on the board above when you are ready to play (🕹️)',
-      50: '💬: now you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again by pressing on the board',
-      49: '💬: if you want to find out more about an emoji, tap on it. for example, try tapping here: 🌋',
+      50: '💬: now you can add a symbol to your inventory. press (✅) to do that, refresh the shop (🔀), or roll again by pressing on the board above',
+      49: '💬: if you want to find out more about a symbol, tap on it. for example, try tapping here: 🌋',
       48: '💬: you have 47 turns left. earn enough 💵 to get a trophy: 🥉, 🥈, 🥇, 🏆, 👑',
       47: '💬: you can double tap the grid to skip animation',
       46: '💬: you can tap on any symbol in the shop and in your inventory to get more information',
