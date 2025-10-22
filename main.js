@@ -296,3 +296,15 @@ Util.toggleAnimation();
 //     break;
 //   }
 // }
+
+const hamburgerButton = document.getElementById('hamburger');
+const sidebar = document.getElementById('sidebar-menu');
+const closeButton = document.getElementById('close-sidebar');
+
+hamburgerButton.addEventListener('click', () => {
+  sidebar.classList.toggle('active');
+});
+
+closeButton.addEventListener('click', () => {
+  sidebar.classList.remove('active');
+});

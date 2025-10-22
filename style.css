@@ -301,11 +301,55 @@ body {
   font-weight: 900;
 }
 
-.socials {
+.top-right {
   position: fixed;
   top: 0;
   right: 0;
   margin: 4pt;
+}
+
+#sidebar-menu {
+  position: fixed;
+  top: 0;
+  right: -210pt; /* start off-screen */
+  width: 200pt;
+  height: 100vh;
+  background-color: #fff;
+  border-left: 1px solid black;
+  transition: right 0.3s ease;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+
+#sidebar-menu.active {
+  right: 0;
+}
+
+#close-sidebar {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  font-size: 2em;
+  cursor: pointer;
+}
+
+/* Menu items */
+#sidebar-menu ul {
+  list-style: none;
+  padding-left: 1em;
+}
+#sidebar-menu li {
+  padding-bottom: 0.5em;
+}
+
+#sidebar-menu a {
+  text-decoration: none;
+  font-size: 1.2em;
+}
+
+#sidebar-menu a:hover {
+  text-decoration: underline;
 }
 
 .progression {
