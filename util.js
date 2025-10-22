@@ -28,8 +28,8 @@ const setSeed = async (phrase) => {
     const buffer = new TextEncoder().encode(str);
     return crypto.subtle.digest("SHA-1", buffer);
   };
-  const convertSeed = (phrase, shop=false) => {
-    const buf = sha1(phrase);
+  const convertSeed = async (phrase, shop=false) => {
+    const buf = await sha1(phrase);
     const arr = new Uint32Array(buf);
     if (shop) {
       sfc32ShopInstance = sfc32(...arr);
@@ -37,22 +37,22 @@ const setSeed = async (phrase) => {
       sfc32Instance = sfc32(...arr);
     }
   }
-  convertSeed(phrase);
-  convertSeed(phrase + 'shop', /* shop= */ true);
+  await convertSeed(phrase);
+  await convertSeed(phrase + 'shop', /* shop= */ true);
 };
-export const setRandomSeed = () => {
+export const setRandomSeed = async () => {
   seedPhrase = Array.from({ length: 8 }, () =>
       String.fromCharCode(97 + Math.floor(Math.random() * 26))
   ).join('');
   // window.location.hash = seedPhrase;
-  setSeed(seedPhrase);
+  await setSeed(seedPhrase);
   return seedPhrase;
 };
 let seedPhrase = window.location.hash.slice(1);
 if (seedPhrase) {
-  setSeed(seedPhrase);
+  await setSeed(seedPhrase);
 } else {
-  setRandomSeed();
+  await setRandomSeed();
 }
 window.seedPhrase = seedPhrase;
 document.querySelector('#seed-phrase').textContent = seedPhrase;
