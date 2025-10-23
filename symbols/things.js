@@ -212,16 +212,16 @@ export class Santa extends Symb {
     return game.inventory.giftsOpened;
   }
   async score(game, x, y) {
-    const value = 50 * game.inventory.giftsOpened;
+    const value = 25 * game.inventory.giftsOpened;
     if (value > 0) {
       await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
       await this.addMoney(game, value, x, y);
     }
   }
   description() {
-    return "💵50 for each 🎁 opened";
+    return "💵25 for each 🎁 opened";
   }
   descriptionLong() {
-    return "this is santa. it gives 💵50 for each 🎁 opened this run.";
+    return "this is santa. it gives 💵25 for each 🎁 opened this run.";
   }
 }
