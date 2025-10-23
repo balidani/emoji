@@ -1,7 +1,7 @@
 import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
-import { chance, Symb } from '../symbol.js';
+import { badChance, chance, Symb } from '../symbol.js';
 
 // Most symbols in here are related to Coin (🪙), with some gambling related stuff thrown in for good measure.
 
@@ -194,24 +194,30 @@ export class Dice extends Symb {
   static emoji = '🎲';
   constructor() {
     super();
-    this.rarity = 0.14;
+    this.rarity = 0.11;
   }
   copy() {
     return new Dice();
   }
+  cost() {
+    return {'💵': 77};
+  }
   async score(game, x, y) {
-    if (chance(game, 0.01, x, y)) {
+    if (badChance(game, 0.8, x, y)) {
+      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+      await this.addMoney(game, -123, x, y);
+    } else {
       await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 3);
-      await this.addMoney(game, 52, x, y);
+      await this.addMoney(game, 456, x, y);
     }
   }
   categories() {
     return [CATEGORY_GAMBLING];
   }
   description() {
-    return '1% chance: 💵52';
+    return '80% chance: 💵-123<br>20% chance: 💵456';
   }
   descriptionLong() {
-    return 'this is a die. it has a 1% chance to pay 💵52.';
+    return 'this is a die. it has 80% chance to pay 💵-123 and 20% chance to pay 💵456.';
   }
 }
