@@ -91,6 +91,12 @@ body {
 .grid:focus {
   outline: none; /* Removes any focus outline */
 }
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+}
 
 .row {
   display: flex;
@@ -663,15 +669,15 @@ body {
 
 @keyframes grow {
   0% {
-    transform: scaleY(1);
+    transform: scale(1);
     transform-origin: bottom;
   }
   50% {
-    transform: scaleY(1.25);
+    transform: scale(var(--grow-scale, 1.2));
     transform-origin: bottom;
   }
   100% {
-    transform: scaleY(1);
+    transform: scale(1);
     transform-origin: bottom;
   }
 }

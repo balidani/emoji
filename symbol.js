@@ -67,14 +67,19 @@ export class Symb {
     const value = score * this.multiplier;
     const source = game.board.getEmoji(x, y);
     const coords = game.board.nextToSymbol(x, y, Const.MULT);
+    let multCount = 0;
     for (const coord of coords) {
       const [multX, multY] = coord;
-      await Util.animate(
-        game.board.getSymbolDiv(multX, multY),
-        'flip',
-        0.15,
-        1
-      );
+      await Promise.all([
+        Util.animate(
+          game.board.getSymbolDiv(multX, multY),
+          'flip',
+          0.2,
+          1),
+        Util.animateOverlay(game.board.getSymbolDiv(x, y), 'grow', 0.2 + multCount * 0.035, 1,
+          {'grow-scale': 1.2 + multCount * 0.25}),
+      ]);
+      multCount++;
     }
     await this.addResource(game, Const.MONEY, value, source);
   }

@@ -73,7 +73,7 @@ export const delay = (ms) => {
   }
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
-export const animate = (element, animation, duration, repeat = 1) => {
+export const animate = (element, animation, duration, repeat = 1, vars={}) => {
   if (element === null) {
     return Promise.resolve();
   }
@@ -82,10 +82,59 @@ export const animate = (element, animation, duration, repeat = 1) => {
   }
   return new Promise((resolve) => {
     element.style.animation = 'none';
-    element.offsetWidth; // lmao
+    element.offsetWidth; // reflow
     element.style.animation = `${animation} ${duration}s linear ${repeat}`;
+    for (const [key, value] of Object.entries(vars)) {
+      element.style.setProperty(`--${key}`, value);
+    }
     element.addEventListener('animationend', resolve, { once: true });
   });
+};
+export const animateOverlay = async (element, animation, duration, repeat = 1, vars = {}) => {
+  if (!element) return;
+  if (!ANIMATION) return;
+
+  const overlay = document.querySelector('.grid-overlay');
+  if (!overlay) {
+    console.warn('Missing .grid-overlay element');
+    return;
+  }
+
+  const rect = element.getBoundingClientRect();
+  const clone = element.cloneNode(true);
+  const cs = getComputedStyle(element);
+  Object.assign(clone.style, {
+    position: 'fixed',
+    left: `${rect.left}px`,
+    top: `${rect.top}px`,
+    width: `${rect.width}px`,
+    height: `${rect.height}px`,
+    margin: 0,
+    pointerEvents: 'none',
+    willChange: 'transform',
+    transformOrigin: 'top',
+    font: cs.font,
+    lineHeight: cs.lineHeight,
+    // Helps iOS/Safari rendering during scale
+    WebkitBackfaceVisibility: 'hidden',
+    backfaceVisibility: 'hidden',
+  });
+
+  // Hide the original
+  const prevVis = element.style.visibility;
+  element.style.visibility = 'hidden';
+
+  overlay.appendChild(clone);
+  const cleanup = () => {
+    clone.remove();
+    element.style.visibility = prevVis;
+  };
+  clone.addEventListener('animationend', cleanup, { once: true });
+  clone.addEventListener('transitionend', cleanup, { once: true });
+
+  await animate(clone, animation, duration, repeat, vars);
+  // In case animationend didn't fire for some reason (e.g., display change)
+  cleanup();
 };
 export const deleteText = (element) => {
   element.textContent = '';
