@@ -257,45 +257,31 @@ Util.toggleAnimation();
 // await simulate(/*buyAlways=*/'❎🧈🍿', /*buyOnce=*/'🔮🔮🪄🌽🌽🌽🧊🧊🧊🎯🎯');
 
 // Find seed
-// #nhsvjwcp
+// #ajaisqrx
+// #gufqogqg 
 
 // const settings = GameSettings.instance();
 // const catalog = new Catalog(settings.symbolSources);
 // await catalog.updateSymbols();
+// let maxCount = 0;
+// let bestPhrase = '';
 // for (let k = 0; k < 100000; ++k) {
 //   const phrase = await Util.setRandomSeed();
 
-//   let hasGift = false;
-//   const selection = catalog.generateShop(3, 1, false);
-//   for (let i = 0; i < 3; ++i) {
-//     const sym = Util.randomRemove(selection, /* shop= */ true);
-//     if (sym.emoji() === '🎁') {
-//       hasGift = true;
+//   let counter = 0;
+//   for (let k = 0; k < 8; ++k) {
+//     const selection = catalog.generateShop(3, 1, false);
+//     for (let i = 0; i < 3; ++i) {
+//       const sym = Util.randomRemove(selection, /* shop= */ true);
+//       if ('🛍️🔮'.includes(sym.emoji())) {
+//         counter++;
+//       }
 //     }
 //   }
-//   if (!hasGift) {
-//     continue;
-//   }
-
-//   // Simulate roll
-//   for (let i = 0; i < 166; ++i) {
-//     Util.random(10);
-//   }
-  
-//   for (let i = 0; i < 163; ++i) {
-//     Util.random(10);
-//   }
-
-//   // Generate
-//   let rareOnly = Util.randomFloat() < 0.2;
-//   const bag = catalog.generateShop(
-//     1, 1,
-//     /* rareOnly= */ rareOnly,
-//     /* bannedCategories= */[CATEGORY_UNBUYABLE, CATEGORY_TOOL]);
-//   const sym = Util.randomChoose(bag);
-//   if (sym.emoji() === '🎁') {
-//     console.log(k, 'found', phrase);
-//     break;
+//   if (counter > maxCount) {
+//     maxCount = counter;
+//     bestPhrase = phrase;
+//     console.log(`new best ${bestPhrase} with ${maxCount}`);
 //   }
 // }
 
