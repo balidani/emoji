@@ -8,6 +8,8 @@ import { Shop } from './shop.js';
 import { Game } from './game.js';
 import { Progression } from './progression.js';
 
+import { CATEGORY_UNBUYABLE } from './symbol.js';
+
 // TODO: someday, we may want to support "multiple tracks" of progression aka different packs of levels.
 // For now, hardcode a single default progression.
 const PROGRESSION = new Progression();
@@ -297,6 +299,8 @@ Util.toggleAnimation();
 //   }
 // }
 
+// TODO: extract to ui.js
+
 const hamburgerButton = document.getElementById('hamburger');
 const sidebar = document.getElementById('sidebar-menu');
 const closeButton = document.getElementById('close-sidebar');
@@ -308,3 +312,36 @@ hamburgerButton.addEventListener('click', () => {
 closeButton.addEventListener('click', () => {
   sidebar.classList.remove('active');
 });
+
+const viewSymbolsButton = document.getElementById('view-symbols');
+const symbolListDiv = document.querySelector('.sidebar-content .symbol-list');
+viewSymbolsButton.addEventListener('click', () => {
+  symbolListDiv.classList.toggle('hidden');
+  viewSymbolsButton.innerText = symbolListDiv.classList.contains('hidden') ? 'view symbols' : 'hide symbols';
+});
+
+const allSymbols = [];
+for (const [emoji, symbol] of game.catalog.symbols) {
+  if (symbol.categories().includes(CATEGORY_UNBUYABLE)) {
+    continue;
+  }
+  allSymbols.push(symbol);
+}
+// Sort by name:
+allSymbols.sort((a, b) => {
+  if (a.constructor.name < b.constructor.name) {
+    return -1;
+  } else if (a.constructor.name > b.constructor.name) {
+    return 1;
+  }
+  return 0;
+});
+for (const symbol of allSymbols) {
+  const symbolDiv = Util.createDiv('', 'symbol-info-entry');
+  const emojiSpan = Util.createSpan(`${symbol.emoji()}: `, 'symbol-info-emoji');
+  const descSpan = Util.createSpan('', 'symbol-info-desc');
+  descSpan.innerHTML = symbol.descriptionLong();
+  symbolDiv.appendChild(emojiSpan);
+  symbolDiv.appendChild(descSpan);
+  symbolListDiv.appendChild(symbolDiv);
+}

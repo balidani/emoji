@@ -77,6 +77,7 @@
     </div>
     <div id="sidebar-menu">
       <button id="close-sidebar">&times;</button>
+      <div class="sidebar-content">
       <ul>
         <li><svg
           width="1.2em"
@@ -100,8 +101,12 @@
         </svg>&nbsp;<a target="_blank" href="https://github.com/balidani/emoji">view on GitHub</a>
         </li>
         <li>🌱 seed: <a id="seed-link" href="#">/#<span id="seed-phrase"></span></a></li>
-        <!-- <li>📒 symbols</li> -->
+        <li>📒 <a id="view-symbols" href="#">view symbols</a>
+          <div class="hidden symbol-list">
+          </div>
+        </li>
       </ul>
+      </div>
     </div>
     <div class="open-settings dev-hidden">Settings</div>
     <script type="module" src="main.js"></script>

@@ -170,7 +170,7 @@ body {
 
 .shop {
   padding-top: 12pt;
-  padding-bottom: 36pt;
+  padding-bottom: 60pt;
   width: 256pt;
   overflow: hidden;
 }
@@ -320,6 +320,18 @@ body {
   z-index: 9999;
   display: flex;
   flex-direction: column;
+}
+
+.sidebar-content {
+  flex: 1 1 auto;
+  min-height: 0;           /* important in flex containers so scrolling works */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.symbol-info-entry {
+  padding-top: 1em;
 }
 
 #sidebar-menu.active {

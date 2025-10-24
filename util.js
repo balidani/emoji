@@ -132,6 +132,17 @@ export const createDiv = (innerText, ...classes) => {
   return div;
 };
 
+export const createSpan = (innerText, ...classes) => {
+  const span = document.createElement('span');
+  if (innerText) {
+    span.textContent = innerText;
+  }
+  for (const c of classes) {
+    span.classList.add(c);
+  }
+  return span;
+};
+
 export const createInteractiveDescription = (description, emoji = null) => {
   const segments = parseEmojiString(description);
   let result = '';
