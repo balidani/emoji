@@ -54,7 +54,7 @@ export class Briefcase extends Symb {
     return [CATEGORY_BUSINESS];
   }
   counter(game) {
-    return ((game.inventory.symbols.length / 4) | 0) * 5;
+    return Math.trunc(game.inventory.symbols.length / 4) * 5;
   }
   description() {
     return '💵5 for every 4 symbols in inventory';

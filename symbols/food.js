@@ -263,7 +263,7 @@ export class Cocktail extends Symb {
     };
     await remove(Cherry, (v) => v + 2);
     await remove(Pineapple, (v) => v + 4);
-    await remove(Champagne, (v) => (v * 1.5) | 0);
+    await remove(Champagne, (v) => Math.trunc(v * 1.5));
   }
   counter(_) {
     return this.cherryScore;

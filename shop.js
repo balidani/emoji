@@ -171,7 +171,7 @@ export class Shop {
               ),
             ]);
             this.refreshCost += this.refreshCostIncrease;
-            this.refreshCost = this.refreshCost * this.refreshCostMult | 0;
+            this.refreshCost = Math.trunc(this.refreshCost * this.refreshCostMult);
             this.isOpen = false;
             await this.open(game);
           }
@@ -200,10 +200,9 @@ export class Shop {
   reset(game) {
     this.haveRefreshSymbol = false;
     this.refreshCost =
-      (1 +
+      Math.trunc(1 +
         this.getInventory(game).getResource(this.refreshCostResource) *
-          this.refreshCostInitialMult) |
-      0;
+          this.refreshCostInitialMult);
     this.refreshCount = 0;
     this.buyCount = 1;
     this.buyLines = 3;
