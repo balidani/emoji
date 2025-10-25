@@ -81,13 +81,19 @@ export const animate = (element, animation, duration, repeat = 1, vars={}) => {
     return Promise.resolve();
   }
   return new Promise((resolve) => {
+    element.style.willChange = 'transform, opacity';
     element.style.animation = 'none';
     element.offsetWidth; // reflow
     element.style.animation = `${animation} ${duration}s linear ${repeat}`;
     for (const [key, value] of Object.entries(vars)) {
       element.style.setProperty(`--${key}`, value);
     }
-    element.addEventListener('animationend', resolve, { once: true });
+    const done = () => {
+      element.style.animation = '';
+      element.style.willChange = '';
+      resolve();
+    };
+    element.addEventListener('animationend', done, { once: true });
   });
 };
 export const animateOverlay = async (element, animation, duration, repeat = 1, vars = {}) => {

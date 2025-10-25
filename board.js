@@ -363,14 +363,6 @@ export class Board {
     add(x + 1, y - 1);
     add(x + 1, y);
     add(x + 1, y + 1);
-    // add(x - 1, y);
-    // add(x + 1, y);
-    // add(x, y - 1);
-    // add(x, y + 1);
-    // add(x - 1, y - 1);
-    // add(x + 1, y - 1);
-    // add(x - 1, y + 1);
-    // add(x + 1, y + 1);
     return coords;
   }
 
