@@ -134,7 +134,6 @@ export class Fox extends Symb {
   async evaluateConsume(game, x, y) {
     const eatNeighbor = async (neighborClass, mult) => {
       const coords = game.board.nextToSymbol(x, y, neighborClass.emoji);
-      console.log('next to', neighborClass.emoji, coords);
       if (coords.length === 0) {
         return;
       }
