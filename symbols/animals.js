@@ -20,7 +20,7 @@ export class Chick extends Symb {
     return new Chick(this.timeToGrow);
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, 1, x, y);
   }
   async evaluateConsume(game, x, y) {
@@ -28,7 +28,7 @@ export class Chick extends Symb {
       await game.board.removeSymbol(game, x, y);
       const chicken = new Chicken();
       await game.board.addSymbol(game, chicken, x, y);
-      await game.board.showResourceEarned(chicken.emoji(), '', this.emoji());
+      await game.eventlog.showResourceEarned(chicken.emoji(), '', this.emoji());
     }
   }
   counter(_) {
@@ -52,7 +52,7 @@ export class Chicken extends Symb {
     return new Chicken();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, 3, x, y);
   }
   async evaluateProduce(game, x, y) {
@@ -67,7 +67,7 @@ export class Chicken extends Symb {
         const egg = new Egg();
         await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
         await game.board.addSymbol(game, egg, newX, newY);
-        await game.board.showResourceEarned(egg.emoji(), '', this.emoji());
+        await game.eventlog.showResourceEarned(egg.emoji(), '', this.emoji());
       }
     }
   }
@@ -100,7 +100,7 @@ export class Egg extends Symb {
       }
       await game.board.removeSymbol(game, x, y);
       await game.board.addSymbol(game, newSymbol, x, y);
-      await game.board.showResourceEarned(newSymbol.emoji(), '', this.emoji());
+      await game.eventlog.showResourceEarned(newSymbol.emoji(), '', this.emoji());
     }
   }
   counter(_) {
@@ -126,7 +126,7 @@ export class Fox extends Symb {
   }
   async score(game, x, y) {
     if (this.eatenScore > 0) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
       await this.addMoney(game, this.eatenScore, x, y);
       this.eatenScore = 0;
     }
@@ -140,7 +140,7 @@ export class Fox extends Symb {
       for (const coord of coords) {
         this.eatenScore += reward;
         const [deleteX, deleteY] = coord;
-        await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+        await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
         await game.board.removeSymbol(game, deleteX, deleteY);
       }
       this.turns = 0;
@@ -176,7 +176,7 @@ export class Dragon extends Symb {
     return new Dragon();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, 42, x, y);
   }
   categories() {
@@ -203,7 +203,7 @@ export class Bug extends Symb {
   }
   async score(game, x, y) {
     if (this.foodScore > 0) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
       await this.addMoney(game, this.foodScore, x, y);
     }
     this.foodScore = 0;
@@ -220,7 +220,7 @@ export class Bug extends Symb {
       for (const coord of coords) {
         this.foodScore += 8;
         const [deleteX, deleteY] = coord;
-        await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+        await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
         await game.board.removeSymbol(game, deleteX, deleteY);
       }
     }

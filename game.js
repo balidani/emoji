@@ -2,6 +2,7 @@ import * as Const from './consts.js';
 import * as Util from './util.js';
 
 import { Board } from './board.js';
+import { EventLog } from './eventlog.js';
 import { Inventory } from './inventory.js';
 import { loadListener } from './main.js'; // Semi-Circular import, but it works.
 import { Shop } from './shop.js';
@@ -14,6 +15,7 @@ export class Game {
     this.inventory = new Inventory(this.settings, this.catalog);
     this.inventory.update();
     this.board = new Board(this);
+    this.eventlog = new EventLog();
     this.shop = new Shop(this.catalog);
     this.rolling = false;
     this.info = document.querySelector('.game .info');

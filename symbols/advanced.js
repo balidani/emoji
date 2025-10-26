@@ -182,7 +182,7 @@ export class Clover extends Symb {
     if (x === -1 || y === -1) {
       return;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
   }
 }
 
@@ -206,7 +206,7 @@ export class CrystalBall extends Symb {
     if (x === -1 || y === -1) {
       return;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
   }
 }
 
@@ -233,7 +233,7 @@ export class FortuneCookie extends Symb {
   }
   async score(game, x, y) {
     const value = this.counter(game);
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, value, x, y);
   }
 }

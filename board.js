@@ -108,22 +108,6 @@ export class Board {
   getPinDiv(x, y) {
     return this.gridDiv.children[y].children[x].children[2];
   }
-  async showResourceChange(key, value, source=Const.UNKNOWN, arrow='→') {
-    const text = `${source}${arrow}${key}${Util.formatBigNumber(value)}`;
-    const logLines = document.querySelector('.event-log-inner');
-    const logLine = Util.createDiv(text, 'event-log-line');
-    logLines.insertBefore(logLine, logLines.firstChild);
-    while (logLines.children.length > 20) {
-      logLines.removeChild(logLines.lastElementChild);
-    }
-    await Util.animate(logLines, 'eventLogScroll', 0.1);
-  }
-  async showResourceEarned(key, value, source=Const.UNKNOWN) {
-    this.showResourceChange(key, value, source, '→');
-  }
-  async showResourceLost(key, value, source=Const.UNKNOWN) {
-    this.showResourceChange(key, value, source, '←');
-  }
   clearCell(x, y) {
     const counterDiv = this.getCounterDiv(x, y);
     if (counterDiv) {
@@ -333,13 +317,11 @@ export class Board {
       symbol: symbol,
       duration: duration,
     };
-    await Util.animate(this.getSymbolDiv(x, y), 'bounce', 0.05);
   }
 
   async unlockCell(x, y) {
     delete this.lockedCells[`${x},${y}`];
     this.clearCell(x, y);
-    await Util.animate(this.getSymbolDiv(x, y), 'bounce', 0.05);
   }
 
   nextToCoords(x, y) {
@@ -493,11 +475,9 @@ export class Board {
   }
 
   async pinCell(game, x, y) {
-    this.lockedCells[`${x},${y}`] = {
-      symbol: this.cells[y][x],
-      duration: -1,
-    };
+    await this.lockCell(x, y, this.cells[y][x], -1);
     this.redrawCell(game, x, y);
+    await Util.animate(this.getSymbolDiv(x, y), 'bounce', 0.15);
   }
 
   addClickListener(game) {

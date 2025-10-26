@@ -59,7 +59,7 @@ export class Symb {
   }
   async addResource(game, key, value, source='❓') {
     await Promise.all([
-      game.board.showResourceEarned(key, value, source),
+      game.eventlog.showResourceEarned(key, value, source),
       game.inventory.addResource(key, value),
     ]);
   }

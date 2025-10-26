@@ -24,7 +24,7 @@ export class Coin extends Symb {
     return 2 + activeCount + passiveCount;
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, this.getValue(game), x, y);
   }
   description() {
@@ -47,7 +47,7 @@ export class Briefcase extends Symb {
   }
   async score(game, x, y) {
     const value = this.counter(game);
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, value, x, y);
   }
   catgories() {
@@ -83,7 +83,7 @@ export class Bank extends Symb {
       const coin = new Coin();
       const [newX, newY] = Util.randomChoose(coords);
       await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
-      await game.board.showResourceEarned(coin.emoji(), '', this.emoji());
+      await game.eventlog.showResourceEarned(coin.emoji(), '', this.emoji());
       await game.board.addSymbol(game, coin, newX, newY);
     };
     await mint();
@@ -116,7 +116,7 @@ export class CreditCard extends Symb {
   async score(game, x, y) {
     this.turn += 1;
     if (this.turn === 1) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
       await this.addMoney(game, 1000, x, y);
     }
   }
@@ -142,7 +142,7 @@ export class MoneyBag extends Symb {
   async score(game, x, y) {
     if (this.coins > 0) {
       const value = this.coins * this.coin.getValue(game);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
       await this.addMoney(game, value, x, y);
     }
   }
@@ -154,7 +154,7 @@ export class MoneyBag extends Symb {
     for (const coord of coords) {
       this.coins++;
       const [deleteX, deleteY] = coord;
-      await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+      await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
       await game.board.removeSymbol(game, deleteX, deleteY);
       game.board.redrawCell(game, x, y);
     }
@@ -181,7 +181,7 @@ export class Slots extends Symb {
   }
   async score(game, x, y) {
     const value = this.counter(game);
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.1);
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, value, x, y);
   }
   catgories() {
