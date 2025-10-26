@@ -86,7 +86,7 @@ export class Board {
         await Util.animate(rowDiv, 'moveIn', 0.2);
       }
     } else if (this.cells.length > rows) {
-      // If there are too many rows, hide the extra ones and replace with empty.
+      // If there are too many rows, hide the extra ones.
       for (let y = this.cells.length - 1; y >= rows; --y) {
         this.gridDiv.childNodes[y].classList.add('hidden');
       }
@@ -186,7 +186,7 @@ export class Board {
     const lockedAtStart = { ...this.lockedCells };
     for (let y = 0; y < this.cells.length; ++y) {
       if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
-        continue;
+        break;
       }
       for (let x = 0; x < game.settings.boardX; ++x) {
         const addr = `${x},${y}`;
@@ -225,10 +225,10 @@ export class Board {
 
     const tasks = [];
     for (let y = 0; y < this.cells.length; ++y) {
+      if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
+        break;
+      }
       for (let x = 0; x < game.settings.boardX; ++x) {
-        if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
-          continue;
-        }
         const addr = `${x},${y}`;
         if (lockedAtStart[addr]) {
           continue;
@@ -441,6 +441,9 @@ export class Board {
 
   forAllCells(f) {
     this.cells.forEach((row, y) => {
+      if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
+        return;
+      }
       row.forEach((cell, x) => {
         f(cell, x, y);
       });
