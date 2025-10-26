@@ -18,6 +18,7 @@ export class Inventory {
     this.updateUi();
     this.graveyard = [];
     this.giftsOpened = 0;
+    this.rowCount = settings.boardY;
   }
   update() {
     this.symbolsDiv.replaceChildren();
@@ -81,6 +82,9 @@ export class Inventory {
     this.resources[Const.LUCK] = this.tempLuckBonus;
     this.tempLuckBonus = 0;
     this.updateUi();
+  }
+  resetRows() {
+    this.rowCount = this.settings.boardY;
   }
   updateUi() {
     this.uiDiv.replaceChildren();

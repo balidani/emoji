@@ -83,7 +83,8 @@ body {
   padding-top: 20pt;
   display: flex;
   justify-content: center;
-  width: 240pt;
+  flex-direction: column;
+  width: 170pt;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -99,7 +100,7 @@ body {
 
 .row {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 
 .cell {
@@ -776,6 +777,16 @@ body {
   }
   100% {
     opacity: 0.5;
+  }
+}
+
+@keyframes moveIn {
+  0% {
+    transform: translateX(100vw);
+  }
+
+  100% {
+    transform: translateX(0);
   }
 }
 

@@ -170,31 +170,31 @@ export class MoneyBag extends Symb {
   }
 }
 
-export class Slots extends Symb {
-  static emoji = '🎰';
+export class Jar extends Symb {
+  static emoji = '🫙';
   constructor() {
     super();
     this.rarity = 0.15;
   }
   copy() {
-    return new Slots();
+    return new Jar();
   }
   async score(game, x, y) {
-    const value = this.counter(game);
+    const value = this.counter(game) * 8;
     await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, value, x, y);
   }
-  catgories() {
+  categories() {
     return [CATEGORY_GAMBLING];
   }
   counter(game) {
-    return new Set(game.inventory.symbols.map((s) => s.emoji())).size * 2;
+    return new Set(game.inventory.symbols.map((s) => s.emoji())).size;
   }
   description() {
-    return '💵2 per different symbol in inventory';
+    return '💵8 per different symbol in inventory';
   }
   descriptionLong() {
-    return 'this is a slot machine. it pays 💵2 for all the different symbols in your inventory.';
+    return 'this is a jar. it pays 💵8 for all the different symbols in your inventory.';
   }
 }
 

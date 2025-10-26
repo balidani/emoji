@@ -65,6 +65,31 @@ export class Board {
       this.spinDivOnce(game, x, y);
     }
   }
+  async resetBoardSize(rows) {
+    // If rows are not created yet:
+    if (this.cells.length < rows) {
+      for (let y = 0; y < this.cells.length; ++y) {
+        this.gridDiv.childNodes[y].classList.remove('hidden');
+      }
+      for (let y = this.cells.length; y < rows; ++y) {
+        const row = [];
+        const rowDiv = Util.createDiv('', 'row');
+        for (let x = 0; x < this.settings.boardX; ++x) {
+          row.push(this.empty.copy());
+          const cellContainer = this.createCellDiv(x, y);
+          rowDiv.appendChild(cellContainer);
+        }
+        this.cells.push(row);
+        this.gridDiv.appendChild(rowDiv);
+        await Util.animate(rowDiv, 'moveIn', 0.2);
+      }
+    } else if (this.cells.length > rows) {
+      // If there are too many rows, hide the extra ones and replace with empty.
+      for (let y = this.cells.length - 1; y >= rows; --y) {
+        this.gridDiv.childNodes[y].classList.add('hidden');
+      }
+    }
+  }
   createCellDiv(x, y) {
     const cellContainer = Util.createDiv('', 'cell-container');
     const cellDiv = Util.createDiv('', 'cell', `cell-${y}-${x}`);
@@ -148,12 +173,19 @@ export class Board {
     await Util.animate(symbolDiv, 'bounce', 0.1);
   }
   async roll(game) {
+    if (this.cells.length !== game.inventory.rowCount) {
+      await this.resetBoardSize(game.inventory.rowCount);
+    }
+    game.inventory.resetRows();
     const symbols = [...game.inventory.symbols];
     const empties = [];
 
     const lockedSet = new Set();
     const lockedAtStart = { ...this.lockedCells };
-    for (let y = 0; y < game.settings.boardY; ++y) {
+    for (let y = 0; y < this.cells.length; ++y) {
+      if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
+        continue;
+      }
       for (let x = 0; x < game.settings.boardX; ++x) {
         const addr = `${x},${y}`;
         const lockedSymbol = this.lockedCells[addr];
@@ -190,8 +222,11 @@ export class Board {
     }
 
     const tasks = [];
-    for (let y = 0; y < game.settings.boardY; ++y) {
+    for (let y = 0; y < this.cells.length; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
+        if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
+          continue;
+        }
         const addr = `${x},${y}`;
         if (lockedAtStart[addr]) {
           continue;
@@ -204,7 +239,10 @@ export class Board {
   async clear(game) {
     this.lockedCells = [];
     for (let x = 0; x < game.settings.boardX; ++x) {
-      for (let y = 0; y < game.settings.boardY; ++y) {
+      for (let y = 0; y < this.cells.length; ++y) {
+        if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
+          continue;
+        }
         this.cells[y][x] = this.empty.copy();
         await Util.delay(16);
         Util.animate(this.getSymbolDiv(x, y), 'fadeOut', 0.3).then(() => {

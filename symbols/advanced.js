@@ -3,7 +3,6 @@ import * as Util from '../util.js';
 
 import { chance, Symb, CATEGORY_EMPTY_SPACE } from '../symbol.js';
 import { Empty } from './ui.js';
-import { CATEGORY_ANIMAL } from './animals.js';
 import { CATEGORY_FOOD, CATEGORY_VEGETABLES } from './food.js';
 
 // The symbols in this file are mostly grouped by the fact that they manipulate the game itself rather than reward money
@@ -300,5 +299,29 @@ export class Ice extends Symb {
   }
   descriptionLong() {
     return 'this is ice. all neighboring symbols that have a timer will take one more turn to complete.';
+  }
+}
+
+export class Rows extends Symb {
+  static emoji = '🎰';
+  constructor() {
+    super();
+    this.rarity = 0.03;
+  }
+  copy() {
+    return new Rows();
+  }
+  description() {
+    return '+1 row';
+  }
+  descriptionLong() {
+    return 'this is a slot machine. it increases the number of rows on the board after the next turn.';
+  }
+  async evaluateProduce(game, x, y) {
+    game.inventory.rowCount += 1;
+    if (x === -1 || y === -1) {
+      return;
+    }
+    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
   }
 }
