@@ -117,7 +117,6 @@ export const animateOverlay = async (element, animation, duration, repeat = 1, v
     height: `${rect.height}px`,
     margin: 0,
     pointerEvents: 'none',
-    willChange: 'transform',
     transformOrigin: 'top',
     font: cs.font,
     lineHeight: cs.lineHeight,

@@ -154,7 +154,7 @@ export class Record extends Symb {
       this.notes += 6;
       game.board.redrawCell(game, x, y);
       const [deleteX, deleteY] = coord;
-      await game.board.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+      await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
       await game.board.removeSymbol(game, deleteX, deleteY);
     }
   }

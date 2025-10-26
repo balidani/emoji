@@ -50,7 +50,6 @@ body {
 }
 .event-log-inner {
   overflow: hidden;
-  will-change: transform;
 }
 .event-log-line {
   font-size: 10pt;
