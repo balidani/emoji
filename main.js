@@ -257,24 +257,30 @@ Util.toggleAnimation();
 // await simulate(/*buyAlways=*/'❎🧈🍿', /*buyOnce=*/'🔮🔮🪄🌽🌽🌽🧊🧊🧊🎯🎯');
 
 // Find seed
-// #ajaisqrx
-// #gufqogqg 
+// #olibvcin 
 
 // const settings = GameSettings.instance();
 // const catalog = new Catalog(settings.symbolSources);
 // await catalog.updateSymbols();
 // let maxCount = 0;
 // let bestPhrase = '';
-// for (let k = 0; k < 100000; ++k) {
+// for (let k = 0; k < 1000000; ++k) {
 //   const phrase = await Util.setRandomSeed();
 
 //   let counter = 0;
-//   for (let k = 0; k < 8; ++k) {
-//     const selection = catalog.generateShop(3, 1, false);
-//     for (let i = 0; i < 3; ++i) {
+//   let box = 0;
+//   let nextBox = 0;
+//   for (let k = 0; k < 12; ++k) {
+//     const selection = catalog.generateShop(3 + box, 1, false);
+//     box += nextBox;
+//     nextBox = 0;
+//     for (let i = 0; i < 3 + box; ++i) {
 //       const sym = Util.randomRemove(selection, /* shop= */ true);
-//       if ('🛍️🔮'.includes(sym.emoji())) {
+//       if ('🛍️🔮🎰📮'.includes(sym.emoji())) {
 //         counter++;
+//       }
+//       if (sym.emoji() === '📮') {
+//         nextBox++;
 //       }
 //     }
 //   }
@@ -282,6 +288,9 @@ Util.toggleAnimation();
 //     maxCount = counter;
 //     bestPhrase = phrase;
 //     console.log(`new best ${bestPhrase} with ${maxCount}`);
+//   }
+//   if (k % 10000 === 0) {
+//     console.log(`tried ${k} phrases`);
 //   }
 // }
 

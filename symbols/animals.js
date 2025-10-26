@@ -53,7 +53,7 @@ export class Chicken extends Symb {
   }
   async score(game, x, y) {
     await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
-    await this.addMoney(game, 3, x, y);
+    await this.addMoney(game, 8, x, y);
   }
   async evaluateProduce(game, x, y) {
     const coords = game.board.nextToEmpty(x, y);
@@ -61,7 +61,7 @@ export class Chicken extends Symb {
       return;
     }
     if (chance(game, 0.1, x, y)) {
-      const eggCount = 1 + Util.random(3);
+      const eggCount = 1 + Util.random(4);
       for (let i = 0; i < Math.min(coords.length, eggCount); ++i) {
         const [newX, newY] = Util.randomRemove(coords);
         const egg = new Egg();
@@ -75,10 +75,10 @@ export class Chicken extends Symb {
     return [CATEGORY_ANIMAL];
   }
   description() {
-    return '💵3<br>10% chance: lays up to 3 🥚';
+    return '💵8<br>10% chance: lays up to 4 🥚';
   }
   descriptionLong() {
-    return 'this is a chicken. it pays 💵3 and has a 10% chance of laying up to 3 🥚 on empty spaces around it.';
+    return 'this is a chicken. it pays 💵8 and has a 10% chance of laying up to 4 🥚 on empty spaces around it.';
   }
 }
 
@@ -119,7 +119,7 @@ export class Fox extends Symb {
   constructor() {
     super();
     this.rarity = 0.25;
-    this.eatenScore = 3;
+    this.eatenScore = 10;
   }
   copy() {
     return new Fox();
@@ -128,17 +128,17 @@ export class Fox extends Symb {
     if (this.eatenScore > 0) {
       await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
       await this.addMoney(game, this.eatenScore, x, y);
-      this.eatenScore = 0;
+      this.eatenScore = 10;
     }
   }
   async evaluateConsume(game, x, y) {
-    const eatNeighbor = async (neighborClass, reward) => {
+    const eatNeighbor = async (neighborClass, mult) => {
       const coords = game.board.nextToSymbol(x, y, neighborClass.emoji);
       if (coords.length === 0) {
         return;
       }
       for (const coord of coords) {
-        this.eatenScore += reward;
+        this.eatenScore *= mult;
         const [deleteX, deleteY] = coord;
         await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
         await game.board.removeSymbol(game, deleteX, deleteY);
@@ -146,8 +146,8 @@ export class Fox extends Symb {
       this.turns = 0;
       game.board.redrawCell(game, x, y);
     };
-    await eatNeighbor(Chick, 10);
-    await eatNeighbor(Chicken, 20);
+    await eatNeighbor(Chick, 2);
+    await eatNeighbor(Chicken, 3);
     if (this.turns >= 5) {
       await game.board.removeSymbol(game, x, y);
     }
@@ -159,10 +159,10 @@ export class Fox extends Symb {
     return 5 - this.turns;
   }
   description() {
-    return 'eats 🐔 for 💵20.<br>eats 🐣 for 💵10.<br>leaves after 5 turns with no food';
+    return '💵10<br>eats 🐔 for x3.<br>eats 🐣 for x2.<br>leaves after 5 turns with no food';
   }
   descriptionLong() {
-    return 'this is a fox. it will eat 🐣 and 🐔 neighbors and pay 💵10 and 💵20 respectively. it disappears after 5 turns with no food.';
+    return 'this is a fox. it pays 💵10. it will eat 🐣 and 🐔 neighbors and pay x2 and x3 respectively. it disappears after 5 turns with no food.';
   }
 }
 
