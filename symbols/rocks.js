@@ -67,7 +67,7 @@ export class Volcano extends Symb {
   async evaluateProduce(game, x, y) {
     if (chance(game, 0.1, x, y)) {
       const newX = Util.random(game.settings.boardX);
-      const newY = Util.random(game.settings.boardY);
+      const newY = Util.random(game.board.currentRows);
       await game.board.removeSymbol(game, newX, newY);
       await game.eventlog.showResourceEarned('🕳️', '', this.emoji());
       await game.board.addSymbol(game, game.catalog.symbol('🕳️'), newX, newY);

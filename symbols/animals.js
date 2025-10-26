@@ -118,7 +118,7 @@ export class Fox extends Symb {
   static emoji = '🦊';
   constructor() {
     super();
-    this.rarity = 0.25;
+    this.rarity = 1.25;
     this.eatenScore = 10;
   }
   copy() {
@@ -134,6 +134,7 @@ export class Fox extends Symb {
   async evaluateConsume(game, x, y) {
     const eatNeighbor = async (neighborClass, mult) => {
       const coords = game.board.nextToSymbol(x, y, neighborClass.emoji);
+      console.log('next to', neighborClass.emoji, coords);
       if (coords.length === 0) {
         return;
       }

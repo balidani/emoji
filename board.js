@@ -11,6 +11,7 @@ export class Board {
     this.cells = [];
     this.logLines = 0;
     this.passiveCells = [];
+    this.currentRows = this.settings.boardY;
 
     // Create lockedCells from the settings and the inventory.
     this.lockedCells = [];
@@ -42,7 +43,7 @@ export class Board {
     this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
     this.empty = this.catalog.symbol(Const.EMPTY);
-    for (let y = 0; y < this.settings.boardY; ++y) {
+    for (let y = 0; y < this.currentRows; ++y) {
       const row = [];
       const rowDiv = Util.createDiv('', 'row');
       for (let x = 0; x < this.settings.boardX; ++x) {
@@ -67,6 +68,7 @@ export class Board {
   }
   async resetBoardSize(rows) {
     // If rows are not created yet:
+    this.currentRows = rows;
     if (this.cells.length < rows) {
       for (let y = 0; y < this.cells.length; ++y) {
         this.gridDiv.childNodes[y].classList.remove('hidden');
@@ -372,7 +374,7 @@ export class Board {
         x >= 0 &&
         x < this.settings.boardX &&
         y >= 0 &&
-        y < this.settings.boardY
+        y < this.currentRows
       ) {
         coords.push([x, y]);
       }
@@ -476,7 +478,7 @@ export class Board {
   }
   allSameInColumn(x, y) {
     const emoji = this.cells[y][x].emoji();
-    for (let i = 0; i < this.settings.boardY; ++i) {
+    for (let i = 0; i < this.currentRows; ++i) {
       if (this.cells[i][x].emoji() !== emoji) {
         return false;
       }
