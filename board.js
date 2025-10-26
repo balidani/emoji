@@ -222,8 +222,10 @@ export class Board {
     for (let x = 0; x < game.settings.boardX; ++x) {
       for (let y = 0; y < game.settings.boardY; ++y) {
         this.cells[y][x] = this.empty.copy();
-        await Util.delay(80);
-        this.spinDivOnce(game, x, y);
+        await Util.delay(16);
+        Util.animate(this.getSymbolDiv(x, y), 'fadeOut', 0.3).then(() => {
+          this.getSymbolDiv(x, y).style.opacity = '0.5';
+        });
       }
     }
   }
