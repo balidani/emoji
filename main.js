@@ -3,6 +3,7 @@ import * as Util from './util.js';
 import { GameSettings } from './game_settings.js';
 import { Catalog } from './catalog.js';
 import { Board } from './board.js';
+import { EventLog } from './eventlog.js';
 import { Inventory } from './inventory.js';
 import { Shop } from './shop.js';
 import { Game } from './game.js';
@@ -68,17 +69,17 @@ class SimBoard extends Board {
 }
 
 class AutoGame {
-  constructor(settings, catalog, buyAlways, buyOnce, buyRandom) {
+  constructor(settings, catalog, buyAlways, buyOnce) {
     this.settings = settings;
     this.catalog = catalog;
     this.inventory = new Inventory(settings, this.catalog);
     this.inventory.update();
     this.board = new SimBoard(this);
+    this.eventlog = new EventLog();
     this.shop = new Shop(this.catalog);
     this.totalTurns = 0;
     this.buyAlways = new Set(buyAlways);
     this.buyOnce = buyOnce;
-    this.buyRandom = buyRandom;
     this.symbolLimit = 1000;
   }
   async over() {
@@ -103,79 +104,72 @@ class AutoGame {
       return;
     }
 
-    if (this.buyRandom) {
-      Array.from(document.getElementsByClassName('buyButton'))[
-        Util.random(3)
-      ].click();
-    } else {
-      // Choose item to buy
-      if (this.inventory.symbols.length < this.symbolLimit) {
-        const tryOnce = () => {
-          const buttons = Array.from(
-            document.getElementsByClassName('buyButton')
-          );
-          let bought = false;
-          const tryBuy = (sym) => {
-            for (const button of buttons) {
-              if (button.disabled) {
-                return true;
-              }
-              if (
-                button.parentElement.parentElement.children[0].innerText ===
-                sym.emoji()
-              ) {
-                button.click();
-                button.disabled = true;
-                return true;
-              }
-            }
-            return false;
-          };
-          for (let i = 0; i < this.buyOnce.length; ++i) {
-            bought |= tryBuy(this.buyOnce[i]);
-            if (bought) {
-              this.buyOnce.splice(i, 1);
+    // Choose item to buy
+    if (this.inventory.symbols.length < this.symbolLimit) {
+      const tryOnce = () => {
+        const buttons = Array.from(
+          document.getElementsByClassName('buyButton')
+        );
+        let bought = false;
+        const tryBuy = (sym) => {
+          for (const button of buttons) {
+            if (button.disabled) {
               return true;
             }
-          }
-          for (const sym of this.buyAlways) {
-            bought |= tryBuy(sym);
-            if (bought) {
+            if (
+              button.parentElement.parentElement.children[0].innerText ===
+              sym.emoji()
+            ) {
+              button.click();
+              button.disabled = true;
               return true;
             }
           }
           return false;
         };
-        let buys = this.shop.buyCount;
-        while (buys >= 1) {
-          if (tryOnce()) {
-            buys--;
+        for (let i = 0; i < this.buyOnce.length; ++i) {
+          bought |= tryBuy(this.buyOnce[i]);
+          if (bought) {
+            this.buyOnce.splice(i, 1);
+            return true;
+          }
+        }
+        for (const sym of this.buyAlways) {
+          bought |= tryBuy(sym);
+          if (bought) {
+            return true;
+          }
+        }
+        return false;
+      };
+      let buys = this.shop.buyCount;
+      while (buys >= 1) {
+        if (tryOnce()) {
+          buys--;
+        } else {
+          if (this.inventory.getResource(Const.TURNS) <= 10) {
+            // No more refresh.
+            break;
+          }
+          const buttons = Array.from(
+            document.getElementsByClassName('buyButton')
+          );
+          const refreshButton = buttons.splice(3, 1)[0];
+          if (refreshButton !== undefined && !refreshButton.disabled) {
+            if (
+              (this.shop.refreshCost >=
+                this.inventory.getResource(Const.MONEY) / 2) |
+              0
+            ) {
+              break;
+            }
+            await refreshButton.clickSim();
           } else {
-            if (this.inventory.getResource(Const.TURNS) <= 10) {
-              // No more refresh.
-              break;
-            }
-            const buttons = Array.from(
-              document.getElementsByClassName('buyButton')
-            );
-            const refreshButton = buttons.splice(3, 1)[0];
-            if (refreshButton !== undefined && !refreshButton.disabled) {
-              if (
-                (this.shop.refreshCost >=
-                  this.inventory.getResource(Const.MONEY) / 2) |
-                0
-              ) {
-                break;
-              }
-              await refreshButton.clickSim();
-            } else {
-              break;
-            }
+            break;
           }
         }
       }
     }
-
     if (this.inventory.getResource(Const.TURNS) <= 0) {
       await this.over();
     } else {
@@ -189,7 +183,7 @@ class AutoGame {
   }
 }
 
-window.simulate = async (buyAlways, buyOnce, rounds = 10, buyRandom = false) => {
+window.simulate = async (buyAlways, buyOnce, rounds = 10) => {
   // console.log('strategy', buyAlways, buyOnce);
   const template = document.querySelector('.template');
   const gameDiv = document.querySelector('.game');
@@ -214,8 +208,7 @@ window.simulate = async (buyAlways, buyOnce, rounds = 10, buyRandom = false) => 
       settings,
       catalog,
       catalog.symbolsFromString(buyAlways),
-      catalog.symbolsFromString(buyOnce),
-      buyRandom
+      catalog.symbolsFromString(buyOnce)
     );
     await game.simulate();
     const score = game.inventory.getResource(Const.MONEY);
@@ -255,6 +248,8 @@ Util.toggleAnimation();
 // await simulate(/*buyAlways=*/'❎💼🕳️🪄🎯🔮', /*buyOnce=*/'🐛🐉🐉🐉');
 // await simulate(/*buyAlways=*/'❎🌝🚀', /*buyOnce=*/'🐛🔮🪄🎯');
 // await simulate(/*buyAlways=*/'❎🧈🍿', /*buyOnce=*/'🔮🔮🪄🌽🌽🌽🧊🧊🧊🎯🎯');
+
+// await simulate(/*buyAlways=*/'🎈🏦🔔💼🐛🎯🧈🍾🍒🐣🐔🍀🍹🪙🌽💳🔮💃💎🎲🐉🥁🥚💸🥠🦊🧊🫙🪄💰🌝❎🍍🍿📀🔀🪨🚀🎰🧵🌳🌋👷', '', 10);
 
 // Find seed
 // #olibvcin 
