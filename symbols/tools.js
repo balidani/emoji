@@ -14,7 +14,11 @@ const onToolBuy = async (game, prompt, effect) => {
   game.shop.hide();
   game.board.removeClickListener();
   Util.drawText(game.info, prompt, false);
+  // Make game.info click through
+  game.info.style.pointerEvents = 'none';
   const coord = await game.board.getClickCoord((sym) => sym.emoji() !== '⬜');
+  game.info.style.pointerEvents = 'auto';
+  game.info.classList.add('hidden');
   if (!coord) {
     return;
   }

@@ -113,34 +113,63 @@ export const animateOverlay = async (element, animation, duration, repeat = 1, v
   if (!element) return;
   if (!ANIMATION) return;
 
-  const overlay = document.querySelector('.grid-overlay');
-  if (!overlay) {
-    console.warn('Missing .grid-overlay element');
-    return;
+  const getCurrentScaleFor = (el) => {
+    const root = el.closest('.grid-scaler-content');
+    if (!root) return 1;
+    const cs = getComputedStyle(root);
+    const varS = parseFloat(cs.getPropertyValue('--s'));
+    if (!Number.isNaN(varS) && varS > 0) {
+      return varS;
+    }
+    const tr = cs.transform;
+    if (tr && tr !== 'none') {
+      const m = tr.match(/matrix\(([^)]+)\)/);
+      if (m) {
+        const a = parseFloat(m[1].split(',')[0]);
+        if (!Number.isNaN(a) && a > 0) return a;
+      }
+    }
+    return 1;
   }
 
-  const rect = element.getBoundingClientRect();
+  const overlay = document.querySelector('.grid-overlay') || document.body;
+  const elRect = element.getBoundingClientRect();
+  const ovRect = overlay.getBoundingClientRect();
+  const s = getCurrentScaleFor(element); 
+  const localLeft   = (elRect.left - ovRect.left) / s;
+  const localTop    = (elRect.top  - ovRect.top ) / s;
+  const localWidth  = elRect.width  / s;
+  const localHeight = elRect.height / s;
   const clone = element.cloneNode(true);
   const cs = getComputedStyle(element);
-  Object.assign(clone.style, {
-    position: 'fixed',
-    left: `${rect.left}px`,
-    top: `${rect.top}px`,
-    width: `${rect.width}px`,
-    height: `${rect.height}px`,
-    margin: 0,
-    pointerEvents: 'none',
-    transformOrigin: 'top',
-    font: cs.font,
-    lineHeight: cs.lineHeight,
-    // Helps iOS/Safari rendering during scale
-    WebkitBackfaceVisibility: 'hidden',
-    backfaceVisibility: 'hidden',
-  });
-
+  
   // Hide the original
   const prevVis = element.style.visibility;
   element.style.visibility = 'hidden';
+
+  Object.assign(clone.style, {
+    position: 'absolute',
+    left: `${localLeft}px`,
+    top: `${localTop}px`,
+    width: `${localWidth}px`,
+    height: `${localHeight}px`,
+    margin: 0,
+    pointerEvents: 'none',
+    transform: 'none',
+    transformOrigin: 'top left',
+    font: cs.font,
+    lineHeight: cs.lineHeight,
+    lineHeight: cs.lineHeight,
+    letterSpacing: cs.letterSpacing,
+    textTransform: cs.textTransform,
+    boxSizing: cs.boxSizing,
+    padding: cs.padding,
+    border: cs.border,
+    WebkitBackfaceVisibility: 'hidden',
+    backfaceVisibility: 'hidden',
+    willChange: 'transform, opacity',
+    zIndex: '1'
+  });
 
   overlay.appendChild(clone);
   const cleanup = () => {
@@ -156,6 +185,7 @@ export const animateOverlay = async (element, animation, duration, repeat = 1, v
 };
 export const deleteText = (element) => {
   element.textContent = '';
+  element.classList.add('hidden');
 };
 
 export const createInput = (labelText, type, dV) => {
@@ -245,6 +275,7 @@ export const drawText = async (element, text, isHtml = false) => {
       deleteText(element);
     }
   }
+  element.classList.remove('hidden');
 
   element.cancelled = true;
   await delay(31);

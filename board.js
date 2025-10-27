@@ -76,7 +76,7 @@ export class Board {
         }
         const rowDiv = this.gridDiv.childNodes[y];
         rowDiv.classList.remove('hidden');
-        await Util.animate(rowDiv, 'moveIn', 0.25);
+        await Util.animate(rowDiv, 'rowMoveIn', 0.25);
       }
       // Growing
       for (let y = this.cells.length; y < rows; ++y) {
@@ -89,13 +89,13 @@ export class Board {
         }
         this.cells.push(row);
         this.gridDiv.appendChild(rowDiv);
-        await Util.animate(rowDiv, 'moveIn', 0.25);
+        await Util.animate(rowDiv, 'rowMoveIn', 0.25);
       }
     } else if (this.currentRows > rows) {
       // If there are too many rows, hide the extra ones.
       for (let y = this.currentRows - 1; y >= rows; --y) {
         const rowDiv = this.gridDiv.childNodes[y];
-        await Util.animate(rowDiv, 'moveOut', 0.25);
+        await Util.animate(rowDiv, 'rowMoveOut', 0.25);
         rowDiv.classList.add('hidden');
       }
     }
@@ -543,11 +543,6 @@ export class Board {
     const passiveCopy = this.cells[y][x].copy();
     await this.removeSymbol(game, x, y);
     this.passiveCells.push(passiveCopy);
-    if (passiveCopy.emoji() !== Const.LUCK) {
-      // Special case for Clover, there is already a luck resource set to the current value,
-      // as it was evaluated before the turn, and luck gets reset every turn.
-      game.inventory.addResource(passiveCopy.emoji(), 1);
-    }
+    game.inventory.addResource(passiveCopy.emoji(), 1);
   }
-
 }

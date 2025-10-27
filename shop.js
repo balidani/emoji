@@ -91,6 +91,7 @@ export class Shop {
       return;
     }
     this.isOpen = true;
+    this.shopDiv.classList.remove('hidden');
     this.shopDiv.replaceChildren();
     const catalog = this.makeCatalog(game);
     for (let i = 0; i < this.buyLines; ++i) {
@@ -172,7 +173,7 @@ export class Shop {
             ]);
             this.refreshCost += this.refreshCostIncrease;
             this.refreshCost = Math.trunc(this.refreshCost * this.refreshCostMult);
-            this.isOpen = false;
+            await this.close(game);
             await this.open(game);
           }
         },
@@ -188,6 +189,7 @@ export class Shop {
     }
     this.reset(game);
     await Util.animate(this.shopDiv, 'closeShop', 0.2);
+    this.shopDiv.classList.add('hidden');
     this.shopDiv.replaceChildren();
     this.isOpen = false;
   }
@@ -195,7 +197,9 @@ export class Shop {
     this.shopDiv.classList.add('hidden');
   }
   show() {
-    this.shopDiv.classList.remove('hidden');
+    if (this.buyCount > 0) {
+      this.shopDiv.classList.remove('hidden');
+    }
   }
   reset(game) {
     this.haveRefreshSymbol = false;

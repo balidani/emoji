@@ -34,17 +34,17 @@ export class Inventory {
       });
     });
     map.forEach(({ count, description }, name) => {
-      const symbolDiv = Util.createDiv(name, 'inventoryEntry');
-      symbolDiv.addEventListener('click', (_) => {
+      const symbolSpan = Util.createSpan(name, 'inventoryEntry');
+      symbolSpan.addEventListener('click', (_) => {
         const interactiveDescription = Util.createInteractiveDescription(
           description,
           /*emoji=*/ name
         );
         Util.drawText(this.infoDiv, interactiveDescription, true);
       });
-      const countDiv = Util.createDiv(count, 'inventoryEntryCount');
-      symbolDiv.appendChild(countDiv);
-      this.symbolsDiv.appendChild(symbolDiv);
+      const countSpan = Util.createSpan(count, 'inventoryEntryCount');
+      symbolSpan.appendChild(countSpan);
+      this.symbolsDiv.appendChild(symbolSpan);
     });
   }
   remove(symbol) {
@@ -89,18 +89,18 @@ export class Inventory {
   updateUi() {
     this.uiDiv.replaceChildren();
     const displayKeyValue = (key, value) => {
-      const symbolDiv = Util.createDiv(key, 'inventoryEntry');
-      symbolDiv.addEventListener('click', (_) => {
+      const symbolSpan = Util.createSpan(key, 'inventoryEntry');
+      symbolSpan.addEventListener('click', (_) => {
         const interactiveDescription = Util.createInteractiveDescription(
           this.catalog.symbol(key).descriptionLong(),
           /*emoji=*/ key
         );
         Util.drawText(this.infoDiv, interactiveDescription, true);
       });
-      const countSpan = Util.createDiv(
+      const countSpan = Util.createSpan(
         Util.formatBigNumber(value) + '', 'inventoryEntryCount');
-      symbolDiv.appendChild(countSpan);
-      this.uiDiv.appendChild(symbolDiv);
+      symbolSpan.appendChild(countSpan);
+      this.uiDiv.appendChild(symbolSpan);
     };
     for (const [key, value] of Object.entries(this.resources)) {
       displayKeyValue(key, value);

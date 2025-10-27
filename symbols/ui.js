@@ -188,3 +188,19 @@ export class BuyButton extends Symb {
     return [CATEGORY_UNBUYABLE];
   }
 }
+
+export class Luck extends Symb {
+  static emoji = '💫';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new Luck();
+  }
+  description() {
+    return 'this is your luck stat. it increases the chances of getting rare symbols in the shop.';
+  }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
+  }
+}
