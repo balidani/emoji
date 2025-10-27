@@ -104,6 +104,14 @@ class AutoGame {
       return;
     }
 
+    // Randomly remove item
+    // if (Util.randomFloat() < 0.2) {
+    //   const emoji = this.board.getEmoji(2, 2);
+    //   if (emoji !== Const.EMPTY) {
+    //     await this.board.removeSymbol(this, 2, 2);
+    //   }
+    // }
+
     // Choose item to buy
     if (this.inventory.symbols.length < this.symbolLimit) {
       const tryOnce = () => {
@@ -249,7 +257,9 @@ Util.toggleAnimation();
 // await simulate(/*buyAlways=*/'❎🌝🚀', /*buyOnce=*/'🐛🔮🪄🎯');
 // await simulate(/*buyAlways=*/'❎🧈🍿', /*buyOnce=*/'🔮🔮🪄🌽🌽🌽🧊🧊🧊🎯🎯');
 
-// await simulate(/*buyAlways=*/'🎈🏦🔔💼🐛🎯🧈🍾🍒🐣🐔🍀🍹🪙🌽💳🔮💃💎🎲🐉🥁🥚💸🥠🦊🧊🫙🪄💰🌝❎🍍🍿📀🔀🪨🚀🎰🧵🌳🌋👷', '', 10);
+// All emoji except for tools.
+// const allEmoji = '🎈🏦🔔💼🐛🎯🧈🍾🍒🐣🐔🍀🍹🪙🌽💳🔮💃💎🎲🐉🥁🥚💸🥠🦊🧊🫙🪄💰🌝❎🍍🍿📀🔀🪨🚀🎰🧵🌳🌋👷';
+// await simulate(/*buyAlways=*/'🔮🎰', allEmoji, 100);
 
 // Find seed
 // #olibvcin 
