@@ -83,12 +83,14 @@ export class Board {
         }
         this.cells.push(row);
         this.gridDiv.appendChild(rowDiv);
-        await Util.animate(rowDiv, 'moveIn', 0.2);
+        await Util.animate(rowDiv, 'moveIn', 0.25);
       }
     } else if (this.cells.length > rows) {
       // If there are too many rows, hide the extra ones.
       for (let y = this.cells.length - 1; y >= rows; --y) {
-        this.gridDiv.childNodes[y].classList.add('hidden');
+        const rowDiv = this.gridDiv.childNodes[y];
+        await Util.animate(rowDiv, 'moveOut', 0.25);
+        rowDiv.classList.add('hidden');
       }
     }
   }
@@ -175,7 +177,14 @@ export class Board {
     await Util.animate(symbolDiv, 'bounce', 0.1);
   }
   async roll(game) {
-    if (this.cells.length !== game.inventory.rowCount) {
+    let visibleRows = 0;
+    for (let y = 0; y < this.cells.length; ++y) {
+      if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
+        break;
+      }
+      visibleRows++;
+    }
+    if (visibleRows !== game.inventory.rowCount) {
       await this.resetBoardSize(game.inventory.rowCount);
     }
     game.inventory.resetRows();
@@ -184,10 +193,7 @@ export class Board {
 
     const lockedSet = new Set();
     const lockedAtStart = { ...this.lockedCells };
-    for (let y = 0; y < this.cells.length; ++y) {
-      if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
-        break;
-      }
+    for (let y = 0; y < visibleRows; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
         const addr = `${x},${y}`;
         const lockedSymbol = this.lockedCells[addr];
@@ -224,10 +230,7 @@ export class Board {
     }
 
     const tasks = [];
-    for (let y = 0; y < this.cells.length; ++y) {
-      if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
-        break;
-      }
+    for (let y = 0; y < visibleRows; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
         const addr = `${x},${y}`;
         if (lockedAtStart[addr]) {
