@@ -173,7 +173,9 @@ export class Shop {
             ]);
             this.refreshCost += this.refreshCostIncrease;
             this.refreshCost = Math.trunc(this.refreshCost * this.refreshCostMult);
-            await this.close(game);
+            this.isOpen = false;
+            await Util.animate(this.shopDiv, 'closeShop', 0.2);
+            this.shopDiv.classList.add('hidden');
             await this.open(game);
           }
         },

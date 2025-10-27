@@ -84,6 +84,7 @@ class AutoGame {
     this.inventory = new Inventory(settings, this.catalog);
     this.inventory.update();
     this.board = new SimBoard(this);
+    this.info = document.querySelector('.game .info');
     this.eventlog = new EventLog();
     this.shop = new Shop(this.catalog);
     this.totalTurns = 0;
