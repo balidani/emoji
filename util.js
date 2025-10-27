@@ -74,26 +74,39 @@ export const delay = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 export const animate = (element, animation, duration, repeat = 1, vars={}) => {
-  if (element === null) {
+  if (!element || !ANIMATION) {
     return Promise.resolve();
   }
-  if (!ANIMATION) {
-    return Promise.resolve();
-  }
+
   return new Promise((resolve) => {
     element.style.willChange = 'transform, opacity';
     element.style.animation = 'none';
-    element.offsetWidth; // reflow
-    element.style.animation = `${animation} ${duration}s linear ${repeat}`;
+    element.offsetWidth; // Force reflow
     for (const [key, value] of Object.entries(vars)) {
       element.style.setProperty(`--${key}`, value);
     }
-    const done = () => {
+    element.style.animation = `${animation} ${duration}s linear ${repeat}`;
+
+    let done = false;
+    const cleanup = () => {
+      if (done) {
+        return;
+      }
+      done = true;
       element.style.animation = '';
       element.style.willChange = '';
+      element.removeEventListener('animationend', cleanup);
+      element.removeEventListener('animationcancel', cleanup);
+      clearTimeout(timeout);
       resolve();
     };
-    element.addEventListener('animationend', done, { once: true });
+    const timeout = setTimeout(cleanup, duration * repeat * 1000 + 100);
+    element.addEventListener('animationend', cleanup, { once: true });
+    element.addEventListener('animationcancel', cleanup, { once: true });
+    if (!element.isConnected) {
+      clearTimeout(timeout);
+      cleanup();
+    }
   });
 };
 export const animateOverlay = async (element, animation, duration, repeat = 1, vars = {}) => {

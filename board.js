@@ -68,11 +68,17 @@ export class Board {
   }
   async resetBoardSize(rows) {
     // If rows are not created yet:
-    this.currentRows = rows;
-    if (this.cells.length < rows) {
-      for (let y = 0; y < this.cells.length; ++y) {
-        this.gridDiv.childNodes[y].classList.remove('hidden');
+    if (this.currentRows < rows) {
+      // Showing hidden rows again
+      for (let y = this.currentRows; y < rows; ++y) {
+        if (y >= this.cells.length) {
+          break;
+        }
+        const rowDiv = this.gridDiv.childNodes[y];
+        rowDiv.classList.remove('hidden');
+        await Util.animate(rowDiv, 'moveIn', 0.25);
       }
+      // Growing
       for (let y = this.cells.length; y < rows; ++y) {
         const row = [];
         const rowDiv = Util.createDiv('', 'row');
@@ -85,14 +91,15 @@ export class Board {
         this.gridDiv.appendChild(rowDiv);
         await Util.animate(rowDiv, 'moveIn', 0.25);
       }
-    } else if (this.cells.length > rows) {
+    } else if (this.currentRows > rows) {
       // If there are too many rows, hide the extra ones.
-      for (let y = this.cells.length - 1; y >= rows; --y) {
+      for (let y = this.currentRows - 1; y >= rows; --y) {
         const rowDiv = this.gridDiv.childNodes[y];
         await Util.animate(rowDiv, 'moveOut', 0.25);
         rowDiv.classList.add('hidden');
       }
     }
+    this.currentRows = rows;
   }
   createCellDiv(x, y) {
     const cellContainer = Util.createDiv('', 'cell-container');
@@ -177,14 +184,7 @@ export class Board {
     await Util.animate(symbolDiv, 'bounce', 0.1);
   }
   async roll(game) {
-    let visibleRows = 0;
-    for (let y = 0; y < this.cells.length; ++y) {
-      if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
-        break;
-      }
-      visibleRows++;
-    }
-    if (visibleRows !== game.inventory.rowCount) {
+    if (this.currentRows !== game.inventory.rowCount) {
       await this.resetBoardSize(game.inventory.rowCount);
     }
     game.inventory.resetRows();
@@ -193,7 +193,7 @@ export class Board {
 
     const lockedSet = new Set();
     const lockedAtStart = { ...this.lockedCells };
-    for (let y = 0; y < visibleRows; ++y) {
+    for (let y = 0; y < this.currentRows; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
         const addr = `${x},${y}`;
         const lockedSymbol = this.lockedCells[addr];
@@ -230,7 +230,7 @@ export class Board {
     }
 
     const tasks = [];
-    for (let y = 0; y < visibleRows; ++y) {
+    for (let y = 0; y < this.currentRows; ++y) {
       for (let x = 0; x < game.settings.boardX; ++x) {
         const addr = `${x},${y}`;
         if (lockedAtStart[addr]) {
