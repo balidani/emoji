@@ -258,6 +258,7 @@ export const createInteractiveDescription = (description, emoji = null) => {
 
 export const drawText = async (element, text, isHtml = false) => {
   if (!ANIMATION) {
+    element.classList.remove('hidden');
     if (isHtml) {
       element.innerHTML = text;
     } else {
