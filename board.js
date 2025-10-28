@@ -250,7 +250,7 @@ export class Board {
         }
         this.cells[y][x] = this.empty.copy();
         await Util.delay(16);
-        Util.animate(this.getSymbolDiv(x, y), 'fadeOut', 0.3).then(() => {
+        Util.animate(this.getSymbolDiv(x, y), 'fadeOutHalf', 0.3).then(() => {
           this.getSymbolDiv(x, y).style.opacity = '0.5';
         });
       }

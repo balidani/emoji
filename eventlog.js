@@ -8,20 +8,34 @@ export class EventLog {
     this.numericEventMap = {};
     this.emojiEventLineMap = {};
     this.emojiEventMap = {};
+    // this.hiding = false;
   }
-  reset() {
-    this.eventLogDiv.replaceChildren();
-    this.numericEventLineMap = {};
-    this.numericEventMap = {};
-    this.emojiEventLineMap = {};
-    this.emojiEventMap = {};
-  }
+  // startHide() {
+  //   this.hiding = true;
+  //   Util.animate(this.eventLogDiv, 'fadeOut', 3).then(() => {
+  //     if (this.hiding) {
+  //       this.eventLogDiv.classList.add('hidden');
+  //       this.hiding = false;
+  //     }
+  //   });
+  // }
   async showResourceChange(key, value, source=Const.UNKNOWN, arrow='→') {
     let realValue = value;
+    let eventKey;
+
+    // if (this.hiding) {
+    //   // Cancel existing animation
+    //   this.eventLogDiv.style.animation = 'none';
+    //   void this.eventLogDiv.offsetWidth;
+    //   this.eventLogDiv.classList.remove('hidden');
+    //   this.hiding = false;
+    // } else {
+    //   this.eventLogDiv.classList.remove('hidden');
+    // }
 
     // If value is number
     if (typeof value === 'number') {
-      const eventKey = `${source}-${key}-${arrow}`;
+      eventKey = `${source}-${key}-${arrow}`;
       if (!(eventKey in this.numericEventMap)) {
         this.numericEventMap[eventKey] = 0;
       }
@@ -29,7 +43,7 @@ export class EventLog {
       realValue = this.numericEventMap[eventKey];
 
       // Find line in numeric line map
-      const lineId = this.numericEventLineMap[source];
+      const lineId = this.numericEventLineMap[eventKey];
       if (lineId) {
         const lineDiv = document.getElementById(lineId);
         if (lineDiv) {
@@ -44,7 +58,7 @@ export class EventLog {
         }
       }
     } else {
-      const eventKey = `${source}-${key}-${arrow}-${value}`;
+      eventKey = `${source}-${key}-${arrow}-${value}`;
       if (!(eventKey in this.emojiEventMap)) {
         this.emojiEventMap[eventKey] = 0;
       }
@@ -52,7 +66,7 @@ export class EventLog {
       realValue = this.emojiEventMap[eventKey];
 
       // Find line in emoji line map
-      const lineId = this.emojiEventLineMap[source];
+      const lineId = this.emojiEventLineMap[eventKey];
       if (lineId) {
         const lineDiv = document.getElementById(lineId);
         if (lineDiv) {
@@ -75,9 +89,9 @@ export class EventLog {
     logLines.insertBefore(logLine, logLines.firstChild);
     
     if (typeof value === 'number') {
-      this.numericEventLineMap[source] = logLine.id;
+      this.numericEventLineMap[eventKey] = logLine.id;
     } else {
-      this.emojiEventLineMap[source] = logLine.id;
+      this.emojiEventLineMap[eventKey] = logLine.id;
     }
 
     if (logLines.children.length > 20) {

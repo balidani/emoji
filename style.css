@@ -41,15 +41,21 @@ body {
   padding-top: 4pt;
   padding-left: 4pt;
   pointer-events: none; /* Allow clicks to pass through */ 
-  z-index: -1;
+  z-index: 3;
   margin-right: auto;
 }
 .event-log-inner {
   overflow: hidden;
 }
 .event-log-line {
+  width: fit-content;
   font-size: 10pt;
   list-style: 12pt;
+  background: rgba(255, 255, 255, 0.77);
+  border-radius: 6pt;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px, rgba(0, 0, 0, 0.2) 0px 5px 8px -3px, rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
+  padding: 2pt;
+  margin: 2pt;
 }
 
 @keyframes eventLogScroll {
@@ -86,7 +92,6 @@ body {
   transform: scale(var(--s, 1));
 }
 .grid {
-  background: rgba(255, 255, 255, 0.77);
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -787,12 +792,21 @@ body {
   }
 }
 
-@keyframes fadeOut {
+@keyframes fadeOutHalf {
   0% {
     opacity: 1;
   }
   100% {
     opacity: 0.5;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 

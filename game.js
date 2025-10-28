@@ -104,5 +104,6 @@ export class Game {
     }
 
     this.rolling = false;
+    // this.eventlog.startHide();
   }
 }
