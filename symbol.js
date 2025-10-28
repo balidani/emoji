@@ -57,15 +57,28 @@ export class Symb {
   descriptionLong() {
     return this.description();
   }
-  async addResource(game, key, value, source='❓') {
+  async addResource(game, x, y, key, value) {
+    const source = game.board.getEmoji(x, y) || '❓';
     await Promise.all([
       game.eventlog.showResourceEarned(key, value, source),
       game.inventory.addResource(key, value),
     ]);
+    if (key === Const.MONEY) {
+      // Create a temporary money span to show on the overlay
+      const moneySpan = Util.createSpan(`💵${Util.formatBigNumber(value)}`, 'money-earned-line');
+      const cellDiv = game.board.getCellDiv(x, y);
+      cellDiv.appendChild(moneySpan);
+      Util.animateOverlay(
+        moneySpan,
+        'moneyEarnedRise',
+        2,
+      ).then(() => {
+        cellDiv.removeChild(moneySpan);
+      });
+    }
   }
   async addMoney(game, score, x, y) {
     const value = score * this.multiplier;
-    const source = game.board.getEmoji(x, y);
     const coords = game.board.nextToSymbol(x, y, Const.MULT);
     let multCount = 0;
     for (const coord of coords) {
@@ -81,7 +94,7 @@ export class Symb {
       ]);
       multCount++;
     }
-    await this.addResource(game, Const.MONEY, value, source);
+    await this.addResource(game, x, y, Const.MONEY, value);
   }
   emoji() {
     return this.constructor.emoji;

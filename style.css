@@ -56,14 +56,15 @@ body {
   padding: 2pt;
   margin: 2pt;
 }
-
-@keyframes eventLogScroll {
-  0% {
-    transform: translateY(-12pt);
-  }
-  100% {
-    transform: translateY(0);
-  }
+.money-earned-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 8pt;
+  background: rgba(255, 255, 255, 0.77);
+  border-radius: 8pt;
+  padding: 1pt;
+  margin: 1pt;
 }
 
 
@@ -309,15 +310,6 @@ body {
 .finalScore span {
   display: inline-block;
   animation: wave 1.5s ease-in-out infinite;
-}
-
-@keyframes wave {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(15pt);
-  }
 }
 
 .trophy {
@@ -829,6 +821,39 @@ body {
 
   100% {
     transform: translateY(-32pt);
+    opacity: 0;
+  }
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(15pt);
+  }
+}
+
+@keyframes eventLogScroll {
+  0% {
+    transform: translateY(-12pt);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes moneyEarnedRise {
+  0% {
+    transform: translateY(8pt);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-8pt);
     opacity: 0;
   }
 }
