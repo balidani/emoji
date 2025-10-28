@@ -53,7 +53,6 @@ body {
   list-style: 12pt;
   background: rgba(255, 255, 255, 0.77);
   border-radius: 6pt;
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px, rgba(0, 0, 0, 0.2) 0px 5px 8px -3px, rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
   padding: 2pt;
   margin: 2pt;
 }
