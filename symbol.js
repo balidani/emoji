@@ -73,6 +73,9 @@ export class Symb {
         'moneyEarnedRise',
         2,
       ).then(() => {
+        if (moneySpan.parentElement !== cellDiv) {
+          return;
+        }
         cellDiv.removeChild(moneySpan);
       });
     }
