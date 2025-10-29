@@ -67,6 +67,10 @@ export class Symb {
       // Create a temporary money span to show on the overlay
       const moneySpan = Util.createSpan(`💵${Util.formatBigNumber(value)}`, 'money-earned-line');
       const cellDiv = game.board.getCellDiv(x, y);
+      if (!cellDiv) {
+        // TODO: show money earned on passive row.
+        return;
+      }
       cellDiv.appendChild(moneySpan);
       Util.animateOverlay(
         moneySpan,
