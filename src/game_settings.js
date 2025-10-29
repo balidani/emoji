@@ -3,14 +3,15 @@ import * as Utils from './util.js';
 import { loadSettings } from './main.js';
 
 const ALL_TESTED_SYMBOL_FILES = [
-  './symbols/advanced.js',
-  './symbols/animals.js',
-  './symbols/food.js',
-  './symbols/money.js',
-  './symbols/music.js',
-  './symbols/rocks.js',
-  './symbols/things.js',
-  './symbols/tools.js',
+  // './symbols/advanced.js',
+  // './symbols/animals.js',
+  // './symbols/food.js',
+  // './symbols/money.js',
+  // './symbols/music.js',
+  // './symbols/rocks.js',
+  // './symbols/things.js',
+  // './symbols/tools.js',
+  './symbols/test.js',
   './symbols/ui.js',
 ];
 

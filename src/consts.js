@@ -8,3 +8,4 @@ export const EMPTY = '⬜';
 export const SHOPPING_CART = '🛒';
 export const PIN = '📌';
 export const UNKNOWN = '❓';
+export const HOLE = '🕳️';

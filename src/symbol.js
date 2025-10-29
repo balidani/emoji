@@ -38,11 +38,12 @@ export class Symb {
   copy() {
     throw new Error('Trying to get copy of base class.');
   }
-  async evaluateConsume() {}
-  async evaluateProduce() {}
-  async finalScore(_game, _x, _y) {}
-  async score(_game, _x, _y) {}
+  evaluateConsume() { return []; }
+  evaluateProduce() { return []; }
+  finalScore(_game, _x, _y) { return []; }
+  score(_game, _x, _y) { return []; }
   async onBuy(game) {
+    // TODO #REFACTOR return event
     game.inventory.add(this);
   }
   cost() {
@@ -57,51 +58,36 @@ export class Symb {
   descriptionLong() {
     return this.description();
   }
-  async addResource(game, x, y, key, value) {
+  addResource(game, x, y, key, value) {
     const source = game.board.getEmoji(x, y) || '❓';
-    await Promise.all([
-      game.eventlog.showResourceEarned(key, value, source),
-      game.inventory.addResource(key, value),
-    ]);
+    const effects = [];
+    effects.push(...game.eventlog.showResourceEarned(key, value, source));
+    effects.push(...game.inventory.addResource(key, value));
     if (key === Const.MONEY) {
-      // Create a temporary money span to show on the overlay
-      const moneySpan = Util.createSpan(`💵${Util.formatBigNumber(value)}`, 'money-earned-line');
-      const cellDiv = game.board.getCellDiv(x, y);
-      if (!cellDiv) {
-        // TODO: show money earned on passive row.
-        return;
+      if (x === -1) {
+        effects.push({type: 'inventory.moneyEarnedOverlay', coords: {x, y}, value: value});
+      } else {
+        effects.push({type: 'board.moneyEarnedOverlay', coords: {x, y}, value: value});
       }
-      cellDiv.appendChild(moneySpan);
-      Util.animateOverlay(
-        moneySpan,
-        'moneyEarnedRise',
-        2,
-      ).then(() => {
-        if (moneySpan.parentElement !== cellDiv) {
-          return;
-        }
-        cellDiv.removeChild(moneySpan);
-      });
     }
+    return effects;
   }
-  async addMoney(game, score, x, y) {
+  addMoney(game, score, x, y) {
     const value = score * this.multiplier;
     const coords = game.board.nextToSymbol(x, y, Const.MULT);
     let multCount = 0;
+    const effects = [];
     for (const coord of coords) {
       const [multX, multY] = coord;
-      await Promise.all([
-        Util.animate(
-          game.board.getSymbolDiv(multX, multY),
-          'flip',
-          0.2,
-          1),
-        Util.animateOverlay(game.board.getSymbolDiv(x, y), 'grow', 0.2 + multCount * 0.035, 1,
-          {'grow-scale': 1.2 + multCount * 0.25}),
+      effects.push([
+        {type: 'board.animate', coords: {x: multX, y: multY}, animation: 'flip', duration: 0.2},
+        {type: 'board.animateOverlay', coords: {x, y}, animation: 'grow', duration: 0.2 + multCount * 0.035,
+          cssVars: {'grow-scale': 1.2 + multCount * 0.25}},
       ]);
       multCount++;
     }
-    await this.addResource(game, x, y, Const.MONEY, value);
+    effects.push(...this.addResource(game, x, y, Const.MONEY, value));
+    return effects;
   }
   emoji() {
     return this.constructor.emoji;

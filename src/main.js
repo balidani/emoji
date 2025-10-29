@@ -2,10 +2,10 @@ import * as Const from './consts.js';
 import * as Util from './util.js';
 import { GameSettings } from './game_settings.js';
 import { Catalog } from './catalog.js';
-import { Board } from './board.js';
+import { Board } from './Board.js';
 import { EventLog } from './eventlog.js';
-import { Inventory } from './inventory.js';
-import { Shop } from './shop.js';
+import { Inventory } from './Inventory.js';
+import { Shop } from './Shop.js';
 import { Game } from './game.js';
 import { Progression } from './progression.js';
 

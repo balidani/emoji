@@ -1,11 +1,15 @@
 import * as Const from './consts.js';
 import * as Util from './util.js';
 
-import { Board } from './board.js';
+import { Board } from './Board.js';
+import { BoardView } from './BoardView.js';
 import { EventLog } from './eventlog.js';
-import { Inventory } from './inventory.js';
+import { Inventory } from './Inventory.js';
+import { InventoryView } from './InventoryView.js';
 import { loadListener } from './main.js'; // Semi-Circular import, but it works.
-import { Shop } from './shop.js';
+import { Shop } from './Shop.js';
+import { ShopView } from './ShopView.js';
+import { Ui } from './ui.js';
 
 export class Game {
   constructor(progression, settings, catalog) {
@@ -14,9 +18,20 @@ export class Game {
     this.catalog = catalog;
     this.inventory = new Inventory(this.settings, this.catalog);
     this.inventory.update();
+    this.inventoryView = new InventoryView(this, this.inventory);
+    
     this.board = new Board(this);
+    this.boardView = new BoardView(this, this.board);
     this.eventlog = new EventLog();
     this.shop = new Shop(this.catalog);
+    this.shopView = new ShopView(this, this.shop);
+
+    this.ui = new Ui({
+      boardView: this.boardView,
+      inventoryView: this.inventoryView,
+      shopView: this.shopView,
+    });
+
     this.rolling = false;
     this.info = document.querySelector('.game .info');
     this.progression.updateUi();
@@ -28,7 +43,7 @@ export class Game {
         /* isHtml= */ true
       );
     }
-    this.board.addClickListener(this);
+    this.boardView.addClickListener(this);
   }
   async over() {
     this.isOver = true;
@@ -58,7 +73,9 @@ export class Game {
     scoreDiv.appendChild(scoreSubDiv);
     scoreContainer.appendChild(scoreDiv);
 
-    await this.board.clear(this);
+    this.board.clear(this);
+    await this.boardView.clear();
+
     document.querySelector('.game').appendChild(scoreContainer);
     await Util.animate(scoreDiv, 'scoreIn', 0.65);
 
@@ -88,19 +105,30 @@ export class Game {
     }
 
     if (this.inventory.getResource(Const.TURNS) > 0) {
-      await this.inventory.addResource(Const.TURNS, -1);
+      // TODO #REFACTOR, dispatch effect here
+      await this.ui.dispatchSequentialEffects(
+        this.inventory.addResource(Const.TURNS, -1)
+      );
       this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);
-      await this.board.roll(this);
-      await this.board.evaluate(this);
-      await this.board.score(this);
-      this.inventory.resetLuck();
+      await this.ui.dispatchParallelEffects(
+        this.board.roll(this)
+      );
+      await this.ui.dispatchSequentialEffects(
+        this.board.evaluate(this)
+      );
+      await this.ui.dispatchSequentialEffects(
+        this.board.score(this)
+      );
+      await this.ui.dispatchSequentialEffects(
+        this.inventory.resetLuck()
+      );
     }
 
     if (this.inventory.getResource(Const.TURNS) === 0) {
       await this.over();
     } else {
-      await this.shop.open(this);
+      this.shop.open(this);
     }
 
     this.rolling = false;

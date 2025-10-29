@@ -1,4 +1,4 @@
-import * as Const from '../consts.js';
+import * as Const from './consts.js';
 import * as Util from './util.js';
 
 export class EventLog {
@@ -19,7 +19,7 @@ export class EventLog {
   //     }
   //   });
   // }
-  async showResourceChange(key, value, source=Const.UNKNOWN, arrow='→') {
+  showResourceChange(key, value, source=Const.UNKNOWN, arrow='→') {
     let realValue = value;
     let eventKey;
 
@@ -54,7 +54,8 @@ export class EventLog {
           this.eventLogDiv.removeChild(lineDiv);
           // Re-insert at top
           this.eventLogDiv.insertBefore(lineDiv, this.eventLogDiv.firstChild);
-          return;
+          // TODO #REFACTOR: Handle DOM updates in event log view
+          return [];
         }
       }
     } else {
@@ -77,7 +78,7 @@ export class EventLog {
           this.eventLogDiv.removeChild(lineDiv);
           // Re-insert at top
           this.eventLogDiv.insertBefore(lineDiv, this.eventLogDiv.firstChild);
-          return;
+          return [];
         }
       }
     }
@@ -101,13 +102,15 @@ export class EventLog {
       }
     }
 
-    await Util.animate(logLines, 'eventLogScroll', 0.2);
+    // TODO #REFACTOR
+    // await Util.animate(logLines, 'eventLogScroll', 0.2);
+    return [];
 
   }
-  async showResourceEarned(key, value, source=Const.UNKNOWN) {
-    this.showResourceChange(key, value, source, '→');
+  showResourceEarned(key, value, source=Const.UNKNOWN) {
+    return this.showResourceChange(key, value, source, '→');
   }
-  async showResourceLost(key, value, source=Const.UNKNOWN) {
-    this.showResourceChange(key, value, source, '←');
+  showResourceLost(key, value, source=Const.UNKNOWN) {
+    return this.showResourceChange(key, value, source, '←');
   }
 }

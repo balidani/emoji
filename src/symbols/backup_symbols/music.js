@@ -14,7 +14,7 @@ export class MusicalNote extends Symb {
     return new MusicalNote();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await Util.animate(game.board.view.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, 4, x, y);
   }
   async evaluateConsume(game, x, y) {
@@ -46,7 +46,7 @@ export class Bell extends Symb {
     return new Bell();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await Util.animate(game.board.view.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, 9, x, y);
   }
   async evaluateProduce(game, x, y) {
@@ -57,7 +57,7 @@ export class Bell extends Symb {
     if (chance(game, 0.2, x, y)) {
       const note = new MusicalNote();
       const [newX, newY] = Util.randomChoose(coords);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
+      await Util.animate(game.board.view.getSymbolDiv(x, y), 'grow', 0.15);
       await game.eventlog.showResourceEarned(note.emoji(), '', this.emoji());
       await game.board.addSymbol(game, note, newX, newY);
     }
@@ -85,7 +85,7 @@ export class Dancer extends Symb {
     if (coords.length === 0) {
       return;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await Util.animate(game.board.view.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, coords.length * 10, x, y);
   }
   description() {
@@ -112,7 +112,7 @@ export class Drums extends Symb {
         return;
       }
       const [newX, newY] = Util.randomChoose(coords);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
+      await Util.animate(game.board.view.getSymbolDiv(x, y), 'grow', 0.15);
       const note = new MusicalNote();
       await game.eventlog.showResourceEarned(note.emoji(), '', this.emoji());
       await game.board.addSymbol(game, note, newX, newY);
@@ -141,7 +141,7 @@ export class Record extends Symb {
   }
   async score(game, x, y) {
     if (this.notes > 0) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+      await Util.animate(game.board.view.getSymbolDiv(x, y), 'bounce', 0.15);
       await this.addMoney(game, this.notes, x, y);
     }
   }
@@ -152,7 +152,7 @@ export class Record extends Symb {
     }
     for (const coord of coords) {
       this.notes += 6;
-      game.board.redrawCell(game, x, y);
+      game.board.view.redrawCellDiv(game, x, y);
       const [deleteX, deleteY] = coord;
       await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
       await game.board.removeSymbol(game, deleteX, deleteY);

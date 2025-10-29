@@ -12,11 +12,12 @@ const onToolBuy = async (game, prompt, effect) => {
     return;
   }
   game.shop.hide();
-  game.board.removeClickListener();
+  game.board.view.removeClickListener();
   Util.drawText(game.info, prompt, false);
   // Make game.info click through
   game.info.style.pointerEvents = 'none';
-  const coord = await game.board.getClickCoord((sym) => sym.emoji() !== '⬜');
+  const coord = await game.board.view.getClickCoord(
+    (sym) => sym.emoji() !== Const.EMPTY);
   game.info.style.pointerEvents = 'auto';
   game.info.classList.add('hidden');
   if (!coord) {
@@ -24,7 +25,7 @@ const onToolBuy = async (game, prompt, effect) => {
   }
   const [x, y] = coord;
   await effect(game, x, y);
-  game.board.addClickListener(game);
+  game.board.view.addClickListener(game);
   game.shop.show();
 }
 

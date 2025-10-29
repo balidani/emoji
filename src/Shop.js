@@ -18,82 +18,40 @@ export class Shop {
     this.refreshCostInitialMult = 0.01;
     this.firstTurnRare = false;
   }
-  makeShopItem(game, symbol, symbolCost, handler, buttonText = Const.BUY) {
-    const shopItemDiv = document.createElement('div');
-    shopItemDiv.classList.add('shopItem');
-    const symbolDiv = document.createElement('div');
-    symbolDiv.classList.add('shopEmoji');
-    symbolDiv.innerHTML = symbol.emoji();
-    symbolDiv.addEventListener('click', () => {
-      const interactiveDescription = Util.createInteractiveDescription(
-        symbol.descriptionLong(),
-        /*emoji=*/ symbol.emoji()
-      );
-      Util.drawText(game.info, interactiveDescription, true);
-    });
-    shopItemDiv.appendChild(symbolDiv);
-
-    const descriptionDiv = document.createElement('div');
-    descriptionDiv.classList.add('description');
-    descriptionDiv.innerHTML = Util.createInteractiveDescription(
-      symbol.description()
-    );
-    shopItemDiv.appendChild(descriptionDiv);
-
-    const costDiv = document.createElement('div');
-    costDiv.classList.add('cost');
-    for (const [key, value] of Object.entries(symbolCost)) {
-      const resourceDiv = document.createElement('div');
-      resourceDiv.innerHTML = key + Util.formatBigNumber(value);
-      costDiv.appendChild(resourceDiv);
-    }
-    shopItemDiv.appendChild(costDiv);
-
-    const buyDiv = document.createElement('div');
-    buyDiv.classList.add('buy');
-    const buyButton = document.createElement('button');
-    buyButton.classList.add('buyButton');
-    buyButton.innerText = buttonText;
-
-    let canBuy = true;
-    for (const [key, value] of Object.entries(symbolCost)) {
-      if (this.getInventory(game).getResource(key) < value) {
-        canBuy = false;
-        break;
-      }
-    }
-    if (!canBuy) {
-      buyButton.disabled = true;
-    }
-
-    buyButton.addEventListener('click', handler);
-    // Only for simulator.
-    buyButton.clickSim = handler;
-    buyDiv.appendChild(buyButton);
-    shopItemDiv.appendChild(buyDiv);
-    return shopItemDiv;
-  }
+  
   makeCatalog(game) {
     const rareOnly =
       (game.inventory.getResource(Const.TURNS) ===
         game.settings.gameLength - 1) && this.firstTurnRare;
     return this.catalog.generateShop(
       this.buyLines,
-      this.getInventory(game).getResource(Const.LUCK),
+      game.inventory.getResource(Const.LUCK),
       /* rareOnly= */ rareOnly
     );
   }
-  getInventory(game) {
-    return game.inventory;
-  }
-  async open(game) {
+  open(game) {
     if (this.isOpen) {
       return;
     }
     this.isOpen = true;
-    this.shopDiv.classList.remove('hidden');
-    this.shopDiv.replaceChildren();
+    // this.shopDiv.classList.remove('hidden');
+    // this.shopDiv.replaceChildren();
     const catalog = this.makeCatalog(game);
+
+    const offers = [];
+    for (let i = 0; i < this.buyLines; ++i) {
+      if (catalog.length === 0) {
+        break;
+      }
+      const symbol = Util.randomRemove(catalog, /* shop= */ true);
+      const symbolCost = symbol.cost();
+
+      // TODO: Create list of offers with all state needed to render shop, for example:
+      // symbol, cost, canBuy. Pass this to the view for rendering.
+      // const canBuy = this.canBuySymbol(game, symbolCost);
+      // Do it for refresh too.
+    }
+
     for (let i = 0; i < this.buyLines; ++i) {
       if (catalog.length === 0) {
         break;
@@ -108,7 +66,7 @@ export class Shop {
         async (e) => {
           let canBuy = true;
           for (const [key, value] of Object.entries(symbolCost)) {
-            if (this.getInventory(game).getResource(key) < value) {
+            if (game.inventory.getResource(key) < value) {
               canBuy = false;
               break;
             }
@@ -118,7 +76,7 @@ export class Shop {
             for (const [key, value] of Object.entries(symbolCost)) {
               await Promise.all([
                 game.eventlog.showResourceEarned(key, -value, Const.SHOPPING_CART),
-                this.getInventory(game).addResource(key, -value),
+                game.inventory.addResource(key, -value),
               ]);
             }
             await symbol.onBuy(game);
@@ -157,7 +115,7 @@ export class Shop {
         async (_) => {
           this.refreshCount++;
           if (
-            this.getInventory(game).getResource(this.refreshCostResource) >=
+            game.inventory.getResource(this.refreshCostResource) >=
             this.refreshCost
           ) {
             await Promise.all([
@@ -166,7 +124,7 @@ export class Shop {
                 -this.refreshCost,
                 Const.REFRESH
               ),
-              this.getInventory(game).addResource(
+              game.inventory.addResource(
                 this.refreshCostResource,
                 -this.refreshCost
               ),
@@ -183,7 +141,9 @@ export class Shop {
       );
       this.shopDiv.appendChild(shopItemDiv);
     }
-    await Util.animate(this.shopDiv, 'openShop', 0.4);
+
+    return [{type: 'shop.open', offers: offers}];
+    // await Util.animate(this.shopDiv, 'openShop', 0.4);
   }
   async close(game) {
     if (!this.isOpen) {
@@ -207,7 +167,7 @@ export class Shop {
     this.haveRefreshSymbol = false;
     this.refreshCost =
       Math.trunc(1 +
-        this.getInventory(game).getResource(this.refreshCostResource) *
+        game.inventory.getResource(this.refreshCostResource) *
           this.refreshCostInitialMult);
     this.refreshCount = 0;
     this.buyCount = 1;

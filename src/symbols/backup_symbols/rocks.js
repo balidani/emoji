@@ -13,15 +13,15 @@ export class Diamond extends Symb {
     return new Diamond();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await Util.animate(game.board.view.getSymbolDiv(x, y), 'bounce', 0.15);
     const coords = game.board.nextToSymbol(x, y, Diamond.emoji);
     const rowMult = game.board.allSameInRow(x, y) ? 7 : 1;
     const colMult = game.board.allSameInColumn(x, y) ? 7 : 1;
     if (rowMult !== 1) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15);
+      await Util.animate(game.board.view.getSymbolDiv(x, y), 'flip', 0.15);
     }
     if (colMult !== 1) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15);
+      await Util.animate(game.board.view.getSymbolDiv(x, y), 'flip', 0.15);
     }
     const score = (7 + (coords.length * 7)) * rowMult * colMult;
     await this.addMoney(game, score, x, y);
@@ -44,7 +44,7 @@ export class Rock extends Symb {
     return new Rock();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await Util.animate(game.board.view.getSymbolDiv(x, y), 'bounce', 0.15);
     await this.addMoney(game, 1, x, y);
   }
   description() {
