@@ -60,6 +60,7 @@ export class Board {
       };
     }
   }
+
   buildContext() {
     return {
       nextToCoords: this.nextToCoords.bind(this),
@@ -75,6 +76,19 @@ export class Board {
       allSameInColumn: this.allSameInColumn.bind(this),
     }
   }
+  handleModelEvent(effect) {
+    const [_handler, action] = effect.component.split('.');
+    switch (action) {
+      case 'addSymbol':
+        return this.addSymbol(effect.params.symbol, effect.params.coords.x, effect.params.coords.y);
+      case 'removeSymbol':
+        return this.removeSymbol(effect.params.coords.x, effect.params.coords.y);
+      default:
+        console.warn(`Unknown board model event action: ${action}`);
+        return [];
+    }
+  }
+
   resetBoardSize(rows) {
     if (this.currentRows < rows) {
       for (let y = this.cells.length; y < rows; ++y) {

@@ -31,7 +31,7 @@ export class Inventory {
     this.graveyard.push(symbol);
     const symbolCount = this.symbols.filter(
       s => s.emoji() === symbol.emoji()).length;
-    return Effect.serial({type: 'view', 'inventory.removeSymbol',
+    return Effect.serial({type: 'view', component: 'inventory.removeSymbol',
       params: {symbol: symbol, count: symbolCount}});
   }
   add(symbol) {

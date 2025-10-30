@@ -3,13 +3,13 @@ import * as Util from './util.js';
 
 import { Board } from './Board.js';
 import { BoardView } from './BoardView.js';
+import { Controller } from './Controller.js';
 import { EventLog } from './eventlog.js';
 import { Inventory } from './Inventory.js';
 import { InventoryView } from './InventoryView.js';
 import { loadListener } from './main.js'; // Semi-Circular import, but it works.
 import { Shop } from './Shop.js';
 import { ShopView } from './ShopView.js';
-import { Ui } from './ui.js';
 
 export class Game {
   constructor(progression, settings, catalog) {
