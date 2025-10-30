@@ -1,16 +1,33 @@
+import * as Util from './util.js';
+
 export class ShopView {
-  constructor(game, shop) {
+  constructor(game) {
     this.game = game;
-    this.shop = shop;
+    this.handlers = {};
     this.shopDiv = document.querySelector('.game .shop');
   }
   async handleViewEvent(effect) {
     switch (effect.type) {
-      case 'shop.open':
+      case 'shop.offer':
+        await this.showOffer(effect);
         break;
+      case 'shop.refresh':
+        await this.showRefresh(effect);
+      case 'shop.close':
+        await this.close();
       default:
         console.warn(`Unknown shop view event type: ${effect.type}`);
     }
+  }
+
+  async showOffer(offer) {
+    
+  }
+
+  async close() {
+    await Util.animate(this.shopDiv, 'closeShop', 0.2);
+    this.shopDiv.classList.add('hidden');
+    this.shopDiv.replaceChildren();
   }
 
   makeShopItem(game, symbol, symbolCost, handler, buttonText = Const.BUY) {

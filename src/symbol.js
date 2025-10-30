@@ -1,6 +1,8 @@
 import * as Const from './consts.js';
 import * as Util from './util.js';
 
+import { Effect } from './Effect.js';
+
 /* Since we aren't using typescript, relax the patterns somewhat for autocomplete */
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_.*$", "varsIgnorePattern": "^_.*$" }] */
 
@@ -38,13 +40,13 @@ export class Symb {
   copy() {
     throw new Error('Trying to get copy of base class.');
   }
-  evaluateConsume() { return []; }
-  evaluateProduce() { return []; }
-  finalScore(_game, _x, _y) { return []; }
-  score(_game, _x, _y) { return []; }
-  async onBuy(game) {
-    // TODO #REFACTOR return event
-    game.inventory.add(this);
+  evaluateConsume(_ctx, x, y) { return []; }
+  evaluateProduce(_ctx, x, y) { return []; }
+  finalScore(_ctx, _x, _y) { return []; }
+  score(_ctx, _x, _y) { return []; }
+  onBuy() {
+    return Effect.serial({type: 'model', component: 'inventory.add',
+      params: {symbol: this}});
   }
   cost() {
     return {};
@@ -58,35 +60,40 @@ export class Symb {
   descriptionLong() {
     return this.description();
   }
-  addResource(game, x, y, key, value) {
-    const source = game.board.getEmoji(x, y) || '❓';
-    const effects = [];
-    effects.push(...game.eventlog.showResourceEarned(key, value, source));
-    effects.push(...game.inventory.addResource(key, value));
+  addResource(ctx, x, y, key, value) {
+    const source = ctx.board.getEmoji(x, y) || '❓';
+    const parallelEffects = [];
+    parallelEffects.push({type: 'model', component: 'inventory.addResource',
+      params: {key: key, value: value, source: source}});
     if (key === Const.MONEY) {
       if (x === -1) {
-        effects.push({type: 'inventory.moneyEarnedOverlay', coords: {x, y}, value: value});
+        parallelEffects.push({type: 'view', 
+          component: 'inventory.moneyEarnedOverlay',
+          params: {coords: {x, y}, value: value}});
       } else {
-        effects.push({type: 'board.moneyEarnedOverlay', coords: {x, y}, value: value});
+        parallelEffects.push({type: 'view', 
+          component: 'board.moneyEarnedOverlay',
+          params: {coords: {x, y}, value: value}});
       }
     }
-    return effects;
+    return [Effect.parallel(effects)];
   }
-  addMoney(game, score, x, y) {
+  addMoney(ctx, score, x, y) {
     const value = score * this.multiplier;
-    const coords = game.board.nextToSymbol(x, y, Const.MULT);
+    const coords = ctx.board.nextToSymbol(x, y, Const.MULT);
     let multCount = 0;
     const effects = [];
     for (const coord of coords) {
       const [multX, multY] = coord;
-      effects.push([
-        {type: 'board.animate', coords: {x: multX, y: multY}, animation: 'flip', duration: 0.2},
-        {type: 'board.animateOverlay', coords: {x, y}, animation: 'grow', duration: 0.2 + multCount * 0.035,
-          cssVars: {'grow-scale': 1.2 + multCount * 0.25}},
-      ]);
+      effects.push(Effect.parallel(
+        {type: 'view', component: 'board.animate', params: {
+          coords: {x: multX, y: multY}, animation: 'flip', duration: 0.2}},
+        {type: 'view', component: 'board.animateOverlay', params: {
+          coords: {x, y}, animation: 'grow', duration: 0.2 + multCount * 0.035,
+          cssVars: {'grow-scale': 1.2 + multCount * 0.25}}});
       multCount++;
     }
-    effects.push(...this.addResource(game, x, y, Const.MONEY, value));
+    effects.push(Effect.serial(...this.addResource(ctx, x, y, Const.MONEY, value)));
     return effects;
   }
   emoji() {
@@ -95,17 +102,19 @@ export class Symb {
   reset() {
     this.multiplier = 1;
   }
-  counter(_game) {
+  counter(_ctx) {
     return null;
   }
-  render(game, x, y) {
+  render(ctx, x, y) {
+    // TODO #REFACTOR, this needs to happen in a view???
+
     const symbolDiv = Util.createDiv(this.emoji(), 'symbol');
     const counterDiv = Util.createDiv(
-      Util.formatBigNumber(this.counter(game) || ''),
+      Util.formatBigNumber(this.counter(ctx) || ''),
       'symbol-counter'
     );
     const pinDiv = Util.createDiv(
-      game.board.lockedCells[`${x},${y}`] ? Const.PIN : '', 'symbol-pin');
+      ctx.board.lockedCells[`${x},${y}`] ? Const.PIN : '', 'symbol-pin');
 
     // const mult = this.multiplier !== 1 ? this.multiplier : undefined;
     // const multiplierDiv = Util.createDiv(mult, 'symbol-multiplier', 'hidden');

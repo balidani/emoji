@@ -1,4 +1,4 @@
-export class Ui {
+export class Controller {
   constructor(views) {
     this.boardView = views.boardView;
     this.inventoryView = views.inventoryView;
@@ -21,12 +21,17 @@ export class Ui {
         console.warn(`Unknown effect component: ${component}`);
     }
   }
-  async dispatchParallelEffects(effects) {
-    await Promise.all(effects.map(this.dispatchEffect.bind(this)));
-  }
-  async dispatchSequentialEffects(effects) {
-    for (const effect of effects) {
-      await this.dispatchEffect(effect);
+  async dispatch(effects) {
+    for (const effect : effects) {
+      // ...
     }
   }
+  // async dispatchParallelEffects(effects) {
+  //   await Promise.all(effects.map(this.dispatchEffect.bind(this)));
+  // }
+  // async dispatchSequentialEffects(effects) {
+  //   for (const effect of effects) {
+  //     await this.dispatchEffect(effect);
+  //   }
+  // }
 }

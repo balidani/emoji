@@ -1,6 +1,7 @@
 import * as Util from '../util.js';
 
 import { chance, Symb, CATEGORY_UNBUYABLE } from '../symbol.js';
+import { Effect } from './Effect.js';
 import { Empty } from './ui.js';
 
 // Symbols in this file are related to food, beverages, or ingredients
@@ -18,13 +19,14 @@ export class Cherry extends Symb {
   copy() {
     return new Cherry();
   }
-  score(game, x, y) {
-    const coords = game.board.nextToSymbol(x, y, Cherry.emoji);
+  score(ctx, x, y) {
+    const coords = ctx.board.nextToSymbol(x, y, Cherry.emoji);
     if (coords.length === 0) {
       return [];
     }
-    return [{type: 'board.animate', coords: {x, y}, animation: 'flip', duration: 0.15},
-      ...this.addMoney(game, coords.length * 2, x, y)];
+    return Effect.serial({type: 'view', component: 'board.animate',
+      params: {coords: {x, y}, animation: 'flip', duration: 0.15}},
+      ...this.addMoney(ctx, coords.length * 2, x, y));
   }
   categories() {
     return [CATEGORY_FOOD, CATEGORY_FRUIT];
@@ -46,14 +48,15 @@ export class Pineapple extends Symb {
   copy() {
     return new Pineapple();
   }
-  score(game, x, y) {
-    const coords = game.board.nextToExpr(
+  score(ctx, x, y) {
+    const coords = ctx.board.nextToExpr(
       x,
       y,
       (sym) => sym.emoji() !== Empty.emoji
     );
-    return [{type: 'board.animate', coords: {x, y}, animation: 'bounce', duration: 0.15},
-      ...this.addMoney(game, 12 - coords.length * 2, x, y)];
+    return Effect.serial({type: 'view', component: 'board.animate',
+      params: {coords: {x, y}, animation: 'bounce', duration: 0.15}},
+      ...this.addMoney(ctx, 12 - coords.length * 2, x, y));
   }
   categories() {
     return [CATEGORY_FRUIT, CATEGORY_FOOD];
@@ -76,16 +79,17 @@ export class Cocktail extends Symb {
   copy() {
     return new Cocktail(this.cherryScore);
   }
-  score(game, x, y) {
+  score(ctx, x, y) {
     if (this.cherryScore <= 0) {
       return [];
     }
-    return [{type: 'board.animate', coords: {x, y}, animation: 'bounce', duration: 0.15},
-      ...this.addMoney(game, this.cherryScore, x, y)];
+    return Effect.serial({type: 'view', component: 'board.animate',
+      params: {coords: {x, y}, animation: 'bounce', duration: 0.15}},
+      ...this.addMoney(ctx, this.cherryScore, x, y));
   }
-  evaluateConsume(game, x, y) {
+  evaluateConsume(ctx, x, y) {
     const remove = (sym, reward) => {
-      const coords = game.board.nextToSymbol(x, y, sym.emoji);
+      const coords = ctx.board.nextToSymbol(x, y, sym.emoji);
       if (coords.length === 0) {
         return [];
       }
@@ -93,10 +97,8 @@ export class Cocktail extends Symb {
       for (const coord of coords) {
         this.cherryScore = reward(this.cherryScore);
         const [deleteX, deleteY] = coord;
-        effects.push(
-          ...game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji())
-        );
-        effects.push(...game.board.removeSymbol(game, deleteX, deleteY));
+        effects.push(Effect.serial({type: 'model', component: 'board.removeSymbol',
+          params: {coords: {x: deleteX, y: deleteY}}}));
       }
       return effects;
     };
@@ -126,11 +128,12 @@ export class Champagne extends Symb {
   copy() {
     return new Champagne();
   }
-  score(game, x, y) {
-    return [{type: 'board.animate', coords: {x, y}, animation: 'bounce', duration: 0.15},
-      ...this.addMoney(game, 70, x, y)];
+  score(ctx, x, y) {
+    return Effect.serial({type: 'view', component: 'board.animate',
+      params: {coords: {x, y}, animation: 'bounce', duration: 0.15}},
+      ...this.addMoney(ctx, 70, x, y));
   }
-  evaluateProduce(game, x, y) {
+  evaluateProduce(ctx, x, y) {
     if (x === -1 || y === -1) {
       return [];
     }
@@ -175,16 +178,17 @@ export class Coin extends Symb {
   copy() {
     return new Coin();
   }
-  getValue(game) {
+  getValue(ctx) {
     // const activeCount = game.board.forAllExpr(
     //   (e, _x, _y) => e.emoji() === FlyingMoney.emoji).length;
     // const passiveCount = game.inventory.getResource(FlyingMoney.emoji);
     // return 2 + activeCount + passiveCount;
     return 2;
   }
-  score(game, x, y) {
-    return [{type: 'board.animate', coords: {x, y}, animation: 'bounce', duration: 0.15},
-      ...this.addMoney(game, this.getValue(game), x, y)];
+  score(ctx, x, y) {
+    return Effect.serial({type: 'view', component: 'board.animate',
+      params: {coords: {x, y}, animation: 'bounce', duration: 0.15}},
+      ...this.addMoney(ctx, this.getValue(game), x, y));
   }
   description() {
     return '💵2';
@@ -203,10 +207,10 @@ export class Refresh extends Symb {
   copy() {
     return new Refresh();
   }
-  evaluateProduce(game, _, __) {
-    game.shop.haveRefreshSymbol = true;
-    game.shop.refreshCount = 0;
-    return [];
+  evaluateProduce(ctx, _, __) {
+    // game.shop.haveRefreshSymbol = true;
+    // game.shop.refreshCount = 0;
+    return Effect.serial({type: 'model', component: 'shop.allowRefresh'});
   }
   description() {
     return 'always allows refreshing the shop';
@@ -235,11 +239,13 @@ export class Clover extends Symb {
     return 'this is a clover. it gives you luck. symbols having a chance to do something good will succeed more. rare items show up more frequently in the shop.';
   }
   evaluateProduce(game, x, y) {
-    const effects = [...game.inventory.addLuck(1)];
+    effects.push(Effect.serial(
+      {type: 'model', component: 'inventory.addLuck', params: {luck: 1}}));
     if (x === -1 || y === -1) {
       return effects;
     }
-    effects.push({type: 'board.animate', coords: {x, y}, animation: 'bounce', duration: 0.15});
+    effects.push(Effect.serial({type: 'view', component: 'board.animate',
+      params: {coords: {x, y}, animation: 'bounce', duration: 0.15}}));
     return effects;
   }
 }

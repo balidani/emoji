@@ -1,6 +1,8 @@
 import * as Const from './consts.js';
 import * as Util from './util.js';
 
+import { Effect } from './Effect.js';
+
 export class Inventory {
   constructor(settings, catalog) {
     this.settings = settings;
@@ -16,19 +18,28 @@ export class Inventory {
     this.giftsOpened = 0;
     this.rowCount = settings.boardY;
   }
+  buildContext() {
+    return {
+      getResource: this.getResource.bind(this),
+    };
+  }
   remove(symbol) {
     const index = this.symbols.indexOf(symbol);
     if (index >= 0) {
       this.symbols.splice(index, 1);
     }
     this.graveyard.push(symbol);
-    const symbolCount = this.symbols.filter(s => s.emoji() === symbol.emoji()).length;
-    return [{type: 'inventory.removeSymbol', symbol: symbol, count: symbolCount}];
+    const symbolCount = this.symbols.filter(
+      s => s.emoji() === symbol.emoji()).length;
+    return Effect.serial({type: 'view', 'inventory.removeSymbol',
+      params: {symbol: symbol, count: symbolCount}});
   }
   add(symbol) {
     this.symbols.push(symbol);
-    const symbolCount = this.symbols.filter(s => s.emoji() === symbol.emoji()).length;
-    return [{type: 'inventory.addSymbol', symbol: symbol, count: symbolCount}];
+    const symbolCount = this.symbols.filter(
+      s => s.emoji() === symbol.emoji()).length;
+    return Effect.serial({type: 'view', component: 'inventory.addSymbol',
+      params: {symbol: symbol, count: symbolCount}});
   }
   getResource(key) {
     if (this.resources[key] === undefined) {
@@ -37,11 +48,15 @@ export class Inventory {
     return this.resources[key];
   }
   addResource(key, value) {
+    // TODO #REFACTOR:
+    // effects.push({type: 'model', component:'eventlog.showResourceEarned',
+    //   params: {key: key, value: value, source: source}});
     if (this.resources[key] === undefined) {
       this.resources[key] = 0;
     }
     this.resources[key] += value;
-    return [{type: 'inventory.resourceSet', key: key, value: this.resources[key]}];
+    return EFfect.serial({type: 'view', component: 'inventory.resourceSet',
+      params: {key: key, value: this.resources[key]}});
   }
   addLuck(bonus) {
     this.tempLuckBonus += bonus;
@@ -53,7 +68,8 @@ export class Inventory {
   resetLuck() {
     this.resources[Const.LUCK] = this.tempLuckBonus;
     this.tempLuckBonus = 0;
-    return [{type: 'inventory.resourceSet', key: Const.LUCK, value: this.resources[Const.LUCK]}];
+    return Effect.serial({type: 'view', component: 'inventory.resourceSet',
+      params: {key: Const.LUCK, value: this.resources[Const.LUCK]}});
   }
   resetRows() {
     this.rowCount = this.settings.boardY;
