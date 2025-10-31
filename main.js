@@ -410,6 +410,9 @@ function applyScale() {
   // reserve layout space so following sections move down
   const scaledH = currentBaseH * s;
   wrapper.style.setProperty('--scaled-h', `${scaledH}px`);
+  
+  const scaledW = baseW0 * s;
+  wrapper.style.setProperty('--scaled-w', `${scaledW}px`);
 }
 
 // rAF debounce
