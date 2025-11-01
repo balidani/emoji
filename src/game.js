@@ -18,7 +18,7 @@ export class Game {
     this.catalog = catalog;
     this.inventory = new Inventory(this.settings, this.catalog);
     // TODO #REFACTOR, remove update() call
-    this.inventory.update();
+    // this.inventory.update();
     this.inventoryView = new InventoryView(this, this.inventory);
     
     this.board = new Board(this.settings, this.catalog, this.inventory);
@@ -122,15 +122,15 @@ export class Game {
 
     if (this.inventory.getResource(Const.TURNS) > 0) {
       // TODO #REFACTOR, dispatch effect here
-      await this.controller.dispatchSequentialEffects(
+      // await this.controller.dispatchSequentialEffects(
         this.inventory.addResource(Const.TURNS, -1)
-      );
+      // );
       // TODO #REFACTOR, should this be inside Board?
       this.inventory.symbols.forEach((s) => s.reset());
 
-      await this.controller.dispatchSequentialEffects(
+      // await this.controller.dispatchSequentialEffects(
         this.shop.close(this)
-      );
+      // );
 
       // Build context
       const ctx = {
@@ -138,26 +138,28 @@ export class Game {
         inventory: this.inventory.buildContext(),
       };
 
-      await this.controller.dispatchParallelEffects(
+      // await this.controller.dispatchParallelEffects(
         this.board.roll()
-      );
-      await this.controller.dispatchSequentialEffects(
+      // );
+
+      await this.controller.dispatch(
         this.board.evaluate(ctx)
       );
-      await this.controller.dispatchSequentialEffects(
-        this.board.score(ctx)
-      );
-      await this.controller.dispatchSequentialEffects(
-        this.inventory.resetLuck()
-      );
+      // await this.controller.dispatchSequentialEffects(
+      //   this.board.score(ctx)
+      // );
+      // await this.controller.dispatchSequentialEffects(
+      //   this.inventory.resetLuck()
+      // );
+      throw new Error('test');
     }
 
     if (this.inventory.getResource(Const.TURNS) === 0) {
       await this.over();
     } else {
-      await this.controller.dispatchParallelEffects(
+      // await this.controller.dispatchParallelEffects(
         this.shop.open(this)
-      );
+      // );
     }
 
     this.rolling = false;

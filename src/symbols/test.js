@@ -1,7 +1,7 @@
 import * as Util from '../util.js';
 
 import { chance, Symb, CATEGORY_UNBUYABLE } from '../symbol.js';
-import { Effect } from './Effect.js';
+import { Effect } from '../Effect.js';
 import { Empty } from './ui.js';
 
 // Symbols in this file are related to food, beverages, or ingredients
@@ -22,10 +22,10 @@ export class Cherry extends Symb {
   score(ctx, x, y) {
     const coords = ctx.board.nextToSymbol(x, y, Cherry.emoji);
     if (coords.length === 0) {
-      return [];
+      return Effect.none();
     }
-    return Effect.serial({type: 'view', component: 'board.animate',
-      params: {coords: {x, y}, animation: 'flip', duration: 0.15}},
+    return Effect.serial(
+      Effect.viewOf('board.animate').params({coords: {x, y}, animation: 'flip', duration: 0.2}),
       ...this.addMoney(ctx, coords.length * 2, x, y));
   }
   categories() {
@@ -49,14 +49,12 @@ export class Pineapple extends Symb {
     return new Pineapple();
   }
   score(ctx, x, y) {
-    const coords = ctx.board.nextToExpr(
-      x,
-      y,
-      (sym) => sym.emoji() !== Empty.emoji
+    const neighbors = ctx.board.nextToExpr(x, y, (sym) => sym.emoji() !== Empty.emoji);
+    const payout = 12 - neighbors.length * 2;
+    return Effect.serial(
+      Effect.viewOf('board.animate').params({ coords: { x, y }, animation: 'bounce', duration: 0.15 }),
+      ...this.addMoney(ctx, payout, x, y)
     );
-    return Effect.serial({type: 'view', component: 'board.animate',
-      params: {coords: {x, y}, animation: 'bounce', duration: 0.15}},
-      ...this.addMoney(ctx, 12 - coords.length * 2, x, y));
   }
   categories() {
     return [CATEGORY_FRUIT, CATEGORY_FOOD];
@@ -81,32 +79,30 @@ export class Cocktail extends Symb {
   }
   score(ctx, x, y) {
     if (this.cherryScore <= 0) {
-      return [];
+      return Effect.none();
     }
     return Effect.serial({type: 'view', component: 'board.animate',
       params: {coords: {x, y}, animation: 'bounce', duration: 0.15}},
       ...this.addMoney(ctx, this.cherryScore, x, y));
   }
   evaluateConsume(ctx, x, y) {
-    const remove = (sym, reward) => {
-      const coords = ctx.board.nextToSymbol(x, y, sym.emoji);
+    const remove = (Sym, reward) => {
+      const coords = ctx.board.nextToSymbol(x, y, Sym.emoji);
       if (coords.length === 0) {
-        return [];
+        return Effect.none();
       }
       const effects = [];
-      for (const coord of coords) {
+      for (const [deleteX, deleteY] of coords) {
         this.cherryScore = reward(this.cherryScore);
-        const [deleteX, deleteY] = coord;
-        effects.push(Effect.serial({type: 'model', component: 'board.removeSymbol',
-          params: {coords: {x: deleteX, y: deleteY}}}));
+        effects.push(Effect.modelOf('board.removeSymbol').params({ coords: { x: deleteX, y: deleteY } }));
       }
       return effects;
     };
-    const effects = [];
-    effects.push(...remove(Cherry, (v) => v + 2));
-    effects.push(...remove(Pineapple, (v) => v + 4));
-    effects.push(...remove(Champagne, (v) => Math.trunc(v * 1.5)));
-    return effects;
+    const out = [];
+    out.push(...remove(Cherry,     (v) => v + 2));
+    out.push(...remove(Pineapple,  (v) => v + 4));
+    out.push(...remove(Champagne,  (v) => Math.trunc(v * 1.5)));
+    return Effect.serial(...out);
   }
   counter(_) {
     return this.cherryScore;
@@ -129,34 +125,13 @@ export class Champagne extends Symb {
     return new Champagne();
   }
   score(ctx, x, y) {
-    return Effect.serial({type: 'view', component: 'board.animate',
-      params: {coords: {x, y}, animation: 'bounce', duration: 0.15}},
-      ...this.addMoney(ctx, 70, x, y));
+    return Effect.serial(
+      Effect.viewOf('board.animate').params({ coords: { x, y }, animation: 'bounce', duration: 0.15 }),
+      ...this.addMoney(ctx, 70, x, y)
+    );
   }
   evaluateProduce(ctx, x, y) {
-    if (x === -1 || y === -1) {
-      return [];
-    }
-    if (this.turns < 3) {
-      return [];
-    }
-    // const bubble = new Bubble();
-    const effects = [];
-    // effects.push({type: 'board.animate', coords: {x, y}, animation: 'shake', duration: 0.15, repeat: 2});
-    // effects.push(...game.board.removeSymbol(game, x, y));
-    // effects.push(...game.board.addSymbol(game, bubble, x, y));
-    // const coords = game.board.nextToEmpty(x, y);
-    // if (coords.length === 0) {
-    //   return effects;
-    // }
-
-    // effects.push(...game.eventlog.showResourceEarned(bubble.emoji(), (coords.length + 1) + '', this.emoji()));
-    // for (let i = 0; i < coords.length; ++i) {
-    //   const [newX, newY] = coords[i];
-    //   const bubble = new Bubble();
-    //   effects.push(...game.board.addSymbol(game, bubble, newX, newY));
-    // }
-    return effects;
+    return {};
   }
   counter(_) {
     return 3 - this.turns;
@@ -186,9 +161,11 @@ export class Coin extends Symb {
     return 2;
   }
   score(ctx, x, y) {
-    return Effect.serial({type: 'view', component: 'board.animate',
-      params: {coords: {x, y}, animation: 'bounce', duration: 0.15}},
-      ...this.addMoney(ctx, this.getValue(game), x, y));
+    return Effect.serial(
+      Effect.viewOf('board.animate')
+        .params({ coords: { x, y }, animation: 'bounce', duration: 0.15 }),
+      ...this.addMoney(ctx, this.getValue(ctx), x, y)
+    );
   }
   description() {
     return '💵2';
@@ -207,26 +184,25 @@ export class Refresh extends Symb {
   copy() {
     return new Refresh();
   }
-  evaluateProduce(ctx, _, __) {
-    // game.shop.haveRefreshSymbol = true;
-    // game.shop.refreshCount = 0;
-    return Effect.serial({type: 'model', component: 'shop.allowRefresh'});
-  }
   description() {
     return 'always allows refreshing the shop';
   }
   descriptionLong() {
     return 'this is a refresher. it allows refreshing the selection in the shop more than once. careful, the cost of refreshing also increases.';
   }
+  evaluateProduce(ctx, _, __) {
+    return Effect.serial(
+      Effect.modelOf('shop.allowRefresh').params({})
+    );
+  }
 }
 
 export class Clover extends Symb {
   static emoji = '🍀';
-  constructor() {
+  constructor() { 
     super();
-    this.rarity = 0.21;
-  }
-  copy() {
+    this.rarity = 0.21; }
+  copy() { 
     return new Clover();
   }
   categories() {
@@ -238,14 +214,17 @@ export class Clover extends Symb {
   descriptionLong() {
     return 'this is a clover. it gives you luck. symbols having a chance to do something good will succeed more. rare items show up more frequently in the shop.';
   }
-  evaluateProduce(game, x, y) {
-    effects.push(Effect.serial(
-      {type: 'model', component: 'inventory.addLuck', params: {luck: 1}}));
+  evaluateProduce(ctx, x, y) {
     if (x === -1 || y === -1) {
-      return effects;
+      // Passive row: just the model effect
+      return Effect.serial(
+        Effect.modelOf('inventory.addLuck').params({ luck: 1 })
+      );
     }
-    effects.push(Effect.serial({type: 'view', component: 'board.animate',
-      params: {coords: {x, y}, animation: 'bounce', duration: 0.15}}));
-    return effects;
+    // Active board: add luck, then a small bounce on the cell
+    return Effect.serial(
+      Effect.modelOf('inventory.addLuck').params({ luck: 1 }),
+      Effect.viewOf('board.animate').params({ coords: { x, y }, animation: 'bounce', duration: 0.15 })
+    );
   }
 }

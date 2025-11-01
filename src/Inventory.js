@@ -55,7 +55,7 @@ export class Inventory {
       this.resources[key] = 0;
     }
     this.resources[key] += value;
-    return EFfect.serial({type: 'view', component: 'inventory.resourceSet',
+    return Effect.serial({type: 'view', component: 'inventory.resourceSet',
       params: {key: key, value: this.resources[key]}});
   }
   addLuck(bonus) {

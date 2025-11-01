@@ -186,14 +186,14 @@ export class Board {
         if (this.cells[y][x] !== cell) {
           return [];
         }
-        effects.push(...f(cell, ctx, x, y));
+        effects.push(f(cell, ctx, x, y));
       });
-      return effects;
+      return Effect.serial(...effects);
     };
-    effects.push(...evaluateRound((c, ctx, x, y) => c.evaluateConsume(ctx, x, y)));
-    effects.push(...evaluateRound((c, ctx, x, y) => c.evaluateProduce(ctx, x, y)));
-    effects.push(...evaluateRound((c, ctx, x, y) => c.evaluateConsume(ctx, x, y)));
-    return effects;
+    effects.push(evaluateRound((c, ctx, x, y) => c.evaluateConsume(ctx, x, y)));
+    effects.push(evaluateRound((c, ctx, x, y) => c.evaluateProduce(ctx, x, y)));
+    effects.push(evaluateRound((c, ctx, x, y) => c.evaluateConsume(ctx, x, y)));
+    return Effect.serial(...effects);
   }
   finalScore(ctx) {
     const effects = [];

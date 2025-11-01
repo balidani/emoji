@@ -40,10 +40,10 @@ export class Symb {
   copy() {
     throw new Error('Trying to get copy of base class.');
   }
-  evaluateConsume(_ctx, x, y) { return []; }
-  evaluateProduce(_ctx, x, y) { return []; }
-  finalScore(_ctx, _x, _y) { return []; }
-  score(_ctx, _x, _y) { return []; }
+  evaluateConsume(_ctx, x, y) { return Effect.none(); }
+  evaluateProduce(_ctx, x, y) { return Effect.none(); }
+  finalScore(_ctx, _x, _y) { return Effect.none(); }
+  score(_ctx, _x, _y) { return Effect.none(); }
   onBuy() {
     return Effect.serial({type: 'model', component: 'inventory.add',
       params: {symbol: this}});
@@ -63,38 +63,39 @@ export class Symb {
   addResource(ctx, x, y, key, value) {
     const source = ctx.board.getEmoji(x, y) || '❓';
     const parallelEffects = [];
-    parallelEffects.push({type: 'model', component: 'inventory.addResource',
-      params: {key: key, value: value, source: source}});
+    parallelEffects.push(
+      Effect.modelOf('inventory.addResource').params(
+        {key: key, value: value, source: source}
+      )
+    );
     if (key === Const.MONEY) {
       if (x === -1) {
-        parallelEffects.push({type: 'view', 
-          component: 'inventory.moneyEarnedOverlay',
-          params: {coords: {x, y}, value: value}});
+        parallelEffects.push(Effect.viewOf('inventory.moneyEarnedOverlay')
+          .params({coords: {x, y}, value: value}));
       } else {
-        parallelEffects.push({type: 'view', 
-          component: 'board.moneyEarnedOverlay',
-          params: {coords: {x, y}, value: value}});
+        parallelEffects.push(Effect.viewOf('board.moneyEarnedOverlay')
+          .params({coords: {x, y}, value: value}));
       }
     }
-    return [Effect.parallel(effects)];
+    return Effect.parallel(parallelEffects);
   }
   addMoney(ctx, score, x, y) {
     const value = score * this.multiplier;
     const coords = ctx.board.nextToSymbol(x, y, Const.MULT);
     let multCount = 0;
-    const effects = [];
+    const multEffects = [];
     for (const coord of coords) {
       const [multX, multY] = coord;
-      effects.push(Effect.parallel(
-        {type: 'view', component: 'board.animate', params: {
-          coords: {x: multX, y: multY}, animation: 'flip', duration: 0.2}},
-        {type: 'view', component: 'board.animateOverlay', params: {
-          coords: {x, y}, animation: 'grow', duration: 0.2 + multCount * 0.035,
-          cssVars: {'grow-scale': 1.2 + multCount * 0.25}}});
+      multEffects.push(Effect.parallel(
+        Effect.viewOf('board.animate').params(
+          {coords: {x: multX, y: multY}, animation: 'flip', duration: 0.2}),
+        Effect.viewOf('board.animateOverlay').params(
+          {coords: {x: multX, y: multY}, animation: 'grow', duration: 0.2 + multCount * 0.035,
+          cssVars: {'grow-scale': 1.2 + multCount * 0.25}})));
       multCount++;
     }
-    effects.push(Effect.serial(...this.addResource(ctx, x, y, Const.MONEY, value)));
-    return effects;
+    return Effect.serial(...multEffects,
+      ...this.addResource(ctx, x, y, Const.MONEY, value));
   }
   emoji() {
     return this.constructor.emoji;

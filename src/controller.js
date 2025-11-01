@@ -35,6 +35,9 @@ export class Controller {
         return [];
     }
   }
+  async dispatch(effects) {
+    console.log(effects);
+  }
   async dispatchAll(phases) {
     const queue = [...phases];
     while (queue.length > 0) {
