@@ -1,3 +1,5 @@
+import { Effect } from './effect.js';
+
 export class Controller {
   constructor(views) {
     this.boardView = views.boardView;
@@ -36,7 +38,7 @@ export class Controller {
     }
   }
   async dispatch(effects) {
-    console.log(effects);
+    console.log(Effect.flattenSerial(effects));
   }
   async dispatchAll(phases) {
     const queue = [...phases];

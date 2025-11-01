@@ -99,15 +99,15 @@ export class Board {
         this.cells.push(row);
       }
     }
-    const effects = Effect.serial({type: 'view', component: 'board.resize', 
-      params: {oldRows: this.currentRows, newRows: rows}});
+    const effect = Effect.viewOf('board.resize')
+      .params({oldRows: this.currentRows, newRows: rows});
     this.currentRows = rows;
-    return effects;
+    return effect;
   }
   roll() {
     const effects = [];
     if (this.currentRows !== this.inventory.rowCount) {
-      effects.push(...this.resetBoardSize(this.inventory.rowCount));
+      effects.push(this.resetBoardSize(this.inventory.rowCount));
     }
     this.inventory.resetRows();
     const symbols = [...this.inventory.symbols];
@@ -150,12 +150,12 @@ export class Board {
     const spinEffects = [];
     this.forAllCells((symbol, x, y) => {
       if (!lockedAtStart[`${x},${y}`]) {
-        spinEffects.push({type: 'view', component: 'board.spin',
-          params: {coords: {x, y}, symbol: symbol}});
+        spinEffects.push(Effect.viewOf('board.spin')
+          .params({coords: {x, y}, symbol: symbol}));
       }
     });
     effects.push(Effect.parallel(...spinEffects));
-    return effects;
+    return Effect.serial(...effects);
   }
   clear() {
     this.lockedCells = [];
@@ -176,7 +176,7 @@ export class Board {
     // Evaluate passives
     for (let i = 0; i < this.passiveCells.length; ++i) {
       const passiveSymbol = this.passiveCells[i];
-      effects.push(...passiveSymbol.evaluateProduce(ctx, -1, i));
+      effects.push(passiveSymbol.evaluateProduce(ctx, -1, i));
     }
     // Evaluate board symbols
     const evaluateRound = (f) => {
@@ -200,37 +200,37 @@ export class Board {
     // Final score passives
     for (let i = 0; i < this.passiveCells.length; ++i) {
       const passiveSymbol = this.passiveCells[i];
-      effects.push(...passiveSymbol.finalScore(ctx, -1, i));
+      effects.push(passiveSymbol.finalScore(ctx, -1, i));
     }
     // Final score board symbols
     this.forAllCells((cell, x, y) => {
-      effects.push(...cell.finalScore(ctx, x, y));
+      effects.push(cell.finalScore(ctx, x, y));
     });
-    return effects;
+    return Effect.serial(...effects);
   }
   score(ctx) {
     const effects = [];
     // Score passives
     for (let i = 0; i < this.passiveCells.length; ++i) {
       const passiveSymbol = this.passiveCells[i];
-      effects.push(...passiveSymbol.score(ctx, -1, i));
+      effects.push(passiveSymbol.score(ctx, -1, i));
     }
     // Score board symbols
     this.forAllCells((cell, x, y) => {
-      effects.push(...cell.score(ctx, x, y));
+      effects.push(cell.score(ctx, x, y));
     });
-    return effects;
+    return Effect.serial(...effects);
   }
   addSymbol(sym, x, y) {
     const effects = [];
-    effects.push(...this.inventory.add(sym));
+    effects.push(this.inventory.add(sym));
     if (x === -1 || y === -1) {
       return [];
     }
     this.cells[y][x] = sym;
-    effects.push(Effect.serial({type: 'view', component: 'board.addSymbol', 
-      params: {coords: {x, y}, symbol: sym}}));
-    return effects;
+    effects.push(Effect.viewOf('board.addSymbol')
+      .params({coords: {x, y}, symbol: sym}));
+    return Effect.serial(...effects);
   }
   removeSymbol(x, y) {
     if (x === -1 || y === -1) {
@@ -244,11 +244,11 @@ export class Board {
     //   ...game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji())
     // );
     const effects = [];
-    effects.push(...this.inventory.remove(this.cells[y][x]));
+    effects.push(this.inventory.remove(this.cells[y][x]));
     this.cells[y][x] = this.empty.copy();
-    effects.push(Effect.serial({type: 'view', component: 'board.removeSymbol',
-      params: {coords: {x, y}}}));
-    return effects;
+    effects.push(Effect.viewOf('board.removeSymbol')
+      .params({coords: {x, y}}));
+    return Effect.serial(...effects);
   }
 
   lockCell(x, y, symbol, duration) {
@@ -342,7 +342,7 @@ export class Board {
   }
   forAllExpr(expr) {
     const coords = [];
-    this.forAllCells((coord, x, y) => {
+    this.forAllCells((_coord, x, y) => {
       if (expr(this.cells[y][x], x, y)) {
         coords.push([x, y]);
       }
@@ -379,16 +379,16 @@ export class Board {
 
   pinCell(x, y) {
     this.lockCell(x, y, this.cells[y][x], -1);
-    return Effect.serial({type: 'view', component: 'board.pinCell',
-      params: {coords: {x, y}}});
+    return Effect.viewOf('board.pinCell')
+      .params({coords: {x, y}});
   }
 
   makePassive(x, y) {
     const passiveCopy = this.cells[y][x].copy();
     const effects = [];
-    effects.push(...this.removeSymbol(x, y));
+    effects.push(this.removeSymbol(x, y));
     this.passiveCells.push(passiveCopy);
-    effects.push(...this.inventory.addResource(passiveCopy.emoji(), 1));
-    return effects;
+    effects.push(this.inventory.addResource(passiveCopy.emoji(), 1));
+    return Effect.serial(...effects);
   }
 }

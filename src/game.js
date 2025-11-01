@@ -138,9 +138,9 @@ export class Game {
         inventory: this.inventory.buildContext(),
       };
 
-      // await this.controller.dispatchParallelEffects(
+      await this.controller.dispatch(
         this.board.roll()
-      // );
+      );
 
       await this.controller.dispatch(
         this.board.evaluate(ctx)
