@@ -25,8 +25,8 @@ export class Cherry extends Symb {
       return Effect.none();
     }
     return Effect.serial(
-      Effect.viewOf('board.animate').params({coords: {x, y}, animation: 'flip', duration: 0.2}),
-      ...this.addMoney(ctx, coords.length * 2, x, y));
+      Effect.viewOf('board.animateCell').params({coords: {x, y}, animation: 'flip', duration: 0.2}),
+      this.addMoney(ctx, coords.length * 2, x, y));
   }
   categories() {
     return [CATEGORY_FOOD, CATEGORY_FRUIT];
@@ -52,9 +52,12 @@ export class Pineapple extends Symb {
     const neighbors = ctx.board.nextToExpr(x, y, (sym) => sym.emoji() !== Empty.emoji);
     const payout = 12 - neighbors.length * 2;
     return Effect.serial(
-      Effect.viewOf('board.animate').params({ coords: { x, y }, animation: 'bounce', duration: 0.15 }),
-      ...this.addMoney(ctx, payout, x, y)
+      Effect.viewOf('board.animateCell').params({ coords: { x, y }, animation: 'bounce', duration: 0.15 }),
+      this.addMoney(ctx, payout, x, y)
     );
+  }
+  scorePassive(ctx) {
+    return this.addMoneyPassive(ctx, 12);
   }
   categories() {
     return [CATEGORY_FRUIT, CATEGORY_FOOD];
@@ -81,20 +84,27 @@ export class Cocktail extends Symb {
     if (this.cherryScore <= 0) {
       return Effect.none();
     }
-    return Effect.serial({type: 'view', component: 'board.animate',
+    return Effect.serial({type: 'view', component: 'board.animateCell',
       params: {coords: {x, y}, animation: 'bounce', duration: 0.15}},
-      ...this.addMoney(ctx, this.cherryScore, x, y));
+      this.addMoney(ctx, this.cherryScore, x, y));
+  }
+  scorePassive(ctx) {
+    if (this.cherryScore <= 0) {
+      return Effect.none();
+    }
+    return this.addMoneyPassive(ctx, this.cherryScore);
   }
   evaluateConsume(ctx, x, y) {
     const remove = (Sym, reward) => {
       const coords = ctx.board.nextToSymbol(x, y, Sym.emoji);
       if (coords.length === 0) {
-        return Effect.none();
+        return [];
       }
       const effects = [];
       for (const [deleteX, deleteY] of coords) {
         this.cherryScore = reward(this.cherryScore);
-        effects.push(Effect.modelOf('board.removeSymbol').params({ coords: { x: deleteX, y: deleteY } }));
+        effects.push(Effect.modelOf('board.removeSymbol').params(
+          { coords: { x: deleteX, y: deleteY }, symbol: ctx.board.getSymbol(deleteX, deleteY) }));
       }
       return effects;
     };
@@ -126,11 +136,16 @@ export class Champagne extends Symb {
   }
   score(ctx, x, y) {
     return Effect.serial(
-      Effect.viewOf('board.animate').params({ coords: { x, y }, animation: 'bounce', duration: 0.15 }),
-      ...this.addMoney(ctx, 70, x, y)
+      Effect.viewOf('board.animateCell').params({ coords: { x, y }, animation: 'bounce', duration: 0.15 }),
+      this.addMoney(ctx, 70, x, y)
     );
   }
+  scorePassive(ctx) {
+    return this.addMoneyPassive(ctx, 70);
+  }
   evaluateProduce(ctx, x, y) {
+    // After 3 turns, explodes
+    // TODO #REFACTOR
     return {};
   }
   counter(_) {
@@ -162,10 +177,13 @@ export class Coin extends Symb {
   }
   score(ctx, x, y) {
     return Effect.serial(
-      Effect.viewOf('board.animate')
+      Effect.viewOf('board.animateCell')
         .params({ coords: { x, y }, animation: 'bounce', duration: 0.15 }),
-      ...this.addMoney(ctx, this.getValue(ctx), x, y)
+      this.addMoney(ctx, this.getValue(ctx), x, y)
     );
+  }
+  scorePassive(ctx) {
+    return this.addMoneyPassive(ctx, this.getValue(ctx));
   }
   description() {
     return '💵2';
@@ -191,6 +209,11 @@ export class Refresh extends Symb {
     return 'this is a refresher. it allows refreshing the selection in the shop more than once. careful, the cost of refreshing also increases.';
   }
   evaluateProduce(ctx, _, __) {
+    return Effect.serial(
+      Effect.modelOf('shop.allowRefresh').params({})
+    );
+  }
+  evaluateProducePassive(ctx) {
     return Effect.serial(
       Effect.modelOf('shop.allowRefresh').params({})
     );
@@ -224,7 +247,12 @@ export class Clover extends Symb {
     // Active board: add luck, then a small bounce on the cell
     return Effect.serial(
       Effect.modelOf('inventory.addLuck').params({ luck: 1 }),
-      Effect.viewOf('board.animate').params({ coords: { x, y }, animation: 'bounce', duration: 0.15 })
+      Effect.viewOf('board.animateCell').params({ coords: { x, y }, animation: 'bounce', duration: 0.15 })
+    );
+  }
+  evaluateProducePassive(ctx) {
+    return Effect.serial(
+      Effect.modelOf('inventory.addLuck').params({ luck: 1 })
     );
   }
 }

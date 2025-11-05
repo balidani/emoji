@@ -17,36 +17,27 @@ export class Game {
     this.settings = settings;
     this.catalog = catalog;
     this.inventory = new Inventory(this.settings, this.catalog);
-    // TODO #REFACTOR, remove update() call
-    // this.inventory.update();
     this.inventoryView = new InventoryView(this, this.inventory);
-    
     this.board = new Board(this.settings, this.catalog, this.inventory);
     this.boardView = new BoardView(this, this.board);
     this.eventlog = new EventLog();
     this.shop = new Shop(this.catalog, this.inventory);
+    this.shopView = new ShopView();
 
-    this.shopView = new ShopView(this);
-
-    this.controller = new Controller({
-      boardView: this.boardView,
-      inventoryView: this.inventoryView,
-      shopView: this.shopView,
-    });
-
-    // Consider using pubsub for intents?
-    this.shopView.handlers = {
-      onBuy: async (offerId) => {
-        await this.controller.dispatchSequentialEffects(
-          this.shop.attemptPurchase(offerId)
-        );
+    const env = {
+      model: {
+        board: this.board,
+        inventory: this.inventory,
+        shop: this.shop,
       },
-      onRefresh: async () => {
-        await this.controller.dispatchSequentialEffects(
-          this.shop.attemptRefresh()
-        );
+      view: {
+        board: this.boardView,
+        inventory: this.inventoryView,
+        shop: this.shopView,
       }
     };
+    this.controller = new Controller(env);
+    this.shopView.setController(this.controller);
 
     this.rolling = false;
     this.info = document.querySelector('.game .info');
@@ -120,46 +111,40 @@ export class Game {
       );
     }
 
+    // Build context
+    const buildCtx = () => ({
+      board: this.board.buildContext(),
+      inventory: this.inventory.buildContext(),
+    });
+    const dispatch = async (effects) => {
+      await this.controller.dispatch(buildCtx(), effects);
+    };
+
     if (this.inventory.getResource(Const.TURNS) > 0) {
-      // TODO #REFACTOR, dispatch effect here
-      // await this.controller.dispatchSequentialEffects(
-        this.inventory.addResource(Const.TURNS, -1)
-      // );
+      await dispatch(this.inventory.addResource(
+        { key: Const.LUCK, value: this.inventory.tempLuckBonus }));
+      
       // TODO #REFACTOR, should this be inside Board?
       this.inventory.symbols.forEach((s) => s.reset());
 
-      // await this.controller.dispatchSequentialEffects(
-        this.shop.close(this)
-      // );
+      await dispatch(this.shop.close());
+      await dispatch(this.board.roll(buildCtx()));
+      await dispatch(this.inventory.evaluate(buildCtx()));
+      await dispatch(this.inventory.score(buildCtx()));
+      await dispatch(this.board.evaluateConsume(buildCtx()));
+      await dispatch(this.board.evaluateProduce(buildCtx()));
+      await dispatch(this.board.evaluateConsume(buildCtx()));
+      await dispatch(this.board.increaseTurns(buildCtx()));
+      await dispatch(this.board.score(buildCtx()));
 
-      // Build context
-      const ctx = {
-        board: this.board.buildContext(),
-        inventory: this.inventory.buildContext(),
-      };
 
-      await this.controller.dispatch(
-        this.board.roll()
-      );
-
-      await this.controller.dispatch(
-        this.board.evaluate(ctx)
-      );
-      // await this.controller.dispatchSequentialEffects(
-      //   this.board.score(ctx)
-      // );
-      // await this.controller.dispatchSequentialEffects(
-      //   this.inventory.resetLuck()
-      // );
-      throw new Error('test');
+      this.inventory.resetLuck();
     }
 
     if (this.inventory.getResource(Const.TURNS) === 0) {
       await this.over();
     } else {
-      // await this.controller.dispatchParallelEffects(
-        this.shop.open(this)
-      // );
+      await dispatch(this.shop.open());
     }
 
     this.rolling = false;

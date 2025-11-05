@@ -13,27 +13,6 @@ export class InventoryView {
     this.createResources(inventory.resources);
     this.createInventory(inventory.symbols);
   }
-
-  async handleViewEvent(effect) {
-    const [_component, action] = effect.type.split('.');
-    switch (action) {
-      case 'resourceSet':
-        await this.updateResource(effect.key, effect.value);
-        break;
-      case 'addSymbol':
-        await this.updateInventoryEntry(effect.symbol, effect.count);
-        break;
-      case 'removeSymbol':
-        await this.updateInventoryEntry(effect.symbol, effect.count);
-        break;
-      case 'moneyEarnedOverlay':
-        // TODO #REFACTOR: Implement money earned overlay animation
-        break;
-      default:
-        console.warn(`Unknown inventory view event action: ${action}`);
-    }
-  }
-  
   createResources(resources) {
     this.resourceDiv.replaceChildren();
     const displayKeyValue = (key, value) => {
@@ -86,10 +65,10 @@ export class InventoryView {
     symbolSpan.appendChild(countSpan);
     this.inventoryDiv.appendChild(symbolSpan);
   }
-  async updateInventoryEntry(name, count) {
+  async updateInventoryEntry(name, count, description = '') {
     const symbolSpan = document.getElementById(`inventory-${name}`);
     if (!symbolSpan) {
-      console.warn('No inventory entry found for', name);
+      this.createInventoryEntry(name, count, description);
       return;
     }
     if (count === 0) {
@@ -103,7 +82,14 @@ export class InventoryView {
     // TODO #REFACTOR: Add animation for inventory change
   }
 
-  async updateResource(key, value) {
+  async addSymbol({ symbol, count, description }) {
+    await this.updateInventoryEntry(symbol.emoji(), count, description);
+  }
+  async removeSymbol({ symbol, count }) {
+    await this.updateInventoryEntry(symbol.emoji(), count);
+  }
+
+  async resourceSet({ key, value }) {
     const resourceSpan = document.getElementById(`resource-${key}`);
     if (!resourceSpan) {
       console.warn('No resource entry found for', key);
@@ -113,5 +99,21 @@ export class InventoryView {
     countSpan.innerText = Util.formatBigNumber(value) + '';
     // TODO #REFACTOR: Add animation for resource change
   }
-  
+
+  async moneyEarnedOverlay({coords, value}) {
+    // TODO #REFACTOR: Implement money earned overlay animation
+  }
+
+  // TODO #REFACTOR, is this needed?
+  getPassiveSymbolDiv(y) {
+    // Passive symbol, look for the div among inventoryEntry.
+    const emoji = this.passiveCells[y].emoji();
+    const entries = document.getElementsByClassName('inventoryEntry');
+    for (const entry of entries) {
+      if (entry.innerText.includes(emoji)) {
+        return entry;
+      }
+    }
+    return null;
+  }
 }

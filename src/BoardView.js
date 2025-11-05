@@ -4,75 +4,35 @@ import * as Util from './util.js';
 export class BoardView {
   constructor(game, board) {
     this.game = game;
-    this.board = board;
     this.gridDiv = document.querySelector('.game .grid');
     this.gridDiv.replaceChildren();
-    this.initCellDivs();
-    this.initLockedCells();
+    this._initCellDivs(board);
+    this._initLockedCells(board.lockedCells);
   }
-  initCellDivs() {
-    for (let y = 0; y < this.board.currentRows; ++y) {
+  _initCellDivs(board) {
+    for (let y = 0; y < board.currentRows; ++y) {
       const rowDiv = Util.createDiv('', 'row');
-      for (let x = 0; x < this.board.settings.boardX; ++x) {
+      for (let x = 0; x < board.settings.boardX; ++x) {
         const cellContainer = this.createCellDiv(x, y);
         rowDiv.appendChild(cellContainer);
       }
       this.gridDiv.appendChild(rowDiv);
     }
     // Play button.
-    this.spinIntoView(this.game, 2, 2);
+    this.spinIntoView(2, 2, { emoji: '▶️' });
   }
-  initLockedCells() {
-    for (const addr of Object.keys(this.board.lockedCells)) {
+  _initLockedCells(lockedCells) {
+    for (const addr of Object.keys(lockedCells)) {
       const [x, y] = addr.split(',').map(Number);
-      this.spinIntoView(this.game, x, y);
-    }
-  }
-  async handleViewEvent(effect) {
-    const [_component, action] = effect.type.split('.');
-    switch (action) {
-      case 'spin':
-        await this.spinCellDiv(this.game, effect.coords.x, effect.coords.y, effect.symbol);
-        break;
-      case 'animate':
-        await Util.animate(
-          this.getSymbolDiv(effect.coords.x, effect.coords.y),
-          effect.animation,
-          effect.duration,
-          effect.repeat || 1,
-          effect.cssVars || {}
-        );
-        break;
-      case 'animateOverlay':
-        await Util.animateOverlay(
-          this.getSymbolDiv(effect.coords.x, effect.coords.y),
-          effect.animation,
-          effect.duration,
-          effect.repeat || 1,
-          effect.cssVars || {}
-        );
-        break;
-      case 'addSymbol':
-        await this.addSymbol(this.game, effect.coords.x, effect.coords.y, effect.symbol);
-        break;
-      case 'removeSymbol':
-        await this.removeSymbol(this.game, effect.coords.x, effect.coords.y);
-        break;
-      case 'showMoneyEarnedOverlay':
-        await this.showMoneyEarnedOverlay(
-          effect.coords.x,
-          effect.coords.y,
-          effect.value
-        );
-        break;
+      this.spinIntoView(x, y, {emoji: lockedCells[addr].symbol.emoji()});
     }
   }
 
-  async resetBoardSize(rows) {
+  async resetBoardSize({ oldRows, newRows, cols }) {
     // If rows are not created yet:
-    if (this.board.currentRows < rows) {
+    if (oldRows < newRows) {
       // Showing hidden rows again
-      for (let y = this.board.currentRows; y < rows; ++y) {
+      for (let y = oldRows; y < newRows; ++y) {
         const rowDiv = this.gridDiv.childNodes[y];
         if (!rowDiv) {
           break;
@@ -81,30 +41,30 @@ export class BoardView {
         await Util.animate(rowDiv, 'rowMoveIn', 0.25);
       }
       // Growing
-      for (let y = this.board.currentRows; y < rows; ++y) {
+      for (let y = oldRows; y < newRows; ++y) {
         const rowDiv = Util.createDiv('', 'row');
-        for (let x = 0; x < this.board.settings.boardX; ++x) {
+        for (let x = 0; x < cols; ++x) {
           const cellContainer = this.createCellDiv(x, y);
           rowDiv.appendChild(cellContainer);
         }
         this.gridDiv.appendChild(rowDiv);
         await Util.animate(rowDiv, 'rowMoveIn', 0.25);
       }
-    } else if (this.board.currentRows > rows) {
+    } else if (oldRows > newRows) {
       // If there are too many rows, hide the extra ones.
-      for (let y = this.board.currentRows - 1; y >= rows; --y) {
+      for (let y = oldRows - 1; y >= newRows; --y) {
         const rowDiv = this.gridDiv.childNodes[y];
         await Util.animate(rowDiv, 'rowMoveOut', 0.25);
         rowDiv.classList.add('hidden');
       }
     }
   }
-  async clear() {
-    for (let x = 0; x < this.board.settings.boardX; ++x) {
-      for (let y = 0; y < this.board.cells.length; ++y) {
-        if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
-          continue;
-        }
+  async clear({ rows, cols}) {
+    for (let y = 0; y < rows; ++y) {
+      if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
+        continue;
+      }
+      for (let x = 0; x < cols; ++x) {
         await Util.delay(16);
         Util.animate(this.getSymbolDiv(x, y), 'fadeOutHalf', 0.3).then(() => {
           this.getSymbolDiv(x, y).style.opacity = '0.5';
@@ -113,19 +73,21 @@ export class BoardView {
     }
   }
 
-  async addSymbol(game, x, y, sym) {
-    if (this.board.cells[y][x].emoji() === Const.HOLE) {
-      await this.spinIntoHole(game, x, y, sym);
+  async addSymbol({ coords, prevRenderSpec, renderSpec }) {
+    const { x, y } = coords;
+    if (prevRenderSpec.emoji === Const.HOLE) {
+      await this.spinIntoHole(x, y, prevRenderSpec, renderSpec);
+      this._redrawCellDiv(x, y, prevRenderSpec);
     } else {
-      await this.spinIntoView(game, x, y);
+      await this.spinIntoView(x, y, renderSpec);
+      this._redrawCellDiv(x, y, renderSpec);
     }
-    // Render counter if needed.
-    this.redrawCellDiv(game, x, y);
   }
-  async removeSymbol(game, x, y) {
-    this.clearCellDiv(x, y);
+  async removeSymbol({ coords, renderSpec }) {
+    const { x, y } = coords;
+    this._clearCellDiv(x, y);
     await Util.animate(this.getSymbolDiv(x, y), 'shake', 0.125, 2);
-    await this.spinIntoView(game, x, y);
+    await this.spinIntoView(x, y, renderSpec);
   }
 
   createCellDiv(x, y) {
@@ -145,14 +107,11 @@ export class BoardView {
   getCellDiv(x, y) {
     return document.querySelector(`.cell-${y}-${x}`);
   }
-  redrawCellDiv(game, x, y) {
-    if (x === -1) {
-      return;
-    }
-    // TODO #REFACTOR
-    this.getCellDiv(x, y).replaceChildren(this.board.cells[y][x].render(game, x, y));
+  _redrawCellDiv(x, y, renderSpec) {
+    this.getCellDiv(x, y).replaceChildren(
+      this.renderSymbol(x, y, renderSpec));
   }
-  clearCellDiv(x, y) {
+  _clearCellDiv(x, y) {
     const counterDiv = this.getCounterDiv(x, y);
     if (counterDiv) {
       counterDiv.innerText = '';
@@ -164,17 +123,6 @@ export class BoardView {
   }
   
   getSymbolDiv(x, y) {
-    if (x === -1) {
-      // Passive symbol, look for the div among inventoryEntry.
-      const emoji = this.board.passiveCells[y].emoji();
-      const entries = document.getElementsByClassName('inventoryEntry');
-      for (const entry of entries) {
-        if (entry.innerText.includes(emoji)) {
-          return entry;
-        }
-      }
-      return null;
-    }
     return document.querySelector(`.cell-${y}-${x} .symbol`);
   }
   
@@ -185,24 +133,13 @@ export class BoardView {
     return this.gridDiv.children[y].children[x].children[2];
   }
 
-  async roll(lockedAtStart) {
-    const tasks = [];
-    for (let y = 0; y < this.board.currentRows; ++y) {
-      for (let x = 0; x < this.board.settings.boardX; ++x) {
-        if (lockedAtStart[`${x},${y}`]) {
-          continue;
-        }
-        tasks.push(this.spinCellDiv(game, x, y, this.board.cells[y][x]));
-      }
-    }
-    await Promise.all(tasks);
-  }
-  async showMoneyEarnedOverlay(x, y, value) {
+  async moneyEarnedOverlay({ _ctx, coords, value }) {
+    const { x, y } = coords;
     // Create a temporary money span to show on the overlay
     const moneySpan = Util.createSpan(`💵${Util.formatBigNumber(value)}`, 'money-earned-line');
     const cellDiv = this.getCellDiv(x, y);
     if (!cellDiv) {
-      console.warn('No cellDiv found for showMoneyEarnedOverlay at', x, y);
+      console.warn('No cellDiv found for moneyEarnedOverlay at', x, y);
       return;
     }
     cellDiv.appendChild(moneySpan);
@@ -217,32 +154,52 @@ export class BoardView {
       cellDiv.removeChild(moneySpan);
     });
   }
-  async pinCell(game, x, y) {
-    this.redrawCellDiv(game, x, y);
+  async pinCell({ coords, renderSpec }) {
+    const { x, y } = coords;
+    this._redrawCellDiv(x, y, renderSpec);
     await Util.animate(this.getSymbolDiv(x, y), 'bounce', 0.15);
   }
-  async spinIntoView(game, x, y) {
+
+  async spinIntoView(x, y, renderSpec) {
     const cellDiv = this.getCellDiv(x, y);
     await Util.animate(cellDiv, 'startSpin', 0.1);
-    // TODO #REFACTOR
-    const symbolDiv = this.board.cells[y][x].render(game, x, y);
+    const symbolDiv = this.renderSymbol(x, y, renderSpec);
     cellDiv.replaceChildren(symbolDiv);
     await Util.animate(symbolDiv, 'endSpin', 0.3);
     await Util.animate(symbolDiv, 'bounce', 0.1);
   }
-  async spinIntoHole(game, x, y, sym) {
+  async spinIntoHole(x, y, prevRenderSpec, renderSpec) {
     const cellDiv = this.getCellDiv(x, y);
-    const fakeSymbolDiv = sym.render(game, x, y);
+    const fakeSymbolDiv = this.renderSymbol(x, y, renderSpec);
     await Util.animate(cellDiv, 'startSpin', 0.1);
     cellDiv.replaceChildren(fakeSymbolDiv);
     await Util.animate(fakeSymbolDiv, 'endSpin', 0.3);
     await Util.animate(fakeSymbolDiv, 'bounce', 0.1);
-    const symbolDiv = this.board.cells[y][x].render(game, x, y);
+    const symbolDiv = this.renderSymbol(x, y, prevRenderSpec);
     cellDiv.replaceChildren(symbolDiv);
     await Util.animate(symbolDiv, 'endSpin', 0.3);
     await Util.animate(symbolDiv, 'bounce', 0.1);
   }
-  async spinCellDiv(game, x, y, symbol) {
+  renderSymbol(x, y, renderSpec) {
+    const symbolDiv = Util.createDiv(renderSpec.emoji, 'symbol');
+    const counterDiv = Util.createDiv(
+      Util.formatBigNumber(renderSpec.counter || ''),
+      'symbol-counter'
+    );
+    const pinDiv = Util.createDiv(
+      renderSpec.pinned ? Const.PIN : '', 'symbol-pin');
+
+    // TODO #REFACTOR, what to do with click handler?
+    // The lambda is required, otherwise there is a bug with the info text.
+    // This should probably be fixed in the future.
+    // symbolDiv.addEventListener('click', () => this.clickHandler(game));
+
+    symbolDiv.appendChild(counterDiv);
+    symbolDiv.appendChild(pinDiv);
+    return symbolDiv;
+  }
+  async spinCell({ coords, renderSpec }) {
+    const { x, y } = coords;
     await Util.delay(Math.random() * 600 | 0);
     const cellDiv = this.getCellDiv(x, y);
 
@@ -251,18 +208,33 @@ export class BoardView {
     const fakeDiv = Util.createDiv(null, 'symbol');
     cellDiv.replaceChildren(fakeDiv);
     for (let i = 0; i < 6; ++i) {
-      fakeDiv.innerText = game.inventory.getRandomOwnedEmoji();
+      fakeDiv.innerText = Util.randomChoose(renderSpec.ownedEmoji);
       await Util.animate(fakeDiv, 'spin', 0.12 + i * 0.02);
     }
 
     // Set the actual symbol
-    const symbolDiv = symbol.render(game, x, y);
+    const symbolDiv = this.renderSymbol(x, y, renderSpec);
     cellDiv.replaceChildren(symbolDiv);
 
     await Util.animate(symbolDiv, 'endSpin', 0.3);
     await Util.animate(symbolDiv, 'bounce', 0.1);
   }
-  
+  async animateCell({ coords, animation, duration, repeat, cssVars }) {
+    await Util.animate(this.getSymbolDiv(coords.x, coords.y),
+      animation,
+      duration,
+      repeat || 1,
+      cssVars || {}
+    );
+  }
+  async animateOverlay({ coords, animation, duration, repeat,  cssVars }) {
+    await Util.animateOverlay(this.getSymbolDiv(coords.x, coords.y),
+      animation,
+      duration,
+      repeat || 1,
+      cssVars || {}
+    );
+  }
   async getClickCoord(expr) {
     return new Promise((resolve) => {
       const onclick = (e) => {

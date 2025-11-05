@@ -17,13 +17,49 @@ export class Inventory {
     this.graveyard = [];
     this.giftsOpened = 0;
     this.rowCount = settings.boardY;
+
+    this.passiveSymbols = [];
   }
   buildContext() {
     return {
       getResource: this.getResource.bind(this),
+      getAllOwnedEmoji: this.getAllOwnedEmoji.bind(this),
     };
   }
-  remove(symbol) {
+
+  evaluate(ctx) {
+    const effects = [];
+    for (let i = 0; i < this.passiveSymbols.length; ++i) {
+      const passiveSymbol = this.passiveSymbols[i];
+      effects.push(passiveSymbol.evaluateProduce(ctx));
+    }
+    return Effect.serial(...effects);
+  }
+  finalScore(ctx) {
+    const effects = [];
+    for (let i = 0; i < this.passiveSymbols.length; ++i) {
+      const passiveSymbol = this.passiveSymbols[i];
+      effects.push(passiveSymbol.finalScore(ctx));
+    }
+    return Effect.serial(...effects);
+  }
+  score(ctx) {
+    const effects = [];
+    for (let i = 0; i < this.passiveSymbols.length; ++i) {
+      const passiveSymbol = this.passiveSymbols[i];
+      effects.push(passiveSymbol.score(ctx));
+    }
+    return Effect.serial(...effects);
+  }
+
+  addSymbol({ symbol }) {
+    this.symbols.push(symbol);
+    const symbolCount = this.symbols.filter(
+      s => s.emoji() === symbol.emoji()).length;
+    return Effect.viewOf('inventory.addSymbol')
+      .params({symbol: symbol, count: symbolCount, description: symbol.descriptionLong()});
+  }
+  removeSymbol({ symbol }) {
     const index = this.symbols.indexOf(symbol);
     if (index >= 0) {
       this.symbols.splice(index, 1);
@@ -31,15 +67,7 @@ export class Inventory {
     this.graveyard.push(symbol);
     const symbolCount = this.symbols.filter(
       s => s.emoji() === symbol.emoji()).length;
-    return Effect.serial({type: 'view', component: 'inventory.removeSymbol',
-      params: {symbol: symbol, count: symbolCount}});
-  }
-  add(symbol) {
-    this.symbols.push(symbol);
-    const symbolCount = this.symbols.filter(
-      s => s.emoji() === symbol.emoji()).length;
-    return Effect.serial({type: 'view', component: 'inventory.addSymbol',
-      params: {symbol: symbol, count: symbolCount}});
+    return Effect.viewOf('inventory.removeSymbol').params({symbol: symbol, count: symbolCount});
   }
   getResource(key) {
     if (this.resources[key] === undefined) {
@@ -47,7 +75,7 @@ export class Inventory {
     }
     return this.resources[key];
   }
-  addResource(key, value) {
+  addResource({ key, value }) {
     // TODO #REFACTOR:
     // effects.push({type: 'model', component:'eventlog.showResourceEarned',
     //   params: {key: key, value: value, source: source}});
@@ -55,11 +83,10 @@ export class Inventory {
       this.resources[key] = 0;
     }
     this.resources[key] += value;
-    return Effect.serial({type: 'view', component: 'inventory.resourceSet',
-      params: {key: key, value: this.resources[key]}});
+    return Effect.viewOf('inventory.resourceSet').params({key: key, value: this.resources[key]});
   }
-  addLuck(bonus) {
-    this.tempLuckBonus += bonus;
+  addLuck({ luck }) {
+    this.tempLuckBonus += luck;
     // Updating the ui is not wanted here.
     // `resetLuck`` is the function to call when luck calculation finished in last turn's Board::score.
     // We technically always use last turn's luck to avoid another round of scoring.
@@ -68,8 +95,8 @@ export class Inventory {
   resetLuck() {
     this.resources[Const.LUCK] = this.tempLuckBonus;
     this.tempLuckBonus = 0;
-    return Effect.serial({type: 'view', component: 'inventory.resourceSet',
-      params: {key: Const.LUCK, value: this.resources[Const.LUCK]}});
+    // return Effect.serial({type: 'view', component: 'inventory.resourceSet',
+    //   params: {key: Const.LUCK, value: this.resources[Const.LUCK]}});
   }
   resetRows() {
     this.rowCount = this.settings.boardY;
@@ -80,5 +107,12 @@ export class Inventory {
       return Const.EMPTY;
     }
     return Util.randomChoose(this.symbols).emoji();
+  }
+  getAllOwnedEmoji() {
+    return this.symbols.map(s => s.emoji());
+  }
+  makePassive(symbol) {
+    this.passiveSymbols.push(symbol);
+    return this.addResource(symbol.emoji(), 1);
   }
 }

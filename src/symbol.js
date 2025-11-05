@@ -42,11 +42,13 @@ export class Symb {
   }
   evaluateConsume(_ctx, x, y) { return Effect.none(); }
   evaluateProduce(_ctx, x, y) { return Effect.none(); }
+  evaluateProducePassive(_ctx) { return Effect.none(); }
   finalScore(_ctx, _x, _y) { return Effect.none(); }
+  finalScorePassive(_ctx) { return Effect.none(); }
   score(_ctx, _x, _y) { return Effect.none(); }
+  scorePassive(_ctx) { return Effect.none(); }
   onBuy() {
-    return Effect.serial({type: 'model', component: 'inventory.add',
-      params: {symbol: this}});
+    return Effect.modelOf('inventory.addSymbol').params({symbol: this});
   }
   cost() {
     return {};
@@ -69,15 +71,22 @@ export class Symb {
       )
     );
     if (key === Const.MONEY) {
-      if (x === -1) {
-        parallelEffects.push(Effect.viewOf('inventory.moneyEarnedOverlay')
+      parallelEffects.push(Effect.viewOf('board.moneyEarnedOverlay')
           .params({coords: {x, y}, value: value}));
-      } else {
-        parallelEffects.push(Effect.viewOf('board.moneyEarnedOverlay')
-          .params({coords: {x, y}, value: value}));
-      }
     }
-    return Effect.parallel(parallelEffects);
+    return Effect.parallel(...parallelEffects);
+  }
+  addResourcePassive(ctx, key, value) {
+    const parallelEffects = [];
+    parallelEffects.push(
+      Effect.modelOf('inventory.addResource').params(
+        {key: key, value: value, source: this.emoji()})
+      );
+    if (key === Const.MONEY) {
+      parallelEffects.push(Effect.viewOf('inventory.moneyEarnedOverlay')
+          .params({coords: {x, y}, value: value}));
+    }
+    return Effect.parallel(...parallelEffects);
   }
   addMoney(ctx, score, x, y) {
     const value = score * this.multiplier;
@@ -87,15 +96,18 @@ export class Symb {
     for (const coord of coords) {
       const [multX, multY] = coord;
       multEffects.push(Effect.parallel(
-        Effect.viewOf('board.animate').params(
+        Effect.viewOf('board.animateCell').params(
           {coords: {x: multX, y: multY}, animation: 'flip', duration: 0.2}),
-        Effect.viewOf('board.animateOverlay').params(
+        Effect.viewOf('board.animateCellOverlay').params(
           {coords: {x: multX, y: multY}, animation: 'grow', duration: 0.2 + multCount * 0.035,
           cssVars: {'grow-scale': 1.2 + multCount * 0.25}})));
       multCount++;
     }
     return Effect.serial(...multEffects,
-      ...this.addResource(ctx, x, y, Const.MONEY, value));
+      this.addResource(ctx, x, y, Const.MONEY, value));
+  }
+  addMoneyPassive(ctx, score) {
+    return this.addResourcePassive(ctx, Const.MONEY, score);
   }
   emoji() {
     return this.constructor.emoji;
@@ -106,37 +118,22 @@ export class Symb {
   counter(_ctx) {
     return null;
   }
-  render(ctx, x, y) {
-    // TODO #REFACTOR, this needs to happen in a view???
-
-    const symbolDiv = Util.createDiv(this.emoji(), 'symbol');
-    const counterDiv = Util.createDiv(
-      Util.formatBigNumber(this.counter(ctx) || ''),
-      'symbol-counter'
-    );
-    const pinDiv = Util.createDiv(
-      ctx.board.lockedCells[`${x},${y}`] ? Const.PIN : '', 'symbol-pin');
-
-    // const mult = this.multiplier !== 1 ? this.multiplier : undefined;
-    // const multiplierDiv = Util.createDiv(mult, 'symbol-multiplier', 'hidden');
-
-    // The lambda is required, otherwise there is a bug with the info text.
-    // This should probably be fixed in the future.
-    symbolDiv.addEventListener('click', () => this.clickHandler(game));
-
-    symbolDiv.appendChild(counterDiv);
-    symbolDiv.appendChild(pinDiv);
-
-    // symbolDiv.appendChild(multiplierDiv);
-
-    return symbolDiv;
+  renderSpec(ctx, x, y) {
+    return {
+      emoji: this.emoji(),
+      counter: this.counter(ctx) || 0,
+      pinned: !!ctx.board.lockedAt(x, y),
+      ownedEmoji: ctx.inventory.getAllOwnedEmoji(),
+    };
   }
-  clickHandler(game) {
-    const interactiveDescription = Util.createInteractiveDescription(
-      this.descriptionLong(),
-      /*emoji=*/ this.emoji()
-    );
-    return () =>
-      Util.drawText(game.info, interactiveDescription, /*isHtml=*/ true);
-  }
+  // TODO #REFACTOR: for the symbols on the Board this is not used,
+  // but for symbols in the Shop/Inventory it should be.
+  // clickHandler(game) {
+  //   const interactiveDescription = Util.createInteractiveDescription(
+  //     this.descriptionLong(),
+  //     /*emoji=*/ this.emoji()
+  //   );
+  //   return () =>
+  //     Util.drawText(game.info, interactiveDescription, /*isHtml=*/ true);
+  // }
 }

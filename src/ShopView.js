@@ -1,36 +1,66 @@
+import * as Const from './consts.js';
 import * as Util from './util.js';
 
+import { Effect } from './Effect.js';
+
 export class ShopView {
-  constructor(game) {
-    this.game = game;
-    this.handlers = {};
+  constructor() {
     this.shopDiv = document.querySelector('.game .shop');
+    this.dispatch = null;
   }
-  async handleViewEvent(effect) {
-    switch (effect.type) {
-      case 'shop.offer':
-        await this.showOffer(effect);
-        break;
-      case 'shop.refresh':
-        await this.showRefresh(effect);
-      case 'shop.close':
-        await this.close();
-      default:
-        console.warn(`Unknown shop view event type: ${effect.type}`);
-    }
+  setController(controller) {
+    this.dispatch = (...args) => controller.dispatch(...args);
   }
 
-  async showOffer(offer) {
-    
+  async showOffer({ offerId, symbol, symbolCost, canBuy }) {
+    // Note that we are sending a model effect from a view handler.
+    const buyHandler = (_) => {
+      this.dispatch({}, Effect.modelOf('shop.attemptPurchase').params({ offerId }))
+    };
+    const shopItemDiv = this._makeShopItem(symbol, symbolCost, canBuy, buyHandler);
+    shopItemDiv.id = `shop-offer-${offerId}`;
+    this.shopDiv.appendChild(shopItemDiv);
+  }
+  async showRefresh({ refreshCostResource, refreshCost, canRefresh }) {
+    const refreshHandler = (_) => {
+      this.dispatch({}, Effect.modelOf('shop.attemptRefresh').params({}))
+    };
+    const refreshDiv = this._makeShopItem(
+      {
+        emoji: () => '&nbsp;',
+        description: () => '',
+        descriptionLong: () => '',
+      },
+      { [refreshCostResource]: refreshCost },
+      canRefresh,
+      refreshHandler,
+      Const.REFRESH
+    );
+    // TODO #REFACTOR, Make the refreshDiv always last
+    this.shopDiv.appendChild(refreshDiv);
   }
 
+  async show() {
+    this.shopDiv.classList.remove('hidden');
+    await Util.animate(this.shopDiv, 'openShop', 0.2);
+  }
+ 
   async close() {
     await Util.animate(this.shopDiv, 'closeShop', 0.2);
     this.shopDiv.classList.add('hidden');
     this.shopDiv.replaceChildren();
   }
 
-  makeShopItem(game, symbol, symbolCost, handler, buttonText = Const.BUY) {
+  async purchaseSuccess({ offerId }) {
+    const shopItemDiv = document.getElementById(`shop-offer-${offerId}`);
+    if (!shopItemDiv) {
+      return;
+    }
+    await Util.animate(shopItemDiv, 'boughtShopItem', 0.2);
+    shopItemDiv.remove();
+  }
+
+  _makeShopItem(symbol, symbolCost, canBuy, buyHandler, buttonText = Const.BUY) {
     const shopItemDiv = document.createElement('div');
     shopItemDiv.classList.add('shopItem');
     const symbolDiv = document.createElement('div');
@@ -41,6 +71,7 @@ export class ShopView {
         symbol.descriptionLong(),
         /*emoji=*/ symbol.emoji()
       );
+      // TODO #REFACTOR
       Util.drawText(game.info, interactiveDescription, true);
     });
     shopItemDiv.appendChild(symbolDiv);
@@ -67,20 +98,11 @@ export class ShopView {
     buyButton.classList.add('buyButton');
     buyButton.innerText = buttonText;
 
-    let canBuy = true;
-    for (const [key, value] of Object.entries(symbolCost)) {
-      if (game.inventory.getResource(key) < value) {
-        canBuy = false;
-        break;
-      }
-    }
     if (!canBuy) {
       buyButton.disabled = true;
     }
 
-    buyButton.addEventListener('click', handler);
-    // Only for simulator.
-    buyButton.clickSim = handler;
+    buyButton.addEventListener('click', buyHandler);
     buyDiv.appendChild(buyButton);
     shopItemDiv.appendChild(buyDiv);
     return shopItemDiv;

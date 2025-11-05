@@ -8,7 +8,6 @@ export class Shop {
     this.catalog = catalog;
     this.inventory = inventory;
     this.shopDiv = document.querySelector('.game .shop');
-    this.isOpen = false;
 
     // TODO #REFACTOR, these should come from the config
     this.buyCount = 1;
@@ -16,7 +15,6 @@ export class Shop {
 
     this.refreshCost = 1;
     this.refreshCount = 0;
-    this.allowRefresh = true;
     this.haveRefreshSymbol = false;
     this.refreshCostResource = Const.MONEY;
     this.refreshCostIncrease = 1;
@@ -24,21 +22,17 @@ export class Shop {
     this.refreshCostInitialMult = 0.01;
     this.currentOffers = {};
   }
-  
-  makeCatalog(game) {
+  makeCatalog() {
     return this.catalog.generateShop(
       this.buyLines,
       this.inventory.getResource(Const.LUCK)
     );
   }
-  open(game) {
-    // TODO #REFACTOR, do we even need to track if the shop is open?
-    if (this.isOpen) {
-      return;
+  open() {
+    if (this.buyCount <= 0) {
+      return Effect.none();
     }
-    this.isOpen = true;
-
-    const catalog = this.makeCatalog(game);
+    const catalog = this.makeCatalog();
     const offers = [];
     for (let i = 0; i < this.buyLines; ++i) {
       if (catalog.length === 0) {
@@ -47,43 +41,81 @@ export class Shop {
       const symbol = Util.randomRemove(catalog, /* shop= */ true);
       const symbolCost = symbol.cost();
       // Currently static, should maybe be re-checked when other items are bought.
-      const canBuy = this.canBuySymbol(game, symbolCost);
-      const offer = {type: 'view', component: 'shop.offer',
-        params: {offerId: i, symbol: symbol, symbolCost: symbolCost, canBuy: canBuy}};
+      const canBuy = this._canBuySymbol(symbolCost);
+      const offerInfo = {
+        offerId: i,
+        symbol: symbol,
+        symbolCost: symbolCost,
+        canBuy: canBuy
+      };
+      const offer = Effect.viewOf('shop.showOffer')
+        .params(offerInfo);
       offers.push(offer);
-      this.currentOffers[i] = offer;
+      this.currentOffers[i] = offerInfo;
     }
-    if (this.allowRefresh &&
-      (this.haveRefreshSymbol || this.refreshCount === 0)) {
-      offers.push({type: 'view', component: 'shop.refresh',
-        params: {refreshCost: this.refreshCost}});
+    if (this.haveRefreshSymbol || this.refreshCount === 0) {
+      const canRefresh = this._canBuySymbol({
+        [this.refreshCostResource]: this.refreshCost
+      });
+      offers.push(Effect.viewOf('shop.showRefresh')
+        .params({
+          refreshCostResource: this.refreshCostResource,
+          refreshCost: this.refreshCost,
+          canRefresh: canRefresh
+        }));
     }
-    return Effect.parallel(offers);
+    return Effect.serial(...offers, Effect.viewOf('shop.show').params());
   }
-  close(game) {
-    if (!this.isOpen) {
-      return [];
-    }
-    this.reset(game);
-    this.isOpen = false;
+  close() {
+    this.reset();
     this.currentOffers = {};
-
-    return Effect.serial({type: 'view', component: 'shop.close'});
+    return Effect.viewOf('shop.close').params();
   }
-  attemptPurchase(offerId) {
+  attemptPurchase({ offerId }) {
     const offer = this.currentOffers[offerId];
-    if (!this.canBuySymbol(offer.symbolCost)) {
-      return [];
+    if (!this._canBuySymbol(offer.symbolCost)) {
+      return Effect.none();
+    }
+    if (this.buyCount <= 0) {
+      return Effect.none();
     }
 
     const effects = [];
     for (const [key, value] of Object.entries(offer.symbolCost)) {
       // TODO #REFACTOR, inventory should call and return event log effects.
       // effects.push(...game.eventlog.showResourceEarned(key, -value, Const.SHOPPING_CART));
-      effects.push(...this.inventory.addResource(key, -value));
+      effects.push(this.inventory.addResource(key, -value));
     }
-    effects.push(...symbol.onBuy());
-    return effects;
+    effects.push(Effect.viewOf('shop.purchaseSuccess').params({offerId: offerId}));
+    effects.push(offer.symbol.onBuy());
+    this.buyCount--;
+    if (this.buyCount === 0) {
+      effects.push(Effect.viewOf('shop.close').params());
+    }
+    return Effect.serial(...effects);
+  }
+  attemptRefresh() {
+    if (!this._canBuySymbol({
+      [this.refreshCostResource]: this.refreshCost
+    })) {
+      return Effect.none();
+    }
+    const effects = [];
+    effects.push(this.inventory.addResource({
+      key: this.refreshCostResource,
+      value: -this.refreshCost
+    }));
+    this.refreshCount++;
+    this.refreshCost += this.refreshCostIncrease;
+    this.refreshCost = Math.trunc(this.refreshCost * this.refreshCostMult);
+
+    // We call ShopView.close, which does not reset the shop state, only visually closes it.
+    effects.push(Effect.viewOf('shop.close').params());
+    effects.push(this.open());
+    return Effect.serial(...effects);
+  }
+  allowRefresh({_ctx, _params}) {
+    this.haveRefreshSymbol = true;
   }
 
   // for (let i = 0; i < this.buyLines; ++i) {
@@ -134,10 +166,7 @@ export class Shop {
   //   this.shopDiv.appendChild(shopItemDiv);
   // }
   // // Refresh
-  // if (
-  //   this.allowRefresh &&
-  //   (this.haveRefreshSymbol || this.refreshCount === 0)
-  // ) {
+  // if (this.haveRefreshSymbol || this.refreshCount === 0) {
   //   const shopItemDiv = this.makeShopItem(
   //     game,
   //     {
@@ -176,7 +205,7 @@ export class Shop {
   //   this.shopDiv.appendChild(shopItemDiv);
   // }
   // await Util.animate(this.shopDiv, 'openShop', 0.4);
-  canBuySymbol(symbolCost) {
+  _canBuySymbol(symbolCost) {
     if (this.buyCount <= 0) {
       return false;
     }
@@ -197,11 +226,11 @@ export class Shop {
       this.shopDiv.classList.remove('hidden');
     }
   }
-  reset(game) {
+  reset() {
     this.haveRefreshSymbol = false;
     this.refreshCost =
       Math.trunc(1 +
-        game.inventory.getResource(this.refreshCostResource) *
+        this.inventory.getResource(this.refreshCostResource) *
           this.refreshCostInitialMult);
     this.refreshCount = 0;
     this.buyCount = 1;

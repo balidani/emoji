@@ -14,26 +14,10 @@ export class Board {
     this.currentRows = this.settings.boardY;
     this.empty = this.catalog.symbol(Const.EMPTY);
   
-    this.initLockedCells();
-    this.initCells();
+    this._initLockedCells();
+    this._initCells();
   }
-  initCells() {
-    this.cells = [];
-    this.passiveCells = [];
-    for (let y = 0; y < this.currentRows; ++y) {
-      const row = [];
-      for (let x = 0; x < this.settings.boardX; ++x) {
-        const ilc = this.lockedCells[`${x},${y}`];
-        const symbol = !ilc ? this.empty.copy() : ilc.symbol;
-        row.push(symbol);
-      }
-      this.cells.push(row);
-    }
-    
-    // Show play button in the center in the beginning.
-    this.cells[2][2] = new PlayButton();
-  }
-  initLockedCells() {
+  _initLockedCells() {
     this.lockedCells = [];
     const usedSymbols = new Set();
     for (const [addr, { emoji, duration }] of Object.entries(
@@ -60,11 +44,24 @@ export class Board {
       };
     }
   }
+  _initCells() {
+    this.cells = [];
+    for (let y = 0; y < this.currentRows; ++y) {
+      const row = [];
+      for (let x = 0; x < this.settings.boardX; ++x) {
+        const ilc = this.lockedCells[`${x},${y}`];
+        const symbol = !ilc ? this.empty.copy() : ilc.symbol;
+        row.push(symbol);
+      }
+      this.cells.push(row);
+    }
+  }
 
   buildContext() {
     return {
       nextToCoords: this.nextToCoords.bind(this),
       nextToSymbol: this.nextToSymbol.bind(this),
+      getSymbol: this.getSymbol.bind(this),
       getEmoji: this.getEmoji.bind(this),
       nextToExpr: this.nextToExpr.bind(this),
       nextToCategory: this.nextToCategory.bind(this),
@@ -74,22 +71,11 @@ export class Board {
       forAllCategory: this.forAllCategory.bind(this),
       allSameInRow: this.allSameInRow.bind(this),
       allSameInColumn: this.allSameInColumn.bind(this),
-    }
-  }
-  handleModelEvent(effect) {
-    const [_handler, action] = effect.component.split('.');
-    switch (action) {
-      case 'addSymbol':
-        return this.addSymbol(effect.params.symbol, effect.params.coords.x, effect.params.coords.y);
-      case 'removeSymbol':
-        return this.removeSymbol(effect.params.coords.x, effect.params.coords.y);
-      default:
-        console.warn(`Unknown board model event action: ${action}`);
-        return [];
+      lockedAt: this.lockedAt.bind(this),
     }
   }
 
-  resetBoardSize(rows) {
+  _resetBoardSize(rows) {
     if (this.currentRows < rows) {
       for (let y = this.cells.length; y < rows; ++y) {
         const row = [];
@@ -99,15 +85,15 @@ export class Board {
         this.cells.push(row);
       }
     }
-    const effect = Effect.viewOf('board.resize')
-      .params({oldRows: this.currentRows, newRows: rows});
+    const effect = Effect.viewOf('board.resetBoardSize')
+      .params({oldRows: this.currentRows, newRows: rows, cols: this.settings.boardX});
     this.currentRows = rows;
     return effect;
   }
-  roll() {
+  roll(ctx) {
     const effects = [];
     if (this.currentRows !== this.inventory.rowCount) {
-      effects.push(this.resetBoardSize(this.inventory.rowCount));
+      effects.push(this._resetBoardSize(this.inventory.rowCount));
     }
     this.inventory.resetRows();
     const symbols = [...this.inventory.symbols];
@@ -150,8 +136,9 @@ export class Board {
     const spinEffects = [];
     this.forAllCells((symbol, x, y) => {
       if (!lockedAtStart[`${x},${y}`]) {
-        spinEffects.push(Effect.viewOf('board.spin')
-          .params({coords: {x, y}, symbol: symbol}));
+        const renderSpec = symbol.renderSpec(ctx, x, y);
+        spinEffects.push(Effect.viewOf('board.spinCell')
+          .params({coords: {x, y}, renderSpec}));
       }
     });
     effects.push(Effect.parallel(...spinEffects));
@@ -159,50 +146,42 @@ export class Board {
   }
   clear() {
     this.lockedCells = [];
-    for (let x = 0; x < this.settings.boardX; ++x) {
-      for (let y = 0; y < this.cells.length; ++y) {
-        if (y >= this.currentRows) {
-          continue;
-        }
+    for (let y = 0; y < this.cells.length; ++y) {
+      if (y >= this.currentRows) {
+        continue;
+      }
+      for (let x = 0; x < this.settings.boardX; ++x) {
         this.cells[y][x] = this.empty.copy();
       }
     }
+    return Effect.viewOf('board.clear')
+      .params({rows: this.currentRows, cols: this.settings.boardX});
   }
-  evaluate(ctx) {
+  _evaluatePhase(ctx, phase) {
+    const effects = [];
+    this.forAllCells((cell, x, y) => {
+      // If the symbol has since been removed from the board, do not evaluate.
+      if (this.cells[y][x] !== cell) {
+        return [];
+      }
+      effects.push(cell[phase](ctx, x, y));
+    });
+    return Effect.serial(...effects);
+  }
+  evaluateConsume(ctx) {
+    return this._evaluatePhase(ctx, 'evaluateConsume');
+  }
+  evaluateProduce(ctx) {
+    return this._evaluatePhase(ctx, 'evaluateProduce');
+  }
+  increaseTurns(ctx) {
     this.forAllCells((cell, _, __) => {
       cell.turns++;
     });
-    const effects = [];
-    // Evaluate passives
-    for (let i = 0; i < this.passiveCells.length; ++i) {
-      const passiveSymbol = this.passiveCells[i];
-      effects.push(passiveSymbol.evaluateProduce(ctx, -1, i));
-    }
-    // Evaluate board symbols
-    const evaluateRound = (f) => {
-      const effects = [];
-      this.forAllCells((cell, x, y) => {
-        // If the symbol has since been removed from the board, do not evaluate.
-        if (this.cells[y][x] !== cell) {
-          return [];
-        }
-        effects.push(f(cell, ctx, x, y));
-      });
-      return Effect.serial(...effects);
-    };
-    effects.push(evaluateRound((c, ctx, x, y) => c.evaluateConsume(ctx, x, y)));
-    effects.push(evaluateRound((c, ctx, x, y) => c.evaluateProduce(ctx, x, y)));
-    effects.push(evaluateRound((c, ctx, x, y) => c.evaluateConsume(ctx, x, y)));
-    return Effect.serial(...effects);
+    return Effect.none();
   }
   finalScore(ctx) {
     const effects = [];
-    // Final score passives
-    for (let i = 0; i < this.passiveCells.length; ++i) {
-      const passiveSymbol = this.passiveCells[i];
-      effects.push(passiveSymbol.finalScore(ctx, -1, i));
-    }
-    // Final score board symbols
     this.forAllCells((cell, x, y) => {
       effects.push(cell.finalScore(ctx, x, y));
     });
@@ -210,31 +189,28 @@ export class Board {
   }
   score(ctx) {
     const effects = [];
-    // Score passives
-    for (let i = 0; i < this.passiveCells.length; ++i) {
-      const passiveSymbol = this.passiveCells[i];
-      effects.push(passiveSymbol.score(ctx, -1, i));
-    }
-    // Score board symbols
     this.forAllCells((cell, x, y) => {
       effects.push(cell.score(ctx, x, y));
     });
     return Effect.serial(...effects);
   }
-  addSymbol(sym, x, y) {
+  addSymbol({ ctx, symbol, x, y }) {
     const effects = [];
-    effects.push(this.inventory.add(sym));
-    if (x === -1 || y === -1) {
-      return [];
+    // TODO #REFACTOR: remove references to inventory?
+    effects.push(this.inventory.add(symbol));
+    const prevRenderSpec = this.cells[y][x].renderSpec(ctx, x, y);
+    const renderSpec = symbol.renderSpec(ctx, x, y);
+    if (prevRenderSpec.emoji !== Const.HOLE) {
+      this.cells[y][x] = symbol;
     }
-    this.cells[y][x] = sym;
     effects.push(Effect.viewOf('board.addSymbol')
-      .params({coords: {x, y}, symbol: sym}));
+      .params({coords: {x, y}, prevRenderSpec, renderSpec}));
     return Effect.serial(...effects);
   }
-  removeSymbol(x, y) {
-    if (x === -1 || y === -1) {
-      return [];
+  removeSymbol({ ctx, coords, symbol }) {
+    const { x, y } = coords;
+    if (this.cells[y][x] !== symbol) {
+      return Effect.none();
     }
     if (this.lockedCells[`${x},${y}`] !== undefined) {
       delete this.lockedCells[`${x},${y}`];
@@ -244,27 +220,39 @@ export class Board {
     //   ...game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji())
     // );
     const effects = [];
-    effects.push(this.inventory.remove(this.cells[y][x]));
+    effects.push(Effect.modelOf('inventory.removeSymbol')
+      .params({symbol: this.cells[y][x]}));
     this.cells[y][x] = this.empty.copy();
+    const renderSpec = this.cells[y][x].renderSpec(ctx, x, y);
     effects.push(Effect.viewOf('board.removeSymbol')
-      .params({coords: {x, y}}));
+      .params({coords: {x, y}, renderSpec}));
     return Effect.serial(...effects);
   }
 
-  lockCell(x, y, symbol, duration) {
+  _lockCell(x, y, symbol, duration) {
     this.lockedCells[`${x},${y}`] = {
       symbol: symbol,
       duration: duration,
     };
   }
-  unlockCell(x, y) {
+  _unlockCell(x, y) {
     delete this.lockedCells[`${x},${y}`];
+  }
+  pinCell({ctx, x, y}) {
+    this._lockCell(x, y, this.cells[y][x], -1);
+    const renderSpec = this.cells[y][x].renderSpec(ctx, x, y);
+    return Effect.viewOf('board.pinCell')
+      .params({coords: {x, y}, renderSpec});
+  }
+  makePassive({ _ctx, x, y }) {
+    const passiveCopy = this.cells[y][x].copy();
+    const effects = [];
+    effects.push(this.removeSymbol(x, y));
+    effects.push(this.inventory.makePassive(passiveCopy));
+    return Effect.serial(...effects);
   }
 
   nextToCoords(x, y) {
-    if (x === -1 || y === -1) {
-      return [];
-    }
     const coords = [];
     const add = (x, y) => {
       if (
@@ -287,9 +275,6 @@ export class Board {
     return coords;
   }
   nextToSymbol(x, y, emoji) {
-    if (x === -1 || y === -1) {
-      return [];
-    }
     const coords = [];
     this.nextToCoords(x, y).forEach((coord) => {
       const [neighborX, neighborY] = coord;
@@ -299,16 +284,13 @@ export class Board {
     });
     return coords;
   }
+  getSymbol(x, y) {
+    return this.cells[y][x];
+  }
   getEmoji(x, y) {
-    if (x === -1) {
-      return this.passiveCells[y].emoji();
-    }
     return this.cells[y][x].emoji();
   }
   nextToExpr(x, y, expr) {
-    if (x === -1 || y === -1) {
-      return [];
-    }
     const coords = [];
     this.nextToCoords(x, y).forEach((coord) => {
       const [neighborX, neighborY] = coord;
@@ -376,19 +358,7 @@ export class Board {
     }
     return true;
   }
-
-  pinCell(x, y) {
-    this.lockCell(x, y, this.cells[y][x], -1);
-    return Effect.viewOf('board.pinCell')
-      .params({coords: {x, y}});
-  }
-
-  makePassive(x, y) {
-    const passiveCopy = this.cells[y][x].copy();
-    const effects = [];
-    effects.push(this.removeSymbol(x, y));
-    this.passiveCells.push(passiveCopy);
-    effects.push(this.inventory.addResource(passiveCopy.emoji(), 1));
-    return Effect.serial(...effects);
+  lockedAt(x, y) {
+    return this.lockedCells[`${x},${y}`] !== undefined;
   }
 }
