@@ -9,27 +9,47 @@ export class Catalog {
     this.symbols = new Map();
     this.categories = new Map();
     this.symbolSources.unshift('./symbol.js'); // All symbol lists require this
-    for (let source of this.symbolSources) {
-      try {
-        let symModule = await import(source);
-        for (const [_, value] of Object.entries(symModule)) {
-          if (!(value.prototype instanceof Symb)) {
-            continue;
-          }
-          let sym = new value();
-          this.symbols.set(sym.emoji(), sym);
-          let cats = sym.categories();
-          if (cats.length > 0) {
-            for (const cat of cats) {
-              const old = this.categories.get(cat) || [];
-              old.push(sym.emoji());
-              this.categories.set(cat, old);
-            }
+    const allResults = await Promise.all(
+      this.symbolSources.map((source) => this.loadSymbolSource(source))
+    );
+    for (const { newSymbols, newCategories } of allResults) {
+      for (const [emoji, sym] of newSymbols) {
+        this.symbols.set(emoji, sym);
+      }
+      for (const [cat, emojis] of newCategories) {
+        const old = this.categories.get(cat) || [];
+        this.categories.set(cat, old.concat(emojis));
+      }
+    }
+  }
+  async loadSymbolSource(source) {
+    const newSymbols = new Map();
+    const newCategories = new Map();
+
+    try {
+      let symModule = await import(source);
+      for (const [_, value] of Object.entries(symModule)) {
+        if (!(value.prototype instanceof Symb)) {
+          continue;
+        }
+
+        let sym = new value();
+        const emoji = sym.emoji();
+        newSymbols.set(emoji, sym);
+
+        let cats = sym.categories();
+        if (cats.length > 0) {
+          for (const cat of cats) {
+            const old = newCategories.get(cat) || [];
+            old.push(emoji);
+            newCategories.set(cat, old);
           }
         }
-      } catch (error) {
-        console.error(`Failed to load module ${source} : ${error}`);
       }
+      return { newSymbols, newCategories }; 
+    } catch (error) {
+      console.error(`Failed to load module ${source} : ${error}`);
+      return { newSymbols, newCategories }; 
     }
   }
   symbol(emoji) {
