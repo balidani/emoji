@@ -1,4 +1,4 @@
-import * as Const from '../consts.js';
+import * as Const from './consts.js';
 import * as Util from './util.js';
 
 export class EventLog {
