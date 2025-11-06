@@ -225,3 +225,28 @@ export class Santa extends Symb {
     return "this is santa. it gives 💵25 for each 🎁 opened this run.";
   }
 }
+
+export class Cloud extends Symb {
+  static emoji = '☁️';
+  constructor() {
+    super();
+    this.rarity = 0.1;
+  }
+  copy() {
+    return new Cloud();
+  }
+  description() {
+    return '💵6 for each empty space';
+  }
+  descriptionLong() {
+    return 'this is a cloud. it gives you 💵6 for each empty space on the board.';
+  }
+  async score(game, x, y) {
+    const emptySpaces = game.board.forAllExpr(
+      (e, _x, _y) => e.emoji() === Empty.emoji);
+    if (emptySpaces.length > 0) {
+      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+      await this.addMoney(game, emptySpaces.length * 6, x, y);
+    }
+  }
+}

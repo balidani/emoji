@@ -70,31 +70,31 @@ export class Bell extends Symb {
   }
 }
 
-export class Dancer extends Symb {
-  static emoji = '💃';
-  constructor() {
-    super();
-    this.rarity = 0.3;
-    this.musicScore = 0;
-  }
-  copy() {
-    return new Dancer();
-  }
-  async score(game, x, y) {
-    const coords = game.board.nextToSymbol(x, y, MusicalNote.emoji);
-    if (coords.length === 0) {
-      return;
-    }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
-    await this.addMoney(game, coords.length * 10, x, y);
-  }
-  description() {
-    return '💵10 for each neighboring 🎵';
-  }
-  descriptionLong() {
-    return "this is a dancer. it pays 💵10 for each 🎵 it's standing next to.";
-  }
-}
+// export class Dancer extends Symb {
+//   static emoji = '💃';
+//   constructor() {
+//     super();
+//     this.rarity = 0.3;
+//     this.musicScore = 0;
+//   }
+//   copy() {
+//     return new Dancer();
+//   }
+//   async score(game, x, y) {
+//     const coords = game.board.nextToSymbol(x, y, MusicalNote.emoji);
+//     if (coords.length === 0) {
+//       return;
+//     }
+//     await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+//     await this.addMoney(game, coords.length * 10, x, y);
+//   }
+//   description() {
+//     return '💵10 for each neighboring 🎵';
+//   }
+//   descriptionLong() {
+//     return "this is a dancer. it pays 💵10 for each 🎵 it's standing next to.";
+//   }
+// }
 
 export class Drums extends Symb {
   static emoji = '🥁';
