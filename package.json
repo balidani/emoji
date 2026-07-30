@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint '**/*.js'",
     "format": "prettier --write '**/*.{js,css,html}'",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/run-trace.mjs"
   },
   "author": "balidani",
   "license": "ISC",
@@ -16,6 +16,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.9.0",
+    "playwright-core": "^1.62.1",
     "prettier": "^3.3.3"
   }
 }

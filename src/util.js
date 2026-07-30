@@ -59,10 +59,13 @@ document.querySelector('#seed-phrase').textContent = seedPhrase;
 document.querySelector('#seed-link').href = `#${seedPhrase}`;
 
 export const randomFloat = (shop=false) => {
-  if (shop) {
-    return sfc32ShopInstance();
+  const value = shop ? sfc32ShopInstance() : sfc32Instance();
+  // Test-only instrumentation for the golden-master trace harness (see test/).
+  // No-op (and zero overhead) unless a trace run has installed the hook.
+  if (globalThis.__RNG_TRACE__) {
+    globalThis.__RNG_TRACE__.push(value);
   }
-  return sfc32Instance();
+  return value;
 };
 export const random = (lim, shop=false) => (randomFloat(shop) * lim) | 0;
 export const randomChoose = (arr, shop=false) => arr[random(arr.length, shop)];

@@ -28,4 +28,12 @@ export default [
       ],
     },
   },
+  {
+    files: ['test/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
 ];
