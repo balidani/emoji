@@ -1,5 +1,6 @@
 import * as Const from './consts.js';
 import * as Util from './util.js';
+import * as Rng from './core/rng.js';
 import { GameSettings } from './game_settings.js';
 import { Catalog } from './catalog.js';
 import { Board } from './board.js';
@@ -10,6 +11,20 @@ import { Game } from './game.js';
 import { Progression } from './progression.js';
 
 import { CATEGORY_UNBUYABLE } from './symbol.js';
+
+// Seed the RNG before anything else runs (in particular, before the first
+// catalog load dynamically imports symbol sources -- some, like Santa, draw
+// from the RNG at import time). core/rng.js itself has no DOM access; this is
+// the one place that reads the seed from the URL and reflects it into the UI.
+let seedPhrase = window.location.hash.slice(1);
+if (seedPhrase) {
+  await Rng.setSeed(seedPhrase);
+} else {
+  seedPhrase = await Rng.setRandomSeed();
+}
+window.seedPhrase = seedPhrase;
+document.querySelector('#seed-phrase').textContent = seedPhrase;
+document.querySelector('#seed-link').href = `#${seedPhrase}`;
 
 // TODO: someday, we may want to support "multiple tracks" of progression aka different packs of levels.
 // For now, hardcode a single default progression.
