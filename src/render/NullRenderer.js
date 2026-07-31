@@ -28,7 +28,7 @@ export class NullRenderer extends Renderer {
   removeRollListener() {}
 
   async renderInventory(_entries) {}
-  async renderResources(_resources) {}
+  async renderResources(_entries) {}
   async moneyEarnedPassive(_value) {}
 
   async renderShop(_offers, _refreshOffer) {}

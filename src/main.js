@@ -99,11 +99,11 @@ class AutoGame {
     this.settings = settings;
     this.catalog = catalog;
     // Renderer port (see REFACTOR_PLAN.md, Phase 3): not yet used by Board/
-    // Inventory/Shop (SimBoard's redrawCell override above is still what
-    // keeps this simulator DOM-safe until Board moves behind the renderer in
-    // Phase 6). Threaded through now for later phases to use.
+    // Shop (SimBoard's redrawCell override above is still what keeps this
+    // simulator DOM-safe until Board moves behind the renderer in Phase 6).
+    // Threaded through now for later phases to use.
     this.view = new NullRenderer();
-    this.inventory = new Inventory(settings, this.catalog);
+    this.inventory = new Inventory(settings, this.catalog, this.view);
     this.inventory.update();
     this.board = new SimBoard(this);
     this.info = document.querySelector('.game .info');

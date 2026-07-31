@@ -2,13 +2,11 @@ import * as Const from './consts.js';
 import * as Util from './util.js';
 
 export class Inventory {
-  constructor(settings, catalog) {
+  constructor(settings, catalog, renderer) {
     this.settings = settings;
     this.catalog = catalog;
+    this.renderer = renderer;
     this.symbols = catalog.symbolsFromString(settings.startingSet);
-    this.symbolsDiv = document.querySelector('.game .inventory');
-    this.uiDiv = document.querySelector('.game .ui');
-    this.infoDiv = document.querySelector('.info');
 
     this.resources = {};
     this.resources[Const.MONEY] = 1;
@@ -21,7 +19,6 @@ export class Inventory {
     this.rowCount = settings.boardY;
   }
   update() {
-    this.symbolsDiv.replaceChildren();
     const map = new Map();
     this.symbols.forEach((symbol) => {
       const name = symbol.emoji();
@@ -33,19 +30,12 @@ export class Inventory {
         description: symbol.descriptionLong(),
       });
     });
-    map.forEach(({ count, description }, name) => {
-      const symbolSpan = Util.createSpan(name, 'inventoryEntry');
-      symbolSpan.addEventListener('click', (_) => {
-        const interactiveDescription = Util.createInteractiveDescription(
-          description,
-          /*emoji=*/ name
-        );
-        Util.drawText(this.infoDiv, interactiveDescription, true);
-      });
-      const countSpan = Util.createSpan(count, 'inventoryEntryCount');
-      symbolSpan.appendChild(countSpan);
-      this.symbolsDiv.appendChild(symbolSpan);
-    });
+    const entries = Array.from(map, ([emoji, { count, description }]) => ({
+      emoji,
+      count,
+      descriptionLong: description,
+    }));
+    this.renderer.renderInventory(entries);
   }
   remove(symbol) {
     const index = this.symbols.indexOf(symbol);
@@ -87,24 +77,12 @@ export class Inventory {
     this.rowCount = this.settings.boardY;
   }
   updateUi() {
-    this.uiDiv.replaceChildren();
-    const displayKeyValue = (key, value) => {
-      const symbolSpan = Util.createSpan(key, 'inventoryEntry');
-      symbolSpan.addEventListener('click', (_) => {
-        const interactiveDescription = Util.createInteractiveDescription(
-          this.catalog.symbol(key).descriptionLong(),
-          /*emoji=*/ key
-        );
-        Util.drawText(this.infoDiv, interactiveDescription, true);
-      });
-      const countSpan = Util.createSpan(
-        Util.formatBigNumber(value) + '', 'inventoryEntryCount');
-      symbolSpan.appendChild(countSpan);
-      this.uiDiv.appendChild(symbolSpan);
-    };
-    for (const [key, value] of Object.entries(this.resources)) {
-      displayKeyValue(key, value);
-    }
+    const entries = Object.entries(this.resources).map(([emoji, value]) => ({
+      emoji,
+      value,
+      descriptionLong: this.catalog.symbol(emoji).descriptionLong(),
+    }));
+    this.renderer.renderResources(entries);
   }
   // Note: This does NOT return a Symbol. It returns an emoji text character for animation purposes.
   getRandomOwnedEmoji() {

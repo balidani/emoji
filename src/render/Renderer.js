@@ -101,8 +101,8 @@ export class Renderer {
   async renderInventory(_entries) {
     notImplemented('renderInventory');
   }
-  /** `resources` is a plain {emoji: value} map. */
-  async renderResources(_resources) {
+  /** `entries` is plain data: [{emoji, value, descriptionLong}]. */
+  async renderResources(_entries) {
     notImplemented('renderResources');
   }
   /** Money earned by a passive symbol (no board cell to float the pop-up over). */

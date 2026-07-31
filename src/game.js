@@ -14,10 +14,10 @@ export class Game {
     this.settings = settings;
     this.catalog = catalog;
     // Renderer port (see REFACTOR_PLAN.md, Phase 3): not yet used by Board/
-    // Inventory/Shop, which still touch the DOM directly. Threaded through
-    // now so each later phase has somewhere to plug in.
+    // Shop, which still touch the DOM directly. Threaded through now so each
+    // later phase has somewhere to plug in.
     this.view = renderer;
-    this.inventory = new Inventory(this.settings, this.catalog);
+    this.inventory = new Inventory(this.settings, this.catalog, this.view);
     this.inventory.update();
     this.board = new Board(this);
     this.eventlog = new EventLog(this.view);
