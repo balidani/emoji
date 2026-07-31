@@ -6,12 +6,17 @@ import { EventLog } from './eventlog.js';
 import { Inventory } from './inventory.js';
 import { loadListener } from './main.js'; // Semi-Circular import, but it works.
 import { Shop } from './shop.js';
+import { DomRenderer } from './render/DomRenderer.js';
 
 export class Game {
-  constructor(progression, settings, catalog) {
+  constructor(progression, settings, catalog, renderer = new DomRenderer()) {
     this.progression = progression;
     this.settings = settings;
     this.catalog = catalog;
+    // Renderer port (see REFACTOR_PLAN.md, Phase 3): not yet used by Board/
+    // Inventory/Shop/EventLog, which still touch the DOM directly. Threaded
+    // through now so each later phase has somewhere to plug in.
+    this.view = renderer;
     this.inventory = new Inventory(this.settings, this.catalog);
     this.inventory.update();
     this.board = new Board(this);

@@ -9,6 +9,8 @@ import { Inventory } from './inventory.js';
 import { Shop } from './shop.js';
 import { Game } from './game.js';
 import { Progression } from './progression.js';
+import { DomRenderer } from './render/DomRenderer.js';
+import { NullRenderer } from './render/NullRenderer.js';
 
 import { CATEGORY_UNBUYABLE } from './symbol.js';
 
@@ -40,7 +42,7 @@ export const loadSettings = async (settings = GameSettings.instance()) => {
   gameDiv.appendChild(templateClone.children[0]);
   const catalog = new Catalog(settings.symbolSources);
   await catalog.updateSymbols();
-  const game = new Game(PROGRESSION, settings, catalog);
+  const game = new Game(PROGRESSION, settings, catalog, new DomRenderer());
 
   document.body.addEventListener('click', (e) => {
     if (e.target.classList.contains('interactive-emoji')) {
@@ -96,6 +98,11 @@ class AutoGame {
   constructor(settings, catalog, buyAlways, buyOnce) {
     this.settings = settings;
     this.catalog = catalog;
+    // Renderer port (see REFACTOR_PLAN.md, Phase 3): not yet used by Board/
+    // Inventory/Shop/EventLog (SimBoard's redrawCell override above is still
+    // what keeps this simulator DOM-safe until Board moves behind the
+    // renderer in Phase 6). Threaded through now for later phases to use.
+    this.view = new NullRenderer();
     this.inventory = new Inventory(settings, this.catalog);
     this.inventory.update();
     this.board = new SimBoard(this);
