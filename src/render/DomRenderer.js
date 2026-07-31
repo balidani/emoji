@@ -2,22 +2,25 @@ import { Renderer } from './Renderer.js';
 import { EventLogView } from './EventLogView.js';
 import { InventoryView } from './InventoryView.js';
 import { BoardView } from './BoardView.js';
+import { ShopView } from './ShopView.js';
 import { drawText } from './animations.js';
 
 // The real renderer -- backs the interactive game in a browser.
 //
 // Phase 3 introduced the shell: constructed and threaded through as
 // `game.view`, but with its methods still inheriting Renderer's "not
-// implemented" stubs. Shop still manipulates the DOM directly rather than
-// through this class; Phase 7 moves it. Phases 4 (event log), 5 (inventory/
-// resources), and 6 (board, this commit) already have -- see
-// REFACTOR_PLAN.md.
+// implemented" stubs. Every subsystem now has an override here -- Phases 4
+// (event log), 5 (inventory/resources), 6 (board), and 7 (shop, this commit)
+// -- see REFACTOR_PLAN.md. Phase 8 still owes symbol-hook animations
+// (Util.animate(game.board.getSymbolDiv(x,y), ...) scattered across
+// symbols/*.js) and the tool-purchase prompt flow (pickCellForTool).
 export class DomRenderer extends Renderer {
   constructor() {
     super();
     this.eventLogView = new EventLogView();
     this.inventoryView = new InventoryView((html) => this.showInfo(html));
     this.boardView = new BoardView();
+    this.shopView = new ShopView((html) => this.showInfo(html));
   }
 
   async logResourceChange(key, value, source, direction) {
@@ -80,5 +83,24 @@ export class DomRenderer extends Renderer {
   }
   removeRollListener() {
     return this.boardView.removeRollListener();
+  }
+
+  async renderShop(offers, refreshOffer) {
+    return this.shopView.renderShop(offers, refreshOffer);
+  }
+  async markOfferBought(offerId) {
+    return this.shopView.markOfferBought(offerId);
+  }
+  async disableOffer(offerId) {
+    return this.shopView.disableOffer(offerId);
+  }
+  async showShop() {
+    return this.shopView.showShop();
+  }
+  async hideShop() {
+    return this.shopView.hideShop();
+  }
+  async closeShop() {
+    return this.shopView.closeShop();
   }
 }

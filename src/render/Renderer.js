@@ -115,13 +115,21 @@ export class Renderer {
 
   // --- Shop ---
 
-  /** `offers` is plain offer data; `refreshOffer` describes the refresh slot
-   * (or null if refresh isn't offered this round). */
+  /** `offers` is [{id, emoji, description, descriptionLong, cost, canBuy,
+   * buttonText, onBuy}]; `refreshOffer` is the same shape minus id/emoji/
+   * description (or null if refresh isn't offered this round). Each `onBuy`
+   * is a zero-arg callback Shop already bound to that specific offer -- the
+   * renderer never needs to report a click back by id. */
   async renderShop(_offers, _refreshOffer) {
     notImplemented('renderShop');
   }
+  /** Animate an offer out after a successful purchase. */
   async markOfferBought(_offerId) {
     notImplemented('markOfferBought');
+  }
+  /** Disable an offer's buy button (insufficient funds at click time). */
+  async disableOffer(_offerId) {
+    notImplemented('disableOffer');
   }
   async showShop() {
     notImplemented('showShop');

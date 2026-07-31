@@ -2,9 +2,9 @@ import * as Const from './consts.js';
 import * as Util from './util.js';
 
 export class Shop {
-  constructor(catalog) {
+  constructor(catalog, renderer) {
     this.catalog = catalog;
-    this.shopDiv = document.querySelector('.game .shop');
+    this.view = renderer;
     this.isOpen = false;
     this.refreshCost = 1;
     this.refreshCount = 0;
@@ -17,61 +17,15 @@ export class Shop {
     this.refreshCostMult = 1.5;
     this.refreshCostInitialMult = 0.01;
     this.firstTurnRare = false;
+    this.currentOffers = [];
   }
-  makeShopItem(game, symbol, symbolCost, handler, buttonText = Const.BUY) {
-    const shopItemDiv = document.createElement('div');
-    shopItemDiv.classList.add('shopItem');
-    const symbolDiv = document.createElement('div');
-    symbolDiv.classList.add('shopEmoji');
-    symbolDiv.innerHTML = symbol.emoji();
-    symbolDiv.addEventListener('click', () => {
-      const interactiveDescription = Util.createInteractiveDescription(
-        symbol.descriptionLong(),
-        /*emoji=*/ symbol.emoji()
-      );
-      Util.drawText(game.info, interactiveDescription, true);
-    });
-    shopItemDiv.appendChild(symbolDiv);
-
-    const descriptionDiv = document.createElement('div');
-    descriptionDiv.classList.add('description');
-    descriptionDiv.innerHTML = Util.createInteractiveDescription(
-      symbol.description()
-    );
-    shopItemDiv.appendChild(descriptionDiv);
-
-    const costDiv = document.createElement('div');
-    costDiv.classList.add('cost');
-    for (const [key, value] of Object.entries(symbolCost)) {
-      const resourceDiv = document.createElement('div');
-      resourceDiv.innerHTML = key + Util.formatBigNumber(value);
-      costDiv.appendChild(resourceDiv);
-    }
-    shopItemDiv.appendChild(costDiv);
-
-    const buyDiv = document.createElement('div');
-    buyDiv.classList.add('buy');
-    const buyButton = document.createElement('button');
-    buyButton.classList.add('buyButton');
-    buyButton.innerText = buttonText;
-
-    let canBuy = true;
-    for (const [key, value] of Object.entries(symbolCost)) {
+  canAfford(game, cost) {
+    for (const [key, value] of Object.entries(cost)) {
       if (this.getInventory(game).getResource(key) < value) {
-        canBuy = false;
-        break;
+        return false;
       }
     }
-    if (!canBuy) {
-      buyButton.disabled = true;
-    }
-
-    buyButton.addEventListener('click', handler);
-    // Only for simulator.
-    buyButton.clickSim = handler;
-    buyDiv.appendChild(buyButton);
-    shopItemDiv.appendChild(buyDiv);
-    return shopItemDiv;
+    return true;
   }
   makeCatalog(game) {
     const rareOnly =
@@ -91,124 +45,119 @@ export class Shop {
       return;
     }
     this.isOpen = true;
-    this.shopDiv.classList.remove('hidden');
-    this.shopDiv.replaceChildren();
     const catalog = this.makeCatalog(game);
+    this.currentOffers = [];
+    const offers = [];
     for (let i = 0; i < this.buyLines; ++i) {
       if (catalog.length === 0) {
         break;
       }
       const symbol = Util.randomRemove(catalog, /* shop= */ true);
       // Support for dynamically generated cost -- report the same value that is subtracted later.
-      const symbolCost = symbol.cost();
-      const shopItemDiv = this.makeShopItem(
-        game,
-        symbol,
-        symbolCost,
-        async (e) => {
-          let canBuy = true;
-          for (const [key, value] of Object.entries(symbolCost)) {
-            if (this.getInventory(game).getResource(key) < value) {
-              canBuy = false;
-              break;
-            }
-          }
-          if (this.buyCount > 0 && canBuy) {
-            this.buyCount--;
-            for (const [key, value] of Object.entries(symbolCost)) {
-              await Promise.all([
-                game.eventlog.logResourceChange(
-                  key,
-                  -value,
-                  Const.SHOPPING_CART,
-                  'earned'
-                ),
-                this.getInventory(game).addResource(key, -value),
-              ]);
-            }
-            await symbol.onBuy(game);
-          } else if (!canBuy) {
-            // Disable button.
-            // This is not the best solution, we should disable the button
-            // once we know the player doesn't have enough resources.
-            e.target.disabled = true;
-            return;
-          }
-          if (this.buyCount > 0) {
-            const div = e.srcElement.parentElement.parentElement;
-            await Util.animate(div, 'closeShop', 0.2);
-            div.classList.add('hidden');
-          }
-          if (this.buyCount === 0) {
-            await this.close(game);
-          }
-        }
-      );
-      this.shopDiv.appendChild(shopItemDiv);
+      const cost = symbol.cost();
+      const id = this.currentOffers.length;
+      this.currentOffers.push({ symbol, cost });
+      offers.push({
+        id,
+        emoji: symbol.emoji(),
+        description: symbol.description(),
+        descriptionLong: symbol.descriptionLong(),
+        cost,
+        canBuy: this.canAfford(game, cost),
+        buttonText: Const.BUY,
+        onBuy: () => this.attemptPurchase(game, id),
+      });
     }
     // Refresh
+    let refreshOffer = null;
     if (
       this.allowRefresh &&
       (this.haveRefreshSymbol || this.refreshCount === 0)
     ) {
-      const shopItemDiv = this.makeShopItem(
-        game,
-        {
-          emoji: () => '&nbsp;',
-          description: () => '',
-          descriptionLong: () => '',
-        },
-        { [this.refreshCostResource]: this.refreshCost },
-        async (_) => {
-          this.refreshCount++;
-          if (
-            this.getInventory(game).getResource(this.refreshCostResource) >=
-            this.refreshCost
-          ) {
-            await Promise.all([
-              game.eventlog.logResourceChange(
-                this.refreshCostResource,
-                -this.refreshCost,
-                Const.REFRESH,
-                'earned'
-              ),
-              this.getInventory(game).addResource(
-                this.refreshCostResource,
-                -this.refreshCost
-              ),
-            ]);
-            this.refreshCost += this.refreshCostIncrease;
-            this.refreshCost = Math.trunc(
-              this.refreshCost * this.refreshCostMult
-            );
-            this.isOpen = false;
-            await Util.animate(this.shopDiv, 'closeShop', 0.2);
-            this.shopDiv.classList.add('hidden');
-            await this.open(game);
-          }
-        },
-        /*buttonText=*/ Const.REFRESH
-      );
-      this.shopDiv.appendChild(shopItemDiv);
+      const cost = { [this.refreshCostResource]: this.refreshCost };
+      refreshOffer = {
+        cost,
+        canBuy: this.canAfford(game, cost),
+        buttonText: Const.REFRESH,
+        onBuy: () => this.attemptRefresh(game),
+      };
     }
-    await Util.animate(this.shopDiv, 'openShop', 0.4);
+    await this.view.renderShop(offers, refreshOffer);
+  }
+  async attemptPurchase(game, offerId) {
+    const offer = this.currentOffers[offerId];
+    if (!offer) {
+      return;
+    }
+    const { symbol, cost } = offer;
+    const canBuy = this.canAfford(game, cost);
+    if (this.buyCount > 0 && canBuy) {
+      this.buyCount--;
+      for (const [key, value] of Object.entries(cost)) {
+        await Promise.all([
+          game.eventlog.logResourceChange(
+            key,
+            -value,
+            Const.SHOPPING_CART,
+            'earned'
+          ),
+          this.getInventory(game).addResource(key, -value),
+        ]);
+      }
+      await symbol.onBuy(game);
+    } else if (!canBuy) {
+      // Disable button.
+      // This is not the best solution, we should disable the button
+      // once we know the player doesn't have enough resources.
+      await this.view.disableOffer(offerId);
+      return;
+    }
+    if (this.buyCount > 0) {
+      await this.view.markOfferBought(offerId);
+    }
+    if (this.buyCount === 0) {
+      await this.close(game);
+    }
+  }
+  async attemptRefresh(game) {
+    this.refreshCount++;
+    if (
+      this.getInventory(game).getResource(this.refreshCostResource) >=
+      this.refreshCost
+    ) {
+      await Promise.all([
+        game.eventlog.logResourceChange(
+          this.refreshCostResource,
+          -this.refreshCost,
+          Const.REFRESH,
+          'earned'
+        ),
+        this.getInventory(game).addResource(
+          this.refreshCostResource,
+          -this.refreshCost
+        ),
+      ]);
+      this.refreshCost += this.refreshCostIncrease;
+      this.refreshCost = Math.trunc(this.refreshCost * this.refreshCostMult);
+      this.isOpen = false;
+      await this.view.closeShop();
+      await this.open(game);
+    }
   }
   async close(game) {
     if (!this.isOpen) {
       return;
     }
     this.reset(game);
-    await Util.animate(this.shopDiv, 'closeShop', 0.2);
-    this.shopDiv.classList.add('hidden');
-    this.shopDiv.replaceChildren();
+    await this.view.closeShop();
     this.isOpen = false;
   }
   hide() {
-    this.shopDiv.classList.add('hidden');
+    this.view.hideShop();
   }
   show() {
     if (this.buyCount > 0) {
-      this.shopDiv.classList.remove('hidden');
+      this.view.showShop();
     }
   }
   reset(game) {

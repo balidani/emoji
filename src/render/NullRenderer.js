@@ -1,4 +1,5 @@
 import { Renderer } from './Renderer.js';
+import { ShopView } from './ShopView.js';
 
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_.*$", "varsIgnorePattern": "^_.*$" }] */
 
@@ -7,7 +8,20 @@ import { Renderer } from './Renderer.js';
 // no `document`, no timers. Once game logic is fully routed through the
 // Renderer port (Phase 6+), this is what lets the whole game run in Node
 // without a browser.
+//
+// Shop is a structural exception (see the constructor and its shop methods
+// below): AutoGame's own simulation harness (main.js) reads real DOM buy
+// buttons to decide what to purchase, so shop rendering can't be a no-op
+// without silently changing what a simulated game buys -- and therefore its
+// RNG draws and outcome. This predates the refactor (Part A.1 of the plan:
+// the harness "clicks real buy buttons"); it isn't something Phase 7
+// introduced, just something Phase 7 has to keep working.
 export class NullRenderer extends Renderer {
+  constructor() {
+    super();
+    this.shopView = new ShopView((html) => this.showInfo(html));
+  }
+
   // IMPORTANT: unlike every other method here, this is *not* a pure no-op.
   // The original spinDiv's reel loop calls its RNG-backed emoji picker 6
   // times regardless of whether animation is on (Util.animate short-circuits
@@ -41,11 +55,24 @@ export class NullRenderer extends Renderer {
   async renderResources(_entries) {}
   async moneyEarnedPassive(_value) {}
 
-  async renderShop(_offers, _refreshOffer) {}
-  async markOfferBought(_offerId) {}
-  async showShop() {}
-  async hideShop() {}
-  async closeShop() {}
+  async renderShop(offers, refreshOffer) {
+    return this.shopView.renderShop(offers, refreshOffer);
+  }
+  async markOfferBought(offerId) {
+    return this.shopView.markOfferBought(offerId);
+  }
+  async disableOffer(offerId) {
+    return this.shopView.disableOffer(offerId);
+  }
+  async showShop() {
+    return this.shopView.showShop();
+  }
+  async hideShop() {
+    return this.shopView.hideShop();
+  }
+  async closeShop() {
+    return this.shopView.closeShop();
+  }
 
   async showInfo(_descriptionHtml) {}
   async hideInfo() {}

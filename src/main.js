@@ -94,17 +94,17 @@ class AutoGame {
   constructor(settings, catalog, buyAlways, buyOnce) {
     this.settings = settings;
     this.catalog = catalog;
-    // Renderer port (see REFACTOR_PLAN.md, Phase 3): not yet used by Shop,
-    // which still touches the DOM directly. Board is fully renderer-driven
-    // as of Phase 6, so NullRenderer alone (no SimBoard subclass needed
-    // anymore) is what keeps this simulator DOM-safe and fast.
+    // Renderer port (see REFACTOR_PLAN.md, Phase 3), now used by every
+    // subsystem as of Phase 7. NullRenderer's shop rendering still builds
+    // real DOM buy buttons -- this simulator's own buying logic below reads
+    // them directly (see NullRenderer.js for why).
     this.view = new NullRenderer();
     this.inventory = new Inventory(settings, this.catalog, this.view);
     this.inventory.update();
     this.board = new Board(this);
     this.info = document.querySelector('.game .info');
     this.eventlog = new EventLog(this.view);
-    this.shop = new Shop(this.catalog);
+    this.shop = new Shop(this.catalog, this.view);
     this.totalTurns = 0;
     this.buyAlways = new Set(buyAlways);
     this.buyOnce = buyOnce;
