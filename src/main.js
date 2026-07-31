@@ -11,6 +11,8 @@ import { Game } from './game.js';
 import { Progression } from './progression.js';
 import { DomRenderer } from './render/DomRenderer.js';
 import { NullRenderer } from './render/NullRenderer.js';
+import { ProgressionView } from './render/ProgressionView.js';
+import { SettingsView } from './render/SettingsView.js';
 
 import { CATEGORY_UNBUYABLE } from './symbol.js';
 
@@ -28,11 +30,12 @@ window.seedPhrase = seedPhrase;
 document.querySelector('#seed-phrase').textContent = seedPhrase;
 document.querySelector('#seed-link').href = `#${seedPhrase}`;
 
-// TODO: someday, we may want to support "multiple tracks" of progression aka different packs of levels.
-// For now, hardcode a single default progression.
-const PROGRESSION = new Progression();
-PROGRESSION.load();
-
+// loadSettings/loadListener are declared before PROGRESSION is constructed
+// so they can be injected into it (and, via it, into GameSettings/Game) as
+// plain non-circular callbacks instead of being imported back from
+// progression.js/game_settings.js/game.js (REFACTOR_PLAN.md, Phase 9). Both
+// close over PROGRESSION itself, which is fine since neither is invoked
+// until after PROGRESSION exists below.
 export const loadSettings = async (settings = GameSettings.instance()) => {
   const template = document.querySelector('.template');
   const gameDiv = document.querySelector('.game');
@@ -42,7 +45,13 @@ export const loadSettings = async (settings = GameSettings.instance()) => {
   gameDiv.appendChild(templateClone.children[0]);
   const catalog = new Catalog(settings.symbolSources);
   await catalog.updateSymbols();
-  const game = new Game(PROGRESSION, settings, catalog, new DomRenderer());
+  const game = new Game(
+    PROGRESSION,
+    settings,
+    catalog,
+    new DomRenderer(),
+    loadListener
+  );
 
   document.body.addEventListener('click', (e) => {
     if (e.target.classList.contains('interactive-emoji')) {
@@ -77,6 +86,15 @@ export const loadListener = async (_) => {
   const content = document.querySelector('.grid-scaler-content');
   ro.observe(content);
 };
+
+// TODO: someday, we may want to support "multiple tracks" of progression aka different packs of levels.
+// For now, hardcode a single default progression.
+const PROGRESSION = new Progression(
+  new ProgressionView(),
+  new SettingsView(),
+  loadSettings
+);
+PROGRESSION.load();
 
 if (window.location.hash === '#dev') {
   document.querySelectorAll('.dev-hidden').forEach((e) => {

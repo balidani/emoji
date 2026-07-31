@@ -4,18 +4,28 @@ import * as Util from './util.js';
 import { Board } from './board.js';
 import { EventLog } from './eventlog.js';
 import { Inventory } from './inventory.js';
-import { loadListener } from './main.js'; // Semi-Circular import, but it works.
 import { Shop } from './shop.js';
 import { DomRenderer } from './render/DomRenderer.js';
 
 export class Game {
-  constructor(progression, settings, catalog, renderer = new DomRenderer()) {
+  // onGameOver: called (as a body click listener) once the final-score
+  // screen is showing, to reset into the next game. Injected by the caller
+  // (main.js's loadListener) instead of imported directly, to break the
+  // main.js <-> game.js circular import (REFACTOR_PLAN.md, Phase 9).
+  constructor(
+    progression,
+    settings,
+    catalog,
+    renderer = new DomRenderer(),
+    onGameOver
+  ) {
     this.progression = progression;
     this.settings = settings;
     this.catalog = catalog;
     // Renderer port (see REFACTOR_PLAN.md, Phase 3), now used by every
     // subsystem as of Phase 7.
     this.view = renderer;
+    this.onGameOver = onGameOver;
     this.inventory = new Inventory(this.settings, this.catalog, this.view);
     this.inventory.update();
     this.board = new Board(this);
@@ -66,8 +76,8 @@ export class Game {
     document.querySelector('.game').appendChild(scoreContainer);
     await Util.animate(scoreDiv, 'scoreIn', 0.65);
 
-    // TODO: Remove loadListener and reset the board without having to recreate `Game`.
-    document.querySelector('body').addEventListener('click', loadListener);
+    // TODO: Remove onGameOver and reset the board without having to recreate `Game`.
+    document.querySelector('body').addEventListener('click', this.onGameOver);
   }
   async roll() {
     if (this.isOver) {

@@ -1,6 +1,4 @@
 import { GameSettings } from './game_settings.js';
-import { loadSettings } from './main.js';
-import * as Util from './util.js';
 
 const tutorialLevelSettings = new GameSettings(
   'Tutorial #1',
@@ -28,9 +26,13 @@ export class LevelResult {
 }
 
 export class Progression {
-  constructor() {
-    this.uiDiv = document.querySelector('.progression');
+  constructor(progressionView, settingsView, reload) {
+    this.view = progressionView;
+    this.reload = reload;
     this.levelData = [tutorialLevelSettings, standardGameSettings];
+    for (const settings of this.levelData) {
+      settings.attachView(settingsView, this.reload);
+    }
     this.activeLevel = 1;
     this.levelResults = new Map();
   }
@@ -81,43 +83,25 @@ export class Progression {
   jumpTo(index) {
     this.activeLevel = index;
     this.save();
-    loadSettings(this.levelData[index]);
+    this.reload(this.levelData[index]);
   }
   updateUi() {
-    this.uiDiv.replaceChildren();
-    for (let i = 0; i < this.levelData.length; i++) {
-      const levelName = this.levelData[i].name;
-      const levelRecord = this.levelResults.get(levelName);
-      const levelDiv = Util.createDiv(undefined, 'level');
-      levelDiv.appendChild(Util.createDiv(levelName, 'level-name'));
-      if (levelRecord == null) {
-        levelDiv.classList.add('unbeaten');
-      } else {
-        levelDiv.appendChild(
-          Util.createDiv(levelRecord.reward, 'level-reward')
-        );
-        levelDiv.appendChild(
-          Util.createDiv(`${levelRecord.highScore}`, 'level-highscore')
-        );
-        levelDiv.classList.add('beaten');
-        levelDiv.addEventListener('click', () => {
-          this.jumpTo(i);
-        });
-      }
-
-      if (i === this.activeLevel) {
-        levelDiv.classList.add('active');
-        levelDiv.addEventListener('click', () => {
-          this.jumpTo(i);
-        });
-      }
-      this.uiDiv.appendChild(levelDiv);
-    }
-    const wipeDiv = Util.createDiv('Wipe Progress', 'wipe-button');
-    wipeDiv.addEventListener('click', () => {
-      window.localStorage.clear();
-      window.location.reload();
+    const levels = this.levelData.map((data, i) => {
+      const record = this.levelResults.get(data.name);
+      return {
+        name: data.name,
+        beaten: record != null,
+        reward: record ? record.reward : undefined,
+        highScore: record ? record.highScore : undefined,
+        active: i === this.activeLevel,
+      };
     });
-    this.uiDiv.appendChild(wipeDiv);
+    this.view.render(levels, {
+      onJumpTo: (i) => this.jumpTo(i),
+      onWipe: () => {
+        window.localStorage.clear();
+        window.location.reload();
+      },
+    });
   }
 }

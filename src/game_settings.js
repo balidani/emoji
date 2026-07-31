@@ -1,7 +1,3 @@
-import * as Utils from './util.js';
-
-import { loadSettings } from './main.js';
-
 const ALL_TESTED_SYMBOL_FILES = [
   './symbols/advanced.js',
   './symbols/animals.js',
@@ -34,12 +30,6 @@ export class GameSettings {
     textLookup,
     initiallyLockedCells
   ) {
-    this.settingsDiv = document.querySelector('.game .settings');
-    this.settingsOpener = document.querySelector('.open-settings');
-    this.settingsOpener.addEventListener('click', (_) => {
-      this.open();
-    });
-
     this.isOpen = false;
     this.name = name || 'Default Game Settings';
     this.boardX = boardX || 5;
@@ -47,9 +37,11 @@ export class GameSettings {
     this.gameLength = gameLength || 50;
     // '🎈🏦🔔💼🐛🎯🧈🍾🍒🐣🐔🍀🍹🪙🌽💳🔮💃💎🎲🐉🥁🥚💸🥠🦊🧊🫙🪄💰🌝❎🍍🍿📀🔀🪨🚀🎰🧵🌳🌋👷📮'
     this.startingSet = startingSetString || '🍒🍒🍒🪙🍀🔀';
-    this.initiallyLockedCells = initiallyLockedCells || {
-      // '2,2': { emoji: '🕹️', duration: -1 },
-    };
+    this.initiallyLockedCells =
+      initiallyLockedCells ||
+      {
+        // '2,2': { emoji: '🕹️', duration: -1 },
+      };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     this.resultLookup = resultLookup || {
       1000000000: '🐐',
@@ -71,87 +63,52 @@ export class GameSettings {
     };
   }
 
+  // Called once per instance to wire it to a SettingsView + the reload
+  // callback (see REFACTOR_PLAN.md, Phase 9). tutorialLevelSettings and
+  // standardGameSettings (progression.js) both call this with the same
+  // SettingsView, preserving the original quirk where each instance's own
+  // click listener fires on the shared .open-settings button.
+  attachView(view, reload) {
+    this.view = view;
+    this.reload = reload;
+    this.view.registerOpener(() => this.open());
+  }
+
   async open(_) {
     if (this.isOpen) {
       return;
     }
     this.isOpen = true;
-    this.settingsDiv = document.querySelector('.game .settings');
-    this.settingsDiv.replaceChildren();
-
-    // Create input elements
-    const numRowsInput = Utils.createInput('# of Rows', 'number', this.boardX);
-    const numColumnsInput = Utils.createInput(
-      '# of Columns',
-      'number',
-      this.boardY
+    this.view.render(
+      {
+        boardX: this.boardX,
+        boardY: this.boardY,
+        gameLength: this.gameLength,
+        symbolSources: this.symbolSources,
+        startingSet: this.startingSet,
+      },
+      {
+        onSave: (values) => this.save(values),
+        onCancel: async () => await this.close(),
+      }
     );
-    const gameLengthInput = Utils.createInput(
-      'Game Length',
-      'number',
-      this.gameLength
-    );
-    const symbolSourcesInput = Utils.createInput(
-      'Symbol Sources',
-      'textarea',
-      this.symbolSources.join('\n')
-    );
-    const startingSymbolsInput = Utils.createInput(
-      'Starting Symbols',
-      'text',
-      this.startingSet
-    );
-    // Create buttons
-    const cancelButton = Utils.createButton(
-      'Cancel',
-      async () => await this.close()
-    );
-    const saveButton = Utils.createButton('Save', () =>
-      this.save(
-        numRowsInput,
-        numColumnsInput,
-        gameLengthInput,
-        symbolSourcesInput,
-        startingSymbolsInput
-      )
-    );
-
-    // Append elements to the settings div
-    const settingsBoxDiv = Utils.createDiv('', 'settings-box');
-    settingsBoxDiv.append(numRowsInput.label, numRowsInput.input);
-    settingsBoxDiv.append(numColumnsInput.label, numColumnsInput.input);
-    settingsBoxDiv.append(gameLengthInput.label, gameLengthInput.input);
-    settingsBoxDiv.append(symbolSourcesInput.label, symbolSourcesInput.input);
-    settingsBoxDiv.append(
-      startingSymbolsInput.label,
-      startingSymbolsInput.input
-    );
-    settingsBoxDiv.append(cancelButton, saveButton);
-
-    this.settingsDiv = document.querySelector('.game .settings');
-    this.settingsDiv.append(settingsBoxDiv);
   }
 
-  save(
-    numRowsInput,
-    numColsInput,
-    gameLengthInput,
-    symbolSourcesInput,
-    startingSymbolsInput
-  ) {
-    this.boardY = parseInt(numColsInput.input.value);
-    this.boardX = parseInt(numRowsInput.input.value);
-    this.gameLength = parseInt(gameLengthInput.input.value);
-    this.symbolSources = symbolSourcesInput.input.value.split('\n');
-    this.startingSet = startingSymbolsInput.input.value;
+  save(values) {
+    this.boardX = values.boardX;
+    this.boardY = values.boardY;
+    this.gameLength = values.gameLength;
+    this.symbolSources = values.symbolSources;
+    this.startingSet = values.startingSet;
     this.close();
-    loadSettings(this);
+    this.reload(this);
   }
+
   async close(_) {
     if (!this.isOpen) {
       return;
     }
-    this.settingsDiv.replaceChildren();
+    this.view.close();
     this.isOpen = false;
   }
 }
