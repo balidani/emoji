@@ -10,10 +10,9 @@ import { drawText } from './animations.js';
 // Phase 3 introduced the shell: constructed and threaded through as
 // `game.view`, but with its methods still inheriting Renderer's "not
 // implemented" stubs. Every subsystem now has an override here -- Phases 4
-// (event log), 5 (inventory/resources), 6 (board), and 7 (shop, this commit)
-// -- see REFACTOR_PLAN.md. Phase 8 still owes symbol-hook animations
-// (Util.animate(game.board.getSymbolDiv(x,y), ...) scattered across
-// symbols/*.js) and the tool-purchase prompt flow (pickCellForTool).
+// (event log), 5 (inventory/resources), 6 (board), 7 (shop), and 8 (symbol
+// hooks, Symb.addResource/addMoney, and pickCellForTool) -- see
+// REFACTOR_PLAN.md.
 export class DomRenderer extends Renderer {
   constructor() {
     super();
@@ -56,6 +55,19 @@ export class DomRenderer extends Renderer {
   }
   async animateCell(x, y, name, duration, repeat, cssVars) {
     return this.boardView.animateCell(x, y, name, duration, repeat, cssVars);
+  }
+  async animateCellOverlay(x, y, name, duration, repeat, cssVars) {
+    return this.boardView.animateCellOverlay(
+      x,
+      y,
+      name,
+      duration,
+      repeat,
+      cssVars
+    );
+  }
+  async moneyEarned(x, y, value) {
+    return this.boardView.moneyEarned(x, y, value);
   }
   async spinCell(x, y, spec, pickReelEmoji) {
     return this.boardView.spinCell(x, y, spec, pickReelEmoji);
@@ -102,5 +114,25 @@ export class DomRenderer extends Renderer {
   }
   async closeShop() {
     return this.shopView.closeShop();
+  }
+
+  // Interactive tools (Pin/Axe/Eye; Part C.8). Shop visibility around a tool
+  // purchase stays the caller's job (tools.js), not this method's -- Shop.show()
+  // has a buyCount>0 guard this renderer has no business re-implementing.
+  async pickCellForTool(prompt, predicate) {
+    this.boardView.removeRollListener();
+    const infoDiv = document.querySelector('.game .info');
+    // Not awaited: matches the original's fire-and-forget prompt, which
+    // doesn't block the click-through setup below on the typing animation.
+    drawText(infoDiv, prompt, false);
+    infoDiv.style.pointerEvents = 'none';
+    const coord = await this.boardView.awaitCellClick(predicate);
+    infoDiv.style.pointerEvents = 'auto';
+    infoDiv.classList.add('hidden');
+    if (!coord) {
+      return null;
+    }
+    this.boardView.addRollListener(() => {});
+    return coord;
   }
 }

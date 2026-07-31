@@ -1,5 +1,4 @@
 import { Symb } from '../symbol.js';
-import * as Util from '../util.js';
 
 /**
  * Example of a "mod" file that introduces an extra item
@@ -22,7 +21,7 @@ export class Monorail extends Symb {
   }
   async score(game, x, y) {
     await Promise.all([
-      Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.5),
+      game.view.animateCell(x, y, 'bounce', 0.5),
       this.addMoney(game, 10, x, y),
     ]);
   }

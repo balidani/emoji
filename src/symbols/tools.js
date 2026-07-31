@@ -1,5 +1,4 @@
 import * as Const from '../consts.js';
-import * as Util from '../util.js';
 
 import {
   Symb
@@ -12,19 +11,15 @@ const onToolBuy = async (game, prompt, effect) => {
     return;
   }
   game.shop.hide();
-  game.board.removeClickListener();
-  Util.drawText(game.info, prompt, false);
-  // Make game.info click through
-  game.info.style.pointerEvents = 'none';
-  const coord = await game.board.getClickCoord((sym) => sym.emoji() !== '⬜');
-  game.info.style.pointerEvents = 'auto';
-  game.info.classList.add('hidden');
+  const coord = await game.view.pickCellForTool(
+    prompt,
+    (_spec, x, y) => game.board.getSymbol(x, y).emoji() !== Const.EMPTY
+  );
   if (!coord) {
     return;
   }
   const [x, y] = coord;
   await effect(game, x, y);
-  game.board.addClickListener(game);
   game.shop.show();
 }
 

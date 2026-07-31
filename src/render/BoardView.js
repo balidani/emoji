@@ -1,6 +1,12 @@
 import * as Const from '../consts.js';
 import { formatBigNumber } from '../core/util.js';
-import { createDiv, animate, delay } from './animations.js';
+import {
+  createDiv,
+  createSpan,
+  animate,
+  animateOverlay,
+  delay,
+} from './animations.js';
 
 // The board grid DOM + all cell animations, extracted from board.js (see
 // REFACTOR_PLAN.md, Phase 6). Board keeps the model (cells, locked cells, row
@@ -107,6 +113,35 @@ export class BoardView {
     return animate(this.getSymbolDiv(x, y), name, duration, repeat, cssVars);
   }
 
+  async animateCellOverlay(x, y, name, duration, repeat = 1, cssVars = {}) {
+    return animateOverlay(
+      this.getSymbolDiv(x, y),
+      name,
+      duration,
+      repeat,
+      cssVars
+    );
+  }
+
+  async moneyEarned(x, y, value) {
+    const cellDiv = this.getCellDiv(x, y);
+    if (!cellDiv) {
+      // TODO: show money earned on passive row.
+      return;
+    }
+    const moneySpan = createSpan(
+      `💵${formatBigNumber(value)}`,
+      'money-earned-line'
+    );
+    cellDiv.appendChild(moneySpan);
+    animateOverlay(moneySpan, 'moneyEarnedRise', 2).then(() => {
+      if (moneySpan.parentElement !== cellDiv) {
+        return;
+      }
+      cellDiv.removeChild(moneySpan);
+    });
+  }
+
   async spinCell(x, y, spec, pickReelEmoji) {
     await delay((Math.random() * 600) | 0);
     const cellDiv = this.getCellDiv(x, y);
@@ -167,11 +202,10 @@ export class BoardView {
           .split('-')
           .map(Number);
         // NOTE: predicate is documented (Renderer.js) to receive a
-        // renderSpec, but nothing builds one here yet -- the only current
-        // caller (Board.getClickCoord, a compatibility shim kept for
-        // tools.js pending Phase 8) ignores this argument and checks live
-        // model state itself. Revisit when Phase 8 rewrites tools.js to
-        // call this directly via pickCellForTool.
+        // renderSpec, but nothing builds one here yet -- the only caller
+        // (tools.js's onToolBuy, via DomRenderer.pickCellForTool) ignores
+        // this argument and checks live model state itself
+        // (game.board.getSymbol(x, y)) instead.
         if (!predicate(null, x, y)) {
           return;
         }

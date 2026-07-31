@@ -25,7 +25,7 @@ export class Coin extends Symb {
     return 2 + activeCount + passiveCount;
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, this.getValue(game), x, y);
   }
   description() {
@@ -48,7 +48,7 @@ export class Briefcase extends Symb {
   }
   async score(game, x, y) {
     const value = this.counter(game);
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, value, x, y);
   }
   catgories() {
@@ -83,7 +83,7 @@ export class Bank extends Symb {
       }
       const coin = new Coin();
       const [newX, newY] = Util.randomChoose(coords);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
+      await game.view.animateCell(x, y, 'grow', 0.15);
       await game.eventlog.logResourceChange(
         coin.emoji(),
         '',
@@ -116,13 +116,13 @@ export class CreditCard extends Symb {
     return new CreditCard();
   }
   async finalScore(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3);
+    await game.view.animateCell(x, y, 'flip', 0.15, 3);
     await this.addMoney(game, -1100, x, y);
   }
   async score(game, x, y) {
     this.turn += 1;
     if (this.turn === 1) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+      await game.view.animateCell(x, y, 'bounce', 0.15);
       await this.addMoney(game, 1000, x, y);
     }
   }
@@ -148,7 +148,7 @@ export class MoneyBag extends Symb {
   async score(game, x, y) {
     if (this.coins > 0) {
       const value = this.coins * this.coin.getValue(game);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+      await game.view.animateCell(x, y, 'bounce', 0.15);
       await this.addMoney(game, value, x, y);
     }
   }
@@ -192,7 +192,7 @@ export class Jar extends Symb {
   }
   async score(game, x, y) {
     const value = this.counter(game) * 8;
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, value, x, y);
   }
   categories() {
@@ -223,10 +223,10 @@ export class Dice extends Symb {
   }
   async score(game, x, y) {
     if (badChance(game, 0.8, x, y)) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+      await game.view.animateCell(x, y, 'shake', 0.15, 2);
       await this.addMoney(game, -123, x, y);
     } else {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 3);
+      await game.view.animateCell(x, y, 'bounce', 0.15, 3);
       await this.addMoney(game, 456, x, y);
     }
   }

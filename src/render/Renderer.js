@@ -159,9 +159,11 @@ export class Renderer {
 
   // --- Interactive tools (Pin/Axe/Eye; see Part C.8) ---
 
-  /** Prompts the player with `prompt`, hides the shop, waits for a matching
-   * cell click, then restores shop/board interactivity. Resolves with [x, y]
-   * or null if cancelled. `predicate` is called with (renderSpec, x, y). */
+  /** Prompts the player with `prompt`, suspends board-click-to-roll, waits
+   * for a matching cell click, then restores it. Resolves with [x, y] or
+   * null if cancelled. `predicate` is called with (renderSpec, x, y). Does
+   * NOT touch shop visibility -- that's the caller's job (Shop.show() has
+   * model state, buyCount, this port has no business re-implementing). */
   async pickCellForTool(_prompt, _predicate) {
     notImplemented('pickCellForTool');
   }

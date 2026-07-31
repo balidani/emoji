@@ -19,7 +19,7 @@ export class Balloon extends Symb {
     return new Balloon();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, 20, x, y);
   }
   async evaluateConsume(game, x, y) {
@@ -59,12 +59,7 @@ export class Bomb extends Symb {
       }
       const coord = Util.randomChoose(coords);
       const [deleteX, deleteY] = coord;
-      await Util.animate(
-        game.board.getSymbolDiv(deleteX, deleteY),
-        'shake',
-        0.2,
-        3
-      );
+      await game.view.animateCell(deleteX, deleteY, 'shake', 0.2, 3);
       await game.eventlog.logResourceChange(
         game.board.getEmoji(deleteX, deleteY),
         '',
@@ -133,7 +128,7 @@ export class Moon extends Symb {
     if (this.turns >= 31) {
       this.turns = 0;
       game.board.redrawCell(game, x, y);
-      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.3);
+      await game.view.animateCell(x, y, 'flip', 0.3);
       await this.addMoney(game, 600, x, y);
     }
     this.moonScore = 0;
@@ -233,7 +228,7 @@ export class Santa extends Symb {
   async score(game, x, y) {
     const value = 25 * game.inventory.giftsOpened;
     if (value > 0) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+      await game.view.animateCell(x, y, 'bounce', 0.15);
       await this.addMoney(game, value, x, y);
     }
   }
@@ -265,7 +260,7 @@ export class Cloud extends Symb {
       (e, _x, _y) => e.emoji() === Empty.emoji
     );
     if (emptySpaces.length > 0) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+      await game.view.animateCell(x, y, 'bounce', 0.15);
       await this.addMoney(game, emptySpaces.length * 6, x, y);
     }
   }

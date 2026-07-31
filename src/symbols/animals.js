@@ -20,7 +20,7 @@ export class Chick extends Symb {
     return new Chick(this.timeToGrow);
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, 1, x, y);
   }
   async evaluateConsume(game, x, y) {
@@ -57,7 +57,7 @@ export class Chicken extends Symb {
     return new Chicken();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, 8, x, y);
   }
   async evaluateProduce(game, x, y) {
@@ -70,7 +70,7 @@ export class Chicken extends Symb {
       for (let i = 0; i < Math.min(coords.length, eggCount); ++i) {
         const [newX, newY] = Util.randomRemove(coords);
         const egg = new Egg();
-        await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
+        await game.view.animateCell(x, y, 'grow', 0.15);
         await game.board.addSymbol(game, egg, newX, newY);
         await game.eventlog.logResourceChange(
           egg.emoji(),
@@ -141,7 +141,7 @@ export class Fox extends Symb {
   }
   async score(game, x, y) {
     if (this.eatenScore > 0) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+      await game.view.animateCell(x, y, 'bounce', 0.15);
       await this.addMoney(game, this.eatenScore, x, y);
       this.eatenScore = 10;
     }
@@ -196,7 +196,7 @@ export class Dragon extends Symb {
     return new Dragon();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, 42, x, y);
   }
   categories() {
@@ -223,7 +223,7 @@ export class Bug extends Symb {
   }
   async score(game, x, y) {
     if (this.foodScore > 0) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+      await game.view.animateCell(x, y, 'bounce', 0.15);
       await this.addMoney(game, this.foodScore, x, y);
     }
     this.foodScore = 0;

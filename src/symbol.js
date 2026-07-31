@@ -64,23 +64,7 @@ export class Symb {
       game.inventory.addResource(key, value),
     ]);
     if (key === Const.MONEY) {
-      // Create a temporary money span to show on the overlay
-      const moneySpan = Util.createSpan(
-        `💵${Util.formatBigNumber(value)}`,
-        'money-earned-line'
-      );
-      const cellDiv = game.board.getCellDiv(x, y);
-      if (!cellDiv) {
-        // TODO: show money earned on passive row.
-        return;
-      }
-      cellDiv.appendChild(moneySpan);
-      Util.animateOverlay(moneySpan, 'moneyEarnedRise', 2).then(() => {
-        if (moneySpan.parentElement !== cellDiv) {
-          return;
-        }
-        cellDiv.removeChild(moneySpan);
-      });
+      await game.view.moneyEarned(x, y, value);
     }
   }
   async addMoney(game, score, x, y) {
@@ -90,14 +74,10 @@ export class Symb {
     for (const coord of coords) {
       const [multX, multY] = coord;
       await Promise.all([
-        Util.animate(game.board.getSymbolDiv(multX, multY), 'flip', 0.2, 1),
-        Util.animateOverlay(
-          game.board.getSymbolDiv(x, y),
-          'grow',
-          0.2 + multCount * 0.035,
-          1,
-          { 'grow-scale': 1.2 + multCount * 0.25 }
-        ),
+        game.view.animateCell(multX, multY, 'flip', 0.2, 1),
+        game.view.animateCellOverlay(x, y, 'grow', 0.2 + multCount * 0.035, 1, {
+          'grow-scale': 1.2 + multCount * 0.25,
+        }),
       ]);
       multCount++;
     }

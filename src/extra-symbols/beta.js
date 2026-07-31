@@ -15,7 +15,7 @@ export class FreeTurn extends Symb {
   }
   async evaluate(game, x, y) {
     if (chance(game, 0.1, x, y)) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15, 3);
+      await game.view.animateCell(x, y, 'flip', 0.15, 3);
       game.inventory.addResource(Const.TURNS, 1);
       game.inventory.updateUi();
       await game.board.removeSymbol(game, x, y);
@@ -49,7 +49,7 @@ export class Grave extends Symb {
     if (chance(game, 0.1, x, y)) {
       const [newX, newY] = Util.randomRemove(coords);
       const oldSymbol = Util.randomChoose(game.inventory.graveyard).copy();
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15, 2);
+      await game.view.animateCell(x, y, 'bounce', 0.15, 2);
       await game.board.addSymbol(game, oldSymbol, newX, newY);
     }
   }

@@ -51,7 +51,7 @@ export class Cherry extends Symb {
     if (coords.length === 0) {
       return;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15);
+    await game.view.animateCell(x, y, 'flip', 0.15);
     await this.addMoney(game, coords.length * 2, x, y);
   }
   categories() {
@@ -75,7 +75,7 @@ export class Corn extends Symb {
     return new Corn();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, 21, x, y);
   }
   async evaluateProduce(game, x, y) {
@@ -87,7 +87,7 @@ export class Corn extends Symb {
       for (let i = 0; i < coords.length; ++i) {
         const [newX, newY] = coords[i];
         const popcorn = new Popcorn();
-        await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
+        await game.view.animateCell(x, y, 'grow', 0.15);
         await game.eventlog.logResourceChange(
           popcorn.emoji(),
           '',
@@ -155,7 +155,7 @@ export class Pineapple extends Symb {
       y,
       (sym) => sym.emoji() !== Empty.emoji
     );
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, 12 - coords.length * 2, x, y);
   }
   categories() {
@@ -185,7 +185,7 @@ export class Popcorn extends Symb {
     for (const _ of butter) {
       score *= 4;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, score, x, y);
   }
   async evaluateConsume(game, x, y) {
@@ -248,7 +248,7 @@ export class Cocktail extends Symb {
   }
   async score(game, x, y) {
     if (this.cherryScore > 0) {
-      await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+      await game.view.animateCell(x, y, 'bounce', 0.15);
       await this.addMoney(game, this.cherryScore, x, y);
     }
   }
@@ -296,7 +296,7 @@ export class Champagne extends Symb {
     return new Champagne();
   }
   async score(game, x, y) {
-    await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
+    await game.view.animateCell(x, y, 'bounce', 0.15);
     await this.addMoney(game, 70, x, y);
   }
   async evaluateProduce(game, x, y) {
@@ -306,7 +306,7 @@ export class Champagne extends Symb {
     if (this.turns < 3) {
       return;
     }
-    await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 2);
+    await game.view.animateCell(x, y, 'shake', 0.15, 2);
     await game.board.removeSymbol(game, x, y);
     const bubble = new Bubble();
     await game.board.addSymbol(game, bubble, x, y);
@@ -355,7 +355,7 @@ export class Tree extends Symb {
       }
       const [newX, newY] = Util.randomRemove(coords);
       const cherry = new Cherry();
-      await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
+      await game.view.animateCell(x, y, 'grow', 0.15);
       await game.eventlog.logResourceChange(
         cherry.emoji(),
         '',

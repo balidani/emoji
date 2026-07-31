@@ -439,12 +439,6 @@ export class Board {
     return true;
   }
 
-  async getClickCoord(expr) {
-    return this.view.awaitCellClick((_spec, x, y) =>
-      expr(this.cells[y][x], x, y)
-    );
-  }
-
   async pinCell(game, x, y) {
     await this.lockCell(x, y, this.cells[y][x], -1);
     await this.view.pinCell(x, y, this.cells[y][x].renderSpec(game, x, y));
@@ -452,10 +446,6 @@ export class Board {
 
   addClickListener(game) {
     this.view.addRollListener(() => game.roll());
-  }
-
-  removeClickListener() {
-    this.view.removeRollListener();
   }
 
   async makePassive(game, x, y) {

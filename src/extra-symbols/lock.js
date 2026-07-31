@@ -27,7 +27,7 @@ export class Lock extends Symb {
       );
       if (targets.length > 0) {
         const [tx, ty] = Util.randomChoose(targets);
-        await Util.animate(game.board.getSymbolDiv(x, y), 'shake', 0.15, 3);
+        await game.view.animateCell(x, y, 'shake', 0.15, 3);
         await game.board.lockCell(x, y, game.board.cells[ty][tx], 3);
         this.lockedCells[this.turns + 3] = game.board.cells[ty][tx];
         game.inventory.remove(game.board.cells[ty][tx]);
