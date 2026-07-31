@@ -32,3 +32,5 @@ Enforces code style rules like semicolons, line spacing, etc:
 ### VS Code
 - Install Live Server extension, https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer
 - CMD + L, CMD + O to open browser to http://127.0.0.1:5500/
+
+<!-- GitHub integration test line -->
