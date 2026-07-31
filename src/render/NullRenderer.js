@@ -8,9 +8,19 @@ import { Renderer } from './Renderer.js';
 // Renderer port (Phase 6+), this is what lets the whole game run in Node
 // without a browser.
 export class NullRenderer extends Renderer {
-  async spinCell(_x, _y, _renderSpec) {}
+  // IMPORTANT: unlike every other method here, this is *not* a pure no-op.
+  // The original spinDiv's reel loop calls its RNG-backed emoji picker 6
+  // times regardless of whether animation is on (Util.animate short-circuits
+  // when animation is off, but the loop calling it does not) -- that's real
+  // draws from the shared seeded RNG that everything downstream depends on.
+  // Dropping them here would desync the whole game from master's RNG stream.
+  async spinCell(_x, _y, _renderSpec, pickReelEmoji) {
+    for (let i = 0; i < 6; ++i) {
+      pickReelEmoji();
+    }
+  }
   async spinCellOnce(_x, _y, _renderSpec) {}
-  async spinIntoHole(_x, _y, _prevSpec, _newSpec) {}
+  async spinIntoHole(_x, _y, _newSpec, _holeSpec) {}
   async redrawCell(_x, _y, _renderSpec) {}
   async clearCellDecorations(_x, _y) {}
   async animateCell(_x, _y, _name, _duration, _repeat, _cssVars) {}

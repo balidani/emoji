@@ -6,8 +6,15 @@ import { PlayButton } from './symbols/ui.js';
 
 export class Board {
   constructor(game) {
+    // Game's constructor assigns `this.board = new Board(this)` only after
+    // this constructor returns, but renderSpec() below needs game.board
+    // (for lockedAt) while still constructing. Self-register immediately so
+    // it's available throughout -- Game's later assignment just re-sets the
+    // same reference.
+    game.board = this;
     this.settings = game.settings;
     this.catalog = game.catalog;
+    this.view = game.view;
     this.cells = [];
     this.logLines = 0;
     this.passiveCells = [];
@@ -40,80 +47,41 @@ export class Board {
       };
     }
 
-    this.gridDiv = document.querySelector('.game .grid');
-    this.gridDiv.replaceChildren();
     this.empty = this.catalog.symbol(Const.EMPTY);
     for (let y = 0; y < this.currentRows; ++y) {
       const row = [];
-      const rowDiv = Util.createDiv('', 'row');
       for (let x = 0; x < this.settings.boardX; ++x) {
         const ilc = this.lockedCells[`${x},${y}`];
         const symbol = !ilc ? this.empty.copy() : ilc.symbol;
         row.push(symbol);
-        const cellContainer = this.createCellDiv(x, y);
-        rowDiv.appendChild(cellContainer);
       }
       this.cells.push(row);
-      this.gridDiv.appendChild(rowDiv);
     }
+    this.view.clearBoard(this.currentRows, this.settings.boardX);
 
     // Show play button in the center in the beginning.
     this.cells[2][2] = new PlayButton();
-    this.spinDivOnce(game, 2, 2);
+    this.view.spinCellOnce(2, 2, this.cells[2][2].renderSpec(game, 2, 2));
 
     for (const addr of Object.keys(this.lockedCells)) {
       const [x, y] = addr.split(',').map(Number);
-      this.spinDivOnce(game, x, y);
+      this.view.spinCellOnce(x, y, this.cells[y][x].renderSpec(game, x, y));
     }
   }
   async resetBoardSize(rows) {
-    // If rows are not created yet:
+    const oldRows = this.currentRows;
     if (this.currentRows < rows) {
-      // Showing hidden rows again
-      for (let y = this.currentRows; y < rows; ++y) {
-        if (y >= this.cells.length) {
-          break;
-        }
-        const rowDiv = this.gridDiv.childNodes[y];
-        rowDiv.classList.remove('hidden');
-        await Util.animate(rowDiv, 'rowMoveIn', 0.25);
-      }
-      // Growing
+      // Grow the model for any rows that don't exist yet.
       for (let y = this.cells.length; y < rows; ++y) {
         const row = [];
-        const rowDiv = Util.createDiv('', 'row');
         for (let x = 0; x < this.settings.boardX; ++x) {
           row.push(this.empty.copy());
-          const cellContainer = this.createCellDiv(x, y);
-          rowDiv.appendChild(cellContainer);
         }
         this.cells.push(row);
-        this.gridDiv.appendChild(rowDiv);
-        await Util.animate(rowDiv, 'rowMoveIn', 0.25);
-      }
-    } else if (this.currentRows > rows) {
-      // If there are too many rows, hide the extra ones.
-      for (let y = this.currentRows - 1; y >= rows; --y) {
-        const rowDiv = this.gridDiv.childNodes[y];
-        await Util.animate(rowDiv, 'rowMoveOut', 0.25);
-        rowDiv.classList.add('hidden');
       }
     }
+    await this.view.resizeBoard(oldRows, rows, this.settings.boardX);
     this.currentRows = rows;
-  }
-  createCellDiv(x, y) {
-    const cellContainer = Util.createDiv('', 'cell-container');
-    const cellDiv = Util.createDiv('', 'cell', `cell-${y}-${x}`);
-    const symbolDiv = Util.createDiv(Const.EMPTY, 'symbol');
-    const counterDiv = Util.createDiv('', 'symbol-counter');
-    counterDiv.innerText = '';
-    const pinDiv = Util.createDiv('', 'symbol-pin');
-    pinDiv.innerText = '';
-    cellDiv.appendChild(symbolDiv);
-    cellDiv.appendChild(counterDiv);
-    cellDiv.appendChild(pinDiv);
-    cellContainer.appendChild(cellDiv);
-    return cellContainer;
   }
   getSymbolDiv(x, y) {
     if (x === -1) {
@@ -136,52 +104,11 @@ export class Board {
     if (x === -1) {
       return;
     }
-    this.getCellDiv(x, y).replaceChildren(this.cells[y][x].render(game, x, y));
-  }
-  getCounterDiv(x, y) {
-    return this.gridDiv.children[y].children[x].children[1];
-  }
-  getPinDiv(x, y) {
-    return this.gridDiv.children[y].children[x].children[2];
+    this.view.redrawCell(x, y, this.cells[y][x].renderSpec(game, x, y));
   }
   clearCell(x, y) {
-    const counterDiv = this.getCounterDiv(x, y);
-    if (counterDiv) {
-      counterDiv.innerText = '';
-    }
-    const pinDiv = this.getPinDiv(x, y);
-    if (pinDiv) {
-      pinDiv.innerText = '';
-    }
+    this.view.clearCellDecorations(x, y);
     this.cells[y][x] = this.empty.copy();
-  }
-  async spinDiv(game, x, y, symbol) {
-    await Util.delay(Math.random() * 600 | 0);
-    const cellDiv = this.getCellDiv(x, y);
-
-    // Rolling animation portion
-    await Util.animate(cellDiv, 'startSpin', 0.1);
-    const fakeDiv = Util.createDiv(null, 'symbol');
-    cellDiv.replaceChildren(fakeDiv);
-    for (let i = 0; i < 6; ++i) {
-      fakeDiv.innerText = game.inventory.getRandomOwnedEmoji();
-      await Util.animate(fakeDiv, 'spin', 0.12 + i * 0.02);
-    }
-
-    // Set the actual symbol
-    const symbolDiv = symbol.render(game, x, y);
-    cellDiv.replaceChildren(symbolDiv);
-
-    await Util.animate(symbolDiv, 'endSpin', 0.3);
-    await Util.animate(symbolDiv, 'bounce', 0.1);
-  }
-  async spinDivOnce(game, x, y) {
-    const cellDiv = this.getCellDiv(x, y);
-    await Util.animate(cellDiv, 'startSpin', 0.1);
-    const symbolDiv = this.cells[y][x].render(game, x, y);
-    cellDiv.replaceChildren(symbolDiv);
-    await Util.animate(symbolDiv, 'endSpin', 0.3);
-    await Util.animate(symbolDiv, 'bounce', 0.1);
   }
   async roll(game) {
     if (this.currentRows !== game.inventory.rowCount) {
@@ -218,7 +145,7 @@ export class Board {
       }
     }
 
-    const pool = [...game.inventory.symbols].filter(s => !lockedSet.has(s));
+    const pool = [...game.inventory.symbols].filter((s) => !lockedSet.has(s));
     const numCellsToBeFilled = empties.length;
     for (let i = 0; i < numCellsToBeFilled; ++i) {
       if (pool.length === 0) {
@@ -236,7 +163,12 @@ export class Board {
         if (lockedAtStart[addr]) {
           continue;
         }
-        tasks.push(this.spinDiv(game, x, y, this.cells[y][x]));
+        const spec = this.cells[y][x].renderSpec(game, x, y);
+        tasks.push(
+          this.view.spinCell(x, y, spec, () =>
+            game.inventory.getRandomOwnedEmoji()
+          )
+        );
       }
     }
     await Promise.all(tasks);
@@ -245,7 +177,7 @@ export class Board {
     this.lockedCells = [];
     for (let x = 0; x < game.settings.boardX; ++x) {
       for (let y = 0; y < this.cells.length; ++y) {
-        if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
+        if (y >= this.currentRows) {
           continue;
         }
         this.cells[y][x] = this.empty.copy();
@@ -333,12 +265,13 @@ export class Board {
     if (this.cells[y][x].emoji() === '🕳️') {
       const hole = this.cells[y][x];
       this.cells[y][x] = sym;
-      await this.spinDivOnce(game, x, y);
+      const newSpec = sym.renderSpec(game, x, y);
       this.cells[y][x] = hole;
-      await this.spinDivOnce(game, x, y);
+      const holeSpec = hole.renderSpec(game, x, y);
+      await this.view.spinIntoHole(x, y, newSpec, holeSpec);
     } else {
       this.cells[y][x] = sym;
-      await this.spinDivOnce(game, x, y);
+      await this.view.spinCellOnce(x, y, sym.renderSpec(game, x, y));
     }
     this.redrawCell(game, x, y);
   }
@@ -351,8 +284,11 @@ export class Board {
     }
     game.inventory.remove(this.cells[y][x]);
     this.clearCell(x, y);
-    await Util.animate(this.getSymbolDiv(x, y), 'shake', 0.125, 2);
-    await this.spinDivOnce(game, x, y);
+    await this.view.shakeAndRemove(
+      x,
+      y,
+      this.cells[y][x].renderSpec(game, x, y)
+    );
   }
 
   async lockCell(x, y, symbol, duration) {
@@ -414,6 +350,17 @@ export class Board {
     return this.cells[y][x].emoji();
   }
 
+  getSymbol(x, y) {
+    if (x === -1) {
+      return this.passiveCells[y];
+    }
+    return this.cells[y][x];
+  }
+
+  lockedAt(x, y) {
+    return !!this.lockedCells[`${x},${y}`];
+  }
+
   nextToExpr(x, y, expr) {
     if (x === -1 || y === -1) {
       return [];
@@ -444,7 +391,7 @@ export class Board {
 
   forAllCells(f) {
     this.cells.forEach((row, y) => {
-      if (this.gridDiv.childNodes[y].classList.contains('hidden')) {
+      if (y >= this.currentRows) {
         return;
       }
       row.forEach((cell, x) => {
@@ -493,50 +440,22 @@ export class Board {
   }
 
   async getClickCoord(expr) {
-    return new Promise((resolve) => {
-      const onclick = (e) => {
-        e.stopPropagation();
-        const classes = e.target.parentElement.classList;
-        if (!classes.contains('cell')) {
-          return;
-        }
-        const [_, y, x] = classes
-          .toString()
-          .split(' ')
-          .find((c) => c.startsWith('cell-'))
-          .split('-')
-          .map(Number);
-        if (!expr(this.cells[y][x], x, y)) {
-          return;
-        }
-        document
-          .querySelectorAll('.cell')
-          .forEach((div) => div.removeEventListener('click', onclick));
-        resolve([x, y]);
-      };
-      document.querySelectorAll('.cell').forEach((div) => {
-        div.addEventListener('click', onclick);
-      });
-    });
+    return this.view.awaitCellClick((_spec, x, y) =>
+      expr(this.cells[y][x], x, y)
+    );
   }
 
   async pinCell(game, x, y) {
     await this.lockCell(x, y, this.cells[y][x], -1);
-    this.redrawCell(game, x, y);
-    await Util.animate(this.getSymbolDiv(x, y), 'bounce', 0.15);
+    await this.view.pinCell(x, y, this.cells[y][x].renderSpec(game, x, y));
   }
 
   addClickListener(game) {
-    if (!this.clickListener) {
-      this.clickListener = () => game.roll();
-    }
-    const grid = document.querySelector('.game .grid');
-    grid.addEventListener('click', this.clickListener);
+    this.view.addRollListener(() => game.roll());
   }
 
   removeClickListener() {
-    const grid = document.querySelector('.game .grid');
-    grid.removeEventListener('click', this.clickListener);
+    this.view.removeRollListener();
   }
 
   async makePassive(game, x, y) {

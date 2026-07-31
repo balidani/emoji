@@ -30,16 +30,19 @@ const notImplemented = (method) => {
 export class Renderer {
   // --- Board rendering ---
 
-  /** Full roll spin-in animation for a cell. */
-  async spinCell(_x, _y, _renderSpec) {
+  /** Full roll spin-in animation for a cell. `pickReelEmoji` is a zero-arg
+   * callback invoked repeatedly to get the next emoji shown mid-spin (backed
+   * by the model's owned-symbol RNG draw -- called here, not precomputed, so
+   * the draw stays exactly where it was in the original code). */
+  async spinCell(_x, _y, _renderSpec, _pickReelEmoji) {
     notImplemented('spinCell');
   }
   /** Instant (no rolling animation) spin-in for a cell. */
   async spinCellOnce(_x, _y, _renderSpec) {
     notImplemented('spinCellOnce');
   }
-  /** The 🕳️ two-stage animation: spin the new symbol in, then restore the hole. */
-  async spinIntoHole(_x, _y, _prevSpec, _newSpec) {
+  /** The 🕳️ two-stage animation: spin `newSpec` in, then restore `holeSpec`. */
+  async spinIntoHole(_x, _y, _newSpec, _holeSpec) {
     notImplemented('spinIntoHole');
   }
   /** Re-render a cell's contents from its current renderSpec, no animation. */

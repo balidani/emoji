@@ -37,7 +37,7 @@ export class Game {
   }
   async over() {
     this.isOver = true;
-    document.querySelector('.game .grid').disabled = true;
+    await this.view.setGridEnabled(false);
     await this.board.finalScore(this);
     
     let trophy = '💩';

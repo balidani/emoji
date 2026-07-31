@@ -112,37 +112,21 @@ export class Symb {
   counter(_game) {
     return null;
   }
-  render(game, x, y) {
-    const symbolDiv = Util.createDiv(this.emoji(), 'symbol');
-    const counterDiv = Util.createDiv(
-      Util.formatBigNumber(this.counter(game) || ''),
-      'symbol-counter'
-    );
-    const pinDiv = Util.createDiv(
-      game.board.lockedCells[`${x},${y}`] ? Const.PIN : '',
-      'symbol-pin'
-    );
-
-    // const mult = this.multiplier !== 1 ? this.multiplier : undefined;
-    // const multiplierDiv = Util.createDiv(mult, 'symbol-multiplier', 'hidden');
-
-    // The lambda is required, otherwise there is a bug with the info text.
-    // This should probably be fixed in the future.
-    symbolDiv.addEventListener('click', () => this.clickHandler(game));
-
-    symbolDiv.appendChild(counterDiv);
-    symbolDiv.appendChild(pinDiv);
-
-    // symbolDiv.appendChild(multiplierDiv);
-
-    return symbolDiv;
-  }
-  clickHandler(game) {
-    const interactiveDescription = Util.createInteractiveDescription(
-      this.descriptionLong(),
-      /*emoji=*/ this.emoji()
-    );
-    return () =>
-      Util.drawText(game.info, interactiveDescription, /*isHtml=*/ true);
+  // Plain-data description of this symbol's on-screen appearance (see
+  // REFACTOR_PLAN.md Part C.3 and Phase 6). DomRenderer/BoardView is the only
+  // place that turns this into DOM.
+  //
+  // NOTE: the DOM node this replaces (the old `render()`) wired a click
+  // listener via `this.clickHandler(game)`, but that call's return value (a
+  // closure that would call Util.drawText) was never invoked -- the
+  // original code even carried a comment flagging it as buggy. Board-cell
+  // clicks have therefore never shown symbol info in practice; not
+  // replicating that dead code here isn't a behavior change.
+  renderSpec(game, x, y) {
+    return {
+      emoji: this.emoji(),
+      counter: this.counter(game),
+      pinned: !!game.board.lockedAt(x, y),
+    };
   }
 }
