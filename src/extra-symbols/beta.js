@@ -13,13 +13,25 @@ export class FreeTurn extends Symb {
   copy() {
     return new FreeTurn();
   }
-  async evaluate(game, x, y) {
-    if (chance(game, 0.1, x, y)) {
-      await game.view.animateCell(x, y, 'flip', 0.15, 3);
-      game.inventory.addResource(Const.TURNS, 1);
-      game.inventory.updateUi();
-      await game.board.removeSymbol(game, x, y);
+  // NOTE: this used to be a dead `evaluate(game, x, y)` hook that Board never
+  // calls (only evaluateConsume/evaluateProduce/finalScore/score exist) --
+  // the ticket never actually fired. evaluateConsume matches the "disappears
+  // when it triggers" symbols elsewhere (e.g. things.js's Balloon).
+  async evaluateConsume(game, x, y) {
+    if (!chance(game, 0.1, x, y)) {
+      return;
     }
+    // addResource (not a bare game.inventory.addResource) so this also
+    // works from the permanent/passive inventory (x === -1): it reads the
+    // source emoji via game.board.getEmoji, which already handles passives,
+    // and logs the gain to the event log like every other resource-earning
+    // symbol.
+    await this.addResource(game, x, y, Const.TURNS, 1);
+    if (x === -1 || y === -1) {
+      return;
+    }
+    await game.view.animateCell(x, y, 'flip', 0.15, 3);
+    await game.board.removeSymbol(game, x, y);
   }
   description() {
     return '10% chance: one more ⏰, then disappears';
@@ -39,6 +51,9 @@ export class Grave extends Symb {
     return new Grave();
   }
   async evaluateProduce(game, x, y) {
+    // game.board.nextToEmpty(-1, y) already returns [] (passives have no
+    // neighbors), so this naturally never fires while Grave is in the
+    // permanent inventory -- there's nowhere for it to place a symbol.
     const coords = game.board.nextToEmpty(x, y);
     if (coords.length === 0) {
       return;
@@ -51,6 +66,12 @@ export class Grave extends Symb {
       const oldSymbol = Util.randomChoose(game.inventory.graveyard).copy();
       await game.view.animateCell(x, y, 'bounce', 0.15, 2);
       await game.board.addSymbol(game, oldSymbol, newX, newY);
+      await game.eventlog.logResourceChange(
+        oldSymbol.emoji(),
+        '',
+        this.emoji(),
+        'earned'
+      );
     }
   }
   description() {

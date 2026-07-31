@@ -8,6 +8,7 @@ const ALL_TESTED_SYMBOL_FILES = [
   './symbols/things.js',
   './symbols/tools.js',
   './symbols/ui.js',
+  './extra-symbols/beta.js',
 ];
 
 export class GameSettings {
