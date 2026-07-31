@@ -19,7 +19,8 @@ export class Coin extends Symb {
   }
   getValue(game) {
     const activeCount = game.board.forAllExpr(
-      (e, _x, _y) => e.emoji() === FlyingMoney.emoji).length;
+      (e, _x, _y) => e.emoji() === FlyingMoney.emoji
+    ).length;
     const passiveCount = game.inventory.getResource(FlyingMoney.emoji);
     return 2 + activeCount + passiveCount;
   }
@@ -83,7 +84,12 @@ export class Bank extends Symb {
       const coin = new Coin();
       const [newX, newY] = Util.randomChoose(coords);
       await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
-      await game.eventlog.showResourceEarned(coin.emoji(), '', this.emoji());
+      await game.eventlog.logResourceChange(
+        coin.emoji(),
+        '',
+        this.emoji(),
+        'earned'
+      );
       await game.board.addSymbol(game, coin, newX, newY);
     };
     await mint();
@@ -124,7 +130,7 @@ export class CreditCard extends Symb {
     return '💵1000 now.<br>💵-1100 on last turn';
   }
   descriptionLong() {
-    return "this is a credit card. it pays 💵1000, but takes 💵1100 when on board on your last turn.";
+    return 'this is a credit card. it pays 💵1000, but takes 💵1100 when on board on your last turn.';
   }
 }
 
@@ -134,7 +140,7 @@ export class MoneyBag extends Symb {
     super();
     this.coins = coins;
     this.rarity = 0.5;
-    this.coin = new Coin();  // Used to calculate current coin value.
+    this.coin = new Coin(); // Used to calculate current coin value.
   }
   copy() {
     return new MoneyBag(this.coins);
@@ -154,7 +160,12 @@ export class MoneyBag extends Symb {
     for (const coord of coords) {
       this.coins++;
       const [deleteX, deleteY] = coord;
-      await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+      await game.eventlog.logResourceChange(
+        game.board.getEmoji(deleteX, deleteY),
+        '',
+        this.emoji(),
+        'lost'
+      );
       await game.board.removeSymbol(game, deleteX, deleteY);
       game.board.redrawCell(game, x, y);
     }
@@ -208,7 +219,7 @@ export class Dice extends Symb {
     return new Dice();
   }
   cost() {
-    return {'💵': 77};
+    return { '💵': 77 };
   }
   async score(game, x, y) {
     if (badChance(game, 0.8, x, y)) {
@@ -239,8 +250,7 @@ export class FlyingMoney extends Symb {
   copy() {
     return new FlyingMoney();
   }
-  async score(game, x, y) {
-  }
+  async score(game, x, y) {}
   description() {
     return 'each 🪙 is worth 💵1 more.';
   }

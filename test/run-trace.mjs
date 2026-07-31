@@ -145,8 +145,9 @@ function installTraceHooks() {
   );
   wrapVoid(
     evtProto,
-    'showResourceChange',
-    (key, value, source, arrow) => `event ${source}${arrow}${key}${value}`
+    'logResourceChange',
+    (key, value, source, direction) =>
+      `event ${source}${direction === 'lost' ? '←' : '→'}${key}${value}`
   );
   wrapResult(
     catProto,

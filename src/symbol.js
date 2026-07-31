@@ -60,23 +60,22 @@ export class Symb {
   async addResource(game, x, y, key, value) {
     const source = game.board.getEmoji(x, y) || '❓';
     await Promise.all([
-      game.eventlog.showResourceEarned(key, value, source),
+      game.eventlog.logResourceChange(key, value, source, 'earned'),
       game.inventory.addResource(key, value),
     ]);
     if (key === Const.MONEY) {
       // Create a temporary money span to show on the overlay
-      const moneySpan = Util.createSpan(`💵${Util.formatBigNumber(value)}`, 'money-earned-line');
+      const moneySpan = Util.createSpan(
+        `💵${Util.formatBigNumber(value)}`,
+        'money-earned-line'
+      );
       const cellDiv = game.board.getCellDiv(x, y);
       if (!cellDiv) {
         // TODO: show money earned on passive row.
         return;
       }
       cellDiv.appendChild(moneySpan);
-      Util.animateOverlay(
-        moneySpan,
-        'moneyEarnedRise',
-        2,
-      ).then(() => {
+      Util.animateOverlay(moneySpan, 'moneyEarnedRise', 2).then(() => {
         if (moneySpan.parentElement !== cellDiv) {
           return;
         }
@@ -91,13 +90,14 @@ export class Symb {
     for (const coord of coords) {
       const [multX, multY] = coord;
       await Promise.all([
-        Util.animate(
-          game.board.getSymbolDiv(multX, multY),
-          'flip',
-          0.2,
-          1),
-        Util.animateOverlay(game.board.getSymbolDiv(x, y), 'grow', 0.2 + multCount * 0.035, 1,
-          {'grow-scale': 1.2 + multCount * 0.25}),
+        Util.animate(game.board.getSymbolDiv(multX, multY), 'flip', 0.2, 1),
+        Util.animateOverlay(
+          game.board.getSymbolDiv(x, y),
+          'grow',
+          0.2 + multCount * 0.035,
+          1,
+          { 'grow-scale': 1.2 + multCount * 0.25 }
+        ),
       ]);
       multCount++;
     }
@@ -119,7 +119,9 @@ export class Symb {
       'symbol-counter'
     );
     const pinDiv = Util.createDiv(
-      game.board.lockedCells[`${x},${y}`] ? Const.PIN : '', 'symbol-pin');
+      game.board.lockedCells[`${x},${y}`] ? Const.PIN : '',
+      'symbol-pin'
+    );
 
     // const mult = this.multiplier !== 1 ? this.multiplier : undefined;
     // const multiplierDiv = Util.createDiv(mult, 'symbol-multiplier', 'hidden');

@@ -88,7 +88,12 @@ export class Corn extends Symb {
         const [newX, newY] = coords[i];
         const popcorn = new Popcorn();
         await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
-        await game.eventlog.showResourceEarned(popcorn.emoji(), '', this.emoji());
+        await game.eventlog.logResourceChange(
+          popcorn.emoji(),
+          '',
+          this.emoji(),
+          'earned'
+        );
         await game.board.addSymbol(game, popcorn, newX, newY);
       }
     }
@@ -256,7 +261,12 @@ export class Cocktail extends Symb {
       for (const coord of coords) {
         this.cherryScore = reward(this.cherryScore);
         const [deleteX, deleteY] = coord;
-        await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+        await game.eventlog.logResourceChange(
+          game.board.getEmoji(deleteX, deleteY),
+          '',
+          this.emoji(),
+          'lost'
+        );
         await game.board.removeSymbol(game, deleteX, deleteY);
         game.board.redrawCell(game, x, y);
       }
@@ -304,7 +314,12 @@ export class Champagne extends Symb {
     if (coords.length === 0) {
       return;
     }
-    await game.eventlog.showResourceEarned(bubble.emoji(), (coords.length + 1) + '', this.emoji());
+    await game.eventlog.logResourceChange(
+      bubble.emoji(),
+      coords.length + 1 + '',
+      this.emoji(),
+      'earned'
+    );
     for (let i = 0; i < coords.length; ++i) {
       const [newX, newY] = coords[i];
       const bubble = new Bubble();
@@ -341,7 +356,12 @@ export class Tree extends Symb {
       const [newX, newY] = Util.randomRemove(coords);
       const cherry = new Cherry();
       await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
-      await game.eventlog.showResourceEarned(cherry.emoji(), '', this.emoji());
+      await game.eventlog.logResourceChange(
+        cherry.emoji(),
+        '',
+        this.emoji(),
+        'earned'
+      );
       await game.board.addSymbol(game, cherry, newX, newY);
     };
 

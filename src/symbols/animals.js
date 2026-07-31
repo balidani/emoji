@@ -28,7 +28,12 @@ export class Chick extends Symb {
       await game.board.removeSymbol(game, x, y);
       const chicken = new Chicken();
       await game.board.addSymbol(game, chicken, x, y);
-      await game.eventlog.showResourceEarned(chicken.emoji(), '', this.emoji());
+      await game.eventlog.logResourceChange(
+        chicken.emoji(),
+        '',
+        this.emoji(),
+        'earned'
+      );
     }
   }
   counter(_) {
@@ -67,7 +72,12 @@ export class Chicken extends Symb {
         const egg = new Egg();
         await Util.animate(game.board.getSymbolDiv(x, y), 'grow', 0.15);
         await game.board.addSymbol(game, egg, newX, newY);
-        await game.eventlog.showResourceEarned(egg.emoji(), '', this.emoji());
+        await game.eventlog.logResourceChange(
+          egg.emoji(),
+          '',
+          this.emoji(),
+          'earned'
+        );
       }
     }
   }
@@ -100,7 +110,12 @@ export class Egg extends Symb {
       }
       await game.board.removeSymbol(game, x, y);
       await game.board.addSymbol(game, newSymbol, x, y);
-      await game.eventlog.showResourceEarned(newSymbol.emoji(), '', this.emoji());
+      await game.eventlog.logResourceChange(
+        newSymbol.emoji(),
+        '',
+        this.emoji(),
+        'earned'
+      );
     }
   }
   counter(_) {
@@ -140,7 +155,12 @@ export class Fox extends Symb {
       for (const coord of coords) {
         this.eatenScore *= mult;
         const [deleteX, deleteY] = coord;
-        await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+        await game.eventlog.logResourceChange(
+          game.board.getEmoji(deleteX, deleteY),
+          '',
+          this.emoji(),
+          'lost'
+        );
         await game.board.removeSymbol(game, deleteX, deleteY);
       }
       this.turns = 0;
@@ -220,7 +240,12 @@ export class Bug extends Symb {
       for (const coord of coords) {
         this.foodScore += 8;
         const [deleteX, deleteY] = coord;
-        await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+        await game.eventlog.logResourceChange(
+          game.board.getEmoji(deleteX, deleteY),
+          '',
+          this.emoji(),
+          'lost'
+        );
         await game.board.removeSymbol(game, deleteX, deleteY);
       }
     }

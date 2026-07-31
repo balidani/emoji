@@ -23,7 +23,7 @@ export class Diamond extends Symb {
     if (colMult !== 1) {
       await Util.animate(game.board.getSymbolDiv(x, y), 'flip', 0.15);
     }
-    const score = (7 + (coords.length * 7)) * rowMult * colMult;
+    const score = (7 + coords.length * 7) * rowMult * colMult;
     await this.addMoney(game, score, x, y);
   }
   description() {
@@ -51,7 +51,7 @@ export class Rock extends Symb {
     return '💵1';
   }
   descriptionLong() {
-    return "this is a rock. it pays 💵1.";
+    return 'this is a rock. it pays 💵1.';
   }
 }
 
@@ -69,9 +69,9 @@ export class Volcano extends Symb {
       const newX = Util.random(game.settings.boardX);
       const newY = Util.random(game.board.currentRows);
       await game.board.removeSymbol(game, newX, newY);
-      await game.eventlog.showResourceEarned('🕳️', '', this.emoji());
+      await game.eventlog.logResourceChange('🕳️', '', this.emoji(), 'earned');
       await game.board.addSymbol(game, game.catalog.symbol('🕳️'), newX, newY);
-      await game.eventlog.showResourceEarned('🪨', '5', this.emoji());
+      await game.eventlog.logResourceChange('🪨', '5', this.emoji(), 'earned');
       await game.board.addSymbol(game, new Rock(), newX, newY);
       await game.board.addSymbol(game, new Rock(), newX, newY);
       await game.board.addSymbol(game, new Rock(), newX, newY);
@@ -103,11 +103,21 @@ export class Worker extends Symb {
     }
     for (const coord of coords) {
       const [deleteX, deleteY] = coord;
-      await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+      await game.eventlog.logResourceChange(
+        game.board.getEmoji(deleteX, deleteY),
+        '',
+        this.emoji(),
+        'lost'
+      );
       await game.board.removeSymbol(game, deleteX, deleteY);
       if (chance(game, 0.5, x, y)) {
         const diamond = new Diamond();
-        await game.eventlog.showResourceEarned(diamond.emoji(), '', this.emoji());
+        await game.eventlog.logResourceChange(
+          diamond.emoji(),
+          '',
+          this.emoji(),
+          'earned'
+        );
         await game.board.addSymbol(game, diamond, deleteX, deleteY);
       }
     }

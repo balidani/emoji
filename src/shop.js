@@ -75,8 +75,8 @@ export class Shop {
   }
   makeCatalog(game) {
     const rareOnly =
-      (game.inventory.getResource(Const.TURNS) ===
-        game.settings.gameLength - 1) && this.firstTurnRare;
+      game.inventory.getResource(Const.TURNS) ===
+        game.settings.gameLength - 1 && this.firstTurnRare;
     return this.catalog.generateShop(
       this.buyLines,
       this.getInventory(game).getResource(Const.LUCK),
@@ -117,7 +117,12 @@ export class Shop {
             this.buyCount--;
             for (const [key, value] of Object.entries(symbolCost)) {
               await Promise.all([
-                game.eventlog.showResourceEarned(key, -value, Const.SHOPPING_CART),
+                game.eventlog.logResourceChange(
+                  key,
+                  -value,
+                  Const.SHOPPING_CART,
+                  'earned'
+                ),
                 this.getInventory(game).addResource(key, -value),
               ]);
             }
@@ -161,10 +166,11 @@ export class Shop {
             this.refreshCost
           ) {
             await Promise.all([
-              game.eventlog.showResourceEarned(
+              game.eventlog.logResourceChange(
                 this.refreshCostResource,
                 -this.refreshCost,
-                Const.REFRESH
+                Const.REFRESH,
+                'earned'
               ),
               this.getInventory(game).addResource(
                 this.refreshCostResource,
@@ -172,7 +178,9 @@ export class Shop {
               ),
             ]);
             this.refreshCost += this.refreshCostIncrease;
-            this.refreshCost = Math.trunc(this.refreshCost * this.refreshCostMult);
+            this.refreshCost = Math.trunc(
+              this.refreshCost * this.refreshCostMult
+            );
             this.isOpen = false;
             await Util.animate(this.shopDiv, 'closeShop', 0.2);
             this.shopDiv.classList.add('hidden');
@@ -205,10 +213,11 @@ export class Shop {
   }
   reset(game) {
     this.haveRefreshSymbol = false;
-    this.refreshCost =
-      Math.trunc(1 +
+    this.refreshCost = Math.trunc(
+      1 +
         this.getInventory(game).getResource(this.refreshCostResource) *
-          this.refreshCostInitialMult);
+          this.refreshCostInitialMult
+    );
     this.refreshCount = 0;
     this.buyCount = 1;
     this.buyLines = 3;

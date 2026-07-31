@@ -1,16 +1,9 @@
 import * as Const from '../consts.js';
 import * as Util from '../util.js';
 
-import {
-  badChance,
-  chance,
-  Symb,
-  CATEGORY_UNBUYABLE,
-} from '../symbol.js';
-import {Empty} from './ui.js';
-import {
-  CATEGORY_TOOL
-} from './tools.js';
+import { badChance, chance, Symb, CATEGORY_UNBUYABLE } from '../symbol.js';
+import { Empty } from './ui.js';
+import { CATEGORY_TOOL } from './tools.js';
 
 // I am aware this is a bad name for the file. This file contains the "item" like emoji -
 //    It's also a dumping ground for anything that's tested enough to put into production,
@@ -66,8 +59,18 @@ export class Bomb extends Symb {
       }
       const coord = Util.randomChoose(coords);
       const [deleteX, deleteY] = coord;
-      await Util.animate(game.board.getSymbolDiv(deleteX, deleteY), 'shake', 0.2, 3);
-      await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+      await Util.animate(
+        game.board.getSymbolDiv(deleteX, deleteY),
+        'shake',
+        0.2,
+        3
+      );
+      await game.eventlog.logResourceChange(
+        game.board.getEmoji(deleteX, deleteY),
+        '',
+        this.emoji(),
+        'lost'
+      );
       await game.board.removeSymbol(game, deleteX, deleteY);
     }
   }
@@ -98,7 +101,12 @@ export class Firefighter extends Symb {
     }
     for (const coord of coords) {
       const [deleteX, deleteY] = coord;
-      await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+      await game.eventlog.logResourceChange(
+        game.board.getEmoji(deleteX, deleteY),
+        '',
+        this.emoji(),
+        'lost'
+      );
       await game.board.removeSymbol(game, deleteX, deleteY);
     }
     await game.board.removeSymbol(game, x, y);
@@ -157,7 +165,12 @@ export class SewingKit extends Symb {
     }
     for (const coord of coords) {
       const [deleteX, deleteY] = coord;
-      await game.eventlog.showResourceLost(game.board.getEmoji(deleteX, deleteY), '', this.emoji());
+      await game.eventlog.logResourceChange(
+        game.board.getEmoji(deleteX, deleteY),
+        '',
+        this.emoji(),
+        'lost'
+      );
       await game.board.removeSymbol(game, deleteX, deleteY);
     }
   }
@@ -184,10 +197,16 @@ export class Lootbox extends Symb {
       1,
       game.inventory.getResource(Const.LUCK),
       /* rareOnly= */ rareOnly,
-      /* bannedCategories= */[CATEGORY_UNBUYABLE, CATEGORY_TOOL]);
+      /* bannedCategories= */ [CATEGORY_UNBUYABLE, CATEGORY_TOOL]
+    );
     await game.board.removeSymbol(game, x, y);
     const sym = Util.randomChoose(bag);
-    await game.eventlog.showResourceEarned(sym.emoji(), '', this.emoji());
+    await game.eventlog.logResourceChange(
+      sym.emoji(),
+      '',
+      this.emoji(),
+      'earned'
+    );
     await game.board.addSymbol(game, sym, x, y);
     game.inventory.giftsOpened++;
   }
@@ -219,10 +238,10 @@ export class Santa extends Symb {
     }
   }
   description() {
-    return "💵25 for each 🎁 opened";
+    return '💵25 for each 🎁 opened';
   }
   descriptionLong() {
-    return "this is santa. it gives 💵25 for each 🎁 opened this run.";
+    return 'this is santa. it gives 💵25 for each 🎁 opened this run.';
   }
 }
 
@@ -243,7 +262,8 @@ export class Cloud extends Symb {
   }
   async score(game, x, y) {
     const emptySpaces = game.board.forAllExpr(
-      (e, _x, _y) => e.emoji() === Empty.emoji);
+      (e, _x, _y) => e.emoji() === Empty.emoji
+    );
     if (emptySpaces.length > 0) {
       await Util.animate(game.board.getSymbolDiv(x, y), 'bounce', 0.15);
       await this.addMoney(game, emptySpaces.length * 6, x, y);
