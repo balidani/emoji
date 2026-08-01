@@ -6,7 +6,10 @@
   "scripts": {
     "lint": "eslint '**/*.js'",
     "format": "prettier --write '**/*.{js,css,html}'",
-    "test": "node test/run-trace.mjs"
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:trace": "node test/run-trace.mjs",
+    "test": "npm run test:unit && npm run test:trace"
   },
   "author": "balidani",
   "license": "ISC",
@@ -16,7 +19,9 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.9.0",
+    "jsdom": "^30.0.1",
     "playwright-core": "^1.62.1",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "vitest": "^4.1.10"
   }
 }
