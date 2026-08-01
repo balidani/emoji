@@ -62,10 +62,15 @@ export class Achievements {
     this.view = renderer;
     this.defs = ACHIEVEMENTS;
     this.unlocked = loadUnlocked(); // Set<string> from localStorage
+    // Achievements is constructed fresh per `new Game()`, so this naturally
+    // tracks everything unlocked during the current run -- some defs (e.g.
+    // pack_rat, dragon_rancher) can unlock on an earlier 'roll'/'buy'
+    // evaluate() call, not just the final 'gameover' one, so the game-over
+    // popup needs the whole run's unlocks, not just that last call's return
+    // value (see Game.over()).
+    this.unlockedThisRun = [];
   }
-  // Returns the list of defs newly unlocked by this call (empty if none),
-  // so callers -- e.g. the game-over popup -- can show exactly what was
-  // just earned instead of the whole unlocked set.
+  // Returns the list of defs newly unlocked by this call (empty if none).
   evaluate(ctx) {
     const newlyUnlocked = [];
     for (const def of this.defs) {
@@ -80,7 +85,10 @@ export class Achievements {
         // A def reading missing state never breaks a turn.
       }
     }
-    if (newlyUnlocked.length > 0) saveUnlocked(this.unlocked);
+    if (newlyUnlocked.length > 0) {
+      this.unlockedThisRun.push(...newlyUnlocked);
+      saveUnlocked(this.unlocked);
+    }
     return newlyUnlocked;
   }
   panelModel() {

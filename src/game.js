@@ -67,13 +67,16 @@ export class Game {
       }
     });
     this.profileStats.gamesPlayed += 1;
-    const newlyUnlocked =
-      this.achievements?.evaluate({
-        event: 'gameover',
-        finalScore: this.inventory.getResource(Const.MONEY),
-        stats: this.stats,
-        inventory: this.inventory,
-      }) ?? [];
+    this.achievements?.evaluate({
+      event: 'gameover',
+      finalScore: this.inventory.getResource(Const.MONEY),
+      stats: this.stats,
+      inventory: this.inventory,
+    });
+    // Everything unlocked this run, not just this last evaluate() call --
+    // some achievements (e.g. pack_rat, dragon_rancher) can unlock earlier,
+    // on a mid-game roll/buy, and still need to show up in the popup below.
+    const newlyUnlocked = this.achievements?.unlockedThisRun ?? [];
     // Refresh the sidebar panel right away so it's current whether or not
     // it's open right now (bootstrap.js also re-renders it on open).
     this.achievements?.renderPanel();
