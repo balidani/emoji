@@ -27,7 +27,7 @@ export class Diamond extends Symb {
     await this.addMoney(game, score, x, y);
   }
   description() {
-    return '[Pays](pays) 💵7, plus 💵7 per neighboring 💎. x7 for a full row, x7 for a full column.';
+    return '[Pays](pays) 💵7, plus 💵7 per neighboring 💎. x7 for a full row, x7 for a full column';
   }
 }
 
@@ -45,7 +45,7 @@ export class Rock extends Symb {
     await this.addMoney(game, 1, x, y);
   }
   description() {
-    return '[Pays](pays) 💵1.';
+    return '[Pays](pays) 💵1';
   }
 }
 
@@ -74,7 +74,7 @@ export class Volcano extends Symb {
     }
   }
   description() {
-    return '10% [Chance](chance) to [Spawn](spawn) 🪨x5 on random tiles. [Risk](risk) 🪨 destroys whatever was already there.';
+    return '10% [Chance](chance) to [Spawn](spawn) 🪨x5 on random tiles. [Risk](risk) 🪨 destroys whatever was already there';
   }
 }
 
@@ -114,6 +114,6 @@ export class Worker extends Symb {
     }
   }
   description() {
-    return '[Consumes](consume) neighboring 🪨. 50% [Chance](chance) to [Spawn](spawn) 💎 in its place.';
+    return '[Consumes](consume) neighboring 🪨. 50% [Chance](chance) to [Spawn](spawn) 💎 in its place';
   }
 }

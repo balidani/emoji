@@ -44,7 +44,7 @@ export class MagicWand extends Symb {
     }
   }
   description() {
-    return '15% [Chance](chance) to [Duplicate](duplicate) a neighbor onto empty space.';
+    return '15% [Chance](chance) to [Duplicate](duplicate) a neighbor onto empty space';
   }
 }
 
@@ -72,7 +72,7 @@ export class Multiplier extends Symb {
     }
   }
   description() {
-    return '[Multiplier](multiplier): x2 to all neighbors, gains and losses. Stacks.';
+    return '[Multiplier](multiplier): x2 to all neighbors, gains and losses. Stacks';
   }
 }
 
@@ -90,7 +90,7 @@ export class Refresh extends Symb {
     game.shop.refreshCount = 0;
   }
   description() {
-    return 'Lets you refresh the shop more than once.';
+    return 'Lets you refresh the shop more than once';
   }
 }
 
@@ -107,7 +107,7 @@ export class ShoppingBag extends Symb {
     game.shop.buyCount++;
   }
   description() {
-    return 'Buy one extra item from the shop.';
+    return 'Buy one extra item from the shop';
   }
 }
 
@@ -124,7 +124,7 @@ export class PostBox extends Symb {
     game.shop.buyLines++;
   }
   description() {
-    return 'Adds one more item to the shop.';
+    return 'Adds one more item to the shop';
   }
 }
 
@@ -138,7 +138,7 @@ export class Hole extends Symb {
     return new Hole();
   }
   description() {
-    return 'Acts as permanent empty space.';
+    return 'Acts as permanent empty space';
   }
   categories() {
     return [CATEGORY_EMPTY_SPACE];
@@ -158,7 +158,7 @@ export class Clover extends Symb {
     return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
   }
   description() {
-    return '+1% [Luck](luck).';
+    return '+1% [Luck](luck)';
   }
   async evaluateProduce(game, x, y) {
     game.inventory.addLuck(1);
@@ -179,7 +179,7 @@ export class CrystalBall extends Symb {
     return new CrystalBall();
   }
   description() {
-    return '+3% [Luck](luck).';
+    return '+3% [Luck](luck)';
   }
   async evaluateProduce(game, x, y) {
     game.inventory.addLuck(3);
@@ -206,7 +206,7 @@ export class FortuneCookie extends Symb {
     return [CATEGORY_FOOD];
   }
   description() {
-    return '[Pays](pays) 💵5 for each point of [Luck](luck).';
+    return '[Pays](pays) 💵5 for each point of [Luck](luck)';
   }
   async score(game, x, y) {
     const value = this.counter(game);
@@ -225,7 +225,7 @@ export class BullsEye extends Symb {
     return new BullsEye();
   }
   description() {
-    return 'Neighboring [Chance](chance) rolls always succeed.';
+    return 'Neighboring [Chance](chance) rolls always succeed';
   }
 }
 
@@ -246,7 +246,7 @@ export class Rocket extends Symb {
     }
   }
   description() {
-    return 'Speeds up neighboring timers by 1 turn.';
+    return 'Speeds up neighboring timers by 1 turn';
   }
 }
 
@@ -267,7 +267,7 @@ export class Ice extends Symb {
     }
   }
   description() {
-    return 'Slows down neighboring timers by 1 turn.';
+    return 'Slows down neighboring timers by 1 turn';
   }
 }
 
@@ -281,7 +281,7 @@ export class Rows extends Symb {
     return new Rows();
   }
   description() {
-    return 'Adds a row to the board.';
+    return 'Adds a row to the board';
   }
   async evaluateProduce(game, x, y) {
     game.inventory.rowCount += 1;

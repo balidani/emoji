@@ -1,8 +1,6 @@
 import * as Const from '../consts.js';
 
-import {
-  Symb
-} from '../symbol.js';
+import { Symb } from '../symbol.js';
 
 export const CATEGORY_TOOL = Symbol('Tool');
 
@@ -21,7 +19,7 @@ const onToolBuy = async (game, prompt, effect) => {
   const [x, y] = coord;
   await effect(game, x, y);
   game.shop.show();
-}
+};
 
 export class Pin extends Symb {
   static emoji = '📌';
@@ -36,12 +34,16 @@ export class Pin extends Symb {
     return new Pin();
   }
   description() {
-    return '[Tool](tool): pins a symbol in place.';
+    return '[Tool](tool): pins a symbol in place';
   }
   async onBuy(game) {
-    await onToolBuy(game, 'click on a symbol to pin in place', async (game, x, y) => {
-      await game.board.pinCell(game, x, y);
-    });
+    await onToolBuy(
+      game,
+      'click on a symbol to pin in place',
+      async (game, x, y) => {
+        await game.board.pinCell(game, x, y);
+      }
+    );
   }
 }
 
@@ -58,7 +60,7 @@ export class Axe extends Symb {
     return new Axe();
   }
   description() {
-    return '[Tool](tool): removes a symbol from your inventory.';
+    return '[Tool](tool): removes a symbol from your inventory';
   }
   async onBuy(game) {
     await onToolBuy(game, 'click on a symbol to remove', async (game, x, y) => {
@@ -80,11 +82,15 @@ export class Eye extends Symb {
     return new Eye();
   }
   description() {
-    return '[Tool](tool): converts a symbol into a passive ability.';
+    return '[Tool](tool): converts a symbol into a passive ability';
   }
   async onBuy(game) {
-    await onToolBuy(game, 'click on a symbol to convert', async (game, x, y) => {
-      await game.board.makePassive(game, x, y);
-    });
+    await onToolBuy(
+      game,
+      'click on a symbol to convert',
+      async (game, x, y) => {
+        await game.board.makePassive(game, x, y);
+      }
+    );
   }
 }

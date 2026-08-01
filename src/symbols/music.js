@@ -29,7 +29,7 @@ export class MusicalNote extends Symb {
     return [CATEGORY_UNBUYABLE];
   }
   description() {
-    return '[Pays](pays) 💵4. Disappears after 3 turns.';
+    return '[Pays](pays) 💵4. Disappears after 3 turns';
   }
 }
 
@@ -65,7 +65,7 @@ export class Bell extends Symb {
     }
   }
   description() {
-    return '[Pays](pays) 💵9. 20% [Chance](chance) to [Spawn](spawn) 🎵.';
+    return '[Pays](pays) 💵9. 20% [Chance](chance) to [Spawn](spawn) 🎵';
   }
 }
 
@@ -126,7 +126,7 @@ export class Drums extends Symb {
     return 3 - (this.turns % 3);
   }
   description() {
-    return 'Every 3 turns: [Spawns](spawn) 🎵.';
+    return 'Every 3 turns: [Spawns](spawn) 🎵';
   }
 }
 
@@ -168,6 +168,6 @@ export class Record extends Symb {
     return this.notes;
   }
   description() {
-    return '[Consumes](consume) neighboring 🎵 and [Stockpiles](stockpile) +💵6 each.';
+    return '[Consumes](consume) neighboring 🎵 and [Stockpiles](stockpile) +💵6 each';
   }
 }

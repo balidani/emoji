@@ -48,7 +48,7 @@ export class Game {
     this.isOver = true;
     await this.view.setGridEnabled(false);
     await this.board.finalScore(this);
-    
+
     let trophy = '💩';
     const sortedKeys = Object.keys(this.settings.resultLookup).sort(
       (a, b) => b > a
@@ -61,13 +61,19 @@ export class Game {
     });
     const scoreContainer = Util.createDiv('', 'scoreContainer');
     const scoreDiv = Util.createDiv(trophy, 'score');
-    const scoreNumber = Util.formatBigNumber(this.inventory.getResource(Const.MONEY));
+    const scoreNumber = Util.formatBigNumber(
+      this.inventory.getResource(Const.MONEY)
+    );
     const scoreText = `${Const.MONEY + scoreNumber}`;
     const scoreSubDiv = Util.createDiv('', 'finalScore');
-    const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
-    const letters = [...segmenter.segment(scoreText)].map(x => x.segment);
+    const segmenter = new Intl.Segmenter(undefined, {
+      granularity: 'grapheme',
+    });
+    const letters = [...segmenter.segment(scoreText)].map((x) => x.segment);
     scoreSubDiv.innerHTML = letters
-      .map((char, i) => `<span style="animation-delay:${i * 0.25}s">${char}</span>`)
+      .map(
+        (char, i) => `<span style="animation-delay:${i * 0.25}s">${char}</span>`
+      )
       .join('');
     scoreDiv.appendChild(scoreSubDiv);
     scoreContainer.appendChild(scoreDiv);

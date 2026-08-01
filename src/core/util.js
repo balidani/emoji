@@ -16,7 +16,8 @@ export const createInteractiveDescription = (description, emoji = null) => {
   // segmented and any emoji inside it wrapped normally.
   const withKeywords = description.replace(
     KEYWORD_RE,
-    (_, label, id) => `<span class="keyword" data-keyword="${id}">${label}</span>`
+    (_, label, id) =>
+      `<span class="keyword" data-keyword="${id}">${label}</span>`
   );
   const segments = parseEmojiString(withKeywords);
   let result = '';

@@ -30,7 +30,7 @@ export class Butter extends Symb {
     return [CATEGORY_FOOD];
   }
   description() {
-    return '[Multiplier](multiplier): x4 to neighboring 🍿. Melts after 7 turns.';
+    return '[Multiplier](multiplier): x4 to neighboring 🍿. Melts after 7 turns';
   }
 }
 
@@ -55,7 +55,7 @@ export class Cherry extends Symb {
     return [CATEGORY_FOOD, CATEGORY_FRUIT];
   }
   description() {
-    return '[Pays](pays) 💵2 for each neighboring 🍒.';
+    return '[Pays](pays) 💵2 for each neighboring 🍒';
   }
 }
 
@@ -96,7 +96,7 @@ export class Corn extends Symb {
     return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
   }
   description() {
-    return '[Pays](pays) 💵21. 15% [Chance](chance) to [Spawn](spawn) 🍿 on all empty neighbors.';
+    return '[Pays](pays) 💵21. 15% [Chance](chance) to [Spawn](spawn) 🍿 on all empty neighbors';
   }
 }
 
@@ -153,7 +153,7 @@ export class Pineapple extends Symb {
     return [CATEGORY_FRUIT, CATEGORY_FOOD];
   }
   description() {
-    return '[Pays](pays) 💵12, minus 💵2 per non-empty neighbor.';
+    return '[Pays](pays) 💵12, minus 💵2 per non-empty neighbor';
   }
 }
 
@@ -188,7 +188,7 @@ export class Popcorn extends Symb {
     return [CATEGORY_FOOD];
   }
   description() {
-    return '[Pays](pays) 💵17, x4 per neighboring 🧈. Disappears after 2-7 turns.';
+    return '[Pays](pays) 💵17, x4 per neighboring 🧈. Disappears after 2-7 turns';
   }
 }
 
@@ -211,7 +211,7 @@ export class Bubble extends Symb {
     return 3 - this.turns;
   }
   description() {
-    return 'Does nothing. Disappears after 3 turns.';
+    return 'Does nothing. Disappears after 3 turns';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -261,7 +261,7 @@ export class Cocktail extends Symb {
     return this.cherryScore;
   }
   description() {
-    return '[Consumes](consume) 🍒 (+💵2), 🍍 (+💵4) and 🍾 (x1.5), and [Stockpiles](stockpile) the value.';
+    return '[Consumes](consume) 🍒 (+💵2), 🍍 (+💵4) and 🍾 (x1.5), and [Stockpiles](stockpile) the value';
   }
 }
 
@@ -309,7 +309,7 @@ export class Champagne extends Symb {
     return 3 - this.turns;
   }
   description() {
-    return '[Pays](pays) 💵70. After 3 turns: explodes, [Spawning](spawn) 🫧 on empty neighbors.';
+    return '[Pays](pays) 💵70. After 3 turns: explodes, [Spawning](spawn) 🫧 on empty neighbors';
   }
 }
 
@@ -350,6 +350,6 @@ export class Tree extends Symb {
     return 3 - (this.turns % 3);
   }
   description() {
-    return 'Every 3 turns: [Spawns](spawn) up to two 🍒 nearby.';
+    return 'Every 3 turns: [Spawns](spawn) up to two 🍒 nearby';
   }
 }

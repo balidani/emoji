@@ -1,4 +1,3 @@
-import * as Const from '../consts.js';
 import { Symb, CATEGORY_UNBUYABLE, CATEGORY_EMPTY_SPACE } from '../symbol.js';
 
 // Symbols in this file are only used for UI purposes.

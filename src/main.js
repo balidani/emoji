@@ -5,6 +5,9 @@ import { installSimulationHarness } from './sim/harness.js';
 await bootstrap();
 installSimulationHarness();
 
+// Kept in scope for the commented-out debug calls below to reference as a
+// bare identifier.
+// eslint-disable-next-line no-unused-vars
 const simulate = window.simulate;
 Util.toggleAnimation();
 

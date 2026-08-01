@@ -46,10 +46,10 @@ export class Catalog {
           }
         }
       }
-      return { newSymbols, newCategories }; 
+      return { newSymbols, newCategories };
     } catch (error) {
       console.error(`Failed to load module ${source} : ${error}`);
-      return { newSymbols, newCategories }; 
+      return { newSymbols, newCategories };
     }
   }
   symbol(emoji) {
@@ -58,7 +58,12 @@ export class Catalog {
     }
     throw new Error('Unknown symbol: ' + emoji);
   }
-  generateShop(minCount, luck, rareOnly = false, bannedCategories = [CATEGORY_UNBUYABLE]) {
+  generateShop(
+    minCount,
+    luck,
+    rareOnly = false,
+    bannedCategories = [CATEGORY_UNBUYABLE]
+  ) {
     const bag = [];
     const checkCategory = (item) => {
       for (const cat of bannedCategories) {

@@ -115,7 +115,6 @@ export class Board {
       await this.resetBoardSize(game.inventory.rowCount);
     }
     game.inventory.resetRows();
-    const symbols = [...game.inventory.symbols];
     const empties = [];
 
     const lockedSet = new Set();

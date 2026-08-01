@@ -1,5 +1,4 @@
 import * as Util from '../util.js';
-import * as Const from '../consts.js';
 
 import { chance, Symb } from '../symbol.js';
 import { CATEGORY_FOOD } from './food.js';
@@ -40,7 +39,7 @@ export class Chick extends Symb {
     return 3 - this.turns;
   }
   description() {
-    return '[Pays](pays) 💵1. After 3 turns: [Transforms](transform) into 🐔.';
+    return '[Pays](pays) 💵1. After 3 turns: [Transforms](transform) into 🐔';
   }
 }
 
@@ -82,7 +81,7 @@ export class Chicken extends Symb {
     return [CATEGORY_ANIMAL];
   }
   description() {
-    return '[Pays](pays) 💵8. 10% [Chance](chance) to [Spawn](spawn) up to 4 🥚.';
+    return '[Pays](pays) 💵8. 10% [Chance](chance) to [Spawn](spawn) up to 4 🥚';
   }
 }
 
@@ -116,7 +115,7 @@ export class Egg extends Symb {
     return this.timeToHatch - this.turns;
   }
   description() {
-    return 'After 3-5 turns: [Transforms](transform) into 🐣. 1% [Chance](chance) to become 🐉.';
+    return 'After 3-5 turns: [Transforms](transform) into 🐣. 1% [Chance](chance) to become 🐉';
   }
 }
 
@@ -170,7 +169,7 @@ export class Fox extends Symb {
     return 5 - this.turns;
   }
   description() {
-    return '[Pays](pays) 💵10. [Consumes](consume) 🐣 (x2) and 🐔 (x3). Leaves after 5 turns without food.';
+    return '[Pays](pays) 💵10. [Consumes](consume) 🐣 (x2) and 🐔 (x3). Leaves after 5 turns without food';
   }
 }
 
@@ -191,7 +190,7 @@ export class Dragon extends Symb {
     return [CATEGORY_ANIMAL];
   }
   description() {
-    return '[Pays](pays) 💵42.';
+    return '[Pays](pays) 💵42';
   }
 }
 
@@ -242,6 +241,6 @@ export class Bug extends Symb {
     return 5 - this.turns;
   }
   description() {
-    return '[Consumes](consume) neighboring food for 💵8 each. Leaves after 5 turns without food.';
+    return '[Consumes](consume) neighboring food for 💵8 each. Leaves after 5 turns without food';
   }
 }

@@ -28,7 +28,7 @@ export class Balloon extends Symb {
     }
   }
   description() {
-    return '[Pays](pays) 💵20. [Risk](risk) 50% [Chance](chance) to pop.';
+    return '[Pays](pays) 💵20. [Risk](risk) 50% [Chance](chance) to pop';
   }
 }
 
@@ -67,7 +67,7 @@ export class Bomb extends Symb {
     }
   }
   description() {
-    return '[Risk](risk) 10% [Chance](chance) to destroy a neighbor.';
+    return '[Risk](risk) 10% [Chance](chance) to destroy a neighbor';
   }
 }
 
@@ -101,7 +101,7 @@ export class Firefighter extends Symb {
     await game.board.removeSymbol(game, x, y);
   }
   description() {
-    return 'Disarms a neighboring 💣, then leaves.';
+    return 'Disarms a neighboring 💣, then leaves';
   }
 }
 
@@ -128,7 +128,7 @@ export class Moon extends Symb {
     return 31 - this.turns;
   }
   description() {
-    return 'Every 31 turns: [Pays](pays) 💵600.';
+    return 'Every 31 turns: [Pays](pays) 💵600';
   }
 }
 
@@ -158,7 +158,7 @@ export class SewingKit extends Symb {
     }
   }
   description() {
-    return 'Removes neighboring 🕳️.';
+    return 'Removes neighboring 🕳️';
   }
 }
 
@@ -191,7 +191,7 @@ export class Lootbox extends Symb {
     game.inventory.giftsOpened++;
   }
   description() {
-    return "[Transforms](transform) into a random symbol. 20% [Chance](chance) it's rare.";
+    return "[Transforms](transform) into a random symbol. 20% [Chance](chance) it's rare";
   }
 }
 
@@ -215,7 +215,7 @@ export class Santa extends Symb {
     }
   }
   description() {
-    return '[Pays](pays) 💵25 for each 🎁 opened this run.';
+    return '[Pays](pays) 💵25 for each 🎁 opened this run';
   }
 }
 
@@ -229,11 +229,11 @@ export class Cloud extends Symb {
     return new Cloud();
   }
   description() {
-    return '[Pays](pays) 💵6 for each empty space.';
+    return '[Pays](pays) 💵6 for each empty space';
   }
   async score(game, x, y) {
     const emptySpaces = game.board.forAllExpr(
-      (e, _x, _y) => e.emoji() === Empty.emoji
+      (e, _, __) => e.emoji() === Empty.emoji
     );
     if (emptySpaces.length > 0) {
       await game.view.animateCell(x, y, 'bounce', 0.15);
