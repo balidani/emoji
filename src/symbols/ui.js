@@ -72,6 +72,8 @@ export class PlayButton extends Symb {
 
 export class BronzeMedal extends Symb {
   static emoji = '🥉';
+  static threshold = 10000;
+  static label = 'Bronze';
   constructor() {
     super();
   }
@@ -79,7 +81,7 @@ export class BronzeMedal extends Symb {
     return new BronzeMedal();
   }
   description() {
-    return 'Awarded when you earn 💵10000';
+    return `Awarded when you earn 💵${BronzeMedal.threshold}`;
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -88,6 +90,8 @@ export class BronzeMedal extends Symb {
 
 export class SilverMedal extends Symb {
   static emoji = '🥈';
+  static threshold = 25000;
+  static label = 'Silver';
   constructor() {
     super();
   }
@@ -95,7 +99,7 @@ export class SilverMedal extends Symb {
     return new SilverMedal();
   }
   description() {
-    return 'Awarded when you earn 💵25000';
+    return `Awarded when you earn 💵${SilverMedal.threshold}`;
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -104,6 +108,8 @@ export class SilverMedal extends Symb {
 
 export class GoldMedal extends Symb {
   static emoji = '🥇';
+  static threshold = 50000;
+  static label = 'Gold';
   constructor() {
     super();
   }
@@ -111,7 +117,7 @@ export class GoldMedal extends Symb {
     return new GoldMedal();
   }
   description() {
-    return 'Awarded when you earn 💵50000';
+    return `Awarded when you earn 💵${GoldMedal.threshold}`;
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -120,6 +126,8 @@ export class GoldMedal extends Symb {
 
 export class Trophy extends Symb {
   static emoji = '🏆';
+  static threshold = 100000;
+  static label = 'Trophy';
   constructor() {
     super();
   }
@@ -127,7 +135,7 @@ export class Trophy extends Symb {
     return new Trophy();
   }
   description() {
-    return 'Awarded when you earn 💵100000';
+    return `Awarded when you earn 💵${Trophy.threshold}`;
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -136,6 +144,8 @@ export class Trophy extends Symb {
 
 export class Crown extends Symb {
   static emoji = '👑';
+  static threshold = 1000000;
+  static label = 'Crown';
   constructor() {
     super();
   }
@@ -143,12 +153,16 @@ export class Crown extends Symb {
     return new Crown();
   }
   description() {
-    return 'Awarded when you earn 💵1000000';
+    return `Awarded when you earn 💵${Crown.threshold}`;
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
   }
 }
+
+// Ordered ascending -- the one place score tiers are defined (used by
+// game_settings.js's resultLookup and the frugal-medal achievements).
+export const MEDAL_TIERS = [BronzeMedal, SilverMedal, GoldMedal, Trophy, Crown];
 
 export class SpeechBubble extends Symb {
   static emoji = '💬';

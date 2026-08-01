@@ -167,4 +167,17 @@ export class Renderer {
   async pickCellForTool(_prompt, _predicate) {
     notImplemented('pickCellForTool');
   }
+
+  // --- Achievements / save state (sidebar panels) ---
+
+  /** `model` is [{id, name, icon, unlocked, description}]. */
+  async renderAchievements(_model) {
+    notImplemented('renderAchievements');
+  }
+  /** `props` is {code, onImport(code)}. */
+  async renderSaveState(_props) {
+    notImplemented('renderSaveState');
+  }
+  /** Optional transient toast when an achievement unlocks; default no-op. */
+  notifyAchievement(_def) {}
 }

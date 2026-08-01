@@ -257,6 +257,7 @@ export class Board {
     }
   }
   async addSymbol(game, sym, x, y) {
+    game.stats?.recordGenerated(sym.emoji());
     game.inventory.add(sym);
     if (x === -1 || y === -1) {
       return;

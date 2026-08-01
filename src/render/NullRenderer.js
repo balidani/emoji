@@ -84,4 +84,8 @@ export class NullRenderer extends Renderer {
     // tools either, so simulated games never buy Pin/Axe/Eye (see Part F.3).
     return null;
   }
+
+  async renderAchievements(_model) {}
+  async renderSaveState(_props) {}
+  notifyAchievement(_def) {}
 }

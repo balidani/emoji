@@ -18,6 +18,22 @@ const PROGRESSION_LEVEL_DATA = 'ProgressionLevelData';
 const PROGRESSION_ACTIVE_LEVEL = 'ProgressionActiveLevel';
 const PROGRESSION_LEVEL_RESULTS = 'ProgressionLevelResults';
 
+// Achievements/profile stats survive both a version-bump wipe and the manual
+// "wipe progress" button (see ACHIEVEMENTS_DESIGN.md, section 8).
+const PRESERVE_ON_WIPE = ['Achievements', 'ProfileStats'];
+
+function selectiveWipe() {
+  const saved = {};
+  for (const k of PRESERVE_ON_WIPE) {
+    const v = window.localStorage.getItem(k);
+    if (v !== null) saved[k] = v;
+  }
+  window.localStorage.clear();
+  for (const [k, v] of Object.entries(saved)) {
+    window.localStorage.setItem(k, v);
+  }
+}
+
 export class LevelResult {
   constructor(highScore, reward) {
     this.highScore = highScore || Number.MIN_SAFE_INTEGER;
@@ -38,11 +54,11 @@ export class Progression {
   }
   load() {
     if (!window.localStorage.getItem(CURRENT_VERSION_KEY)) {
-      window.localStorage.clear();
+      selectiveWipe();
       window.localStorage.setItem(CURRENT_VERSION_KEY, CURRENT_VERSION);
     }
     if (window.localStorage.getItem(CURRENT_VERSION_KEY) !== CURRENT_VERSION) {
-      window.localStorage.clear();
+      selectiveWipe();
     }
     const levelData = window.localStorage.getItem(PROGRESSION_LEVEL_DATA);
     if (levelData !== null) {
@@ -99,7 +115,7 @@ export class Progression {
     this.view.render(levels, {
       onJumpTo: (i) => this.jumpTo(i),
       onWipe: () => {
-        window.localStorage.clear();
+        selectiveWipe();
         window.location.reload();
       },
     });

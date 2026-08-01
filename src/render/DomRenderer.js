@@ -3,6 +3,8 @@ import { EventLogView } from './EventLogView.js';
 import { InventoryView } from './InventoryView.js';
 import { BoardView } from './BoardView.js';
 import { ShopView } from './ShopView.js';
+import { AchievementsView } from './AchievementsView.js';
+import { SaveStateView } from './SaveStateView.js';
 import { drawText } from './animations.js';
 
 // The real renderer -- backs the interactive game in a browser.
@@ -20,6 +22,8 @@ export class DomRenderer extends Renderer {
     this.inventoryView = new InventoryView((html) => this.showInfo(html));
     this.boardView = new BoardView();
     this.shopView = new ShopView((html) => this.showInfo(html));
+    this.achievementsView = new AchievementsView();
+    this.saveStateView = new SaveStateView();
   }
 
   async logResourceChange(key, value, source, direction) {
@@ -134,5 +138,15 @@ export class DomRenderer extends Renderer {
     }
     this.boardView.addRollListener(() => {});
     return coord;
+  }
+
+  async renderAchievements(model) {
+    return this.achievementsView.renderAchievements(model);
+  }
+  async renderSaveState(props) {
+    return this.saveStateView.renderSaveState(props);
+  }
+  notifyAchievement(def) {
+    return this.achievementsView.notifyAchievement(def);
   }
 }

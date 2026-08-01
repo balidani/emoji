@@ -92,6 +92,7 @@ export class Shop {
     const canBuy = this.canAfford(game, cost);
     if (this.buyCount > 0 && canBuy) {
       this.buyCount--;
+      game.stats?.recordBought(symbol.emoji());
       for (const [key, value] of Object.entries(cost)) {
         await Promise.all([
           game.eventlog.logResourceChange(
@@ -104,6 +105,12 @@ export class Shop {
         ]);
       }
       await symbol.onBuy(game);
+      game.stats?.recordInventorySize(this.getInventory(game).symbols.length);
+      game.achievements?.evaluate({
+        event: 'buy',
+        stats: game.stats,
+        inventory: this.getInventory(game),
+      });
     } else if (!canBuy) {
       // Disable button.
       // This is not the best solution, we should disable the button

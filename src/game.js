@@ -6,6 +6,9 @@ import { EventLog } from './eventlog.js';
 import { Inventory } from './inventory.js';
 import { Shop } from './shop.js';
 import { DomRenderer } from './render/DomRenderer.js';
+import { Stats, ProfileStats } from './stats.js';
+import { Achievements } from './achievements.js';
+import { loadProfile, saveProfile } from './achievements-store.js';
 
 export class Game {
   // onGameOver: called (as a body click listener) once the final-score
@@ -28,6 +31,10 @@ export class Game {
     this.onGameOver = onGameOver;
     this.inventory = new Inventory(this.settings, this.catalog, this.view);
     this.inventory.update();
+    this.profileStats = new ProfileStats(loadProfile());
+    this.stats = new Stats(this.profileStats);
+    this.inventory.stats = this.stats;
+    this.achievements = new Achievements(this.view);
     this.board = new Board(this);
     this.eventlog = new EventLog(this.view);
     this.shop = new Shop(this.catalog, this.view);
@@ -59,6 +66,14 @@ export class Game {
         return;
       }
     });
+    this.profileStats.gamesPlayed += 1;
+    this.achievements?.evaluate({
+      event: 'gameover',
+      finalScore: this.inventory.getResource(Const.MONEY),
+      stats: this.stats,
+      inventory: this.inventory,
+    });
+    saveProfile(this.profileStats);
     const scoreContainer = Util.createDiv('', 'scoreContainer');
     const scoreDiv = Util.createDiv(trophy, 'score');
     const scoreNumber = Util.formatBigNumber(
@@ -115,6 +130,13 @@ export class Game {
       await this.board.evaluate(this);
       await this.board.score(this);
       this.inventory.resetLuck();
+      this.stats?.recordTurn();
+      this.stats?.recordInventorySize(this.inventory.symbols.length);
+      this.achievements?.evaluate({
+        event: 'roll',
+        stats: this.stats,
+        inventory: this.inventory,
+      });
     }
 
     if (this.inventory.getResource(Const.TURNS) === 0) {

@@ -101,6 +101,7 @@ export class Egg extends Symb {
       if (chance(game, 0.01, x, y)) {
         newSymbol = new Dragon();
       }
+      game.stats?.recordTransform(this.emoji(), newSymbol.emoji());
       await game.board.removeSymbol(game, x, y);
       await game.board.addSymbol(game, newSymbol, x, y);
       await game.eventlog.logResourceChange(

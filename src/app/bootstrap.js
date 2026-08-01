@@ -10,6 +10,7 @@ import { SettingsView } from '../render/SettingsView.js';
 import { initGridScaling } from '../render/layout.js';
 import { CATEGORY_UNBUYABLE } from '../symbol.js';
 import { KEYWORDS } from '../keywords.js';
+import { exportSave, importSave } from '../save_state.js';
 
 // The composition root (REFACTOR_PLAN.md, Phase 10): seeds the RNG, builds
 // Progression/GameSettings and their views, and loads the first game. main.js
@@ -136,6 +137,27 @@ function initSidebar(game) {
     viewSymbolsButton.innerText = symbolListDiv.classList.contains('hidden')
       ? 'view symbols'
       : 'hide symbols';
+  });
+
+  const achBtn = document.getElementById('view-achievements');
+  const achievementsListDiv = document.querySelector(
+    '.sidebar-content .achievements-list'
+  );
+  achBtn.addEventListener('click', () => {
+    achievementsListDiv.classList.toggle('hidden');
+    game.achievements.renderPanel();
+  });
+
+  const saveBtn = document.getElementById('view-save');
+  const savePanelDiv = document.querySelector(
+    '.sidebar-content .save-state-panel'
+  );
+  saveBtn.addEventListener('click', () => {
+    savePanelDiv.classList.toggle('hidden');
+    game.view.renderSaveState({
+      code: exportSave(),
+      onImport: (code) => importSave(code),
+    });
   });
 
   const allSymbols = [];

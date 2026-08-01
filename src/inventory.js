@@ -17,6 +17,9 @@ export class Inventory {
     this.graveyard = [];
     this.giftsOpened = 0;
     this.rowCount = settings.boardY;
+    // Set by Game right after construction (see game.js); stays null until
+    // then because Inventory's own constructor already calls updateUi().
+    this.stats = null;
   }
   update() {
     const map = new Map();
@@ -60,6 +63,9 @@ export class Inventory {
       this.resources[key] = 0;
     }
     this.resources[key] += value;
+    if (key === Const.MONEY && value > 0) {
+      this.stats?.recordMoneyEarned(value);
+    }
     this.updateUi();
   }
   addLuck(bonus) {

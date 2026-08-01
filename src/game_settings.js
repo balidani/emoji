@@ -1,3 +1,5 @@
+import { MEDAL_TIERS } from './symbols/ui.js';
+
 const ALL_TESTED_SYMBOL_FILES = [
   './symbols/advanced.js',
   './symbols/animals.js',
@@ -44,14 +46,12 @@ export class GameSettings {
         // '2,2': { emoji: '🕹️', duration: -1 },
       };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
+    // Derived from the medal/trophy classes (symbols/ui.js) so thresholds
+    // live in exactly one place -- see ACHIEVEMENTS_DESIGN.md section 7.
     this.resultLookup = resultLookup || {
-      1000000000: '🐐',
-      1000000: '👑',
-      100000: '🏆',
-      50000: '🥇',
-      25000: '🥈',
-      10000: '🥉',
       5000: '😞',
+      ...Object.fromEntries(MEDAL_TIERS.map((M) => [M.threshold, M.emoji])),
+      1000000000: '🐐',
     };
     this.textLookup = textLookup || {
       greeting:
