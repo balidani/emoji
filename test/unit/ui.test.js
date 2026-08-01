@@ -1,8 +1,8 @@
 // UNIT_TEST_PLAN.md section 7.9 -- mostly non-interactive resource/award
-// placeholders. Minimal tests: emoji()/copy()/descriptionLong() don't
-// throw, since Inventory.updateUi() calls catalog.symbol(emoji).descriptionLong()
-// for every resource on every UI update -- a throwing description crashes
-// the resource panel.
+// placeholders. Minimal tests: emoji()/copy()/description() don't throw,
+// since Inventory.updateUi() calls catalog.symbol(emoji).description() for
+// every resource on every UI update -- a throwing description crashes the
+// resource panel.
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setSeed } from '../../src/core/rng.js';
 import { CATEGORY_EMPTY_SPACE, CATEGORY_UNBUYABLE } from '../../src/symbol.js';
@@ -70,12 +70,12 @@ describe('ui.js', () => {
 
   describe('resource/award placeholders', () => {
     it.each(PLACEHOLDER_CLASSES.map((cls) => [cls.name, cls]))(
-      '%s: emoji()/copy()/descriptionLong() do not throw',
+      '%s: emoji()/copy()/description() do not throw',
       (_name, Cls) => {
         const instance = new Cls();
         expect(() => instance.emoji()).not.toThrow();
         expect(() => instance.copy()).not.toThrow();
-        expect(() => instance.descriptionLong()).not.toThrow();
+        expect(() => instance.description()).not.toThrow();
         expect(instance.categories()).toContain(CATEGORY_UNBUYABLE);
       }
     );

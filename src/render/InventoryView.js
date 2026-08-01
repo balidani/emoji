@@ -14,10 +14,10 @@ export class InventoryView {
 
   renderInventory(entries) {
     this.symbolsDiv.replaceChildren();
-    for (const { emoji, count, descriptionLong } of entries) {
+    for (const { emoji, count, description } of entries) {
       const symbolSpan = createSpan(emoji, 'inventoryEntry');
       symbolSpan.addEventListener('click', () => {
-        this.showInfo(createInteractiveDescription(descriptionLong, emoji));
+        this.showInfo(createInteractiveDescription(description, emoji));
       });
       const countSpan = createSpan(count, 'inventoryEntryCount');
       symbolSpan.appendChild(countSpan);
@@ -27,10 +27,10 @@ export class InventoryView {
 
   renderResources(entries) {
     this.uiDiv.replaceChildren();
-    for (const { emoji, value, descriptionLong } of entries) {
+    for (const { emoji, value, description } of entries) {
       const symbolSpan = createSpan(emoji, 'inventoryEntry');
       symbolSpan.addEventListener('click', () => {
-        this.showInfo(createInteractiveDescription(descriptionLong, emoji));
+        this.showInfo(createInteractiveDescription(description, emoji));
       });
       const countSpan = createSpan(
         formatBigNumber(value) + '',

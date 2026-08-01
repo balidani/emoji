@@ -54,9 +54,6 @@ export class Symb {
   description() {
     throw new Error('Trying to get description of base class.');
   }
-  descriptionLong() {
-    return this.description();
-  }
   async addResource(game, x, y, key, value) {
     const source = game.board.getEmoji(x, y) || '❓';
     await Promise.all([

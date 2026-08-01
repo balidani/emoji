@@ -11,10 +11,7 @@ export class Empty extends Symb {
     return new Empty();
   }
   description() {
-    return 'you should not be seeing this';
-  }
-  descriptionLong() {
-    return "this is empty space. it's not part of your inventory";
+    return 'Empty space. Not part of your inventory';
   }
   categories() {
     return [CATEGORY_EMPTY_SPACE, CATEGORY_UNBUYABLE];
@@ -30,10 +27,7 @@ export class Money extends Symb {
     return new Money();
   }
   description() {
-    return 'this is money';
-  }
-  descriptionLong() {
-    return 'this is money. you should get as much as possible before the game ends';
+    return 'Get as much as possible before the game ends';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -48,7 +42,7 @@ export class Turn extends Symb {
     return new Turn();
   }
   description() {
-    return 'this is how many turns you have left';
+    return 'How many turns you have left';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -64,7 +58,7 @@ export class PlayButton extends Symb {
     return new PlayButton();
   }
   description() {
-    return 'click to play';
+    return 'Click to play';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -85,7 +79,7 @@ export class BronzeMedal extends Symb {
     return new BronzeMedal();
   }
   description() {
-    return 'this is a bronze medal. it is awarded when you earn 💵10000';
+    return 'Awarded when you earn 💵10000';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -101,7 +95,7 @@ export class SilverMedal extends Symb {
     return new SilverMedal();
   }
   description() {
-    return 'this is a silver medal. it is awarded when you earn 💵25000';
+    return 'Awarded when you earn 💵25000';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -117,7 +111,7 @@ export class GoldMedal extends Symb {
     return new GoldMedal();
   }
   description() {
-    return 'this is a gold medal. it is awarded when you earn 💵50000';
+    return 'Awarded when you earn 💵50000';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -133,7 +127,7 @@ export class Trophy extends Symb {
     return new Trophy();
   }
   description() {
-    return 'this is a trophy. it is awarded when you earn 💵100000';
+    return 'Awarded when you earn 💵100000';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -149,7 +143,7 @@ export class Crown extends Symb {
     return new Crown();
   }
   description() {
-    return 'this is a crown. it is awarded when you earn 💵1000000';
+    return 'Awarded when you earn 💵1000000';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -165,7 +159,7 @@ export class SpeechBubble extends Symb {
     return new SpeechBubble();
   }
   description() {
-    return "this is a speech bubble. it doesn't do anything, but it looks nice";
+    return "Doesn't do anything, but it looks nice";
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -181,7 +175,7 @@ export class BuyButton extends Symb {
     return new BuyButton();
   }
   description() {
-    return 'this is a buy button. click on it to add an emoji to your inventory';
+    return 'Click to add an emoji to your inventory';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -197,7 +191,7 @@ export class Luck extends Symb {
     return new Luck();
   }
   description() {
-    return 'this is your luck stat. it increases the chances of getting rare symbols in the shop.';
+    return 'Increases the chances of getting rare symbols in the shop';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];

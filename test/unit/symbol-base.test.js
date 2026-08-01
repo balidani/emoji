@@ -49,10 +49,6 @@ describe('Symb base class', () => {
     expect(() => new Symb().description()).toThrow();
   });
 
-  it('descriptionLong() defaults to description() unless overridden', () => {
-    expect(new Dummy().descriptionLong()).toBe('dummy');
-  });
-
   it('default counter() is null', () => {
     expect(new Dummy().counter()).toBeNull();
   });

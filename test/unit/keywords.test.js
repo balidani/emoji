@@ -74,13 +74,10 @@ describe('KEYWORDS registry completeness', () => {
   it('every (id) referenced in a symbol description exists in KEYWORDS', () => {
     const missingIds = new Set();
     for (const symbol of allSymbolInstances) {
-      const texts = [symbol.description(), symbol.descriptionLong()];
-      for (const text of texts) {
-        for (const match of text.matchAll(KEYWORD_TOKEN_RE)) {
-          const id = match[2];
-          if (!(id in KEYWORDS)) {
-            missingIds.add(id);
-          }
+      for (const match of symbol.description().matchAll(KEYWORD_TOKEN_RE)) {
+        const id = match[2];
+        if (!(id in KEYWORDS)) {
+          missingIds.add(id);
         }
       }
     }

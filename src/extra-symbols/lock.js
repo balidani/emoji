@@ -12,10 +12,7 @@ export class Lock extends Symb {
     return new Lock();
   }
   description() {
-    return '💵1<br>chance to lock a neighboring cell';
-  }
-  descriptionLong() {
-    return '💵1<br>50% chance to lock a neighboring cell for 3 turns';
+    return '[Pays](pays) 💵1. 50% [Chance](chance) to lock a neighboring cell for 3 turns';
   }
   async score(game, x, y) {
     await this.addMoney(game, 1, x, y);

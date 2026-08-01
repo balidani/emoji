@@ -34,10 +34,7 @@ export class FreeTurn extends Symb {
     await game.board.removeSymbol(game, x, y);
   }
   description() {
-    return '10% chance: one more ⏰, then disappears';
-  }
-  descriptionLong() {
-    return 'this is a free turn ticket. it has a 10% chance to give you one more ⏰. if it succeeded, it disappears from your inventory.';
+    return '10% [Chance](chance) to gain one more ⏰, then disappears';
   }
 }
 
@@ -75,9 +72,6 @@ export class Grave extends Symb {
     }
   }
   description() {
-    return '10% chance: adds random symbol removed this game';
-  }
-  descriptionLong() {
-    return 'this is a grave. it has a 10% chance to add a previously removed symbol to a nearby empty space';
+    return '10% [Chance](chance) to [Spawn](spawn) a previously removed symbol nearby';
   }
 }

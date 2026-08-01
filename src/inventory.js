@@ -23,17 +23,17 @@ export class Inventory {
     this.symbols.forEach((symbol) => {
       const name = symbol.emoji();
       if (!map.has(name)) {
-        map.set(name, { count: 0, description: symbol.descriptionLong() });
+        map.set(name, { count: 0, description: symbol.description() });
       }
       map.set(name, {
         count: map.get(name).count + 1,
-        description: symbol.descriptionLong(),
+        description: symbol.description(),
       });
     });
     const entries = Array.from(map, ([emoji, { count, description }]) => ({
       emoji,
       count,
-      descriptionLong: description,
+      description,
     }));
     this.renderer.renderInventory(entries);
   }
@@ -80,7 +80,7 @@ export class Inventory {
     const entries = Object.entries(this.resources).map(([emoji, value]) => ({
       emoji,
       value,
-      descriptionLong: this.catalog.symbol(emoji).descriptionLong(),
+      description: this.catalog.symbol(emoji).description(),
     }));
     this.renderer.renderResources(entries);
   }

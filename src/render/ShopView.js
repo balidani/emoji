@@ -13,22 +13,14 @@ export class ShopView {
     this.offerDivs = {};
   }
 
-  makeShopItemDiv(
-    emoji,
-    description,
-    descriptionLong,
-    cost,
-    canBuy,
-    buttonText,
-    onBuy
-  ) {
+  makeShopItemDiv(emoji, description, cost, canBuy, buttonText, onBuy) {
     const shopItemDiv = document.createElement('div');
     shopItemDiv.classList.add('shopItem');
     const symbolDiv = document.createElement('div');
     symbolDiv.classList.add('shopEmoji');
     symbolDiv.innerHTML = emoji;
     symbolDiv.addEventListener('click', () => {
-      this.showInfo(createInteractiveDescription(descriptionLong, emoji));
+      this.showInfo(createInteractiveDescription(description, emoji));
     });
     shopItemDiv.appendChild(symbolDiv);
 
@@ -70,7 +62,6 @@ export class ShopView {
       const itemDiv = this.makeShopItemDiv(
         offer.emoji,
         offer.description,
-        offer.descriptionLong,
         offer.cost,
         offer.canBuy,
         offer.buttonText,
@@ -82,7 +73,6 @@ export class ShopView {
     if (refreshOffer) {
       const itemDiv = this.makeShopItemDiv(
         '&nbsp;',
-        '',
         '',
         refreshOffer.cost,
         refreshOffer.canBuy,

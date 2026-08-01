@@ -14,10 +14,7 @@ export class Monorail extends Symb {
     return new Monorail();
   }
   description() {
-    return 'Developer Cheat Item';
-  }
-  descriptionLong() {
-    return 'Developer Cheat Item worth 10 per spin';
+    return 'Developer cheat item: [Pays](pays) 💵10';
   }
   async score(game, x, y) {
     await Promise.all([

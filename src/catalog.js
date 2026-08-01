@@ -115,7 +115,6 @@ export class Catalog {
       try {
         s.copy();
         s.description();
-        s.descriptionLong();
       } catch (e) {
         console.log(`error for ${n}: ${e}`);
       }

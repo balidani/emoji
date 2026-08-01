@@ -61,7 +61,6 @@ export class Shop {
         id,
         emoji: symbol.emoji(),
         description: symbol.description(),
-        descriptionLong: symbol.descriptionLong(),
         cost,
         canBuy: this.canAfford(game, cost),
         buttonText: Const.BUY,

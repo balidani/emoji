@@ -55,7 +55,7 @@ export async function bootstrap() {
         const symbol = game.catalog.symbol(emoji);
         if (symbol) {
           const interactiveDescription = Util.createInteractiveDescription(
-            symbol.descriptionLong(),
+            symbol.description(),
             /*emoji=*/ symbol.emoji()
           );
           Util.drawText(game.info, interactiveDescription, true);
@@ -162,7 +162,7 @@ function initSidebar(game) {
     );
     const descSpan = Util.createSpan('', 'symbol-info-desc');
     descSpan.innerHTML = Util.createInteractiveDescription(
-      symbol.descriptionLong()
+      symbol.description()
     );
     symbolDiv.appendChild(emojiSpan);
     symbolDiv.appendChild(descSpan);

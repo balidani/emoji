@@ -100,11 +100,11 @@ export class Renderer {
 
   // --- Inventory / resources ---
 
-  /** `entries` is plain data: [{emoji, count, descriptionLong}]. */
+  /** `entries` is plain data: [{emoji, count, description}]. */
   async renderInventory(_entries) {
     notImplemented('renderInventory');
   }
-  /** `entries` is plain data: [{emoji, value, descriptionLong}]. */
+  /** `entries` is plain data: [{emoji, value, description}]. */
   async renderResources(_entries) {
     notImplemented('renderResources');
   }
@@ -115,11 +115,11 @@ export class Renderer {
 
   // --- Shop ---
 
-  /** `offers` is [{id, emoji, description, descriptionLong, cost, canBuy,
-   * buttonText, onBuy}]; `refreshOffer` is the same shape minus id/emoji/
-   * description (or null if refresh isn't offered this round). Each `onBuy`
-   * is a zero-arg callback Shop already bound to that specific offer -- the
-   * renderer never needs to report a click back by id. */
+  /** `offers` is [{id, emoji, description, cost, canBuy, buttonText,
+   * onBuy}]; `refreshOffer` is the same shape minus id/emoji/description (or
+   * null if refresh isn't offered this round). Each `onBuy` is a zero-arg
+   * callback Shop already bound to that specific offer -- the renderer never
+   * needs to report a click back by id. */
   async renderShop(_offers, _refreshOffer) {
     notImplemented('renderShop');
   }
