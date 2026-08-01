@@ -28,6 +28,14 @@ export const animate = (
   vars = {}
 ) => {
   if (!element || !ANIMATION) {
+    if (element) {
+      // Cancel any animation still in flight from before ANIMATION was
+      // turned off (e.g. skipping mid-roll while the shop's previous
+      // open/close animation hasn't finished yet) -- otherwise it keeps
+      // playing out its original timeline on top of the new content.
+      element.style.animation = '';
+      element.style.willChange = '';
+    }
     return Promise.resolve();
   }
 
