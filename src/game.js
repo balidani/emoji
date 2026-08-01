@@ -67,12 +67,16 @@ export class Game {
       }
     });
     this.profileStats.gamesPlayed += 1;
-    this.achievements?.evaluate({
-      event: 'gameover',
-      finalScore: this.inventory.getResource(Const.MONEY),
-      stats: this.stats,
-      inventory: this.inventory,
-    });
+    const newlyUnlocked =
+      this.achievements?.evaluate({
+        event: 'gameover',
+        finalScore: this.inventory.getResource(Const.MONEY),
+        stats: this.stats,
+        inventory: this.inventory,
+      }) ?? [];
+    // Refresh the sidebar panel right away so it's current whether or not
+    // it's open right now (bootstrap.js also re-renders it on open).
+    this.achievements?.renderPanel();
     saveProfile(this.profileStats);
     const scoreContainer = Util.createDiv('', 'scoreContainer');
     const scoreDiv = Util.createDiv(trophy, 'score');
@@ -93,9 +97,24 @@ export class Game {
     scoreDiv.appendChild(scoreSubDiv);
     scoreContainer.appendChild(scoreDiv);
 
+    let achievementPopup = null;
+    if (newlyUnlocked.length > 0) {
+      achievementPopup = Util.createDiv('', 'achievementPopup');
+      for (const def of newlyUnlocked) {
+        const entry = Util.createDiv('', 'achievementPopupEntry');
+        entry.appendChild(Util.createSpan(def.icon, 'achievementPopupIcon'));
+        entry.appendChild(Util.createSpan(def.name, 'achievementPopupName'));
+        achievementPopup.appendChild(entry);
+      }
+      scoreContainer.appendChild(achievementPopup);
+    }
+
     await this.board.clear(this);
     document.querySelector('.game').appendChild(scoreContainer);
     await Util.animate(scoreDiv, 'scoreIn', 0.65);
+    if (achievementPopup) {
+      await Util.animate(achievementPopup, 'achievementPopIn', 0.5);
+    }
 
     // TODO: Remove onGameOver and reset the board without having to recreate `Game`.
     document.querySelector('body').addEventListener('click', this.onGameOver);

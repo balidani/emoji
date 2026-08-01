@@ -63,22 +63,25 @@ export class Achievements {
     this.defs = ACHIEVEMENTS;
     this.unlocked = loadUnlocked(); // Set<string> from localStorage
   }
+  // Returns the list of defs newly unlocked by this call (empty if none),
+  // so callers -- e.g. the game-over popup -- can show exactly what was
+  // just earned instead of the whole unlocked set.
   evaluate(ctx) {
-    let changed = false;
+    const newlyUnlocked = [];
     for (const def of this.defs) {
       if (this.unlocked.has(def.id)) continue;
       try {
         if (def.test(ctx)) {
           this.unlocked.add(def.id);
-          changed = true;
+          newlyUnlocked.push(def);
           this.view.notifyAchievement?.(def); // optional toast
         }
       } catch {
         // A def reading missing state never breaks a turn.
       }
     }
-    if (changed) saveUnlocked(this.unlocked);
-    return changed;
+    if (newlyUnlocked.length > 0) saveUnlocked(this.unlocked);
+    return newlyUnlocked;
   }
   panelModel() {
     return this.defs.map((d) => ({

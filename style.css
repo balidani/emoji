@@ -355,9 +355,34 @@ body {
   left: 0;
   width: 100vw;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
+}
+
+.achievementPopup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4pt;
+  margin-top: 4pt;
+}
+
+.achievementPopupEntry {
+  display: flex;
+  align-items: center;
+  gap: 6pt;
+  font-size: 14pt;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8pt;
+  padding: 4pt 10pt;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px;
+}
+
+.achievementPopupIcon {
+  font-size: 1.3em;
 }
 
 .score {
@@ -697,6 +722,18 @@ body {
 
   100% {
     transform: translateY(-100vh);
+  }
+}
+
+@keyframes achievementPopIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10pt);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
