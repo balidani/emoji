@@ -44,10 +44,7 @@ export class MagicWand extends Symb {
     }
   }
   description() {
-    return '15% chance: duplicates neighboring symbol';
-  }
-  descriptionLong() {
-    return 'this is a magic wand. it has a 15% chance to copy a neighboring symbol and place it on nearby empty space.';
+    return '15% [Chance](chance) to [Duplicate](duplicate) a neighbor onto empty space.';
   }
 }
 
@@ -75,10 +72,7 @@ export class Multiplier extends Symb {
     }
   }
   description() {
-    return 'x2 to all neighbors';
-  }
-  descriptionLong() {
-    return 'this is a multiplier. it doubles the 💵 gained (or lost) for all neighboring symbols.';
+    return '[Multiplier](multiplier): x2 to all neighbors, gains and losses. Stacks.';
   }
 }
 
@@ -96,10 +90,7 @@ export class Refresh extends Symb {
     game.shop.refreshCount = 0;
   }
   description() {
-    return 'always allows refreshing the shop';
-  }
-  descriptionLong() {
-    return 'this is a refresher. it allows refreshing the selection in the shop more than once. careful, the cost of refreshing also increases.';
+    return 'Lets you refresh the shop more than once.';
   }
 }
 
@@ -116,10 +107,7 @@ export class ShoppingBag extends Symb {
     game.shop.buyCount++;
   }
   description() {
-    return 'allows picking 1 more item';
-  }
-  descriptionLong() {
-    return 'these are shopping bags. you can choose one more item to buy from the shop.';
+    return 'Buy one extra item from the shop.';
   }
 }
 
@@ -136,10 +124,7 @@ export class PostBox extends Symb {
     game.shop.buyLines++;
   }
   description() {
-    return 'shop has 1 more item';
-  }
-  descriptionLong() {
-    return 'this is a post box. you get one more option to buy in the shop.';
+    return 'Adds one more item to the shop.';
   }
 }
 
@@ -153,10 +138,7 @@ export class Hole extends Symb {
     return new Hole();
   }
   description() {
-    return 'always empty';
-  }
-  descriptionLong() {
-    return 'this is a hole. it works like an empty space, other symbols can be created here and they will go into your inventory.';
+    return 'Acts as permanent empty space.';
   }
   categories() {
     return [CATEGORY_EMPTY_SPACE];
@@ -176,10 +158,7 @@ export class Clover extends Symb {
     return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
   }
   description() {
-    return '+1% luck';
-  }
-  descriptionLong() {
-    return 'this is a clover. it gives you luck. symbols having a chance to do something good will succeed more. rare items show up more frequently in the shop.';
+    return '+1% [Luck](luck).';
   }
   async evaluateProduce(game, x, y) {
     game.inventory.addLuck(1);
@@ -200,10 +179,7 @@ export class CrystalBall extends Symb {
     return new CrystalBall();
   }
   description() {
-    return '+3% luck';
-  }
-  descriptionLong() {
-    return 'this is a crystal ball. it gives you luck. symbols having a chance to do something good will succeed more. rare items show up more frequently in the shop.';
+    return '+3% [Luck](luck).';
   }
   async evaluateProduce(game, x, y) {
     game.inventory.addLuck(3);
@@ -230,10 +206,7 @@ export class FortuneCookie extends Symb {
     return [CATEGORY_FOOD];
   }
   description() {
-    return '💵5 for each point of luck you have';
-  }
-  descriptionLong() {
-    return 'this is a fortune cookie. it pays 💵5 for each percent of luck you have.';
+    return '[Pays](pays) 💵5 for each point of [Luck](luck).';
   }
   async score(game, x, y) {
     const value = this.counter(game);
@@ -252,10 +225,7 @@ export class BullsEye extends Symb {
     return new BullsEye();
   }
   description() {
-    return 'neighboring rolls always succeed';
-  }
-  descriptionLong() {
-    return 'this is a bullseye. any neighboring symbol that has a chance of doing something will always succeed.';
+    return 'Neighboring [Chance](chance) rolls always succeed.';
   }
 }
 
@@ -276,10 +246,7 @@ export class Rocket extends Symb {
     }
   }
   description() {
-    return 'speeds up neighbors by 1 turn';
-  }
-  descriptionLong() {
-    return 'this is a rocket. all neighboring symbols that have a timer will complete one turn faster.';
+    return 'Speeds up neighboring timers by 1 turn.';
   }
 }
 
@@ -300,10 +267,7 @@ export class Ice extends Symb {
     }
   }
   description() {
-    return 'slows down neighbors by 1 turn';
-  }
-  descriptionLong() {
-    return 'this is ice. all neighboring symbols that have a timer will take one more turn to complete.';
+    return 'Slows down neighboring timers by 1 turn.';
   }
 }
 
@@ -317,10 +281,7 @@ export class Rows extends Symb {
     return new Rows();
   }
   description() {
-    return '+1 row';
-  }
-  descriptionLong() {
-    return 'this is a slot machine. it increases the number of rows on the board after the next turn.';
+    return 'Adds a row to the board.';
   }
   async evaluateProduce(game, x, y) {
     game.inventory.rowCount += 1;

@@ -1,7 +1,6 @@
 // UNIT_TEST_PLAN.md section 7.5
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setSeed } from '../../src/core/rng.js';
-import { Worker } from '../../src/symbols/rocks.js';
 import { buildGame } from './helpers/fakeGame.js';
 import { seedFirstDraw } from './helpers/rngSeeds.js';
 import { expectMoney, matchingCalls } from './helpers/assertions.js';
@@ -113,9 +112,7 @@ describe('rocks.js', () => {
       expect(board.cells[0][1].emoji()).toBe('⬜');
     });
 
-    it('description says 💵3 but the code produces 💎, not money -- doc/behavior mismatch, code wins', async () => {
-      const worker = new Worker();
-      expect(worker.description()).toContain('💵3');
+    it('does not pay money directly -- only produces 💎, matching the description', async () => {
       const { game, board } = buildGame({
         grid: ['👷 🎯 🪨'],
         startingMoney: 0,

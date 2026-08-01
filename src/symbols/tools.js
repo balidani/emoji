@@ -36,10 +36,7 @@ export class Pin extends Symb {
     return new Pin();
   }
   description() {
-    return 'pins a cell in place';
-  }
-  descriptionLong() {
-    return 'this is a tool. it allows pinning a symbol in place. it doesn\'t appear on the board as a symbol.';
+    return '[Tool](tool): pins a symbol in place.';
   }
   async onBuy(game) {
     await onToolBuy(game, 'click on a symbol to pin in place', async (game, x, y) => {
@@ -61,10 +58,7 @@ export class Axe extends Symb {
     return new Axe();
   }
   description() {
-    return 'removes a cell from inventory';
-  }
-  descriptionLong() {
-    return 'this is a tool. it allows removing a symbol from the inventory. it doesn\'t appear on the board as a symbol.';
+    return '[Tool](tool): removes a symbol from your inventory.';
   }
   async onBuy(game) {
     await onToolBuy(game, 'click on a symbol to remove', async (game, x, y) => {
@@ -86,10 +80,7 @@ export class Eye extends Symb {
     return new Eye();
   }
   description() {
-    return 'converts a symbol into a passive ability';
-  }
-  descriptionLong() {
-    return 'this is a tool. it converts a symbol into a passive ability. this doesn\'t appear on the board as a symbol. passive symbols don\'t have neighbors.';
+    return '[Tool](tool): converts a symbol into a passive ability.';
   }
   async onBuy(game) {
     await onToolBuy(game, 'click on a symbol to convert', async (game, x, y) => {

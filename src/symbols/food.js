@@ -30,10 +30,7 @@ export class Butter extends Symb {
     return [CATEGORY_FOOD];
   }
   description() {
-    return 'x4 to neighboring 🍿<br>melts after 5 turns';
-  }
-  descriptionLong() {
-    return 'this is butter. it quadruples the value of all neighboring 🍿. it disappears after 7 turns.';
+    return '[Multiplier](multiplier): x4 to neighboring 🍿. Melts after 7 turns.';
   }
 }
 
@@ -58,10 +55,7 @@ export class Cherry extends Symb {
     return [CATEGORY_FOOD, CATEGORY_FRUIT];
   }
   description() {
-    return '💵2 for each neighboring 🍒';
-  }
-  descriptionLong() {
-    return 'this is a cherry. it pays 💵2 for each other 🍒 next to it.';
+    return '[Pays](pays) 💵2 for each neighboring 🍒.';
   }
 }
 
@@ -102,10 +96,7 @@ export class Corn extends Symb {
     return [CATEGORY_VEGETABLES, CATEGORY_FOOD];
   }
   description() {
-    return '💵21<br>15% chance: pops 🍿';
-  }
-  descriptionLong() {
-    return 'this is corn. it pays 💵21, and has a 15% chance to pop, making 🍿 on all empty space nearby.';
+    return '[Pays](pays) 💵21. 15% [Chance](chance) to [Spawn](spawn) 🍿 on all empty neighbors.';
   }
 }
 
@@ -162,10 +153,7 @@ export class Pineapple extends Symb {
     return [CATEGORY_FRUIT, CATEGORY_FOOD];
   }
   description() {
-    return '💵12<br>💵-2 for all non-empty neighbors';
-  }
-  descriptionLong() {
-    return 'this is a pineapple. it pays 💵12, minus 💵2 for all neighboring symbols that are not empty.';
+    return '[Pays](pays) 💵12, minus 💵2 per non-empty neighbor.';
   }
 }
 
@@ -200,10 +188,7 @@ export class Popcorn extends Symb {
     return [CATEGORY_FOOD];
   }
   description() {
-    return '💵17<br>disappears after 2-7 turns';
-  }
-  descriptionLong() {
-    return 'this is popcorn. it pays 💵17 and disappears after 2-7 turns.';
+    return '[Pays](pays) 💵17, x4 per neighboring 🧈. Disappears after 2-7 turns.';
   }
 }
 
@@ -226,10 +211,7 @@ export class Bubble extends Symb {
     return 3 - this.turns;
   }
   description() {
-    return 'disappears after 3 turns';
-  }
-  descriptionLong() {
-    return "this is a bubble. it doesn't really do anything. it will disappear after 3 turns.";
+    return 'Does nothing. Disappears after 3 turns.';
   }
   categories() {
     return [CATEGORY_UNBUYABLE];
@@ -279,10 +261,7 @@ export class Cocktail extends Symb {
     return this.cherryScore;
   }
   description() {
-    return '💵2 per 🍒 removed.<br>💵4 per 🍍 removed.<br>x1.5 per 🍾 removed.';
-  }
-  descriptionLong() {
-    return 'this is a cocktail. it permanently gives more 💵 by removing neighboring 🍒 (💵2), 🍍 (💵4) and 🍾 (x1.5).';
+    return '[Consumes](consume) 🍒 (+💵2), 🍍 (+💵4) and 🍾 (x1.5), and [Stockpiles](stockpile) the value.';
   }
 }
 
@@ -330,10 +309,7 @@ export class Champagne extends Symb {
     return 3 - this.turns;
   }
   description() {
-    return '💵70<br>after 3 turns: explodes';
-  }
-  descriptionLong() {
-    return 'this is a champagne. it pays 💵70, but explodes after 3 turns, making 🫧 on empty neighboring spaces and itself.';
+    return '[Pays](pays) 💵70. After 3 turns: explodes, [Spawning](spawn) 🫧 on empty neighbors.';
   }
 }
 
@@ -374,9 +350,6 @@ export class Tree extends Symb {
     return 3 - (this.turns % 3);
   }
   description() {
-    return 'every 3 turns: grows 🍒🍒';
-  }
-  descriptionLong() {
-    return 'this is a tree. every 3 turns, it will grow up to two 🍒 on nearby empty space.';
+    return 'Every 3 turns: [Spawns](spawn) up to two 🍒 nearby.';
   }
 }

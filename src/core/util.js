@@ -8,8 +8,17 @@ export const parseEmojiString = (str) => {
   return Array.from(graphemeSegments).map((x) => x.segment);
 };
 
+const KEYWORD_RE = /\[([^\]]+)\]\(([^)]+)\)/g;
+
 export const createInteractiveDescription = (description, emoji = null) => {
-  const segments = parseEmojiString(description);
+  // Keywords: [Display](id) -> underlined, clickable span. Run before the
+  // emoji pass below so the injected span's plain-text label still gets
+  // segmented and any emoji inside it wrapped normally.
+  const withKeywords = description.replace(
+    KEYWORD_RE,
+    (_, label, id) => `<span class="keyword" data-keyword="${id}">${label}</span>`
+  );
+  const segments = parseEmojiString(withKeywords);
   let result = '';
   if (emoji) {
     result = `${emoji}: `;

@@ -27,10 +27,7 @@ export class Diamond extends Symb {
     await this.addMoney(game, score, x, y);
   }
   description() {
-    return '💵7<br>💵7 for each neighboring 💎<br>x7 if 5 in a row<br>x7 if 5 in a column';
-  }
-  descriptionLong() {
-    return 'this is a diamond. it pays 💵7 and 💵7 for each other 💎 next to it. x7 if all symbols in a row are 💎. x7 if all symbols in a column are 💎.';
+    return '[Pays](pays) 💵7, plus 💵7 per neighboring 💎. x7 for a full row, x7 for a full column.';
   }
 }
 
@@ -48,10 +45,7 @@ export class Rock extends Symb {
     await this.addMoney(game, 1, x, y);
   }
   description() {
-    return '💵1';
-  }
-  descriptionLong() {
-    return 'this is a rock. it pays 💵1.';
+    return '[Pays](pays) 💵1.';
   }
 }
 
@@ -80,10 +74,7 @@ export class Volcano extends Symb {
     }
   }
   description() {
-    return '10% chance: replaces random tile with 🪨x5';
-  }
-  descriptionLong() {
-    return 'this is a volcano. it has a 10% chance to replace a random tile on the board with five 🪨.';
+    return '10% [Chance](chance) to [Spawn](spawn) 🪨x5 on random tiles. [Risk](risk) 🪨 destroys whatever was already there.';
   }
 }
 
@@ -123,9 +114,6 @@ export class Worker extends Symb {
     }
   }
   description() {
-    return 'destroys neighboring 🪨 for 💵3<br>50% chance: produce 💎';
-  }
-  descriptionLong() {
-    return 'this is a worker. it pays 💵3 for each neighboring 🪨 removed. it has a 50% chance to produce 💎 in place of the destroyed 🪨.';
+    return '[Consumes](consume) neighboring 🪨. 50% [Chance](chance) to [Spawn](spawn) 💎 in its place.';
   }
 }

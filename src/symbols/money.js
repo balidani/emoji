@@ -29,10 +29,7 @@ export class Coin extends Symb {
     await this.addMoney(game, this.getValue(game), x, y);
   }
   description() {
-    return '💵2';
-  }
-  descriptionLong() {
-    return 'this is a coin. it pays 💵2.';
+    return '[Pays](pays) 💵2. Each 💸 you own adds 💵1.';
   }
 }
 
@@ -58,10 +55,7 @@ export class Briefcase extends Symb {
     return Math.trunc(game.inventory.symbols.length / 4) * 5;
   }
   description() {
-    return '💵5 for every 4 symbols in inventory';
-  }
-  descriptionLong() {
-    return 'this is a briefcase. it pays 💵5 for every 4 symbols you have in your inventory.';
+    return '[Pays](pays) 💵5 for every 4 symbols in your inventory.';
   }
 }
 
@@ -98,10 +92,7 @@ export class Bank extends Symb {
     return [CATEGORY_BUSINESS];
   }
   description() {
-    return 'every turn: makes 🪙';
-  }
-  descriptionLong() {
-    return 'this is a bank. if there is empty space nearby, it will put 🪙 there.';
+    return 'Every turn: [Spawns](spawn) a 🪙 on empty space.';
   }
 }
 
@@ -127,10 +118,7 @@ export class CreditCard extends Symb {
     }
   }
   description() {
-    return '💵1000 now.<br>💵-1100 on last turn';
-  }
-  descriptionLong() {
-    return 'this is a credit card. it pays 💵1000, but takes 💵1100 when on board on your last turn.';
+    return '[Pays](pays) 💵1000 now. [Risk](risk) loses 💵1100 on your last turn.';
   }
 }
 
@@ -174,10 +162,7 @@ export class MoneyBag extends Symb {
     return this.coins;
   }
   description() {
-    return 'collects neighboring 🪙';
-  }
-  descriptionLong() {
-    return 'this is a money bag. it collects neighboring 🪙 and stacks them up.';
+    return '[Consumes](consume) neighboring 🪙 and [Stockpiles](stockpile) them into a bigger payout.';
   }
 }
 
@@ -202,10 +187,7 @@ export class Jar extends Symb {
     return new Set(game.inventory.symbols.map((s) => s.emoji())).size;
   }
   description() {
-    return '💵8 per different symbol in inventory';
-  }
-  descriptionLong() {
-    return 'this is a jar. it pays 💵8 for all the different symbols in your inventory.';
+    return '[Pays](pays) 💵8 for each different symbol in your inventory.';
   }
 }
 
@@ -234,10 +216,7 @@ export class Dice extends Symb {
     return [CATEGORY_GAMBLING];
   }
   description() {
-    return '80% chance: 💵-123<br>20% chance: 💵456';
-  }
-  descriptionLong() {
-    return 'this is a die. it has 80% chance to pay 💵-123 and 20% chance to pay 💵456.';
+    return '20% [Chance](chance) to [Pay](pays) 💵456. [Risk](risk) 80% to [Pay](pays) 💵-123.';
   }
 }
 
@@ -252,9 +231,6 @@ export class FlyingMoney extends Symb {
   }
   async score(game, x, y) {}
   description() {
-    return 'each 🪙 is worth 💵1 more.';
-  }
-  descriptionLong() {
-    return 'increases the value of each 🪙 you have by 💵1.';
+    return 'Each 🪙 you own [Pays](pays) 💵1 more.';
   }
 }

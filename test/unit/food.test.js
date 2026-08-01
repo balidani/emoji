@@ -19,7 +19,7 @@ describe('food.js', () => {
       expectMoney(game, 0);
     });
 
-    it('melts after 7 turns (code), even though the description text says 5', async () => {
+    it('melts after 7 turns, matching the description text', async () => {
       const { game, board } = buildGame({ grid: ['🧈 ⬜'] });
       const butter = board.cells[0][0];
 
@@ -31,8 +31,7 @@ describe('food.js', () => {
       await butter.evaluateConsume(game, 0, 0);
       expect(board.cells[0][0].emoji()).toBe('⬜');
 
-      // Doc/behavior mismatch (flagged, not fixed -- see plan section 11):
-      expect(new Butter().description()).toContain('5 turns');
+      expect(new Butter().description()).toContain('7 turns');
     });
 
     it('counter() is 7 - turns', () => {

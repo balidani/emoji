@@ -228,6 +228,11 @@ body {
   transform: scale(1.25);
 }
 
+.keyword {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* Info */
 .info {
   margin-top: 12pt;

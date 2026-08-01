@@ -9,6 +9,7 @@ import { ProgressionView } from '../render/ProgressionView.js';
 import { SettingsView } from '../render/SettingsView.js';
 import { initGridScaling } from '../render/layout.js';
 import { CATEGORY_UNBUYABLE } from '../symbol.js';
+import { KEYWORDS } from '../keywords.js';
 
 // The composition root (REFACTOR_PLAN.md, Phase 10): seeds the RNG, builds
 // Progression/GameSettings and their views, and loads the first game. main.js
@@ -56,6 +57,15 @@ export async function bootstrap() {
           const interactiveDescription = Util.createInteractiveDescription(
             symbol.descriptionLong(),
             /*emoji=*/ symbol.emoji()
+          );
+          Util.drawText(game.info, interactiveDescription, true);
+        }
+      } else if (e.target.classList.contains('keyword')) {
+        const entry = KEYWORDS[e.target.dataset.keyword];
+        if (entry) {
+          const interactiveDescription = Util.createInteractiveDescription(
+            entry.description,
+            /*emoji=*/ entry.title
           );
           Util.drawText(game.info, interactiveDescription, true);
         }
@@ -151,7 +161,9 @@ function initSidebar(game) {
       'symbol-info-emoji'
     );
     const descSpan = Util.createSpan('', 'symbol-info-desc');
-    descSpan.innerHTML = symbol.descriptionLong();
+    descSpan.innerHTML = Util.createInteractiveDescription(
+      symbol.descriptionLong()
+    );
     symbolDiv.appendChild(emojiSpan);
     symbolDiv.appendChild(descSpan);
     symbolListDiv.appendChild(symbolDiv);

@@ -40,10 +40,7 @@ export class Chick extends Symb {
     return 3 - this.turns;
   }
   description() {
-    return '💵1<br>after 3 turns: becomes 🐔';
-  }
-  descriptionLong() {
-    return 'this is a chick. it pays 💵1 and becomes 🐔 in 3 turns.';
+    return '[Pays](pays) 💵1. After 3 turns: [Transforms](transform) into 🐔.';
   }
 }
 
@@ -85,10 +82,7 @@ export class Chicken extends Symb {
     return [CATEGORY_ANIMAL];
   }
   description() {
-    return '💵8<br>10% chance: lays up to 4 🥚';
-  }
-  descriptionLong() {
-    return 'this is a chicken. it pays 💵8 and has a 10% chance of laying up to 4 🥚 on empty spaces around it.';
+    return '[Pays](pays) 💵8. 10% [Chance](chance) to [Spawn](spawn) up to 4 🥚.';
   }
 }
 
@@ -122,10 +116,7 @@ export class Egg extends Symb {
     return this.timeToHatch - this.turns;
   }
   description() {
-    return 'after 3-5 turns: hatches 🐣<br>1% chance: hatches 🐉';
-  }
-  descriptionLong() {
-    return 'this is an egg. after 3-5 turns, it becomes a 🐣, or with 1% chance it becomes a 🐉.';
+    return 'After 3-5 turns: [Transforms](transform) into 🐣. 1% [Chance](chance) to become 🐉.';
   }
 }
 
@@ -179,10 +170,7 @@ export class Fox extends Symb {
     return 5 - this.turns;
   }
   description() {
-    return '💵10<br>eats 🐔 for x3.<br>eats 🐣 for x2.<br>leaves after 5 turns with no food';
-  }
-  descriptionLong() {
-    return 'this is a fox. it pays 💵10. it will eat 🐣 and 🐔 neighbors and pay x2 and x3 respectively. it disappears after 5 turns with no food.';
+    return '[Pays](pays) 💵10. [Consumes](consume) 🐣 (x2) and 🐔 (x3). Leaves after 5 turns without food.';
   }
 }
 
@@ -203,10 +191,7 @@ export class Dragon extends Symb {
     return [CATEGORY_ANIMAL];
   }
   description() {
-    return '💵42';
-  }
-  descriptionLong() {
-    return 'this is a mighty dragon. it pays 💵42.';
+    return '[Pays](pays) 💵42.';
   }
 }
 
@@ -257,9 +242,6 @@ export class Bug extends Symb {
     return 5 - this.turns;
   }
   description() {
-    return 'eats nearby food for 💵8 each.<br>leaves after 5 turns with no food';
-  }
-  descriptionLong() {
-    return 'this is a bug. it will eat all edible neighbors and pay out 💵8 for each item eaten. it disappears after 5 turns with no food.';
+    return '[Consumes](consume) neighboring food for 💵8 each. Leaves after 5 turns without food.';
   }
 }

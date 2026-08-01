@@ -28,10 +28,7 @@ export class Balloon extends Symb {
     }
   }
   description() {
-    return '💵20<br>50% chance: pop';
-  }
-  descriptionLong() {
-    return 'this is a balloon. it gives you 💵20, but it has a 50% chance of popping and disappearing.';
+    return '[Pays](pays) 💵20. [Risk](risk) 50% [Chance](chance) to pop.';
   }
 }
 
@@ -70,10 +67,7 @@ export class Bomb extends Symb {
     }
   }
   description() {
-    return '10% chance: destroys a neighbor';
-  }
-  descriptionLong() {
-    return 'this is a bomb. there is a 10% chance it will destroy a neighboring symbol.';
+    return '[Risk](risk) 10% [Chance](chance) to destroy a neighbor.';
   }
 }
 
@@ -107,10 +101,7 @@ export class Firefighter extends Symb {
     await game.board.removeSymbol(game, x, y);
   }
   description() {
-    return 'disarms 💣, then leaves';
-  }
-  descriptionLong() {
-    return 'this is an firefighter. if it stands to a 💣, it will remove the 💣 and leave your inventory.';
+    return 'Disarms a neighboring 💣, then leaves.';
   }
 }
 
@@ -137,10 +128,7 @@ export class Moon extends Symb {
     return 31 - this.turns;
   }
   description() {
-    return 'every 31 turns: 💵600';
-  }
-  descriptionLong() {
-    return 'this is a moon. every 31 turns, it gives 💵600.';
+    return 'Every 31 turns: [Pays](pays) 💵600.';
   }
 }
 
@@ -170,10 +158,7 @@ export class SewingKit extends Symb {
     }
   }
   description() {
-    return 'removes neighboring 🕳️';
-  }
-  descriptionLong() {
-    return 'this is thread. it removes neighboring 🕳️.';
+    return 'Removes neighboring 🕳️.';
   }
 }
 
@@ -206,10 +191,7 @@ export class Lootbox extends Symb {
     game.inventory.giftsOpened++;
   }
   description() {
-    return "opens and turns into a random symbol. 20% chance: it's a rare.";
-  }
-  descriptionLong() {
-    return "this is a lootbox. opens and turns into a random symbol. 20% chance: it's a rare.";
+    return "[Transforms](transform) into a random symbol. 20% [Chance](chance) it's rare.";
   }
 }
 
@@ -233,10 +215,7 @@ export class Santa extends Symb {
     }
   }
   description() {
-    return '💵25 for each 🎁 opened';
-  }
-  descriptionLong() {
-    return 'this is santa. it gives 💵25 for each 🎁 opened this run.';
+    return '[Pays](pays) 💵25 for each 🎁 opened this run.';
   }
 }
 
@@ -250,10 +229,7 @@ export class Cloud extends Symb {
     return new Cloud();
   }
   description() {
-    return '💵6 for each empty space';
-  }
-  descriptionLong() {
-    return 'this is a cloud. it gives you 💵6 for each empty space on the board.';
+    return '[Pays](pays) 💵6 for each empty space.';
   }
   async score(game, x, y) {
     const emptySpaces = game.board.forAllExpr(
