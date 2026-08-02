@@ -1,27 +1,15 @@
 // Achievement definitions + unlock engine (see ACHIEVEMENTS_DESIGN.md,
-// section 6). Definitions are plain data; the frugal-medal defs read the
-// medal classes from symbols/ui.js so score thresholds live in exactly one
+// section 6). Definitions are plain data; the frugal-medal def reads the
+// medal class from symbols/ui.js so score thresholds live in exactly one
 // place.
 
 import * as Const from './consts.js';
-import { BronzeMedal, SilverMedal, GoldMedal } from './symbols/ui.js';
+import { BronzeMedal } from './symbols/ui.js';
 import { loadUnlocked, saveUnlocked } from './achievements-store.js';
 
 const FRUGAL_MAX_BUYS = 10;
-const DRAGON_TARGET = 10;
-
-const frugalMedal = (MedalClass, id, name) => ({
-  id,
-  name,
-  icon: MedalClass.emoji,
-  unlocked: `Earned a ${MedalClass.emoji} buying ${FRUGAL_MAX_BUYS} or fewer symbols.`,
-  locked: `Earn a ${MedalClass.emoji} (💵 ${MedalClass.threshold}) while buying no more than ${FRUGAL_MAX_BUYS} symbols.`,
-  scope: 'run',
-  test: (c) =>
-    c.event === 'gameover' &&
-    c.finalScore >= MedalClass.threshold &&
-    c.stats.run.totalBought <= FRUGAL_MAX_BUYS,
-});
+const DRAGON_TARGET = 20;
+const UNIQUE_SYMBOL_TARGET = 40;
 
 // ctx = { event: 'roll' | 'buy' | 'gameover', stats, inventory, finalScore? }
 export const ACHIEVEMENTS = [
@@ -47,14 +35,34 @@ export const ACHIEVEMENTS = [
     id: 'dragon_rancher',
     name: 'Dragon Rancher',
     icon: '🐉',
-    unlocked: `Hatched ${DRAGON_TARGET} dragons from eggs.`,
-    locked: `Hatch ${DRAGON_TARGET} 🐉 from 🥚 (across all runs).`,
-    scope: 'lifetime',
-    test: (c) => c.stats.lifetimeTransforms('🥚', '🐉') >= DRAGON_TARGET,
+    unlocked: `Hatched ${DRAGON_TARGET} dragons from eggs in a single run.`,
+    locked: `Hatch ${DRAGON_TARGET} 🐉 from 🥚 in a single run.`,
+    scope: 'run',
+    test: (c) => c.stats.runTransforms('🥚', '🐉') >= DRAGON_TARGET,
   },
-  frugalMedal(BronzeMedal, 'frugal_bronze', 'Frugal Bronze'),
-  frugalMedal(SilverMedal, 'frugal_silver', 'Frugal Silver'),
-  frugalMedal(GoldMedal, 'frugal_gold', 'Frugal Gold'),
+  {
+    id: 'collector',
+    name: 'Collector',
+    icon: '🗂️',
+    unlocked: `Held ${UNIQUE_SYMBOL_TARGET} different symbols in your inventory at once.`,
+    locked: `Have ${UNIQUE_SYMBOL_TARGET} different symbols in your inventory at the same time.`,
+    scope: 'run',
+    test: (c) =>
+      new Set(c.inventory.symbols.map((s) => s.emoji())).size >=
+      UNIQUE_SYMBOL_TARGET,
+  },
+  {
+    id: 'frugal_bronze',
+    name: 'Frugal',
+    icon: BronzeMedal.emoji,
+    unlocked: `Earned a ${BronzeMedal.emoji} buying ${FRUGAL_MAX_BUYS} or fewer symbols.`,
+    locked: `Earn a ${BronzeMedal.emoji} (💵 ${BronzeMedal.threshold}) while buying no more than ${FRUGAL_MAX_BUYS} symbols.`,
+    scope: 'run',
+    test: (c) =>
+      c.event === 'gameover' &&
+      c.finalScore >= BronzeMedal.threshold &&
+      c.stats.run.totalBought <= FRUGAL_MAX_BUYS,
+  },
 ];
 
 export class Achievements {

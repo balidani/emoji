@@ -16,7 +16,7 @@ export class AchievementsView {
         a.unlocked ? 'unlocked' : 'locked'
       );
       row.appendChild(
-        createSpan(`${a.unlocked ? a.icon : '🔒'} `, 'achievement-icon')
+        createSpan(a.unlocked ? a.icon : '🔒', 'achievement-icon')
       );
       const body = createDiv('', 'achievement-body');
       body.appendChild(createDiv(a.name, 'achievement-name'));

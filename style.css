@@ -449,6 +449,7 @@ body {
 
 .achievement-icon {
   font-size: 1.2em;
+  margin-right: 0.4em;
 }
 
 .achievement-name {
@@ -480,9 +481,13 @@ body {
   word-break: break-all;
 }
 
+.save-state-panel textarea.click-to-copy {
+  cursor: pointer;
+}
+
 .save-state-panel button {
   align-self: flex-start;
-  margin-top: 0.5em;
+  margin-top: 0.15em;
 }
 
 .save-state-error {

@@ -8,22 +8,24 @@ export class SaveStateView {
   renderSaveState({ code, onImport }) {
     this.root.replaceChildren();
 
+    const exportLabelText = 'Export save (click to copy)';
     const { label: exportLabel, input: exportBox } = createInput(
-      'Export save',
+      exportLabelText,
       'textarea',
       code
     );
     exportBox.readOnly = true;
-    const copyButton = createButton('Copy', async () => {
+    exportBox.classList.add('click-to-copy');
+    exportBox.addEventListener('click', async () => {
       exportBox.select();
       try {
         await navigator.clipboard.writeText(exportBox.value);
-        copyButton.textContent = 'Copied!';
       } catch {
         document.execCommand('copy');
       }
+      exportLabel.textContent = 'Export save (copied!)';
       setTimeout(() => {
-        copyButton.textContent = 'Copy';
+        exportLabel.textContent = exportLabelText;
       }, 1500);
     });
 
@@ -45,7 +47,6 @@ export class SaveStateView {
 
     this.root.appendChild(exportLabel);
     this.root.appendChild(exportBox);
-    this.root.appendChild(copyButton);
     this.root.appendChild(importLabel);
     this.root.appendChild(importBox);
     this.root.appendChild(loadButton);
