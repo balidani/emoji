@@ -36,7 +36,14 @@ export function importSave(base64) {
     throw new Error('Unrecognized save format.');
   }
   for (const k of SAVE_KEYS) {
-    if (parsed.data[k] !== undefined) localStorage.setItem(k, parsed.data[k]);
+    // Fully overwrite: a key absent from the imported data means that save
+    // didn't have it set (e.g. no achievements unlocked yet), so it must
+    // clear any existing value here too, not leave it untouched.
+    if (parsed.data[k] !== undefined) {
+      localStorage.setItem(k, parsed.data[k]);
+    } else {
+      localStorage.removeItem(k);
+    }
   }
   window.location.reload(); // simplest correct way to re-init all subsystems
 }
