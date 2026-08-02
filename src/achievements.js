@@ -82,19 +82,24 @@ export class Achievements {
     this.view = renderer;
     this.defs = ACHIEVEMENTS;
     this.unlocked = loadUnlocked(); // Set<string> from localStorage
-    // Achievements is constructed fresh per `new Game()`, so this naturally
-    // tracks everything unlocked during the current run -- some defs (e.g.
-    // pack_rat, dragon_rancher) can unlock on an earlier 'roll'/'buy'
-    // evaluate() call, not just the final 'gameover' one, so the game-over
-    // popup needs the whole run's unlocks, not just that last call's return
-    // value (see Game.over()).
+    // Achievements is constructed fresh per `new Game()`, so these two
+    // naturally track this run only. `completedThisRun` is every def whose
+    // conditions were satisfied this run -- including ones already unlocked
+    // from a previous run, so the game-over popup can show "you did it
+    // again" achievements too, not just brand-new ones (see Game.over()).
+    // `unlockedThisRun` is the subset that's newly unlocked (i.e. it wasn't
+    // already in `this.unlocked` when it was satisfied).
+    this.completedThisRun = [];
     this.unlockedThisRun = [];
   }
   // Returns the list of defs newly unlocked by this call (empty if none).
+  // Defs already unlocked from a previous run are still re-tested (not
+  // skipped) so `completedThisRun` reflects this run's outcome, but their
+  // `unlocked` state and localStorage entry are left untouched.
   evaluate(ctx) {
     const newlyUnlocked = [];
+    const completedIds = new Set(this.completedThisRun.map((d) => d.id));
     for (const def of this.defs) {
-      if (this.unlocked.has(def.id)) continue;
       // Central medal gate: a def with `requiredMedal` only counts once the
       // run is actually over and its final score reached that medal -- so
       // it's only ever checked on the 'gameover' evaluate() call. Individual
@@ -108,14 +113,22 @@ export class Achievements {
           continue;
         }
       }
+      let satisfied;
       try {
-        if (def.test(ctx)) {
-          this.unlocked.add(def.id);
-          newlyUnlocked.push(def);
-          this.view.notifyAchievement?.(def); // optional toast
-        }
+        satisfied = def.test(ctx);
       } catch {
         // A def reading missing state never breaks a turn.
+        satisfied = false;
+      }
+      if (!satisfied) continue;
+      if (!completedIds.has(def.id)) {
+        completedIds.add(def.id);
+        this.completedThisRun.push(def);
+      }
+      if (!this.unlocked.has(def.id)) {
+        this.unlocked.add(def.id);
+        newlyUnlocked.push(def);
+        this.view.notifyAchievement?.(def); // optional toast
       }
     }
     if (newlyUnlocked.length > 0) {

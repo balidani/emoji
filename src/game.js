@@ -73,10 +73,10 @@ export class Game {
       stats: this.stats,
       inventory: this.inventory,
     });
-    // Everything unlocked this run, not just this last evaluate() call --
-    // some achievements (e.g. pack_rat, dragon_rancher) can unlock earlier,
-    // on a mid-game roll/buy, and still need to show up in the popup below.
-    const newlyUnlocked = this.achievements?.unlockedThisRun ?? [];
+    // Everything this run satisfied, including achievements already
+    // unlocked from a previous run -- earning one again is still worth
+    // showing in the popup below, not just brand-new unlocks.
+    const earnedThisRun = this.achievements?.completedThisRun ?? [];
     // Refresh the sidebar panel right away so it's current whether or not
     // it's open right now (bootstrap.js also re-renders it on open).
     this.achievements?.renderPanel();
@@ -101,9 +101,9 @@ export class Game {
     scoreContainer.appendChild(scoreDiv);
 
     let achievementPopup = null;
-    if (newlyUnlocked.length > 0) {
+    if (earnedThisRun.length > 0) {
       achievementPopup = Util.createDiv('', 'achievementPopup');
-      for (const def of newlyUnlocked) {
+      for (const def of earnedThisRun) {
         const entry = Util.createDiv('', 'achievementPopupEntry');
         entry.appendChild(Util.createSpan(def.icon, 'achievementPopupIcon'));
         entry.appendChild(Util.createSpan(def.name, 'achievementPopupName'));
