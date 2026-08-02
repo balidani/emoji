@@ -13,6 +13,8 @@ export class RunStats {
     this.moneyEarned = 0; // sum of positive 💵 deltas this run
     this.turnsPlayed = 0; // turns actually consumed this run
     this.maxInventorySize = 0; // high-water mark of inventory.symbols.length
+    this.maxLuck = 0; // high-water mark of the 💫 resource reached this run
+    this.maxUniqueSymbols = 0; // high-water mark of distinct symbol types held at once
   }
   get totalBought() {
     return Object.values(this.boughtByEmoji).reduce((a, b) => a + b, 0);
@@ -76,5 +78,11 @@ export class Stats {
   }
   recordInventorySize(size) {
     if (size > this.run.maxInventorySize) this.run.maxInventorySize = size;
+  }
+  recordLuck(value) {
+    if (value > this.run.maxLuck) this.run.maxLuck = value;
+  }
+  recordUniqueSymbols(count) {
+    if (count > this.run.maxUniqueSymbols) this.run.maxUniqueSymbols = count;
   }
 }

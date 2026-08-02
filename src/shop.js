@@ -106,6 +106,9 @@ export class Shop {
       }
       await symbol.onBuy(game);
       game.stats?.recordInventorySize(this.getInventory(game).symbols.length);
+      game.stats?.recordUniqueSymbols(
+        new Set(this.getInventory(game).symbols.map((s) => s.emoji())).size
+      );
       game.achievements?.evaluate({
         event: 'buy',
         stats: game.stats,

@@ -19,7 +19,17 @@ export class AchievementsView {
         createSpan(a.unlocked ? a.icon : '🔒', 'achievement-icon')
       );
       const body = createDiv('', 'achievement-body');
-      body.appendChild(createDiv(a.name, 'achievement-name'));
+      const nameRow = createDiv('', 'achievement-name-row');
+      nameRow.appendChild(createSpan(a.name, 'achievement-name'));
+      if (a.requiredMedalEmoji) {
+        const badge = createSpan(
+          `${a.requiredMedalEmoji}+`,
+          'achievement-required-medal'
+        );
+        badge.title = 'Requires reaching at least this medal';
+        nameRow.appendChild(badge);
+      }
+      body.appendChild(nameRow);
       body.appendChild(createDiv(a.description, 'achievement-desc'));
       row.appendChild(body);
       this.root.appendChild(row);

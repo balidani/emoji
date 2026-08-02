@@ -48,10 +48,11 @@ export class GameSettings {
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     // Derived from the medal/trophy classes (symbols/ui.js) so thresholds
     // live in exactly one place -- see ACHIEVEMENTS_DESIGN.md section 7.
+    // Numeric-string keys iterate in ascending order regardless of
+    // insertion order, so where GoatMedal sits in MEDAL_TIERS doesn't matter.
     this.resultLookup = resultLookup || {
       5000: '😞',
       ...Object.fromEntries(MEDAL_TIERS.map((M) => [M.threshold, M.emoji])),
-      1000000000: '🐐',
     };
     this.textLookup = textLookup || {
       greeting:

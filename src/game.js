@@ -154,6 +154,10 @@ export class Game {
       this.inventory.resetLuck();
       this.stats?.recordTurn();
       this.stats?.recordInventorySize(this.inventory.symbols.length);
+      this.stats?.recordLuck(this.inventory.getResource(Const.LUCK));
+      this.stats?.recordUniqueSymbols(
+        new Set(this.inventory.symbols.map((s) => s.emoji())).size
+      );
       this.achievements?.evaluate({
         event: 'roll',
         stats: this.stats,

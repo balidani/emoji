@@ -452,8 +452,19 @@ body {
   margin-right: 0.4em;
 }
 
+.achievement-name-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+}
+
 .achievement-name {
   font-weight: bold;
+}
+
+.achievement-required-medal {
+  font-size: 0.8em;
+  opacity: 0.7;
 }
 
 .achievement-desc {

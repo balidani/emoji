@@ -160,9 +160,34 @@ export class Crown extends Symb {
   }
 }
 
+export class GoatMedal extends Symb {
+  static emoji = '🐐';
+  static threshold = 1000000000;
+  static label = 'GOAT';
+  constructor() {
+    super();
+  }
+  copy() {
+    return new GoatMedal();
+  }
+  description() {
+    return `Awarded when you earn 💵${GoatMedal.threshold}`;
+  }
+  categories() {
+    return [CATEGORY_UNBUYABLE];
+  }
+}
+
 // Ordered ascending -- the one place score tiers are defined (used by
-// game_settings.js's resultLookup and the frugal-medal achievements).
-export const MEDAL_TIERS = [BronzeMedal, SilverMedal, GoldMedal, Trophy, Crown];
+// game_settings.js's resultLookup and the achievements).
+export const MEDAL_TIERS = [
+  BronzeMedal,
+  SilverMedal,
+  GoldMedal,
+  Trophy,
+  Crown,
+  GoatMedal,
+];
 
 export class SpeechBubble extends Symb {
   static emoji = '💬';
