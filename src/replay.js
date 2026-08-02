@@ -11,6 +11,7 @@ import { Game } from './game.js';
 import { GameSettings } from './game_settings.js';
 import { ReplayRenderer } from './render/ReplayRenderer.js';
 import { ReplayDivergenceError } from './replay-errors.js';
+import { animationOff, animationOn } from './render/animations.js';
 
 const MAGIC = 'EMOJIRPLY1'; // format tag: validation + forward-compat
 
@@ -221,11 +222,20 @@ export async function runReplay(base64, { progression, onGameOver }) {
   // could otherwise click out of band while the driver is mid-purchase --
   // it's the only thing allowed to act during a replay.
   gameDiv.style.pointerEvents = 'none';
+  // Run at full speed: a live game leaves every animation/delay call at
+  // its real duration, so a many-turn replay driven at that same pace can
+  // take minutes to reach the end -- easily mistaken for "nothing is
+  // happening". Every cell/inventory/shop update still happens, just
+  // without the wait; this is the same isReplay-aware animationOff() path
+  // game.roll() uses (see game.js), reusing the game's own existing
+  // skip-animation invariant rather than a new one.
+  animationOff();
   try {
     for (const event of parsed.events) {
       await playEvent(game, event);
     }
   } finally {
+    animationOn();
     gameDiv.style.pointerEvents = 'auto';
   }
   return game;

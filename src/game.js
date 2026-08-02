@@ -145,7 +145,11 @@ export class Game {
     if (this.rolling) {
       Util.animationOff();
       return;
-    } else {
+    } else if (!this.isReplay) {
+      // A replay drives itself, not the player -- leave animation exactly
+      // as runReplay() set it (off, so a many-turn game finishes in
+      // seconds instead of playing out in real time) rather than
+      // re-enabling it on every roll like a live game does.
       Util.animationOn();
     }
     this.rolling = true;

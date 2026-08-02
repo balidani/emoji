@@ -188,7 +188,13 @@ function initSidebar(getGame, progression, onGameOver) {
     replayPanelDiv.classList.toggle('hidden');
     getGame().view.renderReplay({
       code: getGame().recorder?.serialize() ?? '',
-      onRun: (code) => runReplay(code, { progression, onGameOver }),
+      onRun: (code) => {
+        // Close the sidebar so the player is actually looking at the board
+        // the replay is about to redraw, instead of the (now motionless)
+        // panel they just clicked "Run replay" in.
+        sidebar.classList.remove('active');
+        return runReplay(code, { progression, onGameOver });
+      },
     });
   });
 
