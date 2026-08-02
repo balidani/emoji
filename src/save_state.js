@@ -2,6 +2,7 @@
 // ACHIEVEMENTS_DESIGN.md, section 9). No encryption, no obfuscation.
 
 import { toBase64Utf8, fromBase64Utf8 } from './core/util.js';
+import { SAVE_MAGIC, REPLAY_MAGIC } from './serialization-magic.js';
 
 const SAVE_KEYS = [
   'CurrentVersion',
@@ -12,15 +13,13 @@ const SAVE_KEYS = [
   'ProfileStats',
 ];
 
-const MAGIC = 'EMOJI1'; // format tag for forward-compat + import validation
-
 export function exportSave() {
   const blob = {};
   for (const k of SAVE_KEYS) {
     const v = localStorage.getItem(k);
     if (v !== null) blob[k] = v;
   }
-  const payload = JSON.stringify({ magic: MAGIC, data: blob });
+  const payload = JSON.stringify({ magic: SAVE_MAGIC, data: blob });
   return toBase64Utf8(payload);
 }
 
@@ -32,7 +31,12 @@ export function importSave(base64) {
   } catch {
     throw new Error('Not a valid save code.');
   }
-  if (parsed.magic !== MAGIC || typeof parsed.data !== 'object') {
+  if (parsed.magic === REPLAY_MAGIC) {
+    throw new Error(
+      "That's a replay code -- paste it into the replay panel instead."
+    );
+  }
+  if (parsed.magic !== SAVE_MAGIC || typeof parsed.data !== 'object') {
     throw new Error('Unrecognized save format.');
   }
   for (const k of SAVE_KEYS) {

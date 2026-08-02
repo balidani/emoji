@@ -12,8 +12,7 @@ import { GameSettings } from './game_settings.js';
 import { ReplayRenderer } from './render/ReplayRenderer.js';
 import { ReplayDivergenceError } from './replay-errors.js';
 import { animationOff, animationOn } from './render/animations.js';
-
-const MAGIC = 'EMOJIRPLY1'; // format tag: validation + forward-compat
+import { SAVE_MAGIC, REPLAY_MAGIC as MAGIC } from './serialization-magic.js';
 
 export { ReplayDivergenceError };
 
@@ -87,6 +86,11 @@ export function parseReplay(base64) {
     parsed = JSON.parse(json);
   } catch {
     throw new Error('Not a valid replay code.');
+  }
+  if (parsed.magic === SAVE_MAGIC) {
+    throw new Error(
+      "That's a save code -- paste it into the save/load panel instead."
+    );
   }
   if (parsed.magic !== MAGIC) {
     throw new Error('Unrecognized replay format.');

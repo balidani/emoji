@@ -98,6 +98,21 @@ describe('parseReplay', () => {
     );
   });
 
+  it('gives a pointer to the right panel when a save code is pasted in by mistake', () => {
+    // The two panels sit right next to each other in the sidebar with
+    // near-identical layouts ("Import save"/"Import replay", both textareas
+    // + a button) -- a generic "unrecognized format" error here would leave
+    // the player no clue what actually went wrong.
+    const saveCode = btoa(
+      unescape(
+        encodeURIComponent(JSON.stringify({ magic: 'EMOJI1', data: {} }))
+      )
+    );
+    expect(() => parseReplay(saveCode)).toThrow(
+      "That's a save code -- paste it into the save/load panel instead."
+    );
+  });
+
   it('rejects a payload missing required fields', () => {
     const rec = makeRecorder();
     const parsed = JSON.parse(
