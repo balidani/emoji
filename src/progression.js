@@ -12,7 +12,7 @@ const tutorialLevelSettings = new GameSettings(
 );
 const standardGameSettings = new GameSettings();
 
-const CURRENT_VERSION = '1.0.3';
+export const CURRENT_VERSION = '1.0.3';
 const CURRENT_VERSION_KEY = 'CurrentVersion';
 const PROGRESSION_LEVEL_DATA = 'ProgressionLevelData';
 const PROGRESSION_ACTIVE_LEVEL = 'ProgressionActiveLevel';

@@ -11,6 +11,7 @@ import { initGridScaling } from '../render/layout.js';
 import { CATEGORY_UNBUYABLE } from '../symbol.js';
 import { KEYWORDS } from '../keywords.js';
 import { exportSave, importSave } from '../save_state.js';
+import { ReplayRecorder, runReplay } from '../replay.js';
 
 // The composition root (REFACTOR_PLAN.md, Phase 10): seeds the RNG, builds
 // Progression/GameSettings and their views, and loads the first game. main.js
@@ -31,6 +32,13 @@ export async function bootstrap() {
   document.querySelector('#seed-phrase').textContent = seedPhrase;
   document.querySelector('#seed-link').href = `#${seedPhrase}`;
 
+  // Tracks whichever Game is currently live, so sidebar actions triggered
+  // after a restart (achievements/save/replay panels) act on the game
+  // actually being played rather than a stale reference to the first one
+  // (see initSidebar, which reads this via the getGame accessor instead of
+  // closing over a single Game).
+  let currentGame = null;
+
   // loadSettings/loadListener close over PROGRESSION, which is fine since
   // neither is invoked until after PROGRESSION is constructed below.
   const loadSettings = async (settings = GameSettings.instance()) => {
@@ -42,6 +50,13 @@ export async function bootstrap() {
     gameDiv.appendChild(templateClone.children[0]);
     const catalog = new Catalog(settings.symbolSources);
     await catalog.updateSymbols();
+    // Snapshot the RNG position immediately before constructing Game (i.e.
+    // before the starting-set Egg draws and the first Board construction),
+    // so a replay recorded from here can restore exactly this position --
+    // the RNG is seeded once per page load, not per game, so the seed
+    // phrase alone wouldn't reproduce anything past the first game of the
+    // session (see core/rng.js, replay.js).
+    const rngState = Rng.exportState();
     const game = new Game(
       PROGRESSION,
       settings,
@@ -49,6 +64,8 @@ export async function bootstrap() {
       new DomRenderer(),
       loadListener
     );
+    game.recorder = new ReplayRecorder({ seedPhrase, rngState, settings });
+    currentGame = game;
 
     document.body.addEventListener('click', (e) => {
       if (e.target.classList.contains('interactive-emoji')) {
@@ -75,7 +92,10 @@ export async function bootstrap() {
     return game;
   };
 
-  const loadListener = async (_) => {
+  const loadListener = async (e) => {
+    if (e?.target?.closest?.('#sidebar-menu, .top-right')) {
+      return;
+    }
     document.querySelector('body').removeEventListener('click', loadListener);
     const scoreContainer = document.querySelector('.game .scoreContainer');
     const scoreDiv = document.querySelector('.game .scoreContainer .score');
@@ -110,14 +130,14 @@ export async function bootstrap() {
   // Debug
   window.game = game;
 
-  initSidebar(game);
+  initSidebar(() => currentGame, PROGRESSION, loadListener);
   initGridScaling();
 
   return game;
 }
 
 // TODO: extract to ui.js
-function initSidebar(game) {
+function initSidebar(getGame, progression, onGameOver) {
   const hamburgerButton = document.getElementById('hamburger');
   const sidebar = document.getElementById('sidebar-menu');
   const closeButton = document.getElementById('close-sidebar');
@@ -145,7 +165,7 @@ function initSidebar(game) {
   );
   achBtn.addEventListener('click', () => {
     achievementsListDiv.classList.toggle('hidden');
-    game.achievements.renderPanel();
+    getGame().achievements.renderPanel();
   });
 
   const saveBtn = document.getElementById('view-save');
@@ -154,12 +174,25 @@ function initSidebar(game) {
   );
   saveBtn.addEventListener('click', () => {
     savePanelDiv.classList.toggle('hidden');
-    game.view.renderSaveState({
+    getGame().view.renderSaveState({
       code: exportSave(),
       onImport: (code) => importSave(code),
     });
   });
 
+  const replayBtn = document.getElementById('view-replay');
+  const replayPanelDiv = document.querySelector(
+    '.sidebar-content .replay-panel'
+  );
+  replayBtn.addEventListener('click', () => {
+    replayPanelDiv.classList.toggle('hidden');
+    getGame().view.renderReplay({
+      code: getGame().recorder?.serialize() ?? '',
+      onRun: (code) => runReplay(code, { progression, onGameOver }),
+    });
+  });
+
+  const game = getGame();
   const allSymbols = [];
   for (const [, symbol] of game.catalog.symbols) {
     if (symbol.categories().includes(CATEGORY_UNBUYABLE)) {

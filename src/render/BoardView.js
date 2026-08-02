@@ -187,8 +187,16 @@ export class BoardView {
     await animate(this.getSymbolDiv(x, y), 'bounce', 0.15);
   }
 
-  async awaitCellClick(predicate) {
+  /** `signal` (optional AbortSignal) lets the caller cancel the wait -- e.g.
+   * a "cancel" button shown while a tool cell-pick is pending -- and
+   * resolves with null instead of hanging forever if no cell ever matches
+   * `predicate` (see symbols/tools.js, onToolBuy). */
+  async awaitCellClick(predicate, signal) {
     return new Promise((resolve) => {
+      const cells = document.querySelectorAll('.cell');
+      const cleanup = () => {
+        cells.forEach((div) => div.removeEventListener('click', onclick));
+      };
       const onclick = (e) => {
         e.stopPropagation();
         const classes = e.target.parentElement.classList;
@@ -209,14 +217,27 @@ export class BoardView {
         if (!predicate(null, x, y)) {
           return;
         }
-        document
-          .querySelectorAll('.cell')
-          .forEach((div) => div.removeEventListener('click', onclick));
+        cleanup();
         resolve([x, y]);
       };
-      document.querySelectorAll('.cell').forEach((div) => {
+      cells.forEach((div) => {
         div.addEventListener('click', onclick);
       });
+      if (signal) {
+        if (signal.aborted) {
+          cleanup();
+          resolve(null);
+          return;
+        }
+        signal.addEventListener(
+          'abort',
+          () => {
+            cleanup();
+            resolve(null);
+          },
+          { once: true }
+        );
+      }
     });
   }
 

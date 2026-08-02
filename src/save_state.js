@@ -1,6 +1,8 @@
 // Export/import of the whole localStorage save state as base64 (see
 // ACHIEVEMENTS_DESIGN.md, section 9). No encryption, no obfuscation.
 
+import { toBase64Utf8, fromBase64Utf8 } from './core/util.js';
+
 const SAVE_KEYS = [
   'CurrentVersion',
   'ProgressionLevelData',
@@ -19,15 +21,13 @@ export function exportSave() {
     if (v !== null) blob[k] = v;
   }
   const payload = JSON.stringify({ magic: MAGIC, data: blob });
-  // btoa is Latin1-only; encodeURIComponent+unescape makes it UTF-8 safe
-  // (progression JSON and ProfileStats.transforms contain emoji).
-  return btoa(unescape(encodeURIComponent(payload)));
+  return toBase64Utf8(payload);
 }
 
 export function importSave(base64) {
   let parsed;
   try {
-    const json = decodeURIComponent(escape(atob(base64.trim())));
+    const json = fromBase64Utf8(base64.trim());
     parsed = JSON.parse(json);
   } catch {
     throw new Error('Not a valid save code.');

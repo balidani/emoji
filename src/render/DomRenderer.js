@@ -5,7 +5,8 @@ import { BoardView } from './BoardView.js';
 import { ShopView } from './ShopView.js';
 import { AchievementsView } from './AchievementsView.js';
 import { SaveStateView } from './SaveStateView.js';
-import { drawText } from './animations.js';
+import { ReplayView } from './ReplayView.js';
+import { drawText, createButton } from './animations.js';
 
 // The real renderer -- backs the interactive game in a browser.
 //
@@ -24,6 +25,7 @@ export class DomRenderer extends Renderer {
     this.shopView = new ShopView((html) => this.showInfo(html));
     this.achievementsView = new AchievementsView();
     this.saveStateView = new SaveStateView();
+    this.replayView = new ReplayView();
   }
 
   async logResourceChange(key, value, source, direction) {
@@ -130,12 +132,26 @@ export class DomRenderer extends Renderer {
     // doesn't block the click-through setup below on the typing animation.
     drawText(infoDiv, prompt, false);
     infoDiv.style.pointerEvents = 'none';
-    const coord = await this.boardView.awaitCellClick(predicate);
+
+    // A cancel escape hatch: predicate may be unsatisfiable by any cell on
+    // the current board (e.g. an all-empty roll), which would otherwise
+    // strand the player mid-pick with the roll listener suspended and no
+    // way to continue.
+    const controller = new AbortController();
+    const cancelButton = createButton('cancel', () => controller.abort());
+    cancelButton.classList.add('tool-cancel-button');
+    infoDiv.parentElement.appendChild(cancelButton);
+
+    const coord = await this.boardView.awaitCellClick(
+      predicate,
+      controller.signal
+    );
+
+    cancelButton.remove();
     infoDiv.style.pointerEvents = 'auto';
     infoDiv.classList.add('hidden');
-    if (!coord) {
-      return null;
-    }
+    // Restore the roll listener regardless of outcome -- a cancelled pick
+    // must not leave the board unclickable (see the comment above).
     this.boardView.addRollListener(() => {});
     return coord;
   }
@@ -145,6 +161,9 @@ export class DomRenderer extends Renderer {
   }
   async renderSaveState(props) {
     return this.saveStateView.renderSaveState(props);
+  }
+  async renderReplay(props) {
+    return this.replayView.renderReplay(props);
   }
   notifyAchievement(def) {
     return this.achievementsView.notifyAchievement(def);

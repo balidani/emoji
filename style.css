@@ -249,6 +249,12 @@ body {
   z-index: 10;
 }
 
+.tool-cancel-button {
+  margin-top: 6pt;
+  align-self: center;
+  cursor: pointer;
+}
+
 /* Shop */
 
 .shop {
@@ -502,6 +508,41 @@ body {
 }
 
 .save-state-error {
+  color: #c00;
+  margin-top: 0.5em;
+}
+
+.replay-panel {
+  display: flex;
+  flex-direction: column;
+  padding-top: 1em;
+}
+
+.replay-panel label {
+  margin-top: 0.75em;
+  font-weight: bold;
+}
+
+.replay-panel textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 5em;
+  margin-top: 0.25em;
+  font-family: monospace;
+  font-size: 0.8em;
+  word-break: break-all;
+}
+
+.replay-panel textarea.click-to-copy {
+  cursor: pointer;
+}
+
+.replay-panel button {
+  align-self: flex-start;
+  margin-top: 0.15em;
+}
+
+.replay-error {
   color: #c00;
   margin-top: 0.5em;
 }

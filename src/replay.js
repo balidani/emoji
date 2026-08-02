@@ -1,0 +1,232 @@
+// Replay recording + playback (see REPLAY_PLAN.md). A replay is fully
+// specified by the starting RNG state, a gameplay-affecting settings
+// snapshot, and the ordered list of player actions -- see core/rng.js for
+// why the RNG *state* (not just the seed phrase) has to be captured.
+
+import { toBase64Utf8, fromBase64Utf8 } from './core/util.js';
+import { CURRENT_VERSION } from './progression.js';
+import * as Rng from './core/rng.js';
+import { Catalog } from './catalog.js';
+import { Game } from './game.js';
+import { GameSettings } from './game_settings.js';
+import { ReplayRenderer } from './render/ReplayRenderer.js';
+import { ReplayDivergenceError } from './replay-errors.js';
+
+const MAGIC = 'EMOJIRPLY1'; // format tag: validation + forward-compat
+
+export { ReplayDivergenceError };
+
+// Passive observer attached to a live Game (see game.js's `recorder` field
+// and the `stats?.`/`achievements?.` idiom it mirrors). Hard invariant:
+// no DOM access, no RNG draws, no game-state mutation -- it only reads
+// existing values and appends to a plain array. This is what keeps
+// `npm test`'s golden traces byte-identical with the hooks wired in.
+export class ReplayRecorder {
+  constructor({ seedPhrase, rngState, settings }) {
+    this.seedPhrase = seedPhrase;
+    this.rngState = rngState;
+    // Only gameplay-affecting fields -- resultLookup/textLookup are
+    // presentational and can default on replay without changing outcomes.
+    // symbolSources is copied, not aliased: Catalog.updateSymbols() mutates
+    // whatever array it's given (unshifts './symbol.js' onto it) on every
+    // game load, including future ones sharing the same GameSettings
+    // instance -- a copy keeps this snapshot frozen at record time.
+    this.settings = {
+      boardX: settings.boardX,
+      boardY: settings.boardY,
+      gameLength: settings.gameLength,
+      startingSet: settings.startingSet,
+      symbolSources: [...settings.symbolSources],
+      initiallyLockedCells: settings.initiallyLockedCells,
+    };
+    this.events = [];
+  }
+  recordRoll() {
+    this.events.push(['r']);
+  }
+  recordBuy(offerId, emoji) {
+    this.events.push(['b', offerId, emoji]);
+  }
+  // Folds the tool's cell target into the most recent buy event (which must
+  // be that same buy -- tools.js calls this synchronously from within the
+  // onBuy the recorded purchase triggered). `x === null` records that the
+  // tool buy resolved with no target at all (the player cancelled, or no
+  // cell could ever satisfy the tool's predicate) -- distinct from a buy
+  // that was never a tool purchase in the first place (no trailing entries).
+  recordToolTarget(x, y) {
+    const last = this.events[this.events.length - 1];
+    if (x === null) {
+      last.push(null);
+    } else {
+      last.push(x, y);
+    }
+  }
+  recordRefresh() {
+    this.events.push(['f']);
+  }
+  serialize() {
+    const payload = JSON.stringify({
+      magic: MAGIC,
+      appVersion: CURRENT_VERSION,
+      seed: this.seedPhrase,
+      rng: this.rngState,
+      settings: this.settings,
+      events: this.events,
+    });
+    return toBase64Utf8(payload);
+  }
+}
+
+// Decodes + shape-validates a replay code. Throws a friendly Error on
+// anything malformed (surfaced in the replay panel, same as importSave).
+export function parseReplay(base64) {
+  let parsed;
+  try {
+    const json = fromBase64Utf8(base64.trim());
+    parsed = JSON.parse(json);
+  } catch {
+    throw new Error('Not a valid replay code.');
+  }
+  if (parsed.magic !== MAGIC) {
+    throw new Error('Unrecognized replay format.');
+  }
+  if (
+    typeof parsed.rng !== 'object' ||
+    typeof parsed.settings !== 'object' ||
+    !Array.isArray(parsed.events)
+  ) {
+    throw new Error('Malformed replay data.');
+  }
+  return parsed;
+}
+
+// Runs one recorded event against a live replay Game, verifying recorded
+// and live state agree at every step (see REPLAY_PLAN.md section 7.3) --
+// any mismatch stops the replay immediately with a ReplayDivergenceError,
+// expected only if the code was tampered with or came from a different
+// game version.
+async function playEvent(game, event) {
+  const shop = game.shop;
+  switch (event[0]) {
+    case 'r': {
+      if (game.isOver) {
+        throw new ReplayDivergenceError(
+          'Recorded a roll after the game was already over.'
+        );
+      }
+      await game.roll();
+      return;
+    }
+    case 'f': {
+      const offered =
+        shop.allowRefresh &&
+        (shop.haveRefreshSymbol || shop.refreshCount === 0);
+      if (!offered) {
+        throw new ReplayDivergenceError(
+          'Recorded a shop refresh, but no refresh was offered.'
+        );
+      }
+      if (
+        !shop.canAfford(game, { [shop.refreshCostResource]: shop.refreshCost })
+      ) {
+        throw new ReplayDivergenceError(
+          'Recorded a shop refresh that is not affordable.'
+        );
+      }
+      await shop.attemptRefresh(game);
+      return;
+    }
+    case 'b': {
+      const [, offerId, emoji, ...rest] = event;
+      const offer = shop.currentOffers[offerId];
+      if (!offer) {
+        throw new ReplayDivergenceError(
+          `Recorded a buy at offer ${offerId}, but no such offer exists.`
+        );
+      }
+      if (offer.symbol.emoji() !== emoji) {
+        throw new ReplayDivergenceError(
+          `Recorded buy expected ${emoji} at offer ${offerId}, but the shop offers ${offer.symbol.emoji()}.`
+        );
+      }
+      if (rest.length > 0) {
+        game.view.primeToolTarget(rest[0] === null ? null : [rest[0], rest[1]]);
+      }
+      // buyCount is not a reliable before/after signal: a purchase that
+      // brings it to 0 immediately closes the shop, which resets it right
+      // back to 1 (see Shop.close/reset) -- indistinguishable from "nothing
+      // happened". stats.run.totalBought only increments on an actually
+      // applied purchase, so use that instead.
+      const totalBoughtBefore = game.stats.run.totalBought;
+      await shop.attemptPurchase(game, offerId);
+      if (game.stats.run.totalBought === totalBoughtBefore) {
+        throw new ReplayDivergenceError(
+          `Recorded buy at offer ${offerId} did not apply (insufficient funds?).`
+        );
+      }
+      return;
+    }
+    default:
+      throw new ReplayDivergenceError(`Unrecognized replay event: ${event[0]}`);
+  }
+}
+
+// Decodes, reproduces, and drives a replay to the end under a real animated
+// renderer (ReplayRenderer). `progression`/`onGameOver` are injected by the
+// caller (app/bootstrap.js) rather than imported directly, matching how
+// Game itself takes onGameOver -- avoids a circular import back to
+// bootstrap.js, which is what constructs the ReplayRecorder this consumes.
+export async function runReplay(base64, { progression, onGameOver }) {
+  const parsed = parseReplay(base64);
+
+  const template = document.querySelector('.template');
+  const gameDiv = document.querySelector('.game');
+  gameDiv.replaceChildren();
+  const templateClone = template.cloneNode(true);
+  templateClone.classList.remove('hidden');
+  gameDiv.appendChild(templateClone.children[0]);
+
+  const catalog = new Catalog(parsed.settings.symbolSources);
+  await catalog.updateSymbols();
+  // Pin the RNG to the recorded starting position -- NOT reproduced by
+  // re-seeding from the phrase, since the RNG is seeded once per page load
+  // and never re-seeded between games (see core/rng.js). Any draws
+  // catalog.updateSymbols() just performed are harmless: overwritten here,
+  // before Game (and therefore any gameplay-relevant draw) is constructed.
+  Rng.importState(parsed.rng);
+
+  const settings = new GameSettings(
+    'Replay',
+    parsed.settings.boardX,
+    parsed.settings.boardY,
+    parsed.settings.gameLength,
+    parsed.settings.startingSet,
+    parsed.settings.symbolSources,
+    /* resultLookup= */ undefined,
+    /* textLookup= */ undefined,
+    parsed.settings.initiallyLockedCells
+  );
+
+  const renderer = new ReplayRenderer();
+  const game = new Game(
+    progression,
+    settings,
+    catalog,
+    renderer,
+    onGameOver,
+    /* isReplay= */ true
+  );
+
+  // The shop's buy/refresh buttons are still real DOM elements the player
+  // could otherwise click out of band while the driver is mid-purchase --
+  // it's the only thing allowed to act during a replay.
+  gameDiv.style.pointerEvents = 'none';
+  try {
+    for (const event of parsed.events) {
+      await playEvent(game, event);
+    }
+  } finally {
+    gameDiv.style.pointerEvents = 'auto';
+  }
+  return game;
+}

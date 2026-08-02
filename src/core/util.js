@@ -1,5 +1,11 @@
 // Pure helpers, no DOM access (see REFACTOR_PLAN.md, Phase 2).
 
+// UTF-8-safe base64 (btoa/atob are Latin1-only; save_state.js and replay.js
+// both encode JSON payloads that can contain emoji).
+export const toBase64Utf8 = (str) => btoa(unescape(encodeURIComponent(str)));
+export const fromBase64Utf8 = (base64) =>
+  decodeURIComponent(escape(atob(base64)));
+
 export const parseEmojiString = (str) => {
   const seg = new Intl.Segmenter('en', {
     granularity: 'grapheme',

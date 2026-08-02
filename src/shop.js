@@ -92,6 +92,7 @@ export class Shop {
     const canBuy = this.canAfford(game, cost);
     if (this.buyCount > 0 && canBuy) {
       this.buyCount--;
+      game.recorder?.recordBuy(offerId, symbol.emoji());
       game.stats?.recordBought(symbol.emoji());
       for (const [key, value] of Object.entries(cost)) {
         await Promise.all([
@@ -134,6 +135,7 @@ export class Shop {
       this.getInventory(game).getResource(this.refreshCostResource) >=
       this.refreshCost
     ) {
+      game.recorder?.recordRefresh();
       await Promise.all([
         game.eventlog.logResourceChange(
           this.refreshCostResource,

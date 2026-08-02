@@ -87,5 +87,6 @@ export class NullRenderer extends Renderer {
 
   async renderAchievements(_model) {}
   async renderSaveState(_props) {}
+  async renderReplay(_props) {}
   notifyAchievement(_def) {}
 }

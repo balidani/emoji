@@ -14,9 +14,16 @@ const onToolBuy = async (game, prompt, effect) => {
     (_spec, x, y) => game.board.getSymbol(x, y).emoji() !== Const.EMPTY
   );
   if (!coord) {
+    // Cancelled (or, headlessly, never resolvable) -- restore the shop
+    // regardless, and record that this buy resolved with no target so
+    // replay can reproduce the same no-op instead of waiting on a pick
+    // that never happened.
+    game.recorder?.recordToolTarget(null);
+    game.shop.show();
     return;
   }
   const [x, y] = coord;
+  game.recorder?.recordToolTarget(x, y);
   await effect(game, x, y);
   game.shop.show();
 };

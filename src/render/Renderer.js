@@ -82,8 +82,9 @@ export class Renderer {
     notImplemented('pinCell');
   }
   /** Resolves with the [x, y] of the next cell click matching `predicate`, or
-   * null if cancelled. `predicate` is called with (renderSpec, x, y). */
-  async awaitCellClick(_predicate) {
+   * null if cancelled (including via the optional `signal` AbortSignal
+   * aborting). `predicate` is called with (renderSpec, x, y). */
+  async awaitCellClick(_predicate, _signal) {
     notImplemented('awaitCellClick');
   }
   /** Enable/disable click interaction with the board. */
@@ -161,9 +162,13 @@ export class Renderer {
 
   /** Prompts the player with `prompt`, suspends board-click-to-roll, waits
    * for a matching cell click, then restores it. Resolves with [x, y] or
-   * null if cancelled. `predicate` is called with (renderSpec, x, y). Does
-   * NOT touch shop visibility -- that's the caller's job (Shop.show() has
-   * model state, buyCount, this port has no business re-implementing). */
+   * null if cancelled (including via a player-facing cancel affordance --
+   * necessary since `predicate` may be unsatisfiable by any cell on the
+   * current board, e.g. an all-empty roll, which would otherwise strand the
+   * player with no way to finish the pick). `predicate` is called with
+   * (renderSpec, x, y). Does NOT touch shop visibility -- that's the
+   * caller's job (Shop.show() has model state, buyCount, this port has no
+   * business re-implementing). */
   async pickCellForTool(_prompt, _predicate) {
     notImplemented('pickCellForTool');
   }
@@ -177,6 +182,10 @@ export class Renderer {
   /** `props` is {code, onImport(code)}. */
   async renderSaveState(_props) {
     notImplemented('renderSaveState');
+  }
+  /** `props` is {code, onRun(code)}. */
+  async renderReplay(_props) {
+    notImplemented('renderReplay');
   }
   /** Optional transient toast when an achievement unlocks; default no-op. */
   notifyAchievement(_def) {}

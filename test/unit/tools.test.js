@@ -4,7 +4,7 @@
 // via view.pickCellForTool, which NullRenderer always resolves to null
 // headlessly (so the golden trace suite never exercises them). Here we
 // script the spy renderer's pickCellForTool to resolve a specific cell.
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setSeed } from '../../src/core/rng.js';
 import { Pin, Axe, Eye } from '../../src/symbols/tools.js';
 import { Rock } from '../../src/symbols/rocks.js';
@@ -56,6 +56,40 @@ describe('tools.js', () => {
       spy.pickCellForToolResult = null;
       await new Pin().onBuy(game);
       expect(board.lockedAt(0, 0)).toBe(false);
+    });
+
+    it('restores the shop and records a null target when the cell picker is cancelled', async () => {
+      // Regression test for the freeze bug: predicate can be unsatisfiable
+      // by any cell on the board (e.g. an all-empty roll), so the real
+      // renderer now offers a cancel button -- onToolBuy must not leave the
+      // shop hidden when that happens, and the replay recorder must be told
+      // this buy resolved with no target (see REPLAY_PLAN.md's tool-target
+      // null-tracking decision).
+      const { game, spy } = buildGame({
+        grid: ['🪨 ⬜'],
+        inventorySymbols: [new Rock()],
+      });
+      game.shop.show = vi.fn();
+      game.recorder = { recordToolTarget: vi.fn() };
+      spy.pickCellForToolResult = null;
+
+      await new Pin().onBuy(game);
+
+      expect(game.shop.show).toHaveBeenCalledTimes(1);
+      expect(game.recorder.recordToolTarget).toHaveBeenCalledWith(null);
+    });
+
+    it('records the resolved [x, y] target on a successful pick', async () => {
+      const { game, spy } = buildGame({
+        grid: ['🪨 ⬜'],
+        inventorySymbols: [new Rock()],
+      });
+      game.recorder = { recordToolTarget: vi.fn() };
+      spy.pickCellForToolResult = [0, 0];
+
+      await new Pin().onBuy(game);
+
+      expect(game.recorder.recordToolTarget).toHaveBeenCalledWith(0, 0);
     });
   });
 

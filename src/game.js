@@ -20,7 +20,14 @@ export class Game {
     settings,
     catalog,
     renderer = new DomRenderer(),
-    onGameOver
+    onGameOver,
+    // Set by the replay driver (see replay.js) on the Game it constructs.
+    // Guards every persistence side effect below (profile stats,
+    // achievements, save data) so running a replay never touches the
+    // player's real progress -- has to be known from construction time,
+    // since Achievements itself persists unlocks as they happen, not just
+    // at game over.
+    isReplay = false
   ) {
     this.progression = progression;
     this.settings = settings;
@@ -29,15 +36,19 @@ export class Game {
     // subsystem as of Phase 7.
     this.view = renderer;
     this.onGameOver = onGameOver;
+    this.isReplay = isReplay;
     this.inventory = new Inventory(this.settings, this.catalog, this.view);
     this.inventory.update();
     this.profileStats = new ProfileStats(loadProfile());
     this.stats = new Stats(this.profileStats);
     this.inventory.stats = this.stats;
-    this.achievements = new Achievements(this.view);
+    this.achievements = new Achievements(this.view, this.isReplay);
     this.board = new Board(this);
     this.eventlog = new EventLog(this.view);
     this.shop = new Shop(this.catalog, this.view);
+    // Passive replay recorder (see replay.js); attached by bootstrap.js
+    // right after construction, so no action can fire before it's set.
+    this.recorder = null;
     this.rolling = false;
     this.info = document.querySelector('.game .info');
     this.progression.updateUi();
@@ -66,7 +77,9 @@ export class Game {
         return;
       }
     });
-    this.profileStats.gamesPlayed += 1;
+    if (!this.isReplay) {
+      this.profileStats.gamesPlayed += 1;
+    }
     this.achievements?.evaluate({
       event: 'gameover',
       finalScore: this.inventory.getResource(Const.MONEY),
@@ -75,12 +88,15 @@ export class Game {
     });
     // Everything this run satisfied, including achievements already
     // unlocked from a previous run -- earning one again is still worth
-    // showing in the popup below, not just brand-new unlocks.
+    // showing in the popup below, not just brand-new unlocks. (Achievements
+    // itself skips persisting unlocks when isReplay -- this is display-only.)
     const earnedThisRun = this.achievements?.completedThisRun ?? [];
     // Refresh the sidebar panel right away so it's current whether or not
     // it's open right now (bootstrap.js also re-renders it on open).
     this.achievements?.renderPanel();
-    saveProfile(this.profileStats);
+    if (!this.isReplay) {
+      saveProfile(this.profileStats);
+    }
     const scoreContainer = Util.createDiv('', 'scoreContainer');
     const scoreDiv = Util.createDiv(trophy, 'score');
     const scoreNumber = Util.formatBigNumber(
@@ -145,6 +161,7 @@ export class Game {
     }
 
     if (this.inventory.getResource(Const.TURNS) > 0) {
+      this.recorder?.recordRoll();
       await this.inventory.addResource(Const.TURNS, -1);
       this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);

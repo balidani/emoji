@@ -78,10 +78,13 @@ export const ACHIEVEMENTS = [
 ];
 
 export class Achievements {
-  constructor(renderer) {
+  constructor(renderer, isReplay = false) {
     this.view = renderer;
     this.defs = ACHIEVEMENTS;
     this.unlocked = loadUnlocked(); // Set<string> from localStorage
+    // A replay's unlocks are evaluated (so its own game-over popup can show
+    // what it earned) but never persisted -- see game.js's isReplay guard.
+    this.isReplay = isReplay;
     // Achievements is constructed fresh per `new Game()`, so these two
     // naturally track this run only. `completedThisRun` is every def whose
     // conditions were satisfied this run -- including ones already unlocked
@@ -128,12 +131,19 @@ export class Achievements {
       if (!this.unlocked.has(def.id)) {
         this.unlocked.add(def.id);
         newlyUnlocked.push(def);
-        this.view.notifyAchievement?.(def); // optional toast
+        // A replay doesn't actually unlock anything (see the persistence
+        // guard below) -- a live "unlocked!" toast mid-replay would be
+        // misleading. The game-over popup still shows what the run earned.
+        if (!this.isReplay) {
+          this.view.notifyAchievement?.(def); // optional toast
+        }
       }
     }
     if (newlyUnlocked.length > 0) {
       this.unlockedThisRun.push(...newlyUnlocked);
-      saveUnlocked(this.unlocked);
+      if (!this.isReplay) {
+        saveUnlocked(this.unlocked);
+      }
     }
     return newlyUnlocked;
   }
