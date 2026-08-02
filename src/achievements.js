@@ -13,6 +13,7 @@
 
 import { BronzeMedal, GoatMedal } from './symbols/ui.js';
 import { loadUnlocked, saveUnlocked } from './achievements-store.js';
+import { formatBigNumber } from './core/util.js';
 
 const FRUGAL_MAX_BUYS = 10;
 const DRAGON_TARGET = 20;
@@ -71,7 +72,7 @@ export const ACHIEVEMENTS = [
     icon: GoatMedal.emoji,
     requiredMedal: GoatMedal,
     unlocked: "You're the GOAT. Disgustingly, emoji-slot-machine rich.",
-    locked: `Reach 🐐 (💵${GoatMedal.threshold}) and prove you're the Greatest Of All Time.`,
+    locked: `Reach 🐐 (💵${formatBigNumber(GoatMedal.threshold)}) and prove you're the Greatest Of All Time.`,
     test: () => true,
   },
 ];
