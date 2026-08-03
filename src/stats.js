@@ -15,6 +15,9 @@ export class RunStats {
     this.maxInventorySize = 0; // high-water mark of inventory.symbols.length
     this.maxLuck = 0; // high-water mark of the 💫 resource reached this run
     this.maxUniqueSymbols = 0; // high-water mark of distinct symbol types held at once
+    this.maxRows = 0; // high-water mark of board rows reached this run
+    this.refreshesUsed = 0; // successful shop refreshes this run
+    this.freeTurnsGranted = 0; // extra ⏰ granted by 🎟️ FreeTurn this run
   }
   get totalBought() {
     return Object.values(this.boughtByEmoji).reduce((a, b) => a + b, 0);
@@ -84,5 +87,14 @@ export class Stats {
   }
   recordUniqueSymbols(count) {
     if (count > this.run.maxUniqueSymbols) this.run.maxUniqueSymbols = count;
+  }
+  recordRows(count) {
+    if (count > this.run.maxRows) this.run.maxRows = count;
+  }
+  recordRefresh() {
+    this.run.refreshesUsed += 1;
+  }
+  recordFreeTurn() {
+    this.run.freeTurnsGranted += 1;
   }
 }

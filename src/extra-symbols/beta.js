@@ -21,6 +21,7 @@ export class FreeTurn extends Symb {
     if (!chance(game, 0.1, x, y)) {
       return;
     }
+    game.stats?.recordFreeTurn();
     // addResource (not a bare game.inventory.addResource) so this also
     // works from the permanent/passive inventory (x === -1): it reads the
     // source emoji via game.board.getEmoji, which already handles passives,

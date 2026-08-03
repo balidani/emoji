@@ -136,6 +136,7 @@ export class Shop {
       this.refreshCost
     ) {
       game.recorder?.recordRefresh();
+      game.stats?.recordRefresh();
       await Promise.all([
         game.eventlog.logResourceChange(
           this.refreshCostResource,

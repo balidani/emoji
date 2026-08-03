@@ -179,6 +179,7 @@ export class Game {
       this.stats?.recordUniqueSymbols(
         new Set(this.inventory.symbols.map((s) => s.emoji())).size
       );
+      this.stats?.recordRows(this.board.currentRows);
       this.achievements?.evaluate({
         event: 'roll',
         stats: this.stats,

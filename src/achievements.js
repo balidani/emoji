@@ -11,13 +11,16 @@
 // doesn't need to check the score itself. All achievements are single-run,
 // evaluated against state built up over that run.
 
-import { BronzeMedal, GoatMedal } from './symbols/ui.js';
+import { BronzeMedal, GoldMedal, GoatMedal } from './symbols/ui.js';
 import { loadUnlocked, saveUnlocked } from './achievements-store.js';
 import { formatBigNumber } from './core/util.js';
 
 const FRUGAL_MAX_BUYS = 10;
 const DRAGON_TARGET = 20;
 const UNIQUE_SYMBOL_TARGET = 40;
+const ROW_TARGET = 50;
+const PRESENTS_TARGET = 50;
+const BANKRUPT_THRESHOLD = -20000;
 
 // ctx = { event: 'roll' | 'buy' | 'gameover', stats, inventory, finalScore? }
 export const ACHIEVEMENTS = [
@@ -67,13 +70,50 @@ export const ACHIEVEMENTS = [
     test: (c) => c.stats.run.totalBought <= FRUGAL_MAX_BUYS,
   },
   {
+    id: 'big_board',
+    name: 'Big Board',
+    icon: '🧱',
+    requiredMedal: BronzeMedal,
+    unlocked: `Grew the board to ${ROW_TARGET} rows.`,
+    locked: `Grow the board to ${ROW_TARGET} rows.`,
+    test: (c) => c.stats.run.maxRows >= ROW_TARGET,
+  },
+  {
+    id: 'gift_guru',
+    name: 'Gift Guru',
+    icon: '🎁',
+    requiredMedal: BronzeMedal,
+    unlocked: `Opened ${PRESENTS_TARGET} presents.`,
+    locked: `Open ${PRESENTS_TARGET} 🎁 presents.`,
+    test: (c) => c.inventory.giftsOpened >= PRESENTS_TARGET,
+  },
+  {
+    id: 'committed',
+    name: 'Committed',
+    icon: GoldMedal.emoji,
+    requiredMedal: GoldMedal,
+    unlocked: `Earned a ${GoldMedal.emoji} without refreshing the shop once.`,
+    locked: `Earn a ${GoldMedal.emoji} without ever refreshing the shop.`,
+    test: (c) => c.stats.run.refreshesUsed === 0,
+  },
+  {
+    id: 'bankrupt',
+    name: 'Bankrupt',
+    icon: '💸',
+    requiredMedal: null,
+    unlocked: `Ended a run at 💵${formatBigNumber(BANKRUPT_THRESHOLD)} or worse. Impressive, in a way.`,
+    locked: `End a run at 💵${formatBigNumber(BANKRUPT_THRESHOLD)} or lower. No trophy required, just commitment.`,
+    test: (c) => c.event === 'gameover' && c.finalScore <= BANKRUPT_THRESHOLD,
+  },
+  {
     id: 'goat',
     name: 'GOAT',
     icon: GoatMedal.emoji,
     requiredMedal: GoatMedal,
-    unlocked: "You're the GOAT. Disgustingly, emoji-slot-machine rich.",
-    locked: `Reach 🐐 (💵${formatBigNumber(GoatMedal.threshold)}) and prove you're the Greatest Of All Time.`,
-    test: () => true,
+    unlocked:
+      "You're the GOAT. Disgustingly, emoji-slot-machine rich -- and you didn't even need a 🎟️ Free Turn to get there.",
+    locked: `Reach 🐐 (💵${formatBigNumber(GoatMedal.threshold)}) without a single 🎟️ Free Turn, and prove you're the Greatest Of All Time.`,
+    test: (c) => c.stats.run.freeTurnsGranted === 0,
   },
 ];
 
