@@ -1,11 +1,10 @@
 import { formatBigNumber, createInteractiveDescription } from '../core/util.js';
 import { animate } from './animations.js';
 
-// The shop item DOM, extracted from shop.js (see REFACTOR_PLAN.md, Phase 7).
-// Offers carry their own onBuy callback (a closure Shop built over `game` and
-// the offer's id), matching the original code's per-offer closure design --
-// this view never needs a reference to `game` or `Shop` itself, only
-// `showInfo` for the click-to-info behavior on each offer's emoji.
+// The shop item DOM. Offers carry their own onBuy callback (a closure Shop
+// built over `game` and the offer's id), so this view never needs a
+// reference to `game` or `Shop` itself, only `showInfo` for the
+// click-to-info behavior on each offer's emoji.
 export class ShopView {
   constructor(showInfo) {
     this.shopDiv = document.querySelector('.game .shop');

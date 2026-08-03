@@ -1,8 +1,8 @@
 import * as Const from './consts.js';
 
-// Thin wrapper over the renderer port (see REFACTOR_PLAN.md, Phase 4). The
-// actual ticker DOM lives in render/EventLogView.js, driven through
-// DomRenderer.logResourceChange; NullRenderer no-ops it for headless runs.
+// Thin wrapper over the renderer port. The actual ticker DOM lives in
+// render/EventLogView.js, driven through DomRenderer.logResourceChange;
+// NullRenderer no-ops it for headless runs.
 export class EventLog {
   constructor(renderer) {
     this.renderer = renderer;

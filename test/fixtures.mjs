@@ -1,4 +1,4 @@
-// Golden-master fixtures for the RNG-trace harness (see REFACTOR_PLAN.md, Part D).
+// Golden-master fixtures for the RNG-trace harness.
 // Each fixture drives window.simulate(buyAlways, buyOnce, rounds) against a fixed
 // seed phrase (set via the URL hash), producing a deterministic play-through.
 // Strategies are taken from the pre-existing balancing runs commented out in main.js,

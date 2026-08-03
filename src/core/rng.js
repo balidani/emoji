@@ -1,7 +1,6 @@
-// Seeded RNG (sfc32), extracted from util.js (see REFACTOR_PLAN.md, Phase 1).
-// No DOM access here -- seeding is driven explicitly by the caller (main.js today,
-// bootstrap.js eventually), which is also responsible for reflecting the seed
-// phrase into the UI.
+// Seeded RNG (sfc32). No DOM access here -- seeding is driven explicitly by
+// the caller (bootstrap.js), which is also responsible for reflecting the
+// seed phrase into the UI.
 
 // Returns a callable next() function (arithmetic unchanged from the original
 // closure-based version) that also carries getState()/setState() so a

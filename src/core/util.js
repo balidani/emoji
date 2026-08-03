@@ -1,4 +1,4 @@
-// Pure helpers, no DOM access (see REFACTOR_PLAN.md, Phase 2).
+// Pure helpers, no DOM access.
 
 // UTF-8-safe base64 (btoa/atob are Latin1-only; save_state.js and replay.js
 // both encode JSON payloads that can contain emoji).

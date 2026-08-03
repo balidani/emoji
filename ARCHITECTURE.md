@@ -1,9 +1,8 @@
 # Emoji Slots — Architecture
 
 This document is a map of the codebase after the UI/game-logic separation
-refactor (see `REFACTOR_PLAN.md` for the original plan and rationale). It
-covers where things live, how the pieces fit together, and what test
-coverage exists.
+refactor. It covers where things live, how the pieces fit together, and what
+test coverage exists.
 
 ## The one-sentence summary
 

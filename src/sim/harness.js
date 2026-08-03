@@ -7,18 +7,17 @@ import { Inventory } from '../inventory.js';
 import { Shop } from '../shop.js';
 import { NullRenderer } from '../render/NullRenderer.js';
 
-// Headless simulation driver, extracted from main.js (REFACTOR_PLAN.md,
-// Phase 10). Runs the real Board/Shop/Inventory logic on NullRenderer for
-// balancing runs -- and doubles as the substrate the golden-master trace
-// harness (test/run-trace.mjs) drives via window.simulate.
+// Headless simulation driver. Runs the real Board/Shop/Inventory logic on
+// NullRenderer for balancing runs -- and doubles as the substrate the
+// golden-master trace harness (test/run-trace.mjs) drives via
+// window.simulate.
 class AutoGame {
   constructor(settings, catalog, buyAlways, buyOnce) {
     this.settings = settings;
     this.catalog = catalog;
-    // Renderer port (see REFACTOR_PLAN.md, Phase 3), now used by every
-    // subsystem as of Phase 7. NullRenderer's shop rendering still builds
-    // real DOM buy buttons -- this simulator's own buying logic below reads
-    // them directly (see NullRenderer.js for why).
+    // Renderer port, used by every subsystem. NullRenderer's shop rendering
+    // still builds real DOM buy buttons -- this simulator's own buying logic
+    // below reads them directly (see NullRenderer.js for why).
     this.view = new NullRenderer();
     this.inventory = new Inventory(settings, this.catalog, this.view);
     this.inventory.update();

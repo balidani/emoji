@@ -2,11 +2,10 @@ import * as Const from '../consts.js';
 import { formatBigNumber } from '../core/util.js';
 import { createDiv, animate } from './animations.js';
 
-// The event-log ticker DOM, extracted from eventlog.js (see REFACTOR_PLAN.md,
-// Phase 4). Driven by DomRenderer.logResourceChange. The map bookkeeping below
-// (aggregating repeated same-source/same-key events into a single updating
-// line instead of spamming the log) is purely a presentation concern, so it
-// lives here rather than in core/logic.
+// The event-log ticker DOM. Driven by DomRenderer.logResourceChange. The map
+// bookkeeping below (aggregating repeated same-source/same-key events into a
+// single updating line instead of spamming the log) is purely a presentation
+// concern, so it lives here rather than in core/logic.
 export class EventLogView {
   constructor() {
     this.eventLogDiv = document.querySelector('.game .event-log-inner');

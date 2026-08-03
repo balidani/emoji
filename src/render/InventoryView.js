@@ -1,10 +1,9 @@
 import { createInteractiveDescription, formatBigNumber } from '../core/util.js';
 import { createSpan } from './animations.js';
 
-// The inventory + resource panel DOM, extracted from inventory.js (see
-// REFACTOR_PLAN.md, Phase 5). `showInfo` is a callback(descriptionHtml) --
-// wired to DomRenderer.showInfo by whoever constructs this -- since clicking
-// an entry here is what drives the info panel.
+// The inventory + resource panel DOM. `showInfo` is a callback
+// (descriptionHtml) -- wired to DomRenderer.showInfo by whoever constructs
+// this -- since clicking an entry here is what drives the info panel.
 export class InventoryView {
   constructor(showInfo) {
     this.symbolsDiv = document.querySelector('.game .inventory');

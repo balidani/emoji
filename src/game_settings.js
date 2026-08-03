@@ -66,10 +66,10 @@ export class GameSettings {
   }
 
   // Called once per instance to wire it to a SettingsView + the reload
-  // callback (see REFACTOR_PLAN.md, Phase 9). tutorialLevelSettings and
-  // standardGameSettings (progression.js) both call this with the same
-  // SettingsView, preserving the original quirk where each instance's own
-  // click listener fires on the shared .open-settings button.
+  // callback. tutorialLevelSettings and standardGameSettings (progression.js)
+  // both call this with the same SettingsView, preserving the original quirk
+  // where each instance's own click listener fires on the shared
+  // .open-settings button.
   attachView(view, reload) {
     this.view = view;
     this.reload = reload;

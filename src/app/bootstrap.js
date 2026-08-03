@@ -13,9 +13,9 @@ import { KEYWORDS } from '../keywords.js';
 import { exportSave, importSave } from '../save_state.js';
 import { ReplayRecorder, runReplay } from '../replay.js';
 
-// The composition root (REFACTOR_PLAN.md, Phase 10): seeds the RNG, builds
-// Progression/GameSettings and their views, and loads the first game. main.js
-// is just "on DOM ready, bootstrap()".
+// The composition root: seeds the RNG, builds Progression/GameSettings and
+// their views, and loads the first game. main.js is just "on DOM ready,
+// bootstrap()".
 export async function bootstrap() {
   // Seed the RNG before anything else runs (in particular, before the first
   // catalog load dynamically imports symbol sources -- some, like Santa,

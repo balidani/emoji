@@ -1,8 +1,8 @@
 import { createDiv, createInput, createButton } from './animations.js';
 
-// The settings form, extracted from game_settings.js (REFACTOR_PLAN.md,
-// Phase 9). GameSettings keeps the data; this class only builds the form DOM
-// and reports the opener click / save / cancel back via callbacks.
+// The settings form. GameSettings keeps the data; this class only builds
+// the form DOM and reports the opener click / save / cancel back via
+// callbacks.
 export class SettingsView {
   // Called once per GameSettings instance that wants to open this view --
   // preserves the original quirk where each level's GameSettings attaches

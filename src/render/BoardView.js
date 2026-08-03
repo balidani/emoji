@@ -8,12 +8,9 @@ import {
   delay,
 } from './animations.js';
 
-// The board grid DOM + all cell animations, extracted from board.js (see
-// REFACTOR_PLAN.md, Phase 6). Board keeps the model (cells, locked cells, row
-// count) and calls into this class by coordinate + renderSpec; it never
-// builds or reads a cell's DOM node itself here (though board.js still keeps
-// getSymbolDiv/getCellDiv as compatibility shims for the ~55 call sites in
-// symbol files that reach for them directly -- those move in Phase 8).
+// The board grid DOM + all cell animations. Board keeps the model (cells,
+// locked cells, row count) and calls into this class by coordinate +
+// renderSpec; it never builds or reads a cell's DOM node itself here.
 export class BoardView {
   constructor() {
     this.gridDiv = document.querySelector('.game .grid');

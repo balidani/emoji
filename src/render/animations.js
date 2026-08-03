@@ -1,7 +1,5 @@
-// Animation + DOM helpers, extracted from util.js (see REFACTOR_PLAN.md, Phase 2).
-// The ANIMATION flag lives here now (moved out of util.js per Part C.6) -- it will
-// become DomRenderer state once that exists (Phase 3+); for now this module is its
-// home, since it's the one place left that governs whether animations play.
+// Animation + DOM helpers. The ANIMATION flag lives here, since this is the
+// one place that governs whether animations play.
 
 let ANIMATION = true;
 export const toggleAnimation = () => {

@@ -1,9 +1,8 @@
 import { createDiv } from './animations.js';
 
-// The level-select strip, extracted from progression.js (REFACTOR_PLAN.md,
-// Phase 9). Progression keeps the level/save/localStorage model; this class
-// only builds the chip DOM from plain data and reports clicks back via
-// callbacks.
+// The level-select strip. Progression keeps the level/save/localStorage
+// model; this class only builds the chip DOM from plain data and reports
+// clicks back via callbacks.
 export class ProgressionView {
   constructor() {
     this.uiDiv = document.querySelector('.progression');

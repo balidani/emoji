@@ -89,9 +89,8 @@ export class Symb {
   counter(_game) {
     return null;
   }
-  // Plain-data description of this symbol's on-screen appearance (see
-  // REFACTOR_PLAN.md Part C.3 and Phase 6). DomRenderer/BoardView is the only
-  // place that turns this into DOM.
+  // Plain-data description of this symbol's on-screen appearance.
+  // DomRenderer/BoardView is the only place that turns this into DOM.
   //
   // NOTE: the DOM node this replaces (the old `render()`) wired a click
   // listener via `this.clickHandler(game)`, but that call's return value (a

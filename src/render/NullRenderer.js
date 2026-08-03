@@ -3,19 +3,16 @@ import { ShopView } from './ShopView.js';
 
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_.*$", "varsIgnorePattern": "^_.*$" }] */
 
-// No-op renderer for headless simulation and testing (see REFACTOR_PLAN.md,
-// Phase 3 / Part C.1). Every method resolves immediately and touches nothing --
-// no `document`, no timers. Once game logic is fully routed through the
-// Renderer port (Phase 6+), this is what lets the whole game run in Node
-// without a browser.
+// No-op renderer for headless simulation and testing. Every method resolves
+// immediately and touches nothing -- no `document`, no timers -- which is
+// what lets the whole game run in Node without a browser.
 //
 // Shop is a structural exception (see the constructor and its shop methods
 // below): AutoGame's own simulation harness (main.js) reads real DOM buy
 // buttons to decide what to purchase, so shop rendering can't be a no-op
 // without silently changing what a simulated game buys -- and therefore its
-// RNG draws and outcome. This predates the refactor (Part A.1 of the plan:
-// the harness "clicks real buy buttons"); it isn't something Phase 7
-// introduced, just something Phase 7 has to keep working.
+// RNG draws and outcome. The harness "clicks real buy buttons", and this
+// class has to keep that working.
 export class NullRenderer extends Renderer {
   constructor() {
     super();
@@ -80,8 +77,8 @@ export class NullRenderer extends Renderer {
   setAnimationEnabled(_enabled) {}
 
   async pickCellForTool(_prompt, _predicate) {
-    // Matches master's own AutoGame harness: it can't script a cell click for
-    // tools either, so simulated games never buy Pin/Axe/Eye (see Part F.3).
+    // The simulation harness can't script a cell click for tools, so
+    // simulated games never buy Pin/Axe/Eye.
     return null;
   }
 

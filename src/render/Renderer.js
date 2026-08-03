@@ -1,4 +1,4 @@
-// The Renderer port (see REFACTOR_PLAN.md, Part C.2 and Phase 3).
+// The Renderer port.
 //
 // This is the seam between game logic and presentation: every UI operation the
 // logic layer needs is expressed here as an abstract method, grouped by
@@ -13,13 +13,7 @@
 //
 // A `renderSpec` (referenced in several signatures below) is the plain-data
 // description of a symbol's on-screen appearance, e.g.
-// `{ emoji, counter, pinned, ownedEmoji }` (see Part C.3) -- never a DOM node.
-//
-// NOTE: as of Phase 3 this interface is defined and threaded through as
-// `game.view` / `NullRenderer` in `AutoGame`, but nothing calls it yet; Board,
-// Inventory, Shop, EventLog, and the symbols still manipulate the DOM directly.
-// Later phases move that code behind the matching method here one subsystem at
-// a time.
+// `{ emoji, counter, pinned, ownedEmoji }` -- never a DOM node.
 
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_.*$", "varsIgnorePattern": "^_.*$" }] */
 
@@ -158,7 +152,7 @@ export class Renderer {
     notImplemented('setAnimationEnabled');
   }
 
-  // --- Interactive tools (Pin/Axe/Eye; see Part C.8) ---
+  // --- Interactive tools (Pin/Axe/Eye) ---
 
   /** Prompts the player with `prompt`, suspends board-click-to-roll, waits
    * for a matching cell click, then restores it. Resolves with [x, y] or

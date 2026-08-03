@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Golden-master trace runner (see REFACTOR_PLAN.md, Part D).
+// Golden-master trace runner.
 //
 // Drives the real game (through window.simulate, which uses the real Board/Shop/
 // Inventory and the actual seeded RNG) inside headless Chromium, and records an
@@ -169,7 +169,8 @@ async function runFixture(browser, baseUrl, fixture) {
     console.error(`[${fixture.name}] page error: ${err}`);
   });
   // Installed before any page script runs, so it captures RNG draws from the very
-  // first import-time static initializer onward (see REFACTOR_PLAN.md D.2 re: Santa).
+  // first import-time static initializer onward (this matters for Santa's static
+  // initializer draw -- see the note below).
   await page.addInitScript(() => {
     window.__RNG_TRACE__ = [];
   });
@@ -197,15 +198,14 @@ async function runFixture(browser, baseUrl, fixture) {
 }
 
 // Santa's `static emoji = Util.randomChoose([...skin tones])` (things.js) draws from
-// the seeded RNG at module-import time. Empirically (see investigation in the Phase 0
-// commit) this specific draw is not reproducible run-to-run in this harness even
-// though every other recorded event -- every other RNG draw, every resource change,
-// every board mutation, down to the total trace length -- is bit-for-bit identical.
-// This is pre-existing, environment-level nondeterminism (Chromium's dynamic-import
-// scheduling), not something the refactor introduces or can fix; REFACTOR_PLAN.md
-// Part F.3 flags this exact symbol as a known fragile point. Normalize it here so it
-// doesn't produce false-positive divergences, while still catching any real drift
-// (every other line still has to match exactly).
+// the seeded RNG at module-import time. Empirically, this specific draw is not
+// reproducible run-to-run in this harness even though every other recorded event --
+// every other RNG draw, every resource change, every board mutation, down to the
+// total trace length -- is bit-for-bit identical. This is pre-existing,
+// environment-level nondeterminism (Chromium's dynamic-import scheduling) and a
+// known fragile point for this exact symbol. Normalize it here so it doesn't
+// produce false-positive divergences, while still catching any real drift (every
+// other line still has to match exactly).
 const SANTA_VARIANTS = /🎅[🏻🏼🏽🏾🏿]/gu;
 function normalizeKnownNoise(line) {
   return line.replace(SANTA_VARIANTS, '🎅');

@@ -8,14 +8,10 @@ import { SaveStateView } from './SaveStateView.js';
 import { ReplayView } from './ReplayView.js';
 import { drawText, createButton } from './animations.js';
 
-// The real renderer -- backs the interactive game in a browser.
-//
-// Phase 3 introduced the shell: constructed and threaded through as
-// `game.view`, but with its methods still inheriting Renderer's "not
-// implemented" stubs. Every subsystem now has an override here -- Phases 4
-// (event log), 5 (inventory/resources), 6 (board), 7 (shop), and 8 (symbol
-// hooks, Symb.addResource/addMoney, and pickCellForTool) -- see
-// REFACTOR_PLAN.md.
+// The real renderer -- backs the interactive game in a browser. Every
+// Renderer method has a concrete override here: event log, inventory/
+// resources, board, shop, and symbol hooks (Symb.addResource/addMoney,
+// pickCellForTool).
 export class DomRenderer extends Renderer {
   constructor() {
     super();
@@ -122,9 +118,9 @@ export class DomRenderer extends Renderer {
     return this.shopView.closeShop();
   }
 
-  // Interactive tools (Pin/Axe/Eye; Part C.8). Shop visibility around a tool
-  // purchase stays the caller's job (tools.js), not this method's -- Shop.show()
-  // has a buyCount>0 guard this renderer has no business re-implementing.
+  // Interactive tools (Pin/Axe/Eye). Shop visibility around a tool purchase
+  // stays the caller's job (tools.js), not this method's -- Shop.show() has
+  // a buyCount>0 guard this renderer has no business re-implementing.
   async pickCellForTool(prompt, predicate) {
     this.boardView.removeRollListener();
     const infoDiv = document.querySelector('.game .info');

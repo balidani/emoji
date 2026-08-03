@@ -1,6 +1,6 @@
-// Grid-scaling math, extracted from main.js (REFACTOR_PLAN.md, Phase 10).
-// Keeps the board legible across viewport sizes by scaling a wrapper div;
-// purely a DOM-measurement/CSS-variable concern, no gameplay logic.
+// Grid-scaling math. Keeps the board legible across viewport sizes by
+// scaling a wrapper div; purely a DOM-measurement/CSS-variable concern, no
+// gameplay logic.
 
 const BASE_VW = 226.67;
 const MIN_S = 0.5;

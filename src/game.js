@@ -14,7 +14,7 @@ export class Game {
   // onGameOver: called (as a body click listener) once the final-score
   // screen is showing, to reset into the next game. Injected by the caller
   // (main.js's loadListener) instead of imported directly, to break the
-  // main.js <-> game.js circular import (REFACTOR_PLAN.md, Phase 9).
+  // main.js <-> game.js circular import.
   constructor(
     progression,
     settings,
@@ -32,8 +32,7 @@ export class Game {
     this.progression = progression;
     this.settings = settings;
     this.catalog = catalog;
-    // Renderer port (see REFACTOR_PLAN.md, Phase 3), now used by every
-    // subsystem as of Phase 7.
+    // Renderer port, used by every subsystem.
     this.view = renderer;
     this.onGameOver = onGameOver;
     this.isReplay = isReplay;
