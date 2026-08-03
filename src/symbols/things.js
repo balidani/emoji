@@ -196,13 +196,20 @@ export class Lootbox extends Symb {
 }
 
 export class Santa extends Symb {
-  static emoji = Util.randomChoose(['🎅🏻', '🎅🏼', '🎅🏽', '🎅🏾', '🎅🏿']);
+  static emoji = '🧑‍🎄';
+  // Cosmetic only, drawn once from the seeded stream at import time (same
+  // position as before the refactor, so gameplay is unaffected). Never
+  // leaks into identity -- see displayEmoji().
+  static displayVariant = Util.randomChoose(['🎅🏻', '🎅🏼', '🎅🏽', '🎅🏾', '🎅🏿']);
   constructor() {
     super();
     this.rarity = 0.07;
   }
   copy() {
     return new Santa();
+  }
+  displayEmoji() {
+    return Santa.displayVariant;
   }
   counter(game) {
     return game.inventory.giftsOpened;

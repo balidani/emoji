@@ -148,8 +148,12 @@ describe('things.js', () => {
   });
 
   describe('Santa 🎅', () => {
-    it('emoji() always starts with 🎅 (skin-tone variant chosen at load time, not hard-coded)', () => {
-      expect(new Santa().emoji().startsWith('🎅')).toBe(true);
+    it('emoji() is the deterministic canonical identity', () => {
+      expect(new Santa().emoji()).toBe('🧑‍🎄');
+    });
+
+    it('displayEmoji() is a skin-tone Santa variant', () => {
+      expect(new Santa().displayEmoji().startsWith('🎅')).toBe(true);
     });
 
     it('pays 💵25 per 🎁 opened this run', async () => {

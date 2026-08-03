@@ -103,7 +103,13 @@ flowchart TB
 - **`renderSpec`**: symbols never build DOM. `Symb.renderSpec(game, x, y)`
   (`symbol.js`) returns plain data — `{ emoji, counter, pinned }` — and
   `BoardView`/`DomRenderer` are the only code that turns that into DOM
-  nodes.
+  nodes. The `emoji` field comes from `displayEmoji()`, not `emoji()`:
+  `emoji()` is a symbol's deterministic logical identity (catalog key,
+  save/serialize token, trace text), while `displayEmoji()` is what's
+  drawn on screen and defaults to `emoji()`. Santa (`symbols/things.js`)
+  is the one symbol where these diverge — `emoji()` is the canonical
+  `🧑‍🎄`, `displayEmoji()` returns a random skin-tone `🎅` variant fixed
+  for the session.
 
 - **`game.view`**: every subsystem receives a renderer instance at
   construction (`Board`, `Inventory`, `Shop`, `EventLog` all take one) and
@@ -195,10 +201,11 @@ can't observe (pure DOM/UI wiring).
 - What's recorded: every raw RNG draw, every resource change, every
   board mutation (add/remove/lock/pin symbol), and shop offer generation
   — i.e. everything the game's outcome is a deterministic function of.
-- One known non-determinism is normalized away: Santa's skin-tone variant
-  (`🎅🏻`/`🏼`/`🏽`/`🏾`/`🏿`) is chosen via a page-load-time race unrelated to
-  any RNG seed, so the comparator regexes all variants to one before
-  diffing.
+- Santa's logical identity (`emoji()`) is the deterministic `🧑‍🎄`; only
+  its cosmetic `displayEmoji()` skin-tone variant is chosen via a
+  page-load-time race, and that value never reaches the trace (see
+  "Display glyph vs. logical identity" below), so no normalization is
+  needed.
 - Run it: `npm test` (equivalently `node test/run-trace.mjs`). Add
   `--update` to regenerate the committed goldens after an *intentional*
   gameplay change (never do this to make a failing diff go away without
@@ -217,9 +224,9 @@ session.
 ### `test/golden/*.trace`
 
 12 committed plaintext trace files (one per fixture, several thousand to
-~23k lines each), diffed byte-for-byte (mod the Santa normalization) on
-every run. These are the actual regression oracle — there is no
-separate "expected value" logic anywhere else.
+~23k lines each), diffed byte-for-byte on every run. These are the
+actual regression oracle — there is no separate "expected value" logic
+anywhere else.
 
 ### What is *not* covered by the trace suite
 

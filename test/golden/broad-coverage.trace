@@ -3400,7 +3400,7 @@ rng:0.5327653286512941
 rng:0.7838409841060638
 rng:0.16876049060374498
 rng:0.0948696241248399
-catalog.generateShop(min=3,luck=0,rare=false) -> 🕳️🥚🍒🏦💼🪙🥁📀💎🪨👷☁️🎁🌝🎅🪓
+catalog.generateShop(min=3,luck=0,rare=false) -> 🕳️🥚🍒🏦💼🪙🥁📀💎🪨👷☁️🎁🌝🧑‍🎄🪓
 rng:0.6303093149326742
 rng:0.4856509626843035
 rng:0.4438443318940699
@@ -6821,7 +6821,7 @@ rng:0.44968144060112536
 rng:0.011468699900433421
 rng:0.5937683111988008
 rng:0.5999528688844293
-catalog.generateShop(min=3,luck=0,rare=false) -> 🍀🍒🌽🍍🪙💰🪨👷☁️🎅🧵📌
+catalog.generateShop(min=3,luck=0,rare=false) -> 🍀🍒🌽🍍🪙💰🪨👷☁️🧑‍🎄🧵📌
 rng:0.2361850633751601
 rng:0.9710827386006713
 rng:0.9256980887148529
@@ -8496,7 +8496,7 @@ rng:0.5411813738755882
 rng:0.9235151344910264
 rng:0.7205236293375492
 rng:0.5446279114112258
-catalog.generateShop(min=3,luck=0,rare=false) -> 🐛🐔🥚🍾🍒🌳🪙💳💸🥁🪨🎅
+catalog.generateShop(min=3,luck=0,rare=false) -> 🐛🐔🥚🍾🍒🌳🪙💳💸🥁🪨🧑‍🎄
 rng:0.6239523424301296
 rng:0.41515565966255963
 rng:0.9036824919749051
@@ -8731,7 +8731,7 @@ rng:0.8718706974759698
 rng:0.265834400895983
 rng:0.8882592066656798
 rng:0.5076859029941261
-catalog.generateShop(min=3,luck=0,rare=false) -> 🥠🥚🦊🍒🌽🏦🪙💸🔔🪨🎅
+catalog.generateShop(min=3,luck=0,rare=false) -> 🥠🥚🦊🍒🌽🏦🪙💸🔔🪨🧑‍🎄
 rng:0.8433382492512465
 rng:0.44669975293800235
 rng:0.14304999052546918
@@ -11348,7 +11348,7 @@ rng:0.25498389871791005
 rng:0.03629879932850599
 rng:0.3566669456195086
 rng:0.7031332787591964
-catalog.generateShop(min=3,luck=0,rare=false) -> 🥚🍍🏦🪙💰🔔🌋☁️🎅📌
+catalog.generateShop(min=3,luck=0,rare=false) -> 🥚🍍🏦🪙💰🔔🌋☁️🧑‍🎄📌
 rng:0.006879307329654694
 rng:0.150274773593992
 rng:0.6448910771869123
@@ -11640,7 +11640,7 @@ rng:0.8256614971905947
 rng:0.7990999280009419
 rng:0.326861820416525
 rng:0.20743007981218398
-catalog.generateShop(min=3,luck=0,rare=false) -> 🥠🕳️🐔🥚🍒🍹🍍🌳🏦🪙💰🥁🪨👷🎁🌝🎅
+catalog.generateShop(min=3,luck=0,rare=false) -> 🥠🕳️🐔🥚🍒🍹🍍🌳🏦🪙💰🥁🪨👷🎁🌝🧑‍🎄
 rng:0.8985122079029679
 rng:0.5591407103929669
 rng:0.26274516247212887
@@ -12504,7 +12504,7 @@ rng:0.8960205928888172
 rng:0.13061291025951505
 rng:0.9485971822869033
 rng:0.8798911080230027
-catalog.generateShop(min=3,luck=0,rare=false) -> 🍀🐛🥚🍒💼🪙💳💸📀🪨🌋👷🎅
+catalog.generateShop(min=3,luck=0,rare=false) -> 🍀🐛🥚🍒💼🪙💳💸📀🪨🌋👷🧑‍🎄
 rng:0.8287249153945595
 rng:0.7162137997802347
 rng:0.5848536191042513
@@ -13879,7 +13879,7 @@ rng:0.47299704723991454
 rng:0.5341883713845164
 rng:0.68249382218346
 rng:0.30888027837499976
-catalog.generateShop(min=3,luck=0,rare=false) -> 🔀🐔🥚🍒🪙🫙🪨👷🎅
+catalog.generateShop(min=3,luck=0,rare=false) -> 🔀🐔🥚🍒🪙🫙🪨👷🧑‍🎄
 rng:0.44199620955623686
 rng:0.8347205377649516
 rng:0.34517704928293824
@@ -15357,7 +15357,7 @@ rng:0.34900138177908957
 rng:0.8195588232483715
 rng:0.3444781331345439
 rng:0.7729565191548318
-catalog.generateShop(min=3,luck=0,rare=false) -> 🕳️🥚🍒🍹🍍🏦💼🪙🫙💰🔔🥁🪨🎈🎅🧵🪓
+catalog.generateShop(min=3,luck=0,rare=false) -> 🕳️🥚🍒🍹🍍🏦💼🪙🫙💰🔔🥁🪨🎈🧑‍🎄🧵🪓
 rng:0.12104452634230256
 rng:0.950702290283516
 rng:0.9300375389866531
@@ -16910,7 +16910,7 @@ rng:0.5933672357350588
 rng:0.8199409155640751
 rng:0.6729455958120525
 rng:0.08247931324876845
-catalog.generateShop(min=3,luck=0,rare=false) -> 🛍️🐛🥚🍒🍍🏦🪙🎲💰🥁👷🌝🎅
+catalog.generateShop(min=3,luck=0,rare=false) -> 🛍️🐛🥚🍒🍍🏦🪙🎲💰🥁👷🌝🧑‍🎄
 rng:0.014740448910742998
 rng:0.4727274840697646
 rng:0.9816219785716385

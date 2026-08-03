@@ -6,6 +6,15 @@ export const toBase64Utf8 = (str) => btoa(unescape(encodeURIComponent(str)));
 export const fromBase64Utf8 = (base64) =>
   decodeURIComponent(escape(atob(base64)));
 
+// Fitzpatrick skin-tone modifiers. Santa is the only symbol whose static
+// emoji ever carried one; stripping it (and folding the classic 🎅 glyph
+// onto the canonical 🧑‍🎄) lets any tone resolve to the one catalog key.
+const SKIN_TONE_RE = /[\u{1F3FB}-\u{1F3FF}]/gu;
+export const normalizeSkinTone = (emoji) => {
+  const stripped = emoji.replace(SKIN_TONE_RE, '');
+  return stripped === '🎅' ? '🧑‍🎄' : stripped;
+};
+
 export const parseEmojiString = (str) => {
   const seg = new Intl.Segmenter('en', {
     granularity: 'grapheme',

@@ -192,23 +192,7 @@ async function runFixture(browser, baseUrl, fixture) {
     window.__TRACE__.map((x) => (typeof x === 'number' ? `rng:${x}` : x))
   );
   await page.close();
-  return [...trace, ...consoleLines.map((l) => `console: ${l}`)].map(
-    normalizeKnownNoise
-  );
-}
-
-// Santa's `static emoji = Util.randomChoose([...skin tones])` (things.js) draws from
-// the seeded RNG at module-import time. Empirically, this specific draw is not
-// reproducible run-to-run in this harness even though every other recorded event --
-// every other RNG draw, every resource change, every board mutation, down to the
-// total trace length -- is bit-for-bit identical. This is pre-existing,
-// environment-level nondeterminism (Chromium's dynamic-import scheduling) and a
-// known fragile point for this exact symbol. Normalize it here so it doesn't
-// produce false-positive divergences, while still catching any real drift (every
-// other line still has to match exactly).
-const SANTA_VARIANTS = /🎅[🏻🏼🏽🏾🏿]/gu;
-function normalizeKnownNoise(line) {
-  return line.replace(SANTA_VARIANTS, '🎅');
+  return [...trace, ...consoleLines.map((l) => `console: ${l}`)];
 }
 
 async function main() {

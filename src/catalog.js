@@ -53,8 +53,9 @@ export class Catalog {
     }
   }
   symbol(emoji) {
-    if (this.symbols.has(emoji)) {
-      return this.symbols.get(emoji).copy();
+    const key = Util.normalizeSkinTone(emoji);
+    if (this.symbols.has(key)) {
+      return this.symbols.get(key).copy();
     }
     throw new Error('Unknown symbol: ' + emoji);
   }

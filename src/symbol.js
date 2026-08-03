@@ -83,6 +83,9 @@ export class Symb {
   emoji() {
     return this.constructor.emoji;
   }
+  displayEmoji(_game, _x, _y) {
+    return this.emoji();
+  }
   reset() {
     this.multiplier = 1;
   }
@@ -100,7 +103,7 @@ export class Symb {
   // replicating that dead code here isn't a behavior change.
   renderSpec(game, x, y) {
     return {
-      emoji: this.emoji(),
+      emoji: this.displayEmoji(game, x, y),
       counter: this.counter(game),
       pinned: !!game.board.lockedAt(x, y),
     };

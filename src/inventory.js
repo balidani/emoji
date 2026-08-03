@@ -95,6 +95,6 @@ export class Inventory {
     if (this.symbols.length === 0) {
       return Const.EMPTY;
     }
-    return Util.randomChoose(this.symbols).emoji();
+    return Util.randomChoose(this.symbols).displayEmoji();
   }
 }
