@@ -27,6 +27,6 @@ export class Wildcard extends Symb {
     return game.catalog.symbol(Util.randomChoose(JOKER_DISGUISES));
   }
   description() {
-    return '[Transforms](transform) into a random symbol each turn. Kept even when that symbol is removed.';
+    return '[Transforms](transform) into a random symbol each turn.';
   }
 }
