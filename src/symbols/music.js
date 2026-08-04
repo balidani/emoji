@@ -181,7 +181,30 @@ export class Pirate extends Symb {
   copy() {
     return new Pirate();
   }
-  async evaluateProduce(_game, _x, _y) {}
+  async evaluateProduce(game, x, y) {
+    const recordCoords = game.board.nextToSymbol(x, y, Record.emoji);
+    if (recordCoords.length === 0) {
+      return;
+    }
+    const emptyCoords = game.board.nextToEmpty(x, y);
+    if (emptyCoords.length === 0) {
+      return;
+    }
+    const count = Math.min(recordCoords.length, emptyCoords.length);
+    for (let i = 0; i < count; ++i) {
+      const [srcX, srcY] = recordCoords[i];
+      const newSymbol = game.board.cells[srcY][srcX].copy();
+      const [newX, newY] = Util.randomRemove(emptyCoords);
+      await game.view.animateCell(x, y, 'rotate', 0.15, 1);
+      await game.eventlog.logResourceChange(
+        newSymbol.emoji(),
+        '',
+        this.emoji(),
+        'earned'
+      );
+      await game.board.addSymbol(game, newSymbol, newX, newY);
+    }
+  }
   description() {
     return '[Copies](duplicate) nearby 📀';
   }

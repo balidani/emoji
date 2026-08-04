@@ -90,4 +90,13 @@ export const fixtures = [
     buyAlways: '❎🃏',
     buyOnce: '🐛🎯🎯🥚🥚🎈🎈',
   },
+  {
+    // PIRATE_DESIGN.md §8.2: ramps luck (🍀/🔮/🥠) so 🏴‍☠️ (rarity -0.1) gets
+    // offered and bought, then locks in a 🏴‍☠️→📀 "earned" duplication next
+    // to a 📀 on the board.
+    name: 'pirate-records',
+    seed: 'golden-pirate-records-3',
+    buyAlways: '❎🍀🔮🥠📀🏴‍☠️',
+    buyOnce: '',
+  },
 ];

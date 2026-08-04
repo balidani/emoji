@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setSeed } from '../../src/core/rng.js';
 import { CATEGORY_UNBUYABLE } from '../../src/symbol.js';
-import { MusicalNote } from '../../src/symbols/music.js';
+import { MusicalNote, Pirate } from '../../src/symbols/music.js';
 import { buildGame } from './helpers/fakeGame.js';
 import { seedFirstDraw } from './helpers/rngSeeds.js';
 import { expectMoney } from './helpers/assertions.js';
@@ -100,6 +100,93 @@ describe('music.js', () => {
       expectMoney(game, 6);
       expect(record.counter()).toBe(6);
       expect(record.copy().notes).toBe(6);
+    });
+  });
+
+  describe('Pirate 🏴‍☠️', () => {
+    it('copies a single neighboring Record onto an empty cell', async () => {
+      const { game, board } = buildGame({ grid: ['🏴‍☠️ 📀', '⬜ ⬜'] });
+      const originalRecord = board.cells[0][1];
+      await board.cells[0][0].evaluateProduce(game, 0, 0);
+      let recordCount = 0;
+      for (const row of board.cells) {
+        for (const cell of row) {
+          if (cell.emoji() === '📀') recordCount++;
+        }
+      }
+      expect(recordCount).toBe(2);
+      expect(board.cells[0][1]).toBe(originalRecord); // original untouched
+    });
+
+    it('copies every neighboring Record when space allows', async () => {
+      const { game, board } = buildGame({
+        grid: ['📀 🏴‍☠️ 📀', '⬜ ⬜ ⬜'],
+      });
+      await board.cells[0][1].evaluateProduce(game, 1, 0);
+      let recordCount = 0;
+      for (const row of board.cells) {
+        for (const cell of row) {
+          if (cell.emoji() === '📀') recordCount++;
+        }
+      }
+      expect(recordCount).toBe(4);
+    });
+
+    it('is bounded by empty space', async () => {
+      const { game, board } = buildGame({
+        grid: ['📀 🏴‍☠️ 📀', '⬜ 🪨 🪨'],
+      });
+      await board.cells[0][1].evaluateProduce(game, 1, 0);
+      let recordCount = 0;
+      for (const row of board.cells) {
+        for (const cell of row) {
+          if (cell.emoji() === '📀') recordCount++;
+        }
+      }
+      expect(recordCount).toBe(3); // 2 originals + 1 copy (only 1 empty neighbor)
+    });
+
+    it('does nothing without a neighboring Record (and draws no RNG)', async () => {
+      const { game, board } = buildGame({ grid: ['🏴‍☠️ ⬜'] });
+      globalThis.__RNG_TRACE__ = [];
+      await board.cells[0][0].evaluateProduce(game, 0, 0);
+      const trace = globalThis.__RNG_TRACE__;
+      delete globalThis.__RNG_TRACE__;
+      expect(board.cells[0][1].emoji()).toBe('⬜');
+      expect(trace.length).toBe(0);
+    });
+
+    it('does nothing without an empty neighbor', async () => {
+      const { game, board } = buildGame({ grid: ['🏴‍☠️ 📀', '🪨 🪨'] });
+      const originalRecord = board.cells[0][1];
+      await board.cells[0][0].evaluateProduce(game, 0, 0);
+      expect(board.cells[0][1]).toBe(originalRecord); // untouched
+      let recordCount = 0;
+      for (const row of board.cells) {
+        for (const cell of row) {
+          if (cell.emoji() === '📀') recordCount++;
+        }
+      }
+      expect(recordCount).toBe(1);
+    });
+
+    it('copy preserves the source Record stockpile', async () => {
+      const { game, board } = buildGame({ grid: ['🏴‍☠️ 📀', '⬜ ⬜'] });
+      const record = board.cells[0][1];
+      record.notes = 42;
+      await board.cells[0][0].evaluateProduce(game, 0, 0);
+      const copies = [];
+      for (const row of board.cells) {
+        for (const cell of row) {
+          if (cell.emoji() === '📀' && cell !== record) copies.push(cell);
+        }
+      }
+      expect(copies.length).toBe(1);
+      expect(copies[0].notes).toBe(42);
+    });
+
+    it('has rarity -0.1', () => {
+      expect(new Pirate().rarity).toBe(-0.1);
     });
   });
 });
