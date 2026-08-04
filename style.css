@@ -327,6 +327,7 @@ body {
 
 .inventory {
   width: 100%;
+  box-sizing: border-box;
   font-size: 14pt;
   pointer-events: none;
   letter-spacing: 2pt;
