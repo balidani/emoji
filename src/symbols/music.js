@@ -171,3 +171,18 @@ export class Record extends Symb {
     return '[Consumes](consume) neighboring 🎵 and [Stockpiles](stockpile) +💵6 each';
   }
 }
+
+export class Pirate extends Symb {
+  static emoji = '🏴‍☠️';
+  constructor() {
+    super();
+    this.rarity = -0.1;
+  }
+  copy() {
+    return new Pirate();
+  }
+  async evaluateProduce(_game, _x, _y) {}
+  description() {
+    return '[Copies](duplicate) nearby 📀';
+  }
+}
