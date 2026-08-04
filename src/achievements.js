@@ -20,7 +20,7 @@ const DRAGON_TARGET = 20;
 const UNIQUE_SYMBOL_TARGET = 40;
 const ROW_TARGET = 50;
 const PRESENTS_TARGET = 50;
-const BANKRUPT_THRESHOLD = -20000;
+const BANKRUPT_THRESHOLD = -50000;
 
 // ctx = { event: 'roll' | 'buy' | 'gameover', stats, inventory, finalScore? }
 export const ACHIEVEMENTS = [
