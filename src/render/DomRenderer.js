@@ -80,6 +80,9 @@ export class DomRenderer extends Renderer {
   async spinIntoHole(x, y, newSpec, holeSpec) {
     return this.boardView.spinIntoHole(x, y, newSpec, holeSpec);
   }
+  async transformCell(x, y, fromSpec, toSpec) {
+    return this.boardView.transformCell(x, y, fromSpec, toSpec);
+  }
   async shakeAndRemove(x, y, spec) {
     return this.boardView.shakeAndRemove(x, y, spec);
   }

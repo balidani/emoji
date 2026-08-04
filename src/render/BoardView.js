@@ -174,6 +174,14 @@ export class BoardView {
     await this.spinCellOnce(x, y, holeSpec);
   }
 
+  // Card-flip morph (Joker disguise transform/revert): flip the current
+  // face away, swap to `toSpec` edge-on, then flip the new face in.
+  async transformCell(x, y, _fromSpec, toSpec) {
+    await animate(this.getSymbolDiv(x, y), 'flipOut', 0.15);
+    this.getCellDiv(x, y).replaceChildren(this.buildSymbolDiv(toSpec));
+    await animate(this.getSymbolDiv(x, y), 'flipIn', 0.15);
+  }
+
   async shakeAndRemove(x, y, spec) {
     await animate(this.getSymbolDiv(x, y), 'shake', 0.125, 2);
     await this.spinCellOnce(x, y, spec);

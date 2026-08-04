@@ -10,6 +10,7 @@ const ALL_TESTED_SYMBOL_FILES = [
   './symbols/things.js',
   './symbols/tools.js',
   './symbols/ui.js',
+  './symbols/wildcard.js',
   './extra-symbols/beta.js',
 ];
 

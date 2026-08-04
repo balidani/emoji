@@ -10,6 +10,7 @@ import * as rocks from '../../src/symbols/rocks.js';
 import * as advanced from '../../src/symbols/advanced.js';
 import * as things from '../../src/symbols/things.js';
 import * as tools from '../../src/symbols/tools.js';
+import * as wildcard from '../../src/symbols/wildcard.js';
 
 const KEYWORD_TOKEN_RE = /\[([^\]]+)\]\(([^)]+)\)/g;
 
@@ -56,6 +57,7 @@ describe('KEYWORDS registry completeness', () => {
     advanced,
     things,
     tools,
+    wildcard,
   ];
 
   const allSymbolInstances = [];

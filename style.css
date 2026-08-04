@@ -864,6 +864,26 @@ body {
   }
 }
 
+@keyframes flipOut {
+  0% {
+    transform: scaleX(1);
+  }
+
+  100% {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes flipIn {
+  0% {
+    transform: scaleX(0);
+  }
+
+  100% {
+    transform: scaleX(1);
+  }
+}
+
 @keyframes shake {
   0% {
     transform: translateX(0);

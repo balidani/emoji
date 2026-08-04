@@ -172,6 +172,37 @@ export class Board {
     }
     await Promise.all(tasks);
   }
+  async transformWildcards(game) {
+    const tasks = [];
+    this.forAllCells((cell, x, y) => {
+      if (!cell.transformsOnRoll()) {
+        return;
+      }
+      const joker = cell;
+      const disguise = joker.rollDisguise(game);
+      disguise.wildcardHome = joker;
+      const fromSpec = joker.renderSpec(game, x, y);
+      this.cells[y][x] = disguise;
+      const toSpec = disguise.renderSpec(game, x, y);
+      tasks.push(this.view.transformCell(x, y, fromSpec, toSpec));
+    });
+    await Promise.all(tasks);
+  }
+  async revertWildcards(game) {
+    const tasks = [];
+    this.forAllCells((cell, x, y) => {
+      if (cell.wildcardHome === undefined) {
+        return;
+      }
+      const joker = cell.wildcardHome;
+      const fromSpec = cell.renderSpec(game, x, y);
+      delete cell.wildcardHome;
+      this.cells[y][x] = joker;
+      const toSpec = joker.renderSpec(game, x, y);
+      tasks.push(this.view.transformCell(x, y, fromSpec, toSpec));
+    });
+    await Promise.all(tasks);
+  }
   async clear(game) {
     this.lockedCells = [];
     for (let x = 0; x < game.settings.boardX; ++x) {

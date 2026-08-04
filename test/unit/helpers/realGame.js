@@ -22,6 +22,7 @@ const DEFAULT_SOURCES = [
   './symbols/things.js',
   './symbols/tools.js',
   './symbols/ui.js',
+  './symbols/wildcard.js',
 ];
 
 export function ensureShopDom() {

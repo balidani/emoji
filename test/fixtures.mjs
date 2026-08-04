@@ -81,4 +81,13 @@ export const fixtures = [
     buyAlways: '❎🪙',
     buyOnce: '🐛💰🔮🪄🏦🏦🏦',
   },
+  {
+    // JOKER_DESIGN.md: locks in transform + survival (disguise removed) +
+    // egg-hatch (disguise produces a replacement) + revert, across several
+    // Jokers bought over the run.
+    name: 'joker-wildcard',
+    seed: 'golden-joker-wildcard',
+    buyAlways: '❎🃏',
+    buyOnce: '🐛🎯🎯🥚🥚🎈🎈',
+  },
 ];

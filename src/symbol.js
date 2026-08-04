@@ -92,6 +92,11 @@ export class Symb {
   counter(_game) {
     return null;
   }
+  // Marker seam: true for symbols that swap into a random disguise right
+  // after rolling in (see board.transformWildcards). Base is false.
+  transformsOnRoll() {
+    return false;
+  }
   // Plain-data description of this symbol's on-screen appearance.
   // DomRenderer/BoardView is the only place that turns this into DOM.
   //

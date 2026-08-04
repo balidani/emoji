@@ -169,8 +169,10 @@ export class Game {
       this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);
       await this.board.roll(this);
+      await this.board.transformWildcards(this);
       await this.board.evaluate(this);
       await this.board.score(this);
+      await this.board.revertWildcards(this);
       this.inventory.resetLuck();
       this.stats?.recordTurn();
       this.stats?.recordInventorySize(this.inventory.symbols.length);

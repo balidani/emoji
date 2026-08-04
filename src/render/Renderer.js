@@ -75,6 +75,10 @@ export class Renderer {
   async pinCell(_x, _y, _renderSpec) {
     notImplemented('pinCell');
   }
+  /** Morph a cell from one face to another in place (Joker disguise
+   * transform/revert). Default no-op so NullRenderer stays headless --
+   * DomRenderer is the only renderer that overrides this. */
+  async transformCell(_x, _y, _fromSpec, _toSpec) {}
   /** Resolves with the [x, y] of the next cell click matching `predicate`, or
    * null if cancelled (including via the optional `signal` AbortSignal
    * aborting). `predicate` is called with (renderSpec, x, y). */

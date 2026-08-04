@@ -31,6 +31,7 @@ import * as AdvancedSymbols from '../../../src/symbols/advanced.js';
 import * as ThingsSymbols from '../../../src/symbols/things.js';
 import * as ToolsSymbols from '../../../src/symbols/tools.js';
 import * as UiSymbols from '../../../src/symbols/ui.js';
+import * as WildcardSymbols from '../../../src/symbols/wildcard.js';
 
 import { makeSpyRenderer } from './spyRenderer.js';
 
@@ -47,6 +48,7 @@ const DEFAULT_MODULES = [
   ThingsSymbols,
   ToolsSymbols,
   UiSymbols,
+  WildcardSymbols,
 ];
 
 export function buildCatalog(modules = DEFAULT_MODULES) {

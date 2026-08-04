@@ -43,8 +43,10 @@ class AutoGame {
       this.inventory.symbols.forEach((s) => s.reset());
       await this.shop.close(this);
       await this.board.roll(this);
+      await this.board.transformWildcards(this);
       await this.board.evaluate(this);
       await this.board.score(this);
+      await this.board.revertWildcards(this);
       await this.shop.open(this);
       this.inventory.resetLuck();
     } else {

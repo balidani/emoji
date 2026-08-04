@@ -25,6 +25,9 @@ export function makeSpyRenderer() {
     async spinIntoHole(x, y, newSpec, holeSpec) {
       push('spinIntoHole', [x, y, newSpec, holeSpec]);
     },
+    async transformCell(x, y, fromSpec, toSpec) {
+      push('transformCell', [x, y, fromSpec, toSpec]);
+    },
     async redrawCell(x, y, renderSpec) {
       push('redrawCell', [x, y, renderSpec]);
     },
