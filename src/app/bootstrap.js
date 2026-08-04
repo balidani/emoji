@@ -217,16 +217,20 @@ function initSidebar(getGame, progression, onGameOver) {
   });
   for (const symbol of allSymbols) {
     const symbolDiv = Util.createDiv('', 'symbol-info-entry');
-    const emojiSpan = Util.createSpan(
-      `${symbol.emoji()}: `,
-      'symbol-info-emoji'
-    );
+    symbolDiv.appendChild(Util.createSpan(symbol.emoji(), 'symbol-info-icon'));
+    const body = Util.createDiv('', 'symbol-info-body');
     const descSpan = Util.createSpan('', 'symbol-info-desc');
     descSpan.innerHTML = Util.createInteractiveDescription(
       symbol.description()
     );
-    symbolDiv.appendChild(emojiSpan);
-    symbolDiv.appendChild(descSpan);
+    descSpan.appendChild(
+      Util.createSpan(
+        ` (rarity: ${Util.formatRarity(symbol.rarity)})`,
+        'symbol-info-rarity'
+      )
+    );
+    body.appendChild(descSpan);
+    symbolDiv.appendChild(body);
     symbolListDiv.appendChild(symbolDiv);
   }
 }

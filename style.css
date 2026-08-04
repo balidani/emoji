@@ -442,6 +442,22 @@ body {
 
 .symbol-info-entry {
   padding-top: 1em;
+  display: flex;
+  align-items: flex-start;
+}
+
+.symbol-info-icon {
+  font-size: 1.2em;
+  margin-right: 0.4em;
+}
+
+.symbol-info-desc {
+  font-size: 0.9em;
+}
+
+.symbol-info-rarity {
+  font-size: 0.8em;
+  opacity: 0.7;
 }
 
 .achievement-entry {

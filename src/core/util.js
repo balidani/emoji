@@ -49,6 +49,11 @@ export const createInteractiveDescription = (description, emoji = null) => {
   return result;
 };
 
+export const formatRarity = (rarity) => {
+  const percent = Math.round(rarity * 1000) / 10;
+  return `${percent}%`;
+};
+
 export const formatBigNumber = (n) => {
   if (n === '') {
     return '';
