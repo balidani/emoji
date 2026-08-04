@@ -49,6 +49,21 @@ describe('wildcard.js', () => {
       expect(inventory.symbols).toContain(joker);
     });
 
+    it('transform logs the disguise as an event, sourced from 🃏', async () => {
+      const { game, board, eventlog } = buildGame({ grid: ['🃏 ⬜'] });
+      const joker = board.cells[0][0];
+
+      await board.transformWildcards(game);
+
+      const disguise = board.cells[0][0];
+      expect(eventlog.calls).toContainEqual({
+        key: disguise.emoji(),
+        value: '',
+        source: joker.emoji(),
+        direction: 'earned',
+      });
+    });
+
     it('an untouched disguise reverts back to the same Joker instance', async () => {
       const { game, board, inventory } = buildGame({ grid: ['🃏 ⬜'] });
       const joker = board.cells[0][0];

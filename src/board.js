@@ -185,6 +185,14 @@ export class Board {
       this.cells[y][x] = disguise;
       const toSpec = disguise.renderSpec(game, x, y);
       tasks.push(this.view.transformCell(x, y, fromSpec, toSpec));
+      tasks.push(
+        game.eventlog.logResourceChange(
+          disguise.emoji(),
+          '',
+          joker.emoji(),
+          'earned'
+        )
+      );
     });
     await Promise.all(tasks);
   }
