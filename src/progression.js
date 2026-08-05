@@ -126,6 +126,15 @@ export class Progression {
     this.mode = mode;
     this.save();
   }
+  // Manual "reset progression" (game settings menu + the dev-only level
+  // strip's Wipe Progress button both call this). Same selective wipe as a
+  // version bump -- achievements/profile stats survive, everything else
+  // (including the chosen mode) is cleared, so the next load lands back on
+  // the first-run mode-select overlay.
+  resetProgression() {
+    selectiveWipe();
+    window.location.reload();
+  }
   // The unlocked buyable pool for Progression mode -- Sandbox never calls
   // this (its catalog is never restricted). Pure passthrough to
   // progression-roster.js's data.
@@ -200,10 +209,7 @@ export class Progression {
     });
     this.view.render(levels, {
       onJumpTo: (i) => this.jumpTo(i),
-      onWipe: () => {
-        selectiveWipe();
-        window.location.reload();
-      },
+      onWipe: () => this.resetProgression(),
     });
   }
 }

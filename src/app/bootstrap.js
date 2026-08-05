@@ -199,6 +199,7 @@ export async function bootstrap() {
         initGridScaling();
       }
       sidebarApi?.refreshSymbolListIfVisible();
+      sidebarApi?.refreshGameSettingsPanelIfVisible();
     });
   }
 
@@ -386,29 +387,65 @@ function initSidebar(getGame, setGame, progression, onGameOver) {
     });
   });
 
-  // Mode toggle (PROGRESSION_DESIGN.md section 1): switching does not wipe
-  // unlock progress, just restarts the current game under the new mode's
-  // catalog. Reuses the same `reload` callback (loadSettings) Progression
-  // was constructed with, matching how level-select (jumpTo) reloads.
-  const modeToggle = document.getElementById('mode-toggle');
-  const modeToggleTarget = document.getElementById('mode-toggle-target');
+  // Game settings panel: current mode + mode switch + reset progression
+  // (PROGRESSION_DESIGN.md section 1). Switching does not wipe unlock
+  // progress, just restarts the current game under the new mode's catalog --
+  // reuses the same `reload` callback (loadSettings) Progression was
+  // constructed with, matching how level-select (jumpTo) reloads. In
+  // Sandbox (and before a first-run mode pick) there's no progression state
+  // to show or reset, so only the switch option appears.
+  const gameSettingsBtn = document.getElementById('view-game-settings');
+  const gameSettingsPanelDiv = document.querySelector(
+    '.sidebar-content .game-settings-panel'
+  );
   const otherMode = () =>
     progression.mode === 'progression' ? 'sandbox' : 'progression';
-  const updateModeToggleLabel = () => {
-    modeToggleTarget.textContent =
-      otherMode() === 'progression' ? '▶️ progression' : '🧪 sandbox';
+  const renderGameSettingsPanel = () => {
+    gameSettingsPanelDiv.replaceChildren();
+    const isProgression = progression.mode === 'progression';
+
+    if (isProgression) {
+      gameSettingsPanelDiv.appendChild(
+        Util.createDiv('current mode: ▶️ progression', 'game-settings-row')
+      );
+    }
+
+    const switchRow = Util.createDiv('', 'game-settings-row');
+    const switchLink = document.createElement('a');
+    switchLink.href = '#';
+    switchLink.textContent = `switch to ${
+      otherMode() === 'progression' ? '▶️ progression' : '🧪 sandbox'
+    }`;
+    switchLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      progression.setMode(otherMode());
+      await progression.reload(progression.levelData[progression.activeLevel]);
+      initGridScaling();
+      refreshSymbolListIfVisible();
+      renderGameSettingsPanel();
+    });
+    switchRow.appendChild(switchLink);
+    gameSettingsPanelDiv.appendChild(switchRow);
+
+    if (isProgression) {
+      const resetButton = Util.createButton('Reset Progression', () => {
+        progression.resetProgression();
+      });
+      resetButton.classList.add('wipe-button');
+      gameSettingsPanelDiv.appendChild(resetButton);
+    }
   };
-  updateModeToggleLabel();
-  modeToggle.addEventListener('click', async (e) => {
-    e.preventDefault();
-    progression.setMode(otherMode());
-    updateModeToggleLabel();
-    await progression.reload(progression.levelData[progression.activeLevel]);
-    initGridScaling();
-    refreshSymbolListIfVisible();
+  const refreshGameSettingsPanelIfVisible = () => {
+    if (!gameSettingsPanelDiv.classList.contains('hidden')) {
+      renderGameSettingsPanel();
+    }
+  };
+  gameSettingsBtn.addEventListener('click', () => {
+    gameSettingsPanelDiv.classList.toggle('hidden');
+    renderGameSettingsPanel();
   });
 
-  return { refreshSymbolListIfVisible };
+  return { refreshSymbolListIfVisible, refreshGameSettingsPanelIfVisible };
 }
 
 // Sandbox (and mode-not-chosen-yet): today's behavior, unchanged -- every
