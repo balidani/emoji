@@ -97,13 +97,13 @@ body {
 
 /* Progression bar: white track, light-green fill (unlocked bags / 6), each
    gate's required medal marked along the top, shared status text overlaid
-   on the bar itself. Same component underneath the board during play and
-   on the game-over screen -- see render/progressionBar.js. Hidden entirely
-   outside Progression mode (.hidden); gradually faded out and its layout
-   space collapsed after the round's first roll (.faded, toggled by
-   game.js), decluttering the board during actual play -- it reappears
-   fresh on the next round/game-over screen since those mount a brand-new
-   element rather than reuse this one. */
+   on the bar itself -- see render/progressionBar.js. Underneath the board
+   only (no longer shown on the game-over screen). Hidden entirely outside
+   Progression mode (.hidden); gradually faded out and its layout space
+   collapsed after the round's first roll (.faded, toggled by game.js),
+   decluttering the board during actual play -- it reappears fresh on the
+   next round since that mounts a brand-new element rather than reuse this
+   one. */
 .progression-bar {
   width: 100%;
   /* Matches .shop/.info's fixed width for visual consistency with the rest

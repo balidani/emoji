@@ -9,7 +9,6 @@ import { DomRenderer } from './render/DomRenderer.js';
 import { Stats, ProfileStats } from './stats.js';
 import { Achievements } from './achievements.js';
 import { loadProfile, saveProfile } from './achievements-store.js';
-import { buildProgressionBar } from './render/progressionBar.js';
 
 export class Game {
   // onGameOver: called (as a body click listener) once the final-score
@@ -135,18 +134,6 @@ export class Game {
         achievementPopup.appendChild(entry);
       }
       scoreContainer.appendChild(achievementPopup);
-    }
-
-    // Same shared progression bar bootstrap.js shows underneath the board
-    // during play (render/progressionBar.js), mounted here too so the
-    // game-over screen doesn't drop it. Reflects state as of just above --
-    // checkGateAndRollOffer() may have just rolled an offer, but the bag
-    // itself isn't unlocked until picked, so this still correctly shows the
-    // pre-pick count.
-    if (this.progression.mode === 'progression') {
-      scoreContainer.appendChild(
-        buildProgressionBar(this.progression.unlockedBags)
-      );
     }
 
     await this.board.clear(this);

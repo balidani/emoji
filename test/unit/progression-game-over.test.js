@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
-// Verifies the game-over screen's progression bar (game.js's over()) --
-// mirrors replay-roundtrip.test.js's real-DOM/real-Game harness rather than
-// the fake `{ updateUi() {} }` progression stub other game.js tests use,
-// since this specifically needs a real Progression with mode/unlockedBags
-// wired up.
+// Verifies the game-over screen never shows a progression bar (it was
+// dropped -- the in-game one under the board is enough, see game.js's
+// over()) and the in-game bar's fade-out-on-first-roll behavior. Mirrors
+// replay-roundtrip.test.js's real-DOM/real-Game harness rather than the
+// fake `{ updateUi() {} }` progression stub other game.js tests use, since
+// this specifically needs a real Progression with mode/unlockedBags wired
+// up.
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -70,7 +72,7 @@ async function buildAndEndGame(progression) {
   return game;
 }
 
-describe('game-over screen progression status line', () => {
+describe('game-over screen has no progression bar', () => {
   beforeEach(async () => {
     loadDom();
     await Rng.setSeed('game-over-progression-status');
@@ -86,25 +88,15 @@ describe('game-over screen progression status line', () => {
   // seconds (dynamic symbol-module imports, real DOM construction) -- give
   // this headroom above the 5s default so it doesn't flake under parallel
   // test-runner load the way a tight timeout would.
-  it('shows the shared progression bar in Progression mode', async () => {
+  it('never appears in Progression mode', async () => {
     const game = await buildAndEndGame(buildProgression('progression'));
     expect(game.isOver).toBe(true);
-    const bar = document.querySelector('.scoreContainer .progression-bar');
-    expect(bar).not.toBeNull();
-    expect(bar.querySelector('.progression-bar-text').textContent).toBe(
-      '2/6, next 🥈 (💵25000)'
-    );
-    // 2/6 unlocked -> fill width and cleared-step count both reflect it.
-    expect(bar.querySelector('.progression-bar-fill').style.width).toBe(
-      `${(2 / 6) * 100}%`
-    );
-    expect(bar.querySelectorAll('.progression-bar-step.cleared')).toHaveLength(
-      2
-    );
-    expect(bar.querySelectorAll('.progression-bar-step')).toHaveLength(6);
+    expect(
+      document.querySelector('.scoreContainer .progression-bar')
+    ).toBeNull();
   }, 15000);
 
-  it('is absent in Sandbox mode', async () => {
+  it('never appears in Sandbox mode', async () => {
     const game = await buildAndEndGame(buildProgression('sandbox'));
     expect(game.isOver).toBe(true);
     expect(

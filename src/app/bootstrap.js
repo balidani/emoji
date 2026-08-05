@@ -65,10 +65,10 @@ export async function bootstrap() {
     if (PROGRESSION.mode === 'progression') {
       catalog.restrictTo(PROGRESSION.unlockedEmoji());
     }
-    // In-game progression bar, underneath the board: visible for the whole
-    // round (covers "game start" -- it's on screen from the moment this
-    // round's board appears), hidden entirely outside Progression mode. The
-    // game-over screen (game.js's over()) mounts the same shared component.
+    // In-game progression bar, underneath the board: visible from the
+    // moment this round's board appears until the first roll (game.js
+    // fades it out then -- see roll()), hidden entirely outside Progression
+    // mode. Not shown on the game-over screen -- this is the only copy.
     const statusBarMount = document.querySelector('.game .progression-bar');
     if (PROGRESSION.mode === 'progression') {
       renderProgressionBar(statusBarMount, PROGRESSION.unlockedBags);
