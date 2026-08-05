@@ -8,6 +8,7 @@ import {
   FULL_ROSTER,
   unlockedEmoji,
   nextGate,
+  progressionStatusText,
 } from '../../src/progression-roster.js';
 import {
   BronzeMedal,
@@ -49,13 +50,13 @@ describe('progression roster data', () => {
     expect(new Set(buyable)).toEqual(new Set(FULL_ROSTER));
   });
 
-  it('GATES rises Bronze/Silver/Gold then plateaus at Trophy', () => {
+  it('GATES is Bronze/Bronze/Silver/Silver/Gold/Trophy', () => {
     expect(GATES).toEqual([
       BronzeMedal,
+      BronzeMedal,
+      SilverMedal,
       SilverMedal,
       GoldMedal,
-      Trophy,
-      Trophy,
       Trophy,
     ]);
   });
@@ -82,17 +83,34 @@ describe('unlockedEmoji', () => {
 });
 
 describe('nextGate', () => {
-  it('walks Bronze -> Silver -> Gold -> Trophy as bags unlock', () => {
+  it('walks Bronze -> Bronze -> Silver -> Silver -> Gold -> Trophy as bags unlock', () => {
     expect(nextGate([])).toBe(BronzeMedal);
-    expect(nextGate([0])).toBe(SilverMedal);
-    expect(nextGate([0, 1])).toBe(GoldMedal);
-    expect(nextGate([0, 1, 2])).toBe(Trophy);
-    expect(nextGate([0, 1, 2, 3])).toBe(Trophy);
+    expect(nextGate([0])).toBe(BronzeMedal);
+    expect(nextGate([0, 1])).toBe(SilverMedal);
+    expect(nextGate([0, 1, 2])).toBe(SilverMedal);
+    expect(nextGate([0, 1, 2, 3])).toBe(GoldMedal);
     expect(nextGate([0, 1, 2, 3, 4])).toBe(Trophy);
   });
 
   it('is null once all six bags are unlocked', () => {
     expect(nextGate([0, 1, 2, 3, 4, 5])).toBeNull();
+  });
+});
+
+describe('progressionStatusText', () => {
+  it('reports the unlocked count and the next gate', () => {
+    expect(progressionStatusText([])).toBe(
+      '0/6 bags unlocked -- next: 🥉 Bronze (💵10000)'
+    );
+    expect(progressionStatusText([0, 1])).toBe(
+      '2/6 bags unlocked -- next: 🥈 Silver (💵25000)'
+    );
+  });
+
+  it('reports full-roster completion once all six bags are unlocked', () => {
+    expect(progressionStatusText([0, 1, 2, 3, 4, 5])).toBe(
+      '6/6 bags unlocked -- full roster!'
+    );
   });
 });
 

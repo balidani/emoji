@@ -2,6 +2,7 @@
 // 17-symbol starting pool and six 6-symbol bags unlocked one at a time. Pure
 // data -- no DOM, no RNG -- see PROGRESSION_DESIGN.md sections 2-5.
 import { BronzeMedal, SilverMedal, GoldMedal, Trophy } from './symbols/ui.js';
+import { formatBigNumber } from './core/util.js';
 
 export const STARTING_POOL = [
   '🪙',
@@ -33,13 +34,14 @@ export const BAGS = [
 ];
 
 // Step number = unlockedBags.length; GATES[step] is the medal threshold
-// needed to unlock the next bag. Rises then plateaus at Trophy.
+// needed to unlock the next bag: two clears each of Bronze and Silver, then
+// Gold, then Trophy for the sixth and final bag.
 export const GATES = [
   BronzeMedal,
+  BronzeMedal,
+  SilverMedal,
   SilverMedal,
   GoldMedal,
-  Trophy,
-  Trophy,
   Trophy,
 ];
 
@@ -73,4 +75,18 @@ export function nextGate(unlockedBags) {
 export function remainingBags(unlockedBags) {
   const unlocked = new Set(unlockedBags);
   return BAGS.map((_, i) => i).filter((i) => !unlocked.has(i));
+}
+
+// Minimal one-line progression status ("N/6 bags unlocked -- next: 🥈
+// Silver (💵25,000)", or "-- full roster!" once nothing's left to unlock).
+// Pure text, DOM-free, so every surface that shows progression state
+// (sidebar, in-game status bar, the game-over screen) renders identically
+// from one source of truth.
+export function progressionStatusText(unlockedBags) {
+  const base = `${unlockedBags.length}/${GATES.length} bags unlocked`;
+  const gate = nextGate(unlockedBags);
+  if (gate === null) {
+    return `${base} -- full roster!`;
+  }
+  return `${base} -- next: ${gate.emoji} ${gate.label} (💵${formatBigNumber(gate.threshold)})`;
 }

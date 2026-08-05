@@ -12,6 +12,23 @@ body {
 
 /* Resoruces */
 
+/* Progression status (PROGRESSION_DESIGN.md rollout follow-up): minimal
+   one-line readout, shared text between the in-game bar, the game-over
+   screen, and the sidebar -- see progressionStatusText(). Hidden entirely
+   in Sandbox/mode-not-chosen-yet. */
+.progression-status-bar {
+  text-align: center;
+  font-size: 9pt;
+  opacity: 0.75;
+  padding: 2pt 4pt 6pt;
+}
+
+.progression-status-line {
+  font-size: 9pt;
+  opacity: 0.75;
+  margin-top: 4pt;
+}
+
 .ui {
   /* Set width to 100% - 20pt for padding */
   width: calc(100% - 24pt);
@@ -603,6 +620,11 @@ body {
 #sidebar-menu a {
   text-decoration: none;
   font-size: 1.2em;
+}
+
+#sidebar-progression-status {
+  font-size: 0.9em;
+  opacity: 0.85;
 }
 
 #sidebar-menu a:hover {
