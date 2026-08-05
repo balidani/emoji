@@ -99,18 +99,12 @@ describe('nextGate', () => {
 
 describe('progressionStatusText', () => {
   it('reports the unlocked count and the next gate', () => {
-    expect(progressionStatusText([])).toBe(
-      '0/6 bags unlocked -- next: 🥉 Bronze (💵10000)'
-    );
-    expect(progressionStatusText([0, 1])).toBe(
-      '2/6 bags unlocked -- next: 🥈 Silver (💵25000)'
-    );
+    expect(progressionStatusText([])).toBe('0/6, next 🥉 (💵10000)');
+    expect(progressionStatusText([0, 1])).toBe('2/6, next 🥈 (💵25000)');
   });
 
   it('reports full-roster completion once all six bags are unlocked', () => {
-    expect(progressionStatusText([0, 1, 2, 3, 4, 5])).toBe(
-      '6/6 bags unlocked -- full roster!'
-    );
+    expect(progressionStatusText([0, 1, 2, 3, 4, 5])).toBe('6/6, full roster!');
   });
 });
 

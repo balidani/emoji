@@ -50,6 +50,10 @@ export class Game {
     // right after construction, so no action can fire before it's set.
     this.recorder = null;
     this.rolling = false;
+    // Tracks whether the progression bar under the board has already been
+    // faded out for this round (see roll()) -- only ever fires once, on the
+    // first roll.
+    this.hasRolled = false;
     this.info = document.querySelector('.game .info');
     this.progression.updateUi();
     this.isOver = false;
@@ -170,6 +174,14 @@ export class Game {
       Util.animationOn();
     }
     this.rolling = true;
+    if (!this.hasRolled) {
+      this.hasRolled = true;
+      // Declutter the board once play actually starts -- the bar already
+      // did its job (showing where the run stands) before this roll; it
+      // reappears fresh on the game-over screen and the next round's own
+      // (freshly built, unfaded) element.
+      document.querySelector('.game .progression-bar')?.classList.add('faded');
+    }
     Util.deleteText(this.info);
     const textToDraw =
       this.settings.textLookup[this.inventory.getResource(Const.TURNS)];

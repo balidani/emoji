@@ -92,7 +92,7 @@ describe('game-over screen progression status line', () => {
     const bar = document.querySelector('.scoreContainer .progression-bar');
     expect(bar).not.toBeNull();
     expect(bar.querySelector('.progression-bar-text').textContent).toBe(
-      '📦 2/6 bags unlocked -- next: 🥈 Silver (💵25000)'
+      '2/6, next 🥈 (💵25000)'
     );
     // 2/6 unlocked -> fill width and cleared-step count both reflect it.
     expect(bar.querySelector('.progression-bar-fill').style.width).toBe(
@@ -110,5 +110,51 @@ describe('game-over screen progression status line', () => {
     expect(
       document.querySelector('.scoreContainer .progression-bar')
     ).toBeNull();
+  }, 15000);
+});
+
+describe('in-game progression bar fade-out on first roll', () => {
+  beforeEach(async () => {
+    loadDom();
+    await Rng.setSeed('progression-bar-fade');
+    animationOff();
+  });
+  afterEach(() => {
+    animationOn();
+  });
+
+  it('stays visible until rolled, then fades (without being removed)', async () => {
+    cloneTemplateIntoGame();
+    // Mount the bar the same way bootstrap.js's loadSettings does --
+    // game.js only ever toggles the .faded class on whatever's already
+    // there, it doesn't render the bar itself.
+    const { renderProgressionBar } = await import(
+      '../../src/render/progressionBar.js'
+    );
+    const mount = document.querySelector('.game .progression-bar');
+    renderProgressionBar(mount, [0, 1]);
+
+    const catalog = new Catalog([...SETTINGS.symbolSources]);
+    await catalog.updateSymbols();
+    const game = new Game(
+      buildProgression('progression'),
+      { ...SETTINGS, gameLength: 2 },
+      catalog,
+      new DomRenderer(),
+      () => {}
+    );
+
+    expect(mount.classList.contains('faded')).toBe(false);
+
+    await game.roll(); // first of two rolls -- fades, doesn't end the game
+    expect(game.isOver).toBe(false);
+    expect(mount.classList.contains('faded')).toBe(true);
+    // Faded, not removed -- the element (and its content) is still there.
+    expect(document.querySelector('.game .progression-bar')).toBe(mount);
+    expect(mount.querySelector('.progression-bar-text')).not.toBeNull();
+
+    await game.roll(); // second roll ends the game -- stays faded
+    expect(game.isOver).toBe(true);
+    expect(mount.classList.contains('faded')).toBe(true);
   }, 15000);
 });

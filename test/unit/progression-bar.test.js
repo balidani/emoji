@@ -63,7 +63,7 @@ describe('renderProgressionBar', () => {
     const container = document.createElement('div');
     renderProgressionBar(container, [0]);
     expect(container.querySelector('.progression-bar-text').textContent).toBe(
-      '📦 1/6 bags unlocked -- next: 🥉 Bronze (💵10000)'
+      '1/6, next 🥉 (💵10000)'
     );
   });
 });

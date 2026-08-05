@@ -27,10 +27,7 @@ export function renderProgressionBar(container, unlockedBags) {
   fill.style.width = `${(unlockedBags.length / GATES.length) * 100}%`;
   track.appendChild(fill);
   track.appendChild(
-    createDiv(
-      `📦 ${progressionStatusText(unlockedBags)}`,
-      'progression-bar-text'
-    )
+    createDiv(progressionStatusText(unlockedBags), 'progression-bar-text')
   );
   container.appendChild(track);
 }
