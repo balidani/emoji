@@ -239,8 +239,18 @@ export async function runReplay(base64, { progression, onGameOver }) {
       await playEvent(game, event);
     }
   } finally {
-    animationOn();
     gameDiv.style.pointerEvents = 'auto';
+    // Hand control back to the player if there are turns left -- either the
+    // recorded events ran out short of game over, or a divergence was just
+    // thrown mid-drive (still better than leaving the board stuck forever).
+    // Restores real animation timing too, so manual play from here on looks
+    // like a normal game rather than the instant-skip pace of the replay
+    // itself (see game.js's roll(), which never re-enables it for
+    // isReplay games -- this is what does instead, once).
+    if (!game.isOver) {
+      renderer.stopDriving();
+      animationOn();
+    }
   }
   return game;
 }

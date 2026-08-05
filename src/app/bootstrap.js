@@ -203,7 +203,15 @@ export async function bootstrap() {
   // Debug
   window.game = game;
 
-  sidebarApi = initSidebar(() => currentGame, PROGRESSION, loadListener);
+  sidebarApi = initSidebar(
+    () => currentGame,
+    (g) => {
+      currentGame = g;
+      window.game = g;
+    },
+    PROGRESSION,
+    loadListener
+  );
   initGridScaling();
 
   return game;
@@ -282,7 +290,7 @@ function showBagDraftOverlay(progression) {
 }
 
 // TODO: extract to ui.js
-function initSidebar(getGame, progression, onGameOver) {
+function initSidebar(getGame, setGame, progression, onGameOver) {
   const hamburgerButton = document.getElementById('hamburger');
   const sidebar = document.getElementById('sidebar-menu');
   const closeButton = document.getElementById('close-sidebar');
@@ -356,12 +364,19 @@ function initSidebar(getGame, progression, onGameOver) {
     replayPanelDiv.classList.toggle('hidden');
     getGame().view.renderReplay({
       code: getGame().recorder?.serialize() ?? '',
-      onRun: (code) => {
+      onRun: async (code) => {
         // Close the sidebar so the player is actually looking at the board
         // the replay is about to redraw, instead of the (now motionless)
         // panel they just clicked "Run replay" in.
         sidebar.classList.remove('active');
-        return runReplay(code, { progression, onGameOver });
+        const game = await runReplay(code, { progression, onGameOver });
+        // Point the sidebar (achievements/save/replay panels) and the debug
+        // window.game handle at the replayed game -- it may still be live
+        // (see runReplay/ReplayRenderer.stopDriving), and even once it's
+        // over, its own onGameOver click listener is what starts the next
+        // one, same as a normal game.
+        setGame(game);
+        return game;
       },
     });
   });

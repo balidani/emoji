@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 import * as Rng from '../../src/core/rng.js';
+import * as Const from '../../src/consts.js';
 import { Game } from '../../src/game.js';
 import { Catalog } from '../../src/catalog.js';
 import { DomRenderer } from '../../src/render/DomRenderer.js';
@@ -63,13 +64,13 @@ function cloneTemplateIntoGame() {
   gameDiv.appendChild(clone.children[0]);
 }
 
-async function buildRecordingGame() {
-  const catalog = new Catalog([...REPLAY_SETTINGS.symbolSources]);
+async function buildRecordingGame(settings = REPLAY_SETTINGS) {
+  const catalog = new Catalog([...settings.symbolSources]);
   await catalog.updateSymbols();
   const rngState = Rng.exportState();
   const game = new Game(
     fakeProgression,
-    REPLAY_SETTINGS,
+    settings,
     catalog,
     new DomRenderer(),
     noop
@@ -77,7 +78,7 @@ async function buildRecordingGame() {
   game.recorder = new ReplayRecorder({
     seedPhrase: window.seedPhrase ?? 'test-seed',
     rngState,
-    settings: REPLAY_SETTINGS,
+    settings,
   });
   return game;
 }
@@ -166,5 +167,33 @@ describe('replay round-trip determinism', () => {
         })
       )
     ).rejects.toThrow(/shop offers/);
+  });
+
+  it('hands control back to the player instead of freezing when the replay ends with turns left', async () => {
+    cloneTemplateIntoGame();
+    // A longer game than REPLAY_SETTINGS' -- recording just one roll (not
+    // playing to completion) leaves turns on the table, same shape as a
+    // player pasting a short replay code into a 50-turn game.
+    const settings = { ...REPLAY_SETTINGS, gameLength: 5 };
+    const game = await buildRecordingGame(settings);
+    await drain(game.roll());
+    expect(game.isOver).toBe(false);
+    const code = game.recorder.serialize();
+
+    const replayed = await drain(
+      runReplay(code, { progression: fakeProgression, onGameOver: noop })
+    );
+
+    expect(replayed.isOver).toBe(false);
+    // The grid's roll listener must be re-attached for real -- before the
+    // fix, ReplayRenderer.addRollListener() permanently no-op'd it, so a
+    // click here would have done nothing and the board stayed frozen.
+    const grid = document.querySelector('.game #grid');
+    const rollSpy = vi.spyOn(replayed, 'roll');
+    const turnsBefore = replayed.inventory.getResource(Const.TURNS);
+    grid.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(rollSpy).toHaveBeenCalledTimes(1);
+    await drain(rollSpy.mock.results[0].value);
+    expect(replayed.inventory.getResource(Const.TURNS)).toBe(turnsBefore - 1);
   });
 });
