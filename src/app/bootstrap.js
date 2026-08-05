@@ -12,6 +12,8 @@ import { CATEGORY_UNBUYABLE } from '../symbol.js';
 import { KEYWORDS } from '../keywords.js';
 import { exportSave, importSave } from '../save_state.js';
 import { ReplayRecorder, runReplay } from '../replay.js';
+import { FULL_ROSTER } from '../progression-roster.js';
+import * as Const from '../consts.js';
 
 // The composition root: seeds the RNG, builds Progression/GameSettings and
 // their views, and loads the first game. main.js is just "on DOM ready,
@@ -199,6 +201,16 @@ function initSidebar(getGame, progression, onGameOver) {
   });
 
   const game = getGame();
+  if (progression.mode === 'progression') {
+    renderProgressionSymbolList(symbolListDiv, game, progression);
+  } else {
+    renderSandboxSymbolList(symbolListDiv, game);
+  }
+}
+
+// Sandbox (and mode-not-chosen-yet): today's behavior, unchanged -- every
+// buyable symbol the catalog knows about, sorted by name.
+function renderSandboxSymbolList(symbolListDiv, game) {
   const allSymbols = [];
   for (const [, symbol] of game.catalog.symbols) {
     if (symbol.categories().includes(CATEGORY_UNBUYABLE)) {
@@ -206,7 +218,6 @@ function initSidebar(getGame, progression, onGameOver) {
     }
     allSymbols.push(symbol);
   }
-  // Sort by name:
   allSymbols.sort((a, b) => {
     if (a.constructor.name < b.constructor.name) {
       return -1;
@@ -216,21 +227,49 @@ function initSidebar(getGame, progression, onGameOver) {
     return 0;
   });
   for (const symbol of allSymbols) {
-    const symbolDiv = Util.createDiv('', 'symbol-info-entry');
-    symbolDiv.appendChild(Util.createSpan(symbol.emoji(), 'symbol-info-icon'));
-    const body = Util.createDiv('', 'symbol-info-body');
-    const descSpan = Util.createSpan('', 'symbol-info-desc');
-    descSpan.innerHTML = Util.createInteractiveDescription(
-      symbol.description()
-    );
-    descSpan.appendChild(
-      Util.createSpan(
-        ` (rarity: ${Util.formatRarity(symbol.rarity)})`,
-        'symbol-info-rarity'
-      )
-    );
-    body.appendChild(descSpan);
-    symbolDiv.appendChild(body);
-    symbolListDiv.appendChild(symbolDiv);
+    symbolListDiv.appendChild(buildSymbolEntry(symbol));
   }
+}
+
+// Progression mode (PROGRESSION_DESIGN.md section 6.3): the full 53-symbol
+// roster, not the (possibly narrowed) catalog -- locked entries render
+// greyed out with a ❓ glyph and their description hidden, in roster order
+// (starting pool, then each bag in index order).
+function renderProgressionSymbolList(symbolListDiv, game, progression) {
+  const unlocked = progression.unlockedEmoji();
+  for (const emoji of FULL_ROSTER) {
+    if (unlocked.has(emoji)) {
+      symbolListDiv.appendChild(buildSymbolEntry(game.catalog.symbol(emoji)));
+    } else {
+      symbolListDiv.appendChild(buildLockedSymbolEntry());
+    }
+  }
+}
+
+function buildSymbolEntry(symbol) {
+  const symbolDiv = Util.createDiv('', 'symbol-info-entry');
+  symbolDiv.appendChild(Util.createSpan(symbol.emoji(), 'symbol-info-icon'));
+  const body = Util.createDiv('', 'symbol-info-body');
+  const descSpan = Util.createSpan('', 'symbol-info-desc');
+  descSpan.innerHTML = Util.createInteractiveDescription(symbol.description());
+  descSpan.appendChild(
+    Util.createSpan(
+      ` (rarity: ${Util.formatRarity(symbol.rarity)})`,
+      'symbol-info-rarity'
+    )
+  );
+  body.appendChild(descSpan);
+  symbolDiv.appendChild(body);
+  return symbolDiv;
+}
+
+function buildLockedSymbolEntry() {
+  const symbolDiv = Util.createDiv('', 'symbol-info-entry', 'locked');
+  symbolDiv.appendChild(Util.createSpan(Const.UNKNOWN, 'symbol-info-icon'));
+  const body = Util.createDiv('', 'symbol-info-body');
+  body.appendChild(
+    Util.createSpan('Locked -- win more to unlock', 'symbol-info-desc')
+  );
+  symbolDiv.appendChild(body);
+  return symbolDiv;
 }

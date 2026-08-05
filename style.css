@@ -40,7 +40,7 @@ body {
   left: 0;
   padding-top: 4pt;
   padding-left: 4pt;
-  pointer-events: none; /* Allow clicks to pass through */ 
+  pointer-events: none; /* Allow clicks to pass through */
   z-index: 3;
   margin-right: auto;
 }
@@ -67,14 +67,17 @@ body {
   margin: 1pt;
 }
 
-
 .fade-text {
   /* The magic */
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1),
+    rgba(0, 0, 0, 0)
+  );
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-size: 100% 100%;
-  
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
   mask-repeat: no-repeat;
   mask-size: 100% 100%;
 }
@@ -106,7 +109,7 @@ body {
     margin-inline: auto;
     align-items: flex-start;
   }
-  
+
   /* Don't let either column grow; size to content */
   .wrapper,
   .shop-wrapper {
@@ -117,7 +120,6 @@ body {
     min-width: 268pt;
   }
 }
-
 
 /* Grid */
 
@@ -131,7 +133,7 @@ body {
 
 /* invisible spacer that reserves the scaled footprint */
 .grid-scaler::before {
-  content: "";
+  content: '';
   display: block;
   width: var(--scaled-w, auto);
   height: var(--scaled-h, auto);
@@ -237,7 +239,10 @@ body {
 .info {
   margin-top: 12pt;
   background: rgba(255, 255, 255, 0.78);
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px, rgba(0, 0, 0, 0.2) 0px 5px 8px -3px, rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 2px 4px,
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px,
+    rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
   border-radius: 8pt;
   width: 256pt;
   height: 60pt;
@@ -261,7 +266,10 @@ body {
   margin-top: 12pt;
   margin-bottom: 18pt;
   background: rgba(255, 255, 255, 0.78);
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px, rgba(0, 0, 0, 0.2) 0px 5px 8px -3px, rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 2px 4px,
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px,
+    rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
   border-radius: 8pt;
   width: 256pt;
   overflow: hidden;
@@ -338,7 +346,10 @@ body {
   border-radius: 8pt;
   margin: 2pt;
   padding: 4pt;
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px, rgba(0, 0, 0, 0.2) 0px 5px 8px -3px, rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 2px 4px,
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px,
+    rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
   pointer-events: auto;
   display: inline-flex;
   align-items: baseline;
@@ -434,7 +445,7 @@ body {
 
 .sidebar-content {
   flex: 1 1 auto;
-  min-height: 0;           /* important in flex containers so scrolling works */
+  min-height: 0; /* important in flex containers so scrolling works */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -458,6 +469,10 @@ body {
 .symbol-info-rarity {
   font-size: 0.8em;
   opacity: 0.7;
+}
+
+.symbol-info-entry.locked {
+  opacity: 0.6;
 }
 
 .achievement-entry {
@@ -1069,7 +1084,8 @@ body {
 }
 
 @keyframes wave {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
