@@ -95,6 +95,11 @@ export class Game {
     this.achievements?.renderPanel();
     if (!this.isReplay) {
       saveProfile(this.profileStats);
+      // Progression-mode bag unlock gate (PROGRESSION_DESIGN.md section 3/7).
+      // No-op in Sandbox mode -- see Progression.checkGateAndRollOffer.
+      this.progression.checkGateAndRollOffer(
+        this.inventory.getResource(Const.MONEY)
+      );
     }
     const scoreContainer = Util.createDiv('', 'scoreContainer');
     const scoreDiv = Util.createDiv(trophy, 'score');

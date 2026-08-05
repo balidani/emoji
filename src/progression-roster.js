@@ -66,3 +66,11 @@ export function nextGate(unlockedBags) {
   const step = unlockedBags.length;
   return step < GATES.length ? GATES[step] : null;
 }
+
+// Bag indices not yet unlocked, ascending. The draft offer is always sampled
+// from this set (offered-but-unpicked bags return to the pool -- see
+// PROGRESSION_DESIGN.md section 3).
+export function remainingBags(unlockedBags) {
+  const unlocked = new Set(unlockedBags);
+  return BAGS.map((_, i) => i).filter((i) => !unlocked.has(i));
+}

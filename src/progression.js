@@ -1,4 +1,6 @@
 import { GameSettings } from './game_settings.js';
+import { GATES, remainingBags, unlockedEmoji } from './progression-roster.js';
+import { randomRemove } from './core/rng.js';
 
 const tutorialLevelSettings = new GameSettings(
   'Tutorial #1',
@@ -12,11 +14,17 @@ const tutorialLevelSettings = new GameSettings(
 );
 const standardGameSettings = new GameSettings();
 
-export const CURRENT_VERSION = '1.0.3';
+export const CURRENT_VERSION = '1.0.4';
 const CURRENT_VERSION_KEY = 'CurrentVersion';
 const PROGRESSION_LEVEL_DATA = 'ProgressionLevelData';
 const PROGRESSION_ACTIVE_LEVEL = 'ProgressionActiveLevel';
 const PROGRESSION_LEVEL_RESULTS = 'ProgressionLevelResults';
+// PROGRESSION_DESIGN.md section 8. `mode` is null until the (not-yet-built)
+// first-run overlay sets it; `unlockedBags`/`pendingBagOffer` are only
+// meaningful once mode === 'progression'.
+const PROGRESSION_MODE = 'ProgressionMode';
+const UNLOCKED_BAGS = 'UnlockedBags';
+const PENDING_BAG_OFFER = 'PendingBagOffer';
 
 // Achievements/profile stats survive both a version-bump wipe and the manual
 // "wipe progress" button (see ACHIEVEMENTS_DESIGN.md, section 8).
@@ -51,6 +59,13 @@ export class Progression {
     }
     this.activeLevel = 1;
     this.levelResults = new Map();
+    // Progression-mode state (PROGRESSION_DESIGN.md section 5). `mode` is
+    // null until a mode is chosen; `unlockedBags` is draw order, not bag
+    // index order; `pendingBagOffer` is the up-to-3 offer awaiting a pick,
+    // or empty when none is pending.
+    this.mode = null;
+    this.unlockedBags = [];
+    this.pendingBagOffer = [];
   }
   load() {
     if (!window.localStorage.getItem(CURRENT_VERSION_KEY)) {
@@ -72,6 +87,18 @@ export class Progression {
     if (levelResults !== null) {
       this.levelResults = new Map(JSON.parse(levelResults));
     }
+    const mode = window.localStorage.getItem(PROGRESSION_MODE);
+    if (mode !== null) {
+      this.mode = mode;
+    }
+    const unlockedBags = window.localStorage.getItem(UNLOCKED_BAGS);
+    if (unlockedBags !== null) {
+      this.unlockedBags = JSON.parse(unlockedBags);
+    }
+    const pendingBagOffer = window.localStorage.getItem(PENDING_BAG_OFFER);
+    if (pendingBagOffer !== null) {
+      this.pendingBagOffer = JSON.parse(pendingBagOffer);
+    }
   }
   save() {
     window.localStorage.setItem(
@@ -83,6 +110,65 @@ export class Progression {
       PROGRESSION_LEVEL_RESULTS,
       JSON.stringify(Array.from(this.levelResults))
     );
+    if (this.mode !== null) {
+      window.localStorage.setItem(PROGRESSION_MODE, this.mode);
+    }
+    window.localStorage.setItem(
+      UNLOCKED_BAGS,
+      JSON.stringify(this.unlockedBags)
+    );
+    window.localStorage.setItem(
+      PENDING_BAG_OFFER,
+      JSON.stringify(this.pendingBagOffer)
+    );
+  }
+  setMode(mode) {
+    this.mode = mode;
+    this.save();
+  }
+  // The unlocked buyable pool for Progression mode -- Sandbox never calls
+  // this (its catalog is never restricted). Pure passthrough to
+  // progression-roster.js's data.
+  unlockedEmoji() {
+    return unlockedEmoji(this.unlockedBags);
+  }
+  // Called on game over with the final score (Game.over(), real games only
+  // -- see game.js's `!isReplay` guard). No-op outside Progression mode,
+  // once fully unlocked, or while an offer is already pending (a reload
+  // before choosing must not reroll it -- PROGRESSION_DESIGN.md section 3).
+  checkGateAndRollOffer(score) {
+    if (this.mode !== 'progression') {
+      return;
+    }
+    if (this.pendingBagOffer.length > 0) {
+      return;
+    }
+    if (this.unlockedBags.length >= GATES.length) {
+      return;
+    }
+    const gate = GATES[this.unlockedBags.length];
+    if (score < gate.threshold) {
+      return;
+    }
+    const pool = remainingBags(this.unlockedBags);
+    const offer = [];
+    const offerSize = Math.min(3, pool.length);
+    for (let i = 0; i < offerSize; i++) {
+      offer.push(randomRemove(pool));
+    }
+    this.pendingBagOffer = offer;
+    this.save();
+  }
+  // Commits a pick from the pending offer: the chosen bag joins
+  // unlockedBags, the rest of the offer returns to the pool (simply by
+  // clearing pendingBagOffer -- it was never removed from `pool` above).
+  commitBagChoice(bagIndex) {
+    if (!this.pendingBagOffer.includes(bagIndex)) {
+      throw new Error(`${bagIndex} is not part of the current bag offer.`);
+    }
+    this.unlockedBags.push(bagIndex);
+    this.pendingBagOffer = [];
+    this.save();
   }
   postResultAndAdvance(score, result) {
     const aLD = this.levelData[this.activeLevel];

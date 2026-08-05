@@ -9,6 +9,9 @@ const SAVE_KEYS = [
   'ProgressionLevelData',
   'ProgressionActiveLevel',
   'ProgressionLevelResults',
+  'ProgressionMode',
+  'UnlockedBags',
+  'PendingBagOffer',
   'Achievements',
   'ProfileStats',
 ];

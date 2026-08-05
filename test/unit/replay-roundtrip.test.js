@@ -42,7 +42,7 @@ const REPLAY_SETTINGS = {
   initiallyLockedCells: {},
 };
 
-const fakeProgression = { updateUi() {} };
+const fakeProgression = { updateUi() {}, checkGateAndRollOffer() {} };
 const noop = () => {};
 
 function loadDom() {
