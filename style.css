@@ -150,6 +150,14 @@ body {
   filter: none;
 }
 
+/* The final gate sits at left: 100% -- centering it there (like every other
+   step) would push its right half past the bar's edge, where the parent's
+   overflow: hidden clips it. Anchor its right edge to 100% instead so the
+   whole glyph stays on screen. */
+.progression-bar-step:last-child {
+  transform: translateX(-100%);
+}
+
 .progression-bar-track {
   position: relative;
   height: 22pt;
@@ -617,6 +625,7 @@ body {
   display: flex;
   flex-direction: column;
   padding-top: 1em;
+  padding-right: 0.5em;
 }
 
 .save-state-panel label {
@@ -652,6 +661,7 @@ body {
   display: flex;
   flex-direction: column;
   padding-top: 1em;
+  padding-right: 0.5em;
 }
 
 .replay-panel label {
