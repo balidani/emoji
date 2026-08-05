@@ -8,6 +8,8 @@ export class Catalog {
   async updateSymbols() {
     this.symbols = new Map();
     this.categories = new Map();
+    // null = unrestricted (Sandbox); see restrictTo().
+    this.shopAllowed = null;
     this.symbolSources.unshift('./symbol.js'); // All symbol lists require this
     const allResults = await Promise.all(
       this.symbolSources.map((source) => this.loadSymbolSource(source))
@@ -52,25 +54,19 @@ export class Catalog {
       return { newSymbols, newCategories };
     }
   }
-  // Prunes symbols/categories down to an unlocked set (Progression mode). A
-  // plain Map delete pass -- no RNG, so it can run after updateSymbols()
-  // without touching draw order. Sandbox calls updateSymbols() and stops, so
-  // its full catalog (and the golden traces, which only exercise Sandbox)
-  // are unaffected. CATEGORY_UNBUYABLE symbols are never buyable regardless
-  // of `allowed`, so they're always kept.
+  // Narrows the *buyable* pool to an unlocked set (Progression mode) --
+  // generateShop() consults `shopAllowed` and won't offer anything outside
+  // it. Deliberately does NOT touch `symbols`/`categories`: plenty of
+  // symbols spawn other symbols directly (game.catalog.symbol(...) --
+  // Volcano's 🕳️, Wildcard's disguises, ...) regardless of what's
+  // currently unlocked for purchase, and those lookups -- along with
+  // category membership checks like nextToEmpty() -- must keep working for
+  // every symbol that can appear on the board, locked or not. No RNG, so
+  // it can run after updateSymbols() without touching draw order. Sandbox
+  // never calls this, so its full catalog (and the golden traces, which
+  // only exercise Sandbox) are unaffected either way.
   restrictTo(allowed) {
-    for (const [emoji, sym] of this.symbols) {
-      if (allowed.has(emoji) || sym.categories().includes(CATEGORY_UNBUYABLE)) {
-        continue;
-      }
-      this.symbols.delete(emoji);
-    }
-    for (const [cat, emojis] of this.categories) {
-      this.categories.set(
-        cat,
-        emojis.filter((e) => this.symbols.has(e))
-      );
-    }
+    this.shopAllowed = allowed;
   }
   symbol(emoji) {
     const key = Util.normalizeSkinTone(emoji);
@@ -86,17 +82,20 @@ export class Catalog {
     bannedCategories = [CATEGORY_UNBUYABLE]
   ) {
     const bag = [];
-    const checkCategory = (item) => {
+    const isOffered = (item) => {
       for (const cat of bannedCategories) {
         if (item.categories().includes(cat)) {
           return false;
         }
       }
+      if (this.shopAllowed !== null && !this.shopAllowed.has(item.emoji())) {
+        return false;
+      }
       return true;
     };
     if (rareOnly) {
       for (const [_, item] of this.symbols) {
-        if (!checkCategory(item)) {
+        if (!isOffered(item)) {
           continue;
         }
         if (item.rarity < 0.101) {
@@ -107,7 +106,7 @@ export class Catalog {
     }
     while (bag.length <= minCount) {
       for (const [_, item] of this.symbols) {
-        if (!checkCategory(item)) {
+        if (!isOffered(item)) {
           continue;
         }
         if (Util.randomFloat(/* shop= */ true) < item.rarity + luck / 100.0) {

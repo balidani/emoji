@@ -6,6 +6,7 @@ import { Wildcard, JOKER_DISGUISES } from '../../src/symbols/wildcard.js';
 import { buildGame } from './helpers/fakeGame.js';
 import { buildRealCatalog } from './helpers/realGame.js';
 import { seedFirstDraw } from './helpers/rngSeeds.js';
+import { STARTING_POOL } from '../../src/progression-roster.js';
 
 describe('wildcard.js', () => {
   beforeEach(async () => {
@@ -29,6 +30,21 @@ describe('wildcard.js', () => {
 
     it('every disguise in JOKER_DISGUISES resolves in the full catalog', async () => {
       const catalog = await buildRealCatalog();
+      for (const emoji of JOKER_DISGUISES) {
+        expect(() => catalog.symbol(emoji)).not.toThrow();
+      }
+    });
+
+    // 🃏 unlocks in Progression mode's bag 1, but JOKER_DISGUISES includes
+    // 📮 (bag 5, the very last unlock -- see progression-roster.js). A
+    // player who owns a Joker with only early bags unlocked must still be
+    // able to roll a 📮 disguise: Catalog.restrictTo() only narrows what's
+    // *buyable*, it must never make game.catalog.symbol(...) throw for a
+    // symbol some other symbol's effect wants to spawn (see catalog.js's
+    // restrictTo doc comment, and rocks.test.js's matching Volcano case).
+    it('every disguise still resolves once restrictTo has narrowed the buyable pool', async () => {
+      const catalog = await buildRealCatalog();
+      catalog.restrictTo(new Set(STARTING_POOL)); // no bags unlocked at all
       for (const emoji of JOKER_DISGUISES) {
         expect(() => catalog.symbol(emoji)).not.toThrow();
       }

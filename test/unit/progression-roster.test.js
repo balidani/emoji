@@ -109,29 +109,37 @@ describe('progressionStatusText', () => {
 });
 
 describe('Catalog.restrictTo', () => {
-  it('prunes symbols.js down to the allowed set, always keeping UNBUYABLE', async () => {
+  // restrictTo only narrows what generateShop() will *offer* -- it must not
+  // remove anything from `symbols`/`categories`. Plenty of symbols spawn
+  // other symbols directly via game.catalog.symbol(...) regardless of what
+  // the player has unlocked so far for purchase (Volcano's 🕳️, Wildcard's
+  // disguises, ...); pruning the catalog itself used to make those lookups
+  // throw "Unknown symbol" and crash mid-roll the moment a locked symbol's
+  // spawn effect fired. See rocks.test.js's Volcano regression test for the
+  // end-to-end case.
+  it('does not remove locked symbols from the catalog itself', async () => {
     const catalog = await buildRealCatalog();
     catalog.restrictTo(new Set(STARTING_POOL));
 
     for (const emoji of STARTING_POOL) {
       expect(catalog.symbols.has(emoji)).toBe(true);
     }
-    // A bagged (locked) symbol must be gone.
-    expect(catalog.symbols.has('🐉')).toBe(false);
-    // Unbuyable symbols (medals, money/turn counters, ...) are always kept --
-    // restrictTo only narrows the *buyable* pool.
+    // A bagged (locked) symbol must still be there -- just not offered for
+    // purchase (see the generateShop test below).
+    expect(catalog.symbols.has('🐉')).toBe(true);
+    expect(catalog.symbol('🐉')).toBeTruthy();
+    // Unbuyable symbols (medals, money/turn counters, ...) were always kept.
     expect(catalog.symbols.has('🥉')).toBe(true);
     expect(catalog.symbols.has('💵')).toBe(true);
   });
 
-  it('drops pruned emoji from category indexes too', async () => {
+  it('leaves category indexes untouched, including locked emoji', async () => {
     const catalog = await buildRealCatalog();
+    const before = new Map(
+      [...catalog.categories].map(([cat, emojis]) => [cat, [...emojis]])
+    );
     catalog.restrictTo(new Set(STARTING_POOL));
-    for (const emojis of catalog.categories.values()) {
-      for (const emoji of emojis) {
-        expect(catalog.symbols.has(emoji)).toBe(true);
-      }
-    }
+    expect(catalog.categories).toEqual(before);
   });
 
   it('generateShop only offers the restricted pool afterwards', async () => {
