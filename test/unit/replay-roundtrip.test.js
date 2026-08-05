@@ -25,6 +25,7 @@ import { Game } from '../../src/game.js';
 import { Catalog } from '../../src/catalog.js';
 import { DomRenderer } from '../../src/render/DomRenderer.js';
 import { ReplayRecorder, runReplay, parseReplay } from '../../src/replay.js';
+import { unlockedEmoji } from '../../src/progression-roster.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const indexHtml = readFileSync(
@@ -64,12 +65,20 @@ function cloneTemplateIntoGame() {
   gameDiv.appendChild(clone.children[0]);
 }
 
-async function buildRecordingGame(settings = REPLAY_SETTINGS) {
+async function buildRecordingGame(
+  settings = REPLAY_SETTINGS,
+  progression = fakeProgression
+) {
   const catalog = new Catalog([...settings.symbolSources]);
   await catalog.updateSymbols();
+  // Mirrors bootstrap.js's loadSettings -- Progression mode narrows the
+  // buyable pool before the shop ever draws from it.
+  if (progression.mode === 'progression') {
+    catalog.restrictTo(unlockedEmoji(progression.unlockedBags));
+  }
   const rngState = Rng.exportState();
   const game = new Game(
-    fakeProgression,
+    progression,
     settings,
     catalog,
     new DomRenderer(),
@@ -79,6 +88,7 @@ async function buildRecordingGame(settings = REPLAY_SETTINGS) {
     seedPhrase: window.seedPhrase ?? 'test-seed',
     rngState,
     settings,
+    progression,
   });
   return game;
 }
@@ -218,5 +228,105 @@ describe('replay round-trip determinism', () => {
     // And now the live continuation's own action is appended after it, so
     // exporting from here reproduces the whole run from the original start.
     expect(replayed.recorder.events).toEqual([...recordedEvents, ['r']]);
+  });
+
+  it("continuing a Progression-mode replay keeps the recorded mode/unlockedBags in its new recorder, not the live player's", async () => {
+    cloneTemplateIntoGame();
+    const recordingProgression = {
+      mode: 'progression',
+      unlockedBags: [0],
+      updateUi() {},
+      checkGateAndRollOffer() {},
+    };
+    const settings = { ...REPLAY_SETTINGS, gameLength: 5 };
+    const game = await buildRecordingGame(settings, recordingProgression);
+    await drain(game.roll());
+    const code = game.recorder.serialize();
+
+    const liveProgression = {
+      mode: 'progression',
+      unlockedBags: [0, 1, 2, 3],
+      updateUi() {},
+      checkGateAndRollOffer() {},
+    };
+    const replayed = await drain(
+      runReplay(code, { progression: liveProgression, onGameOver: noop })
+    );
+    expect(replayed.isOver).toBe(false);
+    expect(replayed.recorder.mode).toBe('progression');
+    expect(replayed.recorder.unlockedBags).toEqual([0]);
+  });
+
+  it("records Progression mode + unlocked bags, and reproduces the exact same RNG trace regardless of the live player's current unlocks", async () => {
+    cloneTemplateIntoGame();
+    // Recorded with only bag 0 unlocked -- narrows generateShop()'s draw
+    // pool (Catalog.restrictTo), which changes the RNG draw sequence itself
+    // (see catalog.js's isOffered()/generateShop()), not just what's shown.
+    const recordingProgression = {
+      mode: 'progression',
+      unlockedBags: [0],
+      updateUi() {},
+      checkGateAndRollOffer() {},
+    };
+    const game = await buildRecordingGame(
+      REPLAY_SETTINGS,
+      recordingProgression
+    );
+
+    globalThis.__RNG_TRACE__ = [];
+    await playScriptedGame(game);
+    const recordedTrace = globalThis.__RNG_TRACE__;
+    delete globalThis.__RNG_TRACE__;
+
+    expect(game.isOver).toBe(true);
+    const code = game.recorder.serialize();
+    const parsed = parseReplay(code);
+    expect(parsed.mode).toBe('progression');
+    expect(parsed.unlockedBags).toEqual([0]);
+
+    // The player may have unlocked more bags since this replay was
+    // recorded -- runReplay() must reproduce the pool as it stood at
+    // record time, not whatever's live now.
+    const liveProgression = {
+      mode: 'progression',
+      unlockedBags: [0, 1, 2, 3],
+      updateUi() {},
+      checkGateAndRollOffer() {},
+    };
+
+    globalThis.__RNG_TRACE__ = [];
+    const replayed = await drain(
+      runReplay(code, { progression: liveProgression, onGameOver: noop })
+    );
+    const replayedTrace = globalThis.__RNG_TRACE__;
+    delete globalThis.__RNG_TRACE__;
+
+    expect(replayed.isOver).toBe(true);
+    expect(replayedTrace).toEqual(recordedTrace);
+
+    // Launches visually in the right mode too, not just RNG-correct.
+    const bar = document.querySelector('.game .progression-bar');
+    expect(bar.classList.contains('hidden')).toBe(false);
+    expect(bar.querySelector('.progression-bar-fill')).toBeTruthy();
+  });
+
+  it('defaults an old replay code with no mode field to Sandbox (unrestricted)', async () => {
+    cloneTemplateIntoGame();
+    const game = await buildRecordingGame();
+    await playScriptedGame(game);
+
+    const parsed = parseReplay(game.recorder.serialize());
+    delete parsed.mode;
+    delete parsed.unlockedBags;
+    const legacyCode = btoa(
+      unescape(encodeURIComponent(JSON.stringify(parsed)))
+    );
+
+    const replayed = await drain(
+      runReplay(legacyCode, { progression: fakeProgression, onGameOver: noop })
+    );
+    expect(replayed.isOver).toBe(true);
+    const bar = document.querySelector('.game .progression-bar');
+    expect(bar.classList.contains('hidden')).toBe(true);
   });
 });

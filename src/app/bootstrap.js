@@ -91,7 +91,12 @@ export async function bootstrap() {
       new DomRenderer(),
       loadListener
     );
-    game.recorder = new ReplayRecorder({ seedPhrase, rngState, settings });
+    game.recorder = new ReplayRecorder({
+      seedPhrase,
+      rngState,
+      settings,
+      progression: PROGRESSION,
+    });
     currentGame = game;
 
     // Post-win unlock draft (PROGRESSION_DESIGN.md section 6.4). Checked on

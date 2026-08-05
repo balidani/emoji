@@ -5,6 +5,7 @@
 
 import { toBase64Utf8, fromBase64Utf8 } from './core/util.js';
 import { CURRENT_VERSION } from './progression.js';
+import { unlockedEmoji } from './progression-roster.js';
 import * as Rng from './core/rng.js';
 import { Catalog } from './catalog.js';
 import { Game } from './game.js';
@@ -12,6 +13,7 @@ import { GameSettings } from './game_settings.js';
 import { ReplayRenderer } from './render/ReplayRenderer.js';
 import { ReplayDivergenceError } from './replay-errors.js';
 import { animationOff, animationOn } from './render/animations.js';
+import { renderProgressionBar } from './render/progressionBar.js';
 import { SAVE_MAGIC, REPLAY_MAGIC as MAGIC } from './serialization-magic.js';
 
 export { ReplayDivergenceError };
@@ -22,7 +24,23 @@ export { ReplayDivergenceError };
 // existing values and appends to a plain array. This is what keeps
 // `npm test`'s golden traces byte-identical with the hooks wired in.
 export class ReplayRecorder {
-  constructor({ seedPhrase, rngState, settings, events = [] }) {
+  // `progression` is the live Progression instance (optional -- tests that
+  // only care about GameSettings-level determinism can omit it, same as
+  // before this field existed). Progression mode is gameplay-affecting: in
+  // Progression mode the shop's catalog is narrowed to the unlocked bags
+  // (Catalog.restrictTo(), wired in bootstrap.js's loadSettings), and that
+  // narrowing changes which symbols generateShop()'s RNG draws even
+  // consider -- see catalog.js's isOffered()/generateShop(). Replaying
+  // without reproducing that same restriction draws a different shop than
+  // the one that was actually played, which runReplay() surfaces as a
+  // divergence (or worse, silently plays out differently).
+  constructor({
+    seedPhrase,
+    rngState,
+    settings,
+    progression = null,
+    events = [],
+  }) {
     this.seedPhrase = seedPhrase;
     this.rngState = rngState;
     // Only gameplay-affecting fields -- resultLookup/textLookup are
@@ -39,6 +57,13 @@ export class ReplayRecorder {
       symbolSources: [...settings.symbolSources],
       initiallyLockedCells: settings.initiallyLockedCells,
     };
+    // Snapshot, not a live reference -- unlockedBags keeps growing on the
+    // same Progression instance as the player unlocks more bags, and this
+    // replay must keep reproducing the pool as it stood when recorded.
+    this.mode = progression?.mode ?? null;
+    this.unlockedBags = progression?.unlockedBags
+      ? [...progression.unlockedBags]
+      : [];
     // Seeded with a replay's already-recorded prefix when a game continued
     // past the end of its tape (see runReplay) gets its own recorder, so
     // exporting from there yields one replay covering the whole run, not
@@ -75,6 +100,8 @@ export class ReplayRecorder {
       seed: this.seedPhrase,
       rng: this.rngState,
       settings: this.settings,
+      mode: this.mode,
+      unlockedBags: this.unlockedBags,
       events: this.events,
     });
     return toBase64Utf8(payload);
@@ -195,8 +222,33 @@ export async function runReplay(base64, { progression, onGameOver }) {
   templateClone.classList.remove('hidden');
   gameDiv.appendChild(templateClone.children[0]);
 
+  // Older replay codes (recorded before mode was captured) have neither
+  // field -- treat them as Sandbox, matching what every replay actually did
+  // before this existed.
+  const mode = parsed.mode ?? null;
+  const unlockedBags = parsed.unlockedBags ?? [];
+
   const catalog = new Catalog(parsed.settings.symbolSources);
   await catalog.updateSymbols();
+  // Reproduce the same buyable pool the recording played against -- see
+  // ReplayRecorder's constructor comment for why this has to match exactly
+  // (it changes generateShop()'s RNG draw sequence, not just what's
+  // offered).
+  if (mode === 'progression') {
+    catalog.restrictTo(unlockedEmoji(unlockedBags));
+  }
+  // Mirror the recorded run's progression bar, not the live player's
+  // current unlocks -- bootstrap.js's loadSettings does the same
+  // mount/hide dance for a fresh game (see the `.progression-bar` div in
+  // the template just cloned above).
+  const statusBarMount = gameDiv.querySelector('.progression-bar');
+  if (mode === 'progression') {
+    renderProgressionBar(statusBarMount, unlockedBags);
+    statusBarMount.classList.remove('hidden');
+  } else {
+    statusBarMount.replaceChildren();
+    statusBarMount.classList.add('hidden');
+  }
   // Pin the RNG to the recorded starting position -- NOT reproduced by
   // re-seeding from the phrase, since the RNG is seeded once per page load
   // and never re-seeded between games (see core/rng.js). Any draws
@@ -265,10 +317,18 @@ export async function runReplay(base64, { progression, onGameOver }) {
       // Pre-seeded with the prefix that actually ran, so exporting from
       // here (see bootstrap.js's replay panel) yields one replay covering
       // the whole run, not just the part played live from this point.
+      // `progression` here carries the *recorded* mode/unlockedBags (the
+      // pool this run actually played against, computed above), not the
+      // live PROGRESSION instance passed into runReplay -- otherwise
+      // continuing a Progression-mode replay would silently re-tag its
+      // export as Sandbox (or as whatever bags the player has unlocked by
+      // now), losing the same information this whole feature exists to
+      // keep.
       game.recorder = new ReplayRecorder({
         seedPhrase: parsed.seed,
         rngState: parsed.rng,
         settings: parsed.settings,
+        progression: { mode, unlockedBags },
         events: appliedEvents,
       });
     }
