@@ -196,4 +196,27 @@ describe('replay round-trip determinism', () => {
     await drain(rollSpy.mock.results[0].value);
     expect(replayed.inventory.getResource(Const.TURNS)).toBe(turnsBefore - 1);
   });
+
+  it('gives the continued game its own recorder covering the whole run, not just the part played live', async () => {
+    cloneTemplateIntoGame();
+    const settings = { ...REPLAY_SETTINGS, gameLength: 5 };
+    const game = await buildRecordingGame(settings);
+    await drain(game.roll());
+    const code = game.recorder.serialize();
+    const recordedEvents = parseReplay(code).events;
+    expect(recordedEvents.length).toBeGreaterThan(0);
+
+    const replayed = await drain(
+      runReplay(code, { progression: fakeProgression, onGameOver: noop })
+    );
+    expect(replayed.isOver).toBe(false);
+    // Nothing new played yet -- the continuation's recorder should already
+    // reproduce exactly the replayed prefix.
+    expect(replayed.recorder.events).toEqual(recordedEvents);
+
+    await drain(replayed.roll());
+    // And now the live continuation's own action is appended after it, so
+    // exporting from here reproduces the whole run from the original start.
+    expect(replayed.recorder.events).toEqual([...recordedEvents, ['r']]);
+  });
 });

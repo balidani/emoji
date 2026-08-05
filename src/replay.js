@@ -22,7 +22,7 @@ export { ReplayDivergenceError };
 // existing values and appends to a plain array. This is what keeps
 // `npm test`'s golden traces byte-identical with the hooks wired in.
 export class ReplayRecorder {
-  constructor({ seedPhrase, rngState, settings }) {
+  constructor({ seedPhrase, rngState, settings, events = [] }) {
     this.seedPhrase = seedPhrase;
     this.rngState = rngState;
     // Only gameplay-affecting fields -- resultLookup/textLookup are
@@ -39,7 +39,11 @@ export class ReplayRecorder {
       symbolSources: [...settings.symbolSources],
       initiallyLockedCells: settings.initiallyLockedCells,
     };
-    this.events = [];
+    // Seeded with a replay's already-recorded prefix when a game continued
+    // past the end of its tape (see runReplay) gets its own recorder, so
+    // exporting from there yields one replay covering the whole run, not
+    // just the part played live after control was handed back.
+    this.events = [...events];
   }
   recordRoll() {
     this.events.push(['r']);
@@ -234,9 +238,17 @@ export async function runReplay(base64, { progression, onGameOver }) {
   // game.roll() uses (see game.js), reusing the game's own existing
   // skip-animation invariant rather than a new one.
   animationOff();
+  // Tracks only the events actually applied to `game` -- on a clean run
+  // that's every recorded event, but a divergence thrown mid-drive leaves
+  // this shorter than parsed.events (the event that diverged, and anything
+  // after it, never took effect). That's what the recorder below needs: it
+  // must describe exactly what this game has actually done, not the tape it
+  // was handed.
+  const appliedEvents = [];
   try {
     for (const event of parsed.events) {
       await playEvent(game, event);
+      appliedEvents.push(event);
     }
   } finally {
     gameDiv.style.pointerEvents = 'auto';
@@ -250,6 +262,15 @@ export async function runReplay(base64, { progression, onGameOver }) {
     if (!game.isOver) {
       renderer.stopDriving();
       animationOn();
+      // Pre-seeded with the prefix that actually ran, so exporting from
+      // here (see bootstrap.js's replay panel) yields one replay covering
+      // the whole run, not just the part played live from this point.
+      game.recorder = new ReplayRecorder({
+        seedPhrase: parsed.seed,
+        rngState: parsed.rng,
+        settings: parsed.settings,
+        events: appliedEvents,
+      });
     }
   }
   return game;
