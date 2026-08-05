@@ -693,9 +693,8 @@ body {
   margin-bottom: 0.5em;
 }
 
-.game-settings-panel .wipe-button {
-  align-self: flex-start;
-  margin-top: 0.5em;
+.game-settings-reset-link {
+  color: #c00;
 }
 
 #sidebar-menu.active {

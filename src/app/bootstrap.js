@@ -428,11 +428,39 @@ function initSidebar(getGame, setGame, progression, onGameOver) {
     gameSettingsPanelDiv.appendChild(switchRow);
 
     if (isProgression) {
-      const resetButton = Util.createButton('Reset Progression', () => {
+      const resetRow = Util.createDiv('', 'game-settings-row');
+      const resetLink = document.createElement('a');
+      resetLink.href = '#';
+      resetLink.textContent = 'reset progression';
+      resetLink.classList.add('game-settings-reset-link');
+      resetRow.appendChild(resetLink);
+      gameSettingsPanelDiv.appendChild(resetRow);
+
+      const confirmRow = Util.createDiv('', 'game-settings-row', 'hidden');
+      confirmRow.appendChild(document.createTextNode('are you sure? '));
+      const yesLink = document.createElement('a');
+      yesLink.href = '#';
+      yesLink.textContent = 'yes';
+      const noLink = document.createElement('a');
+      noLink.href = '#';
+      noLink.textContent = 'no';
+      confirmRow.appendChild(yesLink);
+      confirmRow.appendChild(document.createTextNode(' / '));
+      confirmRow.appendChild(noLink);
+      gameSettingsPanelDiv.appendChild(confirmRow);
+
+      resetLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        confirmRow.classList.remove('hidden');
+      });
+      yesLink.addEventListener('click', (e) => {
+        e.preventDefault();
         progression.resetProgression();
       });
-      resetButton.classList.add('wipe-button');
-      gameSettingsPanelDiv.appendChild(resetButton);
+      noLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        confirmRow.classList.add('hidden');
+      });
     }
   };
   const refreshGameSettingsPanelIfVisible = () => {
