@@ -1233,3 +1233,48 @@ button:disabled {
   font-size: 9pt;
   opacity: 0.8;
 }
+
+/* Bag draft (PROGRESSION_DESIGN.md section 6.4) -- reuses
+   .mode-select-overlay/.mode-select-panel for the full-screen shell. */
+.bag-draft-subtitle {
+  text-align: center;
+  font-size: 10pt;
+  opacity: 0.8;
+  margin-bottom: 4pt;
+}
+
+.bag-draft-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12pt;
+}
+
+.bag-draft-card {
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 20pt;
+  letter-spacing: 3pt;
+  text-align: center;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid black;
+  border-radius: 8pt;
+  padding: 12pt;
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 2px 4px,
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px;
+}
+
+.bag-draft-card:hover {
+  background: #f2f2f2;
+}
+
+.bag-draft-card.picked {
+  font-size: 12pt;
+  letter-spacing: normal;
+  font-weight: 900;
+  background: #fff6d8;
+  cursor: default;
+}

@@ -12,7 +12,7 @@ import { CATEGORY_UNBUYABLE } from '../symbol.js';
 import { KEYWORDS } from '../keywords.js';
 import { exportSave, importSave } from '../save_state.js';
 import { ReplayRecorder, runReplay } from '../replay.js';
-import { FULL_ROSTER } from '../progression-roster.js';
+import { FULL_ROSTER, BAGS } from '../progression-roster.js';
 import * as Const from '../consts.js';
 
 // The composition root: seeds the RNG, builds Progression/GameSettings and
@@ -76,6 +76,21 @@ export async function bootstrap() {
     );
     game.recorder = new ReplayRecorder({ seedPhrase, rngState, settings });
     currentGame = game;
+
+    // Post-win unlock draft (PROGRESSION_DESIGN.md section 6.4). Checked on
+    // every game load (not just right after the game-over that rolled it)
+    // so a pending offer left unpicked across a reload still gets shown --
+    // the offer itself is already reload-safe (Progression persists it and
+    // never rerolls), this is what actually surfaces that guarantee in the
+    // UI. Not awaited, same reasoning as the mode-select overlay: a human
+    // may take any amount of time to pick, and the new game underneath must
+    // stay playable/inspectable (window.game, simulate, tests) regardless.
+    if (
+      PROGRESSION.mode === 'progression' &&
+      PROGRESSION.pendingBagOffer.length > 0
+    ) {
+      showBagDraftOverlay(PROGRESSION);
+    }
 
     document.body.addEventListener('click', (e) => {
       if (e.target.classList.contains('interactive-emoji')) {
@@ -185,6 +200,48 @@ function showModeSelectOverlay(progression) {
     document
       .getElementById('mode-select-sandbox')
       .addEventListener('click', () => pick('sandbox'), { once: true });
+  });
+}
+
+// Post-win unlock draft (PROGRESSION_DESIGN.md section 6.4): up to three
+// cards, one per still-locked bag in the pending offer, each showing that
+// bag's own emoji glyphs -- no effect text, just the glyphs, so the pick is
+// informed without spelling out mechanics. Resolves (unawaited by its
+// caller) once the player taps one; the other offered bags simply return to
+// the pool by virtue of never being removed from it (see
+// Progression.commitBagChoice).
+function showBagDraftOverlay(progression) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('bag-draft-overlay');
+    const cardsDiv = overlay.querySelector('.bag-draft-cards');
+    cardsDiv.replaceChildren();
+    const cards = [];
+    const pick = async (bagIndex, card) => {
+      try {
+        progression.commitBagChoice(bagIndex);
+      } catch {
+        // Already committed by a near-simultaneous click on another card --
+        // the first one wins, this one is a no-op.
+        return;
+      }
+      for (const c of cards) {
+        c.style.pointerEvents = 'none';
+      }
+      card.classList.add('picked');
+      card.textContent = `${BAGS[bagIndex].join('')} Unlocked!`;
+      await Util.animate(card, 'achievementPopIn', 0.5);
+      overlay.classList.add('hidden');
+      resolve(bagIndex);
+    };
+    for (const bagIndex of progression.pendingBagOffer) {
+      const card = Util.createDiv(BAGS[bagIndex].join(''), 'bag-draft-card');
+      card.addEventListener('click', () => pick(bagIndex, card), {
+        once: true,
+      });
+      cards.push(card);
+      cardsDiv.appendChild(card);
+    }
+    overlay.classList.remove('hidden');
   });
 }
 
