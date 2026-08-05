@@ -40,6 +40,10 @@ export async function bootstrap() {
   // (see initSidebar, which reads this via the getGame accessor instead of
   // closing over a single Game).
   let currentGame = null;
+  // Set once initSidebar runs (see below); lets loadSettings tell an
+  // already-open symbol-list panel to refresh after a bag-draft pick, since
+  // opening the panel is otherwise the only thing that rebuilds it.
+  let sidebarApi = null;
 
   // loadSettings/loadListener close over PROGRESSION, which is fine since
   // neither is invoked until after PROGRESSION is constructed below.
@@ -89,7 +93,16 @@ export async function bootstrap() {
       PROGRESSION.mode === 'progression' &&
       PROGRESSION.pendingBagOffer.length > 0
     ) {
-      showBagDraftOverlay(PROGRESSION);
+      showBagDraftOverlay(PROGRESSION).then(() => {
+        // If the symbol list happens to already be open (from earlier in
+        // the session -- opening the sidebar again doesn't re-trigger a
+        // rebuild on its own), refresh it now that the pick's reload above
+        // has landed. sidebarApi is only null on the very first loadSettings
+        // call, before initSidebar has run -- impossible to have a pending
+        // offer that early (no game has been won yet), so the guard is just
+        // defensive.
+        sidebarApi?.refreshSymbolListIfVisible();
+      });
     }
 
     document.body.addEventListener('click', (e) => {
@@ -176,7 +189,7 @@ export async function bootstrap() {
   // Debug
   window.game = game;
 
-  initSidebar(() => currentGame, PROGRESSION, loadListener);
+  sidebarApi = initSidebar(() => currentGame, PROGRESSION, loadListener);
   initGridScaling();
 
   return game;
@@ -283,14 +296,21 @@ function initSidebar(getGame, progression, onGameOver) {
       renderSandboxSymbolList(symbolListDiv, getGame());
     }
   };
+  // Opening the panel is the only thing that normally rebuilds it -- this
+  // is for callers outside the click handler below (the bag-draft pick and
+  // the mode toggle) whose reload can invalidate an *already-open* panel
+  // that nothing else would otherwise tell to refresh.
+  const refreshSymbolListIfVisible = () => {
+    if (!symbolListDiv.classList.contains('hidden')) {
+      renderSymbolList();
+    }
+  };
   viewSymbolsButton.addEventListener('click', () => {
     symbolListDiv.classList.toggle('hidden');
     viewSymbolsButton.innerText = symbolListDiv.classList.contains('hidden')
       ? 'view symbols'
       : 'hide symbols';
-    if (!symbolListDiv.classList.contains('hidden')) {
-      renderSymbolList();
-    }
+    refreshSymbolListIfVisible();
   });
 
   const achBtn = document.getElementById('view-achievements');
@@ -351,13 +371,10 @@ function initSidebar(getGame, progression, onGameOver) {
     updateModeToggleLabel();
     await progression.reload(progression.levelData[progression.activeLevel]);
     initGridScaling();
-    // If the symbol list happens to be open already, refresh it in place --
-    // otherwise it'll pick up the new mode/game next time it's opened (see
-    // renderSymbolList above).
-    if (!symbolListDiv.classList.contains('hidden')) {
-      renderSymbolList();
-    }
+    refreshSymbolListIfVisible();
   });
+
+  return { refreshSymbolListIfVisible };
 }
 
 // Sandbox (and mode-not-chosen-yet): today's behavior, unchanged -- every
