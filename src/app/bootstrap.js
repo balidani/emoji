@@ -230,6 +230,15 @@ function showBagDraftOverlay(progression) {
       card.classList.add('picked');
       card.textContent = `${BAGS[bagIndex].join('')} Unlocked!`;
       await Util.animate(card, 'achievementPopIn', 0.5);
+      // The game already running underneath (built when this round started,
+      // before the pick) has a catalog restricted to the *pre-pick* pool --
+      // reload so the newly unlocked bag is actually buyable this round,
+      // instead of only from the round after next. Same reasoning as the
+      // mode toggle/mode-select-overlay reloads. This also refreshes
+      // getGame() for the sidebar's symbol list, which otherwise throws
+      // trying to look up a symbol the stale catalog doesn't have yet.
+      await progression.reload(progression.levelData[progression.activeLevel]);
+      initGridScaling();
       overlay.classList.add('hidden');
       resolve(bagIndex);
     };
