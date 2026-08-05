@@ -309,10 +309,13 @@ export async function runReplay(base64, { progression, onGameOver }) {
     // thrown mid-drive (still better than leaving the board stuck forever).
     // Restores real animation timing too, so manual play from here on looks
     // like a normal game rather than the instant-skip pace of the replay
-    // itself (see game.js's roll(), which never re-enables it for
-    // isReplay games -- this is what does instead, once).
+    // itself. stopReplayDriving() is what makes that stick: it lets
+    // game.roll() go back to resetting animation to "on" at the start of
+    // every future roll (game.js), instead of leaving it wherever a
+    // mid-drive skip-tap last left it for the rest of this Game's life.
     if (!game.isOver) {
       renderer.stopDriving();
+      game.stopReplayDriving();
       animationOn();
       // Pre-seeded with the prefix that actually ran, so exporting from
       // here (see bootstrap.js's replay panel) yields one replay covering

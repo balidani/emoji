@@ -329,4 +329,36 @@ describe('replay round-trip determinism', () => {
     const bar = document.querySelector('.game .progression-bar');
     expect(bar.classList.contains('hidden')).toBe(true);
   });
+
+  it('resets animation back on for a fresh roll after a replay continuation skips one mid-roll', async () => {
+    cloneTemplateIntoGame();
+    const settings = { ...REPLAY_SETTINGS, gameLength: 5 };
+    const game = await buildRecordingGame(settings);
+    await drain(game.roll());
+    const code = game.recorder.serialize();
+
+    const replayed = await drain(
+      runReplay(code, { progression: fakeProgression, onGameOver: noop })
+    );
+    expect(replayed.isOver).toBe(false);
+    expect(replayed.replayDriving).toBe(false);
+
+    // Simulate the player's second tap during an in-progress roll -- the
+    // real skip-to-instant gesture (see board.js's click listener calling
+    // game.roll() on every click, and roll()'s `if (this.rolling)` branch).
+    replayed.rolling = true;
+    await replayed.roll();
+    replayed.rolling = false;
+
+    // Before the fix, roll() only ever re-enabled animation via
+    // `!this.isReplay` -- permanently false for a replayed Game -- so every
+    // roll after this skip stayed stuck instant forever, with no real
+    // delay/animate() timer ever scheduled again. A fresh roll should
+    // schedule real setTimeout-backed animation again, not fast-forward
+    // straight through via Promise.resolve().
+    const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout');
+    await drain(replayed.roll());
+    expect(setTimeoutSpy).toHaveBeenCalled();
+    setTimeoutSpy.mockRestore();
+  });
 });

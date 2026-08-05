@@ -36,6 +36,13 @@ export class Game {
     this.view = renderer;
     this.onGameOver = onGameOver;
     this.isReplay = isReplay;
+    // Separate from isReplay (which permanently guards persistence for the
+    // lifetime of this Game -- see above): this one flips off partway
+    // through, once runReplay() finishes driving the scripted event list
+    // and hands control back to the player with turns still left (see
+    // stopReplayDriving() and roll() below). Kept distinct so that handoff
+    // doesn't also turn persistence back on.
+    this.replayDriving = isReplay;
     this.inventory = new Inventory(this.settings, this.catalog, this.view);
     this.inventory.update();
     this.profileStats = new ProfileStats(loadProfile());
@@ -64,6 +71,17 @@ export class Game {
       );
     }
     this.board.addClickListener(this);
+  }
+  // Called by runReplay() once the scripted event list has played out and
+  // turns remain, so this Game keeps going under the player's own input.
+  // Lets roll() (below) resume resetting animation to "on" at the start of
+  // every fresh roll, same as a live game -- without this, a replay
+  // continuation that's ever skipped one roll's animation (tap during
+  // rolling) would stay stuck skipping every roll after it forever, since
+  // isReplay itself never flips back (persistence has to stay off for the
+  // rest of this Game's life).
+  stopReplayDriving() {
+    this.replayDriving = false;
   }
   async over() {
     this.isOver = true;
@@ -153,11 +171,13 @@ export class Game {
     if (this.rolling) {
       Util.animationOff();
       return;
-    } else if (!this.isReplay) {
+    } else if (!this.replayDriving) {
       // A replay drives itself, not the player -- leave animation exactly
       // as runReplay() set it (off, so a many-turn game finishes in
       // seconds instead of playing out in real time) rather than
-      // re-enabling it on every roll like a live game does.
+      // re-enabling it on every roll like a live game does. Once
+      // stopReplayDriving() has run (see there), this is true again even
+      // for an isReplay Game, same as a live one.
       Util.animationOn();
     }
     this.rolling = true;
