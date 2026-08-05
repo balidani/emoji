@@ -71,20 +71,20 @@
     <div class="game"></div>
     <div class="template hidden">
       <div class="container">
-        <div class="progression-status-bar hidden"></div>
         <div class="ui"></div>
         <div class="inventory"></div>
         <div class="event-log">
           <div class="event-log-inner"></div>
         </div>
         <div class="game-layout">
-          <div class="wrapper">
+          <div class="wrapper board-column">
             <div class="grid-scaler">
               <div class="grid-scaler-content">
                 <div id="grid" class="grid"></div>
                 <div class="grid-overlay"></div>
               </div>
             </div>
+            <div class="progression-bar hidden"></div>
           </div>
           <div class="shop-wrapper">
             <div class="info"></div>
@@ -176,9 +176,6 @@
             <a id="mode-toggle" href="#"
               >switch to <span id="mode-toggle-target"></span
             ></a>
-          </li>
-          <li id="sidebar-progression-status" class="hidden">
-            📦 <span id="sidebar-progression-status-text"></span>
           </li>
           <li>
             📒 <a id="view-symbols" href="#">view symbols</a>

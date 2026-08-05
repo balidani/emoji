@@ -12,23 +12,6 @@ body {
 
 /* Resoruces */
 
-/* Progression status (PROGRESSION_DESIGN.md rollout follow-up): minimal
-   one-line readout, shared text between the in-game bar, the game-over
-   screen, and the sidebar -- see progressionStatusText(). Hidden entirely
-   in Sandbox/mode-not-chosen-yet. */
-.progression-status-bar {
-  text-align: center;
-  font-size: 9pt;
-  opacity: 0.75;
-  padding: 2pt 4pt 6pt;
-}
-
-.progression-status-line {
-  font-size: 9pt;
-  opacity: 0.75;
-  margin-top: 4pt;
-}
-
 .ui {
   /* Set width to 100% - 20pt for padding */
   width: calc(100% - 24pt);
@@ -103,6 +86,92 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+}
+
+/* Stacks the progression bar directly under the board, without touching
+   plain .wrapper's row layout used elsewhere (e.g. the settings wrapper). */
+.wrapper.board-column {
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Progression bar: thick green fill (unlocked bags / 6), each gate's
+   required medal marked along the top, shared status text overlaid on the
+   bar itself. Same component underneath the board during play and on the
+   game-over screen -- see render/progressionBar.js. Hidden entirely
+   outside Progression mode. */
+.progression-bar {
+  width: 100%;
+  /* Matches .shop/.info's fixed width for visual consistency with the rest
+     of the panel-shaped UI. */
+  max-width: 256pt;
+  margin-top: 8pt;
+}
+
+.progression-bar-steps {
+  position: relative;
+  height: 13pt;
+  margin-bottom: 2pt;
+}
+
+.progression-bar-step {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 10pt;
+  line-height: 1;
+  opacity: 0.35;
+  filter: grayscale(1);
+  transition:
+    opacity 0.4s ease,
+    filter 0.4s ease;
+}
+
+.progression-bar-step.cleared {
+  opacity: 1;
+  filter: none;
+}
+
+.progression-bar-track {
+  position: relative;
+  height: 22pt;
+  border-radius: 11pt;
+  overflow: hidden;
+  background: linear-gradient(180deg, #2f6b35, #1f4d24);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.progression-bar-fill {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: linear-gradient(180deg, #8bec91, #45b653);
+  border-radius: 11pt;
+  transition: width 0.6s ease;
+}
+
+.progression-bar-text {
+  position: absolute;
+  inset: 0;
+  /* Vertical centering via line-height (matching the track height) rather
+     than flex align-items -- text-overflow: ellipsis only truncates
+     correctly (from the end, not silently clipped from both sides) on a
+     plain block with its own overflow/white-space, not a flex-centered
+     child. */
+  box-sizing: border-box;
+  line-height: 22pt;
+  padding: 0 8pt;
+  font-size: 8.5pt;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.2pt;
 }
 
 .shop-wrapper {
@@ -620,11 +689,6 @@ body {
 #sidebar-menu a {
   text-decoration: none;
   font-size: 1.2em;
-}
-
-#sidebar-progression-status {
-  font-size: 0.9em;
-  opacity: 0.85;
 }
 
 #sidebar-menu a:hover {

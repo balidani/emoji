@@ -12,11 +12,8 @@ import { CATEGORY_UNBUYABLE } from '../symbol.js';
 import { KEYWORDS } from '../keywords.js';
 import { exportSave, importSave } from '../save_state.js';
 import { ReplayRecorder, runReplay } from '../replay.js';
-import {
-  FULL_ROSTER,
-  BAGS,
-  progressionStatusText,
-} from '../progression-roster.js';
+import { FULL_ROSTER, BAGS } from '../progression-roster.js';
+import { renderProgressionBar } from '../render/progressionBar.js';
 import * as Const from '../consts.js';
 
 // The composition root: seeds the RNG, builds Progression/GameSettings and
@@ -68,17 +65,17 @@ export async function bootstrap() {
     if (PROGRESSION.mode === 'progression') {
       catalog.restrictTo(PROGRESSION.unlockedEmoji());
     }
-    // In-game progression status bar: visible for the whole round (covers
-    // "game start" -- it's on screen from the moment this round's board
-    // appears), hidden entirely outside Progression mode. The game-over
-    // screen (game.js's over()) renders the same shared text separately, and
-    // the sidebar keeps its own copy fresh independently (initSidebar).
-    const statusBar = document.querySelector('.game .progression-status-bar');
+    // In-game progression bar, underneath the board: visible for the whole
+    // round (covers "game start" -- it's on screen from the moment this
+    // round's board appears), hidden entirely outside Progression mode. The
+    // game-over screen (game.js's over()) mounts the same shared component.
+    const statusBarMount = document.querySelector('.game .progression-bar');
     if (PROGRESSION.mode === 'progression') {
-      statusBar.textContent = `📦 ${progressionStatusText(PROGRESSION.unlockedBags)}`;
-      statusBar.classList.remove('hidden');
+      renderProgressionBar(statusBarMount, PROGRESSION.unlockedBags);
+      statusBarMount.classList.remove('hidden');
     } else {
-      statusBar.classList.add('hidden');
+      statusBarMount.replaceChildren();
+      statusBarMount.classList.add('hidden');
     }
     // Snapshot the RNG position immediately before constructing Game (i.e.
     // before the starting-set Egg draws and the first Board construction),
@@ -113,12 +110,11 @@ export async function bootstrap() {
         // If the symbol list happens to already be open (from earlier in
         // the session -- opening the sidebar again doesn't re-trigger a
         // rebuild on its own), refresh it now that the pick's reload above
-        // has landed; likewise the sidebar's own progression-status line.
-        // sidebarApi is only null on the very first loadSettings call,
-        // before initSidebar has run -- impossible to have a pending offer
-        // that early (no game has been won yet), so the guard is just
+        // has landed. sidebarApi is only null on the very first loadSettings
+        // call, before initSidebar has run -- impossible to have a pending
+        // offer that early (no game has been won yet), so the guard is just
         // defensive.
-        sidebarApi?.refreshProgressionSidebar();
+        sidebarApi?.refreshSymbolListIfVisible();
       });
     }
 
@@ -197,7 +193,7 @@ export async function bootstrap() {
         );
         initGridScaling();
       }
-      sidebarApi?.refreshProgressionSidebar();
+      sidebarApi?.refreshSymbolListIfVisible();
     });
   }
 
@@ -291,34 +287,8 @@ function initSidebar(getGame, progression, onGameOver) {
   const sidebar = document.getElementById('sidebar-menu');
   const closeButton = document.getElementById('close-sidebar');
 
-  // Minimal progression status line (unlocked bags / next gate) -- hidden
-  // entirely outside Progression mode. Always kept in sync with a single
-  // shared refresh (see refreshProgressionSidebar below) rather than its
-  // own bespoke wiring, since -- unlike the togglable panels below -- it has
-  // no open/closed state of its own to hook a rebuild onto.
-  const progressionStatusLi = document.getElementById(
-    'sidebar-progression-status'
-  );
-  const progressionStatusSpan = document.getElementById(
-    'sidebar-progression-status-text'
-  );
-  const renderProgressionStatus = () => {
-    if (progression.mode === 'progression') {
-      progressionStatusSpan.textContent = progressionStatusText(
-        progression.unlockedBags
-      );
-      progressionStatusLi.classList.remove('hidden');
-    } else {
-      progressionStatusLi.classList.add('hidden');
-    }
-  };
-
   hamburgerButton.addEventListener('click', () => {
     sidebar.classList.toggle('active');
-    // Cheap and always relevant to refresh on open -- mode/unlocks can have
-    // changed since the sidebar was last shown (e.g. the async first-run
-    // overlay resolving while it was closed).
-    renderProgressionStatus();
   });
 
   closeButton.addEventListener('click', () => {
@@ -348,12 +318,6 @@ function initSidebar(getGame, progression, onGameOver) {
     if (!symbolListDiv.classList.contains('hidden')) {
       renderSymbolList();
     }
-  };
-  // Everything in the sidebar that tracks progression state, refreshed
-  // together wherever mode/unlocks can change out from under it.
-  const refreshProgressionSidebar = () => {
-    renderProgressionStatus();
-    refreshSymbolListIfVisible();
   };
   viewSymbolsButton.addEventListener('click', () => {
     symbolListDiv.classList.toggle('hidden');
@@ -421,10 +385,10 @@ function initSidebar(getGame, progression, onGameOver) {
     updateModeToggleLabel();
     await progression.reload(progression.levelData[progression.activeLevel]);
     initGridScaling();
-    refreshProgressionSidebar();
+    refreshSymbolListIfVisible();
   });
 
-  return { refreshProgressionSidebar };
+  return { refreshSymbolListIfVisible };
 }
 
 // Sandbox (and mode-not-chosen-yet): today's behavior, unchanged -- every
