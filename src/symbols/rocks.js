@@ -1,5 +1,6 @@
 import { chance, Symb } from '../symbol.js';
 import * as Util from '../util.js';
+import { Hole } from './advanced.js';
 
 // Symbols in this file have to do with either Rock (🪨) or Diamond (💎) generally.
 
@@ -64,7 +65,7 @@ export class Volcano extends Symb {
       const newY = Util.random(game.board.currentRows);
       await game.board.removeSymbol(game, newX, newY);
       await game.eventlog.logResourceChange('🕳️', '', this.emoji(), 'earned');
-      await game.board.addSymbol(game, game.catalog.symbol('🕳️'), newX, newY);
+      await game.board.addSymbol(game, new Hole(), newX, newY);
       await game.eventlog.logResourceChange('🪨', '5', this.emoji(), 'earned');
       await game.board.addSymbol(game, new Rock(), newX, newY);
       await game.board.addSymbol(game, new Rock(), newX, newY);

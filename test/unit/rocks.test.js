@@ -1,7 +1,7 @@
 // UNIT_TEST_PLAN.md section 7.5
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setSeed } from '../../src/core/rng.js';
-import { buildGame } from './helpers/fakeGame.js';
+import { buildGame, buildCatalog } from './helpers/fakeGame.js';
 import { seedFirstDraw } from './helpers/rngSeeds.js';
 import { expectMoney, matchingCalls } from './helpers/assertions.js';
 
@@ -95,6 +95,35 @@ describe('rocks.js', () => {
       await board.cells[0][0].evaluateProduce(game, 0, 0);
       expect(board.cells[0][0].emoji()).toBe('🌋');
       expect(board.cells[0][1].emoji()).toBe('🪨');
+    });
+
+    // 🌋 unlocks in Progression mode's very first bag (bag 0), while 🕳️
+    // doesn't unlock until the last one (bag 5) -- see progression-roster.js.
+    // A player who owns 🌋 with only early bags unlocked has 🕳️ pruned out
+    // of their catalog (Catalog.restrictTo), so Volcano must not go looking
+    // it up there. Regression test for a bug where it did (via
+    // `game.catalog.symbol('🕳️')`), throwing "Unknown symbol: 🕳️" out of
+    // evaluateProduce and freezing the game mid-roll (Game.roll() never
+    // reached its `this.rolling = false`).
+    it('still spawns 🕳️ + 5x🪨 when 🕳️ has been pruned from the catalog (progression-locked)', async () => {
+      const catalog = buildCatalog();
+      catalog.symbols.delete('🕳️');
+      const { game, board, inventory } = buildGame({
+        grid: ['🌋 🎯', '🪨 🪨'],
+        catalog,
+      });
+      const rocksBefore = inventory.symbols.filter(
+        (s) => s.emoji() === '🪨'
+      ).length;
+
+      await board.cells[0][0].evaluateProduce(game, 0, 0);
+
+      const holeCells = board.cells.flat().filter((s) => s.emoji() === '🕳️');
+      expect(holeCells.length).toBe(1);
+      const rocksAfter = inventory.symbols.filter(
+        (s) => s.emoji() === '🪨'
+      ).length;
+      expect(rocksAfter - rocksBefore).toBe(5);
     });
   });
 
