@@ -52,6 +52,26 @@ export class Catalog {
       return { newSymbols, newCategories };
     }
   }
+  // Prunes symbols/categories down to an unlocked set (Progression mode). A
+  // plain Map delete pass -- no RNG, so it can run after updateSymbols()
+  // without touching draw order. Sandbox calls updateSymbols() and stops, so
+  // its full catalog (and the golden traces, which only exercise Sandbox)
+  // are unaffected. CATEGORY_UNBUYABLE symbols are never buyable regardless
+  // of `allowed`, so they're always kept.
+  restrictTo(allowed) {
+    for (const [emoji, sym] of this.symbols) {
+      if (allowed.has(emoji) || sym.categories().includes(CATEGORY_UNBUYABLE)) {
+        continue;
+      }
+      this.symbols.delete(emoji);
+    }
+    for (const [cat, emojis] of this.categories) {
+      this.categories.set(
+        cat,
+        emojis.filter((e) => this.symbols.has(e))
+      );
+    }
+  }
   symbol(emoji) {
     const key = Util.normalizeSkinTone(emoji);
     if (this.symbols.has(key)) {
