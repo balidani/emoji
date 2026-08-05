@@ -1152,3 +1152,84 @@ button:disabled {
 .dev-hidden {
   display: none;
 }
+
+/* Mode-select overlay (PROGRESSION_DESIGN.md section 6.1) */
+.mode-select-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Same specificity as .hidden alone, but declared after it in source order
+   isn't reliable across future edits -- pin it explicitly so this overlay's
+   own `display: flex` above can never win the cascade while `.hidden` is
+   set. */
+.mode-select-overlay.hidden {
+  display: none;
+}
+
+.mode-select-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12pt;
+  width: min(320pt, 88vw);
+}
+
+.mode-select-panel > .mode-select-title {
+  text-align: center;
+  font-size: 20pt;
+  font-weight: 900;
+  margin-bottom: 8pt;
+}
+
+.mode-select-option {
+  display: flex;
+  align-items: center;
+  gap: 10pt;
+  /* Overrides the global `button` reset's fixed 32pt icon-button size
+     (style.css's "Misc" section) -- these are full-width option cards, not
+     icon buttons. */
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  text-align: left;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid black;
+  border-radius: 8pt;
+  padding: 10pt;
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 2px 4px,
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px;
+}
+
+.mode-select-option:hover {
+  background: #f2f2f2;
+}
+
+.mode-select-icon {
+  font-size: 20pt;
+}
+
+.mode-select-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2pt;
+}
+
+.mode-select-name {
+  font-weight: 900;
+  font-size: 12pt;
+}
+
+.mode-select-desc {
+  font-size: 9pt;
+  opacity: 0.8;
+}

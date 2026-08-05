@@ -52,6 +52,14 @@ export async function bootstrap() {
     gameDiv.appendChild(templateClone.children[0]);
     const catalog = new Catalog(settings.symbolSources);
     await catalog.updateSymbols();
+    // Progression mode's only mechanical difference from Sandbox: narrow the
+    // buyable pool to what's unlocked so far (PROGRESSION_DESIGN.md sections
+    // 1, 7). A pure Map-delete pass -- no RNG draws, so it doesn't touch
+    // draw order. Sandbox (and mode === null, before the first-run overlay
+    // has run) never restricts, matching "today's game unchanged".
+    if (PROGRESSION.mode === 'progression') {
+      catalog.restrictTo(PROGRESSION.unlockedEmoji());
+    }
     // Snapshot the RNG position immediately before constructing Game (i.e.
     // before the starting-set Egg draws and the first Board construction),
     // so a replay recorded from here can restore exactly this position --
@@ -126,6 +134,27 @@ export async function bootstrap() {
     });
   }
 
+  // First-run mode pick (PROGRESSION_DESIGN.md section 6.1). Deliberately
+  // NOT awaited: the first game below always loads immediately with
+  // whatever mode is already persisted (null reads as unrestricted, same as
+  // Sandbox), so window.game/window.simulate are available right away no
+  // matter how long the overlay sits waiting for a human -- this is what
+  // keeps the golden-trace harness (which never touches the overlay) from
+  // hanging. The overlay is purely a full-screen visual in front of that
+  // first game until a real player picks one; picking Progression reloads
+  // to actually narrow the catalog. Skipped entirely once ProgressionMode
+  // is persisted from a previous run.
+  if (PROGRESSION.mode === null) {
+    showModeSelectOverlay(PROGRESSION).then(async (mode) => {
+      if (mode === 'progression') {
+        await PROGRESSION.reload(
+          PROGRESSION.levelData[PROGRESSION.activeLevel]
+        );
+        initGridScaling();
+      }
+    });
+  }
+
   const game = await loadSettings(
     PROGRESSION.levelData[PROGRESSION.activeLevel]
   );
@@ -136,6 +165,27 @@ export async function bootstrap() {
   initGridScaling();
 
   return game;
+}
+
+// Resolves with the picked mode ('progression'|'sandbox') once the player
+// clicks, having already persisted it. Not awaited by its caller (see
+// bootstrap() above) -- a real player may take any amount of time to click.
+function showModeSelectOverlay(progression) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('mode-select-overlay');
+    overlay.classList.remove('hidden');
+    const pick = (mode) => {
+      progression.setMode(mode);
+      overlay.classList.add('hidden');
+      resolve(mode);
+    };
+    document
+      .getElementById('mode-select-progression')
+      .addEventListener('click', () => pick('progression'), { once: true });
+    document
+      .getElementById('mode-select-sandbox')
+      .addEventListener('click', () => pick('sandbox'), { once: true });
+  });
 }
 
 // TODO: extract to ui.js
@@ -154,11 +204,27 @@ function initSidebar(getGame, progression, onGameOver) {
 
   const viewSymbolsButton = document.getElementById('view-symbols');
   const symbolListDiv = document.querySelector('.sidebar-content .symbol-list');
+  // Rebuilt on every open (not cached from sidebar-init time) so it always
+  // reflects the *current* mode/unlocks -- mode can change at runtime now
+  // (the first-run overlay resolves asynchronously, and the sidebar toggle
+  // below switches it directly), same lazy-render pattern as achievements/
+  // save/replay just below.
+  const renderSymbolList = () => {
+    symbolListDiv.replaceChildren();
+    if (progression.mode === 'progression') {
+      renderProgressionSymbolList(symbolListDiv, getGame(), progression);
+    } else {
+      renderSandboxSymbolList(symbolListDiv, getGame());
+    }
+  };
   viewSymbolsButton.addEventListener('click', () => {
     symbolListDiv.classList.toggle('hidden');
     viewSymbolsButton.innerText = symbolListDiv.classList.contains('hidden')
       ? 'view symbols'
       : 'hide symbols';
+    if (!symbolListDiv.classList.contains('hidden')) {
+      renderSymbolList();
+    }
   });
 
   const achBtn = document.getElementById('view-achievements');
@@ -200,12 +266,32 @@ function initSidebar(getGame, progression, onGameOver) {
     });
   });
 
-  const game = getGame();
-  if (progression.mode === 'progression') {
-    renderProgressionSymbolList(symbolListDiv, game, progression);
-  } else {
-    renderSandboxSymbolList(symbolListDiv, game);
-  }
+  // Mode toggle (PROGRESSION_DESIGN.md section 1): switching does not wipe
+  // unlock progress, just restarts the current game under the new mode's
+  // catalog. Reuses the same `reload` callback (loadSettings) Progression
+  // was constructed with, matching how level-select (jumpTo) reloads.
+  const modeToggle = document.getElementById('mode-toggle');
+  const modeToggleTarget = document.getElementById('mode-toggle-target');
+  const otherMode = () =>
+    progression.mode === 'progression' ? 'sandbox' : 'progression';
+  const updateModeToggleLabel = () => {
+    modeToggleTarget.textContent =
+      otherMode() === 'progression' ? '▶️ progression' : '🧪 sandbox';
+  };
+  updateModeToggleLabel();
+  modeToggle.addEventListener('click', async (e) => {
+    e.preventDefault();
+    progression.setMode(otherMode());
+    updateModeToggleLabel();
+    await progression.reload(progression.levelData[progression.activeLevel]);
+    initGridScaling();
+    // If the symbol list happens to be open already, refresh it in place --
+    // otherwise it'll pick up the new mode/game next time it's opened (see
+    // renderSymbolList above).
+    if (!symbolListDiv.classList.contains('hidden')) {
+      renderSymbolList();
+    }
+  });
 }
 
 // Sandbox (and mode-not-chosen-yet): today's behavior, unchanged -- every
