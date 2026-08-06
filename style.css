@@ -1556,14 +1556,14 @@ button:disabled {
   overflow-y: auto;
   padding: 4pt;
   border-radius: 6pt;
-  background: rgba(0, 0, 0, 0.03);
+  background: #ffffff;
 }
 
 .sim-picker-tile {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 56pt;
+  width: 68pt;
   padding: 4pt 2pt;
   border-radius: 6pt;
   cursor: pointer;
@@ -1571,15 +1571,15 @@ button:disabled {
 }
 
 .sim-picker-tile:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.06);
 }
 
 .sim-picker-emoji {
-  font-size: 18pt;
+  font-size: 26pt;
 }
 
 .sim-picker-name {
-  font-size: 6.5pt;
+  font-size: 9pt;
   opacity: 0.7;
   word-break: break-word;
 }
