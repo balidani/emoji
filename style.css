@@ -1334,17 +1334,17 @@ button:disabled {
   font-family: inherit;
   font-size: inherit;
   cursor: pointer;
-  background: #fff;
-  border: 1px solid black;
+  background: rgba(255, 255, 255, 0.78);
   border-radius: 8pt;
   padding: 10pt;
   box-shadow:
     rgba(0, 0, 0, 0.3) 0px 2px 4px,
-    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px;
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px,
+    rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
 }
 
 .mode-select-option:hover {
-  background: #f2f2f2;
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .mode-select-icon {
@@ -1391,17 +1391,17 @@ button:disabled {
   letter-spacing: 3pt;
   text-align: center;
   cursor: pointer;
-  background: #fff;
-  border: 1px solid black;
+  background: rgba(255, 255, 255, 0.78);
   border-radius: 8pt;
   padding: 12pt;
   box-shadow:
     rgba(0, 0, 0, 0.3) 0px 2px 4px,
-    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px;
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px,
+    rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
 }
 
 .bag-draft-card:hover {
-  background: #f2f2f2;
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .bag-draft-card.picked {

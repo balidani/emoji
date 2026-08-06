@@ -23,8 +23,8 @@ export async function bootstrap() {
   // Seed the RNG before anything else runs (in particular, before the first
   // catalog load dynamically imports symbol sources -- some, like Santa,
   // draw from the RNG at import time). core/rng.js itself has no DOM access;
-  // this is the one place that reads the seed from the URL and reflects it
-  // into the UI.
+  // this is the one place that reads the seed from the URL. Shown in the
+  // game settings panel (see initSidebar's renderGameSettingsPanel).
   let seedPhrase = window.location.hash.slice(1);
   if (seedPhrase) {
     await Rng.setSeed(seedPhrase);
@@ -32,8 +32,6 @@ export async function bootstrap() {
     seedPhrase = await Rng.setRandomSeed();
   }
   window.seedPhrase = seedPhrase;
-  document.querySelector('#seed-phrase').textContent = seedPhrase;
-  document.querySelector('#seed-link').href = `#${seedPhrase}`;
 
   // Tracks whichever Game is currently live, so sidebar actions triggered
   // after a restart (achievements/save/replay panels) act on the game
@@ -221,7 +219,8 @@ export async function bootstrap() {
       window.game = g;
     },
     PROGRESSION,
-    loadListener
+    loadListener,
+    seedPhrase
   );
   initGridScaling();
 
@@ -300,7 +299,7 @@ function showBagDraftOverlay(progression) {
 }
 
 // TODO: extract to ui.js
-function initSidebar(getGame, setGame, progression, onGameOver) {
+function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
   const hamburgerButton = document.getElementById('hamburger');
   const sidebar = document.getElementById('sidebar-menu');
   const closeButton = document.getElementById('close-sidebar');
@@ -340,8 +339,8 @@ function initSidebar(getGame, setGame, progression, onGameOver) {
   viewSymbolsButton.addEventListener('click', () => {
     symbolListDiv.classList.toggle('hidden');
     viewSymbolsButton.innerText = symbolListDiv.classList.contains('hidden')
-      ? 'view symbols'
-      : 'hide symbols';
+      ? 'emojipedia'
+      : 'hide emojipedia';
     refreshSymbolListIfVisible();
   });
 
@@ -407,6 +406,13 @@ function initSidebar(getGame, setGame, progression, onGameOver) {
   const renderGameSettingsPanel = () => {
     gameSettingsPanelDiv.replaceChildren();
     const isProgression = progression.mode === 'progression';
+
+    const seedRow = Util.createDiv('🌱 seed: ', 'game-settings-row');
+    const seedLink = document.createElement('a');
+    seedLink.href = `#${seedPhrase}`;
+    seedLink.textContent = `/#${seedPhrase}`;
+    seedRow.appendChild(seedLink);
+    gameSettingsPanelDiv.appendChild(seedRow);
 
     gameSettingsPanelDiv.appendChild(
       Util.createDiv(

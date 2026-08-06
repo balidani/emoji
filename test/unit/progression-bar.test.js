@@ -59,7 +59,7 @@ describe('renderProgressionBar', () => {
     const container = document.createElement('div');
     renderProgressionBar(container, [0]);
     expect(container.querySelector('.progression-bar-text').textContent).toBe(
-      '1/6, next 🥉 (💵10000)'
+      'progression 1/6, next 🥉 (💵10000)'
     );
   });
 });

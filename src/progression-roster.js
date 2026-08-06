@@ -76,13 +76,13 @@ export function remainingBags(unlockedBags) {
   return BAGS.map((_, i) => i).filter((i) => !unlocked.has(i));
 }
 
-// Minimal one-line progression status ("4/6, next 🥇 (💵25000)", or "6/6,
-// full roster!" once nothing's left to unlock). Pure text, DOM-free, so
-// every surface that shows progression state renders identically from one
-// source of truth -- currently just the progression bar
-// (render/progressionBar.js).
+// Minimal one-line progression status ("progression 4/6, next 🥇
+// (💵25000)", or "progression 6/6, full roster!" once nothing's left to
+// unlock). Pure text, DOM-free, so every surface that shows progression
+// state renders identically from one source of truth -- currently just the
+// progression bar (render/progressionBar.js).
 export function progressionStatusText(unlockedBags) {
-  const count = `${unlockedBags.length}/${GATES.length}`;
+  const count = `progression ${unlockedBags.length}/${GATES.length}`;
   const gate = nextGate(unlockedBags);
   if (gate === null) {
     return `${count}, full roster!`;
