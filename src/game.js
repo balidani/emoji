@@ -220,6 +220,17 @@ export class Game {
         new Set(this.inventory.symbols.map((s) => s.emoji())).size
       );
       this.stats?.recordRows(this.board.currentRows);
+      let chickenCount = 0;
+      let hasNonChicken = false;
+      this.board.forAllCells((cell) => {
+        const emoji = cell.emoji();
+        if (emoji === '🐔') {
+          chickenCount++;
+        } else if (emoji !== Const.EMPTY) {
+          hasNonChicken = true;
+        }
+      });
+      this.stats?.recordChickenFarm(!hasNonChicken && chickenCount >= 25);
       this.achievements?.evaluate({
         event: 'roll',
         stats: this.stats,

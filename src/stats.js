@@ -17,7 +17,8 @@ export class RunStats {
     this.maxUniqueSymbols = 0; // high-water mark of distinct symbol types held at once
     this.maxRows = 0; // high-water mark of board rows reached this run
     this.refreshesUsed = 0; // successful shop refreshes this run
-    this.freeTurnsGranted = 0; // extra ⏰ granted by 🎟️ FreeTurn this run
+    this.freeTurnsGranted = 0; // extra ⏰ granted by 🎟️ FreeTurn this run -- voids all achievements, see Achievements.evaluate
+    this.chickenFarmAchieved = false; // sticky: board was ever 25+ 🐔 and nothing else this run
   }
   get totalBought() {
     return Object.values(this.boughtByEmoji).reduce((a, b) => a + b, 0);
@@ -96,5 +97,8 @@ export class Stats {
   }
   recordFreeTurn() {
     this.run.freeTurnsGranted += 1;
+  }
+  recordChickenFarm(achieved) {
+    if (achieved) this.run.chickenFarmAchieved = true;
   }
 }

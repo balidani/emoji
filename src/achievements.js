@@ -2,24 +2,29 @@
 // medal-gated ones read their medal class from symbols/ui.js so score
 // thresholds live in exactly one place.
 //
-// Every achievement now requires reaching at least a `requiredMedal` medal
-// by the end of the run (configurable per achievement -- currently all set
-// to BronzeMedal, except `goat` which is *about* reaching GoatMedal). The
-// engine enforces this centrally (see Achievements.evaluate below), so a
+// Most achievements require reaching at least a `requiredMedal` medal by the
+// end of the run (configurable per achievement -- BronzeMedal, GoldMedal, or
+// GoatMedal itself for `goat`); a couple (`bankrupt`, `chicken_farm`) set it
+// to `null` since they're explicitly not gated on any medal. The engine
+// enforces the medal gate centrally (see Achievements.evaluate below), so a
 // def's own `test` only needs to describe the underlying condition -- it
 // doesn't need to check the score itself. All achievements are single-run,
-// evaluated against state built up over that run.
+// evaluated against state built up over that run. Using a 🎟️ Free Turn
+// voids every achievement for the run it happens in (also enforced in
+// Achievements.evaluate).
 
 import { BronzeMedal, GoldMedal, GoatMedal } from './symbols/ui.js';
 import { loadUnlocked, saveUnlocked } from './achievements-store.js';
 import { formatBigNumber } from './core/util.js';
 
 const FRUGAL_MAX_BUYS = 10;
-const DRAGON_TARGET = 20;
+const SCIENTIST_MAX_BUYS = 2;
+const DRAGON_TARGET = 25;
 const UNIQUE_SYMBOL_TARGET = 40;
 const ROW_TARGET = 50;
 const PRESENTS_TARGET = 50;
 const BANKRUPT_THRESHOLD = -50000;
+const CHICKEN_FARM_TARGET = 25;
 
 // ctx = { event: 'roll' | 'buy' | 'gameover', stats, inventory, finalScore? }
 export const ACHIEVEMENTS = [
@@ -105,14 +110,31 @@ export const ACHIEVEMENTS = [
     test: (c) => c.event === 'gameover' && c.finalScore <= BANKRUPT_THRESHOLD,
   },
   {
+    id: 'scientist',
+    name: 'Scientist',
+    icon: '🧪',
+    requiredMedal: BronzeMedal,
+    unlocked: `Earned a medal buying only ${SCIENTIST_MAX_BUYS} symbols.`,
+    locked: `Earn a medal while buying no more than ${SCIENTIST_MAX_BUYS} symbols.`,
+    test: (c) => c.stats.run.totalBought <= SCIENTIST_MAX_BUYS,
+  },
+  {
+    id: 'chicken_farm',
+    name: 'Chicken Farm',
+    icon: '🐔',
+    requiredMedal: null,
+    unlocked: `Filled the board with ${CHICKEN_FARM_TARGET} chickens and nothing else.`,
+    locked: `Have ${CHICKEN_FARM_TARGET} 🐔 on the board and nothing else. No trophy required.`,
+    test: (c) => c.stats.run.chickenFarmAchieved === true,
+  },
+  {
     id: 'goat',
     name: 'GOAT',
     icon: GoatMedal.emoji,
     requiredMedal: GoatMedal,
-    unlocked:
-      "You're the GOAT. Disgustingly, emoji-slot-machine rich -- and you didn't even need a 🎟️ Free Turn to get there.",
-    locked: `Reach 🐐 (💵${formatBigNumber(GoatMedal.threshold)}) without a single 🎟️ Free Turn, and prove you're the Greatest Of All Time.`,
-    test: (c) => c.stats.run.freeTurnsGranted === 0,
+    unlocked: "You're the GOAT. Disgustingly, emoji-slot-machine rich.",
+    locked: `Reach 🐐 (💵${formatBigNumber(GoatMedal.threshold)}) and prove you're the Greatest Of All Time.`,
+    test: () => true,
   },
 ];
 
@@ -140,6 +162,14 @@ export class Achievements {
   // `unlocked` state and localStorage entry are left untouched.
   evaluate(ctx) {
     const newlyUnlocked = [];
+    // A 🎟️ Free Turn used at any point this run voids every achievement
+    // for that run -- once triggered, this stays true for the rest of the
+    // run (freeTurnsGranted never decreases), so no further defs can
+    // unlock or show up in the game-over popup. Already-unlocked
+    // achievements from previous runs are unaffected.
+    if (ctx.stats?.run?.freeTurnsGranted > 0) {
+      return newlyUnlocked;
+    }
     const completedIds = new Set(this.completedThisRun.map((d) => d.id));
     for (const def of this.defs) {
       // Central medal gate: a def with `requiredMedal` only counts once the

@@ -35,7 +35,7 @@ export class FreeTurn extends Symb {
     await game.board.removeSymbol(game, x, y);
   }
   description() {
-    return '10% [Chance](chance) to gain one more ⏰, then disappears';
+    return '10% [Chance](chance) to gain one more ⏰, then disappears. Voids all achievements';
   }
 }
 
