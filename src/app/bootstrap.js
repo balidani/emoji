@@ -46,6 +46,32 @@ export async function bootstrap() {
   // opening the panel is otherwise the only thing that rebuilds it.
   let sidebarApi = null;
 
+  // Resolves interactive-emoji/keyword taps into the info box. Attached once
+  // here (not per game load) and reads the live game through currentGame, so
+  // a long session doesn't accumulate one dead listener per reload.
+  document.body.addEventListener('click', (e) => {
+    if (e.target.classList.contains('interactive-emoji')) {
+      const emoji = e.target.dataset.emoji;
+      const symbol = currentGame?.catalog.symbol(emoji);
+      if (symbol) {
+        const interactiveDescription = Util.createInteractiveDescription(
+          symbol.description(),
+          /*emoji=*/ symbol.emoji()
+        );
+        Util.drawText(currentGame.info, interactiveDescription, true);
+      }
+    } else if (e.target.classList.contains('keyword')) {
+      const entry = KEYWORDS[e.target.dataset.keyword];
+      if (entry && currentGame) {
+        const interactiveDescription = Util.createInteractiveDescription(
+          entry.description,
+          /*emoji=*/ entry.title
+        );
+        Util.drawText(currentGame.info, interactiveDescription, true);
+      }
+    }
+  });
+
   // loadSettings/loadListener close over PROGRESSION, which is fine since
   // neither is invoked until after PROGRESSION is constructed below.
   const loadSettings = async (settings = GameSettings.instance()) => {
@@ -58,10 +84,13 @@ export async function bootstrap() {
     const catalog = new Catalog(settings.symbolSources);
     await catalog.updateSymbols();
     // Progression mode's only mechanical difference from Sandbox: narrow the
-    // buyable pool to what's unlocked so far (PROGRESSION_DESIGN.md sections
-    // 1, 7). A pure Map-delete pass -- no RNG draws, so it doesn't touch
-    // draw order. Sandbox (and mode === null, before the first-run overlay
-    // has run) never restricts, matching "today's game unchanged".
+    // buyable pool to what's unlocked so far. Non-destructive by contract --
+    // sets catalog.shopAllowed, which generateShop() consults, rather than
+    // pruning the catalog itself -- so locked symbols stay resolvable via
+    // catalog.symbol() for spawns/lookups (e.g. Wildcard disguises,
+    // interactive-emoji taps), and it never touches RNG draw order. Sandbox
+    // (and mode === null, before the first-run overlay has run) never
+    // restricts, matching "today's game unchanged".
     if (PROGRESSION.mode === 'progression') {
       catalog.restrictTo(PROGRESSION.unlockedEmoji());
     }
@@ -98,10 +127,11 @@ export async function bootstrap() {
       progression: PROGRESSION,
     });
     currentGame = game;
+    window.game = game; // Debug console handle -- keep it live across reloads.
 
-    // Post-win unlock draft (PROGRESSION_DESIGN.md section 6.4). Checked on
-    // every game load (not just right after the game-over that rolled it)
-    // so a pending offer left unpicked across a reload still gets shown --
+    // Post-win unlock draft. Checked on every game load (not just right
+    // after the game-over that rolled it) so a pending offer left unpicked
+    // across a reload still gets shown --
     // the offer itself is already reload-safe (Progression persists it and
     // never rerolls), this is what actually surfaces that guarantee in the
     // UI. Not awaited, same reasoning as the mode-select overlay: a human
@@ -123,28 +153,6 @@ export async function bootstrap() {
       });
     }
 
-    document.body.addEventListener('click', (e) => {
-      if (e.target.classList.contains('interactive-emoji')) {
-        const emoji = e.target.dataset.emoji;
-        const symbol = game.catalog.symbol(emoji);
-        if (symbol) {
-          const interactiveDescription = Util.createInteractiveDescription(
-            symbol.description(),
-            /*emoji=*/ symbol.emoji()
-          );
-          Util.drawText(game.info, interactiveDescription, true);
-        }
-      } else if (e.target.classList.contains('keyword')) {
-        const entry = KEYWORDS[e.target.dataset.keyword];
-        if (entry) {
-          const interactiveDescription = Util.createInteractiveDescription(
-            entry.description,
-            /*emoji=*/ entry.title
-          );
-          Util.drawText(game.info, interactiveDescription, true);
-        }
-      }
-    });
     return game;
   };
 
@@ -180,16 +188,15 @@ export async function bootstrap() {
     });
   }
 
-  // First-run mode pick (PROGRESSION_DESIGN.md section 6.1). Deliberately
-  // NOT awaited: the first game below always loads immediately with
-  // whatever mode is already persisted (null reads as unrestricted, same as
-  // Sandbox), so window.game/window.simulate are available right away no
-  // matter how long the overlay sits waiting for a human -- this is what
-  // keeps the golden-trace harness (which never touches the overlay) from
-  // hanging. The overlay is purely a full-screen visual in front of that
-  // first game until a real player picks one; picking Progression reloads
-  // to actually narrow the catalog. Skipped entirely once ProgressionMode
-  // is persisted from a previous run.
+  // First-run mode pick. Deliberately NOT awaited: the first game below
+  // always loads immediately with whatever mode is already persisted (null
+  // reads as unrestricted, same as Sandbox), so window.game/window.simulate
+  // are available right away no matter how long the overlay sits waiting
+  // for a human -- this is what keeps the golden-trace harness (which never
+  // touches the overlay) from hanging. The overlay is purely a full-screen
+  // visual in front of that first game until a real player picks one;
+  // picking Progression reloads to actually narrow the catalog. Skipped
+  // entirely once ProgressionMode is persisted from a previous run.
   if (PROGRESSION.mode === null) {
     showModeSelectOverlay(PROGRESSION).then(async (mode) => {
       if (mode === 'progression') {
@@ -206,8 +213,6 @@ export async function bootstrap() {
   const game = await loadSettings(
     PROGRESSION.levelData[PROGRESSION.activeLevel]
   );
-  // Debug
-  window.game = game;
 
   sidebarApi = initSidebar(
     () => currentGame,
@@ -244,13 +249,12 @@ function showModeSelectOverlay(progression) {
   });
 }
 
-// Post-win unlock draft (PROGRESSION_DESIGN.md section 6.4): up to three
-// cards, one per still-locked bag in the pending offer, each showing that
-// bag's own emoji glyphs -- no effect text, just the glyphs, so the pick is
-// informed without spelling out mechanics. Resolves (unawaited by its
-// caller) once the player taps one; the other offered bags simply return to
-// the pool by virtue of never being removed from it (see
-// Progression.commitBagChoice).
+// Post-win unlock draft: up to three cards, one per still-locked bag in the
+// pending offer, each showing that bag's own emoji glyphs -- no effect
+// text, just the glyphs, so the pick is informed without spelling out
+// mechanics. Resolves (unawaited by its caller) once the player taps one;
+// the other offered bags simply return to the pool by virtue of never being
+// removed from it (see Progression.commitBagChoice).
 function showBagDraftOverlay(progression) {
   return new Promise((resolve) => {
     const overlay = document.getElementById('bag-draft-overlay');
@@ -387,14 +391,13 @@ function initSidebar(getGame, setGame, progression, onGameOver) {
     });
   });
 
-  // Game settings panel: current mode + mode switch + reset progression
-  // (PROGRESSION_DESIGN.md section 1). Switching does not wipe unlock
-  // progress, just restarts the current game under the new mode's catalog --
-  // reuses the same `reload` callback (loadSettings) Progression was
-  // constructed with, matching how level-select (jumpTo) reloads. Current
-  // mode and the switch always show; reset progression is Progression-only,
-  // since Sandbox (and before a first-run mode pick) has no progression
-  // state to reset.
+  // Game settings panel: current mode + mode switch + reset progression.
+  // Switching does not wipe unlock progress, just restarts the current game
+  // under the new mode's catalog -- reuses the same `reload` callback
+  // (loadSettings) Progression was constructed with, matching how
+  // level-select (jumpTo) reloads. Current mode and the switch always show;
+  // reset progression is Progression-only, since Sandbox (and before a
+  // first-run mode pick) has no progression state to reset.
   const gameSettingsBtn = document.getElementById('view-game-settings');
   const gameSettingsPanelDiv = document.querySelector(
     '.sidebar-content .game-settings-panel'
@@ -541,10 +544,10 @@ function renderSandboxSymbolList(symbolListDiv, game) {
   }
 }
 
-// Progression mode (PROGRESSION_DESIGN.md section 6.3): the full 53-symbol
-// roster, not the (possibly narrowed) catalog -- locked entries render
-// greyed out with a ❓ glyph and their description hidden, in roster order
-// (starting pool, then each bag in index order).
+// Progression mode: the full 53-symbol roster, not the (possibly narrowed)
+// catalog -- locked entries render greyed out with a ❓ glyph and their
+// description hidden, in roster order (starting pool, then each bag in
+// index order).
 function renderProgressionSymbolList(symbolListDiv, game, progression) {
   const unlocked = progression.unlockedEmoji();
   for (const emoji of FULL_ROSTER) {

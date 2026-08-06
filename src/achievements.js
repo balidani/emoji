@@ -1,7 +1,6 @@
-// Achievement definitions + unlock engine (see ACHIEVEMENTS_DESIGN.md,
-// section 6). Definitions are plain data; the medal-gated ones read their
-// medal class from symbols/ui.js so score thresholds live in exactly one
-// place.
+// Achievement definitions + unlock engine. Definitions are plain data; the
+// medal-gated ones read their medal class from symbols/ui.js so score
+// thresholds live in exactly one place.
 //
 // Every achievement now requires reaching at least a `requiredMedal` medal
 // by the end of the run (configurable per achievement -- currently all set

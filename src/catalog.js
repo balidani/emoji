@@ -56,13 +56,14 @@ export class Catalog {
   }
   // Narrows the *buyable* pool to an unlocked set (Progression mode) --
   // generateShop() consults `shopAllowed` and won't offer anything outside
-  // it. Deliberately does NOT touch `symbols`/`categories`: plenty of
-  // symbols spawn other symbols directly (game.catalog.symbol(...) --
-  // Volcano's 🕳️, Wildcard's disguises, ...) regardless of what's
-  // currently unlocked for purchase, and those lookups -- along with
-  // category membership checks like nextToEmpty() -- must keep working for
-  // every symbol that can appear on the board, locked or not. No RNG, so
-  // it can run after updateSymbols() without touching draw order. Sandbox
+  // it. Deliberately does NOT touch `symbols`/`categories`: several symbols
+  // spawn other symbols regardless of what's currently unlocked for
+  // purchase -- some via `symbol()` directly (Wildcard's disguises,
+  // interactive-emoji taps), others by constructing the class themselves
+  // (Volcano's 🕳️) -- and those lookups, along with category membership
+  // checks like nextToEmpty(), must keep working for every symbol that can
+  // appear on the board, locked or not, under either style. No RNG, so it
+  // can run after updateSymbols() without touching draw order. Sandbox
   // never calls this, so its full catalog (and the golden traces, which
   // only exercise Sandbox) are unaffected either way.
   restrictTo(allowed) {

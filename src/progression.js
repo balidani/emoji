@@ -19,8 +19,8 @@ const CURRENT_VERSION_KEY = 'CurrentVersion';
 const PROGRESSION_LEVEL_DATA = 'ProgressionLevelData';
 const PROGRESSION_ACTIVE_LEVEL = 'ProgressionActiveLevel';
 const PROGRESSION_LEVEL_RESULTS = 'ProgressionLevelResults';
-// PROGRESSION_DESIGN.md section 8. `mode` is null until the (not-yet-built)
-// first-run overlay sets it; `unlockedBags`/`pendingBagOffer` are only
+// `mode` is null until the first-run overlay (showModeSelectOverlay in
+// app/bootstrap.js) sets it; `unlockedBags`/`pendingBagOffer` are only
 // meaningful once mode === 'progression'.
 const PROGRESSION_MODE = 'ProgressionMode';
 const UNLOCKED_BAGS = 'UnlockedBags';
@@ -31,7 +31,7 @@ const PENDING_BAG_OFFER = 'PendingBagOffer';
 const SANDBOX_GAME_LENGTH = 'SandboxGameLength';
 
 // Achievements/profile stats survive both a version-bump wipe and the manual
-// "wipe progress" button (see ACHIEVEMENTS_DESIGN.md, section 8).
+// "wipe progress" button.
 const PRESERVE_ON_WIPE = ['Achievements', 'ProfileStats'];
 
 function selectiveWipe() {
@@ -63,10 +63,9 @@ export class Progression {
     }
     this.activeLevel = 1;
     this.levelResults = new Map();
-    // Progression-mode state (PROGRESSION_DESIGN.md section 5). `mode` is
-    // null until a mode is chosen; `unlockedBags` is draw order, not bag
-    // index order; `pendingBagOffer` is the up-to-3 offer awaiting a pick,
-    // or empty when none is pending.
+    // Progression-mode state. `mode` is null until a mode is chosen;
+    // `unlockedBags` is draw order, not bag index order; `pendingBagOffer`
+    // is the up-to-3 offer awaiting a pick, or empty when none is pending.
     this.mode = null;
     this.unlockedBags = [];
     this.pendingBagOffer = [];
@@ -86,7 +85,7 @@ export class Progression {
     }
     const activeLevel = window.localStorage.getItem(PROGRESSION_ACTIVE_LEVEL);
     if (activeLevel !== null) {
-      this.activeLevel = activeLevel;
+      this.activeLevel = Number(activeLevel);
     }
     const levelResults = window.localStorage.getItem(PROGRESSION_LEVEL_RESULTS);
     if (levelResults !== null) {
@@ -176,7 +175,7 @@ export class Progression {
   // Called on game over with the final score (Game.over(), real games only
   // -- see game.js's `!isReplay` guard). No-op outside Progression mode,
   // once fully unlocked, or while an offer is already pending (a reload
-  // before choosing must not reroll it -- PROGRESSION_DESIGN.md section 3).
+  // before choosing must not reroll it).
   checkGateAndRollOffer(score) {
     if (this.mode !== 'progression') {
       return;

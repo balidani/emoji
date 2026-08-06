@@ -1,6 +1,6 @@
 // Progression-mode roster: the 53-symbol playable catalog, divided into a
 // 17-symbol starting pool and six 6-symbol bags unlocked one at a time. Pure
-// data -- no DOM, no RNG -- see PROGRESSION_DESIGN.md sections 2-5.
+// data -- no DOM, no RNG.
 import { BronzeMedal, SilverMedal, GoldMedal, Trophy } from './symbols/ui.js';
 import { formatBigNumber } from './core/util.js';
 
@@ -70,8 +70,7 @@ export function nextGate(unlockedBags) {
 }
 
 // Bag indices not yet unlocked, ascending. The draft offer is always sampled
-// from this set (offered-but-unpicked bags return to the pool -- see
-// PROGRESSION_DESIGN.md section 3).
+// from this set (offered-but-unpicked bags return to the pool).
 export function remainingBags(unlockedBags) {
   const unlocked = new Set(unlockedBags);
   return BAGS.map((_, i) => i).filter((i) => !unlocked.has(i));

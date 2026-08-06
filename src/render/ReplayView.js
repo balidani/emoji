@@ -1,7 +1,6 @@
 import { createButton, createDiv, createInput } from './animations.js';
 
-// Export/import/run panel DOM, structurally a clone of SaveStateView (see
-// REPLAY_PLAN.md, section 9).
+// Export/import/run panel DOM, structurally a clone of SaveStateView.
 export class ReplayView {
   constructor() {
     this.root = document.querySelector('.replay-panel');

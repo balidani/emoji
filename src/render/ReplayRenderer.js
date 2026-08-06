@@ -3,9 +3,9 @@ import { ReplayDivergenceError } from '../replay-errors.js';
 
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_.*$", "varsIgnorePattern": "^_.*$" }] */
 
-// Decorator over DomRenderer (see REPLAY_PLAN.md section 7.1): the human
-// watches the replay animate normally under the real renderer -- only the
-// methods below are overridden, and only for as long as `driving` is true.
+// Decorator over DomRenderer: the human watches the replay animate normally
+// under the real renderer -- only the methods below are overridden, and
+// only for as long as `driving` is true.
 export class ReplayRenderer extends DomRenderer {
   constructor() {
     super();

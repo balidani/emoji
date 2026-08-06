@@ -22,7 +22,9 @@ export class Wildcard extends Symb {
     return true;
   }
   // One seeded main-stream draw, at transform time only (never in the
-  // constructor) -- no import-time draw.
+  // constructor) -- no import-time draw. Draws from the full frozen pool,
+  // not the player's unlocked set, so in Progression mode a disguise can
+  // (harmlessly) preview a symbol not yet unlocked for purchase.
   rollDisguise(game) {
     return game.catalog.symbol(Util.randomChoose(JOKER_DISGUISES));
   }

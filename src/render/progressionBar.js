@@ -1,13 +1,11 @@
 import { createDiv, createSpan } from './animations.js';
 import { GATES, progressionStatusText } from '../progression-roster.js';
 
-// The shared progression-mode status bar: a thick green fill (unlockedBags
-// length / GATES.length full), each gate's required medal marked along the
-// top, and the shared status text overlaid on the bar itself. Used both
-// underneath the board during play (app/bootstrap.js) and on the game-over
-// screen (game.js) -- one component, one look, built from plain data so
-// both callers render identically. Caller decides when to mount/hide it
-// (only meaningful in Progression mode).
+// The progression-mode status bar mounted underneath the board during play
+// (app/bootstrap.js): a thick green fill (unlockedBags length / GATES.length
+// full), each gate's required medal marked along the top, and the shared
+// status text overlaid on the bar itself. Caller decides when to mount/hide
+// it (only meaningful in Progression mode).
 export function renderProgressionBar(container, unlockedBags) {
   container.replaceChildren();
 
@@ -30,13 +28,4 @@ export function renderProgressionBar(container, unlockedBags) {
     createDiv(progressionStatusText(unlockedBags), 'progression-bar-text')
   );
   container.appendChild(track);
-}
-
-// Convenience for callers with no existing mount point (game.js's
-// scoreContainer, built fresh every game-over) -- creates one, fills it,
-// and hands it back to append wherever.
-export function buildProgressionBar(unlockedBags) {
-  const container = createDiv('', 'progression-bar');
-  renderProgressionBar(container, unlockedBags);
-  return container;
 }

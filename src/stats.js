@@ -1,6 +1,6 @@
-// Run + lifetime action counters (see ACHIEVEMENTS_DESIGN.md, section 4). No
-// DOM, no RNG -- these hooks only read existing state and increment plain
-// counters, so they can never desync the golden-master trace suite.
+// Run + lifetime action counters. No DOM, no RNG -- these hooks only read
+// existing state and increment plain counters, so they can never desync the
+// golden-master trace suite.
 
 const transformKey = (from, to) => `${from}>${to}`; // `>` never appears in an emoji
 

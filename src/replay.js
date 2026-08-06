@@ -1,7 +1,7 @@
-// Replay recording + playback (see REPLAY_PLAN.md). A replay is fully
-// specified by the starting RNG state, a gameplay-affecting settings
-// snapshot, and the ordered list of player actions -- see core/rng.js for
-// why the RNG *state* (not just the seed phrase) has to be captured.
+// Replay recording + playback. A replay is fully specified by the starting
+// RNG state, a gameplay-affecting settings snapshot, and the ordered list of
+// player actions -- see core/rng.js for why the RNG *state* (not just the
+// seed phrase) has to be captured.
 
 import { toBase64Utf8, fromBase64Utf8 } from './core/util.js';
 import { CURRENT_VERSION } from './progression.js';
@@ -137,10 +137,9 @@ export function parseReplay(base64) {
 }
 
 // Runs one recorded event against a live replay Game, verifying recorded
-// and live state agree at every step (see REPLAY_PLAN.md section 7.3) --
-// any mismatch stops the replay immediately with a ReplayDivergenceError,
-// expected only if the code was tampered with or came from a different
-// game version.
+// and live state agree at every step -- any mismatch stops the replay
+// immediately with a ReplayDivergenceError, expected only if the code was
+// tampered with or came from a different game version.
 async function playEvent(game, event) {
   const shop = game.shop;
   switch (event[0]) {

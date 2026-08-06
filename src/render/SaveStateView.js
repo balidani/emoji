@@ -1,6 +1,6 @@
 import { createButton, createDiv, createInput } from './animations.js';
 
-// Export/import panel DOM (see ACHIEVEMENTS_DESIGN.md, sections 9-10).
+// Export/import panel DOM.
 export class SaveStateView {
   constructor() {
     this.root = document.querySelector('.save-state-panel');

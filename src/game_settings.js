@@ -53,7 +53,7 @@ export class GameSettings {
       };
     this.symbolSources = symbolSources || ALL_TESTED_SYMBOL_FILES;
     // Derived from the medal/trophy classes (symbols/ui.js) so thresholds
-    // live in exactly one place -- see ACHIEVEMENTS_DESIGN.md section 7.
+    // live in exactly one place.
     // Numeric-string keys iterate in ascending order regardless of
     // insertion order, so where GoatMedal sits in MEDAL_TIERS doesn't matter.
     this.resultLookup = resultLookup || {

@@ -1,6 +1,6 @@
-// localStorage load/save for the unlocked-achievement set and ProfileStats
-// (see ACHIEVEMENTS_DESIGN.md, section 8). Two keys, separate from the
-// existing progression keys so a version-bump wipe can preserve them.
+// localStorage load/save for the unlocked-achievement set and ProfileStats.
+// Two keys, separate from the existing progression keys so a version-bump
+// wipe can preserve them.
 
 const K_ACH = 'Achievements';
 const K_PROFILE = 'ProfileStats';

@@ -1,12 +1,8 @@
 // @vitest-environment jsdom
-// render/progressionBar.js -- the shared progress-bar component mounted
-// underneath the board (app/bootstrap.js) and on the game-over screen
-// (game.js). DOM-only, no game/RNG involved.
+// render/progressionBar.js -- the progress-bar component mounted underneath
+// the board (app/bootstrap.js). DOM-only, no game/RNG involved.
 import { describe, it, expect } from 'vitest';
-import {
-  renderProgressionBar,
-  buildProgressionBar,
-} from '../../src/render/progressionBar.js';
+import { renderProgressionBar } from '../../src/render/progressionBar.js';
 import { GATES } from '../../src/progression-roster.js';
 
 describe('renderProgressionBar', () => {
@@ -64,17 +60,6 @@ describe('renderProgressionBar', () => {
     renderProgressionBar(container, [0]);
     expect(container.querySelector('.progression-bar-text').textContent).toBe(
       '1/6, next 🥉 (💵10000)'
-    );
-  });
-});
-
-describe('buildProgressionBar', () => {
-  it('creates and fills a standalone .progression-bar container', () => {
-    const el = buildProgressionBar([0, 1]);
-    expect(el.classList.contains('progression-bar')).toBe(true);
-    expect(el.querySelector('.progression-bar-track')).not.toBeNull();
-    expect(el.querySelectorAll('.progression-bar-step.cleared')).toHaveLength(
-      2
     );
   });
 });

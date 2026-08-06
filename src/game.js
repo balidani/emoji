@@ -117,8 +117,10 @@ export class Game {
     this.achievements?.renderPanel();
     if (!this.isReplay) {
       saveProfile(this.profileStats);
-      // Progression-mode bag unlock gate (PROGRESSION_DESIGN.md section 3/7).
-      // No-op in Sandbox mode -- see Progression.checkGateAndRollOffer.
+      // Progression-mode bag unlock gate; no-op in Sandbox mode (see
+      // Progression.checkGateAndRollOffer). Guarded by isReplay so a
+      // continued replay -- non-canonical by definition -- never grants a
+      // progression unlock, same as it earns no achievements above.
       this.progression.checkGateAndRollOffer(
         this.inventory.getResource(Const.MONEY)
       );

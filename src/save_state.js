@@ -1,5 +1,5 @@
-// Export/import of the whole localStorage save state as base64 (see
-// ACHIEVEMENTS_DESIGN.md, section 9). No encryption, no obfuscation.
+// Export/import of the whole localStorage save state as base64. No
+// encryption, no obfuscation.
 
 import { toBase64Utf8, fromBase64Utf8 } from './core/util.js';
 import { SAVE_MAGIC, REPLAY_MAGIC } from './serialization-magic.js';
@@ -12,6 +12,7 @@ const SAVE_KEYS = [
   'ProgressionMode',
   'UnlockedBags',
   'PendingBagOffer',
+  'SandboxGameLength',
   'Achievements',
   'ProfileStats',
 ];

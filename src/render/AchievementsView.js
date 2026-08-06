@@ -1,8 +1,7 @@
 import { createDiv, createSpan } from './animations.js';
 
-// Achievements panel DOM (see ACHIEVEMENTS_DESIGN.md, section 10). Locked
-// rows show a 🔒 icon plus the "how to earn" text; unlocked rows show the
-// real icon plus the earned text.
+// Achievements panel DOM. Locked rows show a 🔒 icon plus the "how to earn"
+// text; unlocked rows show the real icon plus the earned text.
 export class AchievementsView {
   constructor() {
     this.root = document.querySelector('.achievements-list');
