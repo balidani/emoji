@@ -110,6 +110,21 @@ describe('Progression gate evaluation + draft', () => {
     expect(p.unlockedEmoji().size).toBe(53);
   });
 
+  it('isComplete is false until every bag is unlocked', () => {
+    const p = buildProgression();
+    p.unlockedBags = [0, 1, 2, 3, 4];
+    expect(p.isComplete()).toBe(false);
+    p.unlockedBags = [0, 1, 2, 3, 4, 5];
+    expect(p.isComplete()).toBe(true);
+  });
+
+  it('isComplete stays true after switching to Sandbox', () => {
+    const p = buildProgression();
+    p.unlockedBags = [0, 1, 2, 3, 4, 5];
+    p.setMode('sandbox');
+    expect(p.isComplete()).toBe(true);
+  });
+
   it('persists mode/unlockedBags/pendingBagOffer across load()', () => {
     const p = buildProgression();
     p.setMode('progression');

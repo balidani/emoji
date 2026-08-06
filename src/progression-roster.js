@@ -76,6 +76,13 @@ export function remainingBags(unlockedBags) {
   return BAGS.map((_, i) => i).filter((i) => !unlocked.has(i));
 }
 
+// True once every bag has been unlocked (the full 53-symbol roster is
+// buyable) -- Progression mode's completion condition, used to gate
+// endgame-only surfaces like the Simulator link (see app/bootstrap.js).
+export function isProgressionComplete(unlockedBags) {
+  return unlockedBags.length >= GATES.length;
+}
+
 // Minimal one-line progression status ("progression 4/6, next 🥇
 // (💵25000)", or "progression 6/6, full roster!" once nothing's left to
 // unlock). Pure text, DOM-free, so every surface that shows progression

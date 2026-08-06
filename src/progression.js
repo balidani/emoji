@@ -1,5 +1,10 @@
 import { GameSettings } from './game_settings.js';
-import { GATES, remainingBags, unlockedEmoji } from './progression-roster.js';
+import {
+  GATES,
+  remainingBags,
+  unlockedEmoji,
+  isProgressionComplete,
+} from './progression-roster.js';
 import { randomRemove } from './core/rng.js';
 
 const tutorialLevelSettings = new GameSettings(
@@ -171,6 +176,14 @@ export class Progression {
   // progression-roster.js's data.
   unlockedEmoji() {
     return unlockedEmoji(this.unlockedBags);
+  }
+  // True once every bag has been unlocked, regardless of which mode is
+  // currently active -- unlockedBags persists across Sandbox/Progression
+  // switches (see setMode()), so this reflects "has Progression ever been
+  // completed", not "is Progression currently maxed out". Gates the
+  // Simulator link in the game settings panel (app/bootstrap.js).
+  isComplete() {
+    return isProgressionComplete(this.unlockedBags);
   }
   // Called on game over with the final score (Game.over(), real games only
   // -- see game.js's `!isReplay` guard). No-op outside Progression mode,

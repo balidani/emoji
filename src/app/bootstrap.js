@@ -148,6 +148,7 @@ export async function bootstrap() {
         // offer that early (no game has been won yet), so the guard is just
         // defensive.
         sidebarApi?.refreshSymbolListIfVisible();
+        sidebarApi?.refreshGameSettingsPanelIfVisible();
       });
     }
 
@@ -437,6 +438,19 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     });
     switchRow.appendChild(switchLink);
     gameSettingsPanelDiv.appendChild(switchRow);
+
+    // Simulator is endgame-only content: hidden entirely until Progression
+    // has been completed (every bag unlocked, see Progression.isComplete()),
+    // rather than shown greyed-out -- matches "before that it should not be
+    // shown in the menu".
+    if (progression.isComplete()) {
+      const simulatorRow = Util.createDiv('', 'game-settings-row');
+      const simulatorLink = document.createElement('a');
+      simulatorLink.href = '/simulator/index.html';
+      simulatorLink.textContent = '🧮 simulator';
+      simulatorRow.appendChild(simulatorLink);
+      gameSettingsPanelDiv.appendChild(simulatorRow);
+    }
 
     // Turn count is only player-adjustable in Sandbox -- Progression levels
     // (Tutorial, standard) have their turn count as part of the level's
