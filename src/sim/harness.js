@@ -12,7 +12,7 @@ import { NullRenderer } from '../render/NullRenderer.js';
 // golden-master trace harness (test/run-trace.mjs) drives via
 // window.simulate.
 export class AutoGame {
-  constructor(settings, catalog, buyAlways, buyOnce, stopRefreshTurn = 10) {
+  constructor(settings, catalog, buyAlways, buyOnce, refreshTurns = 30) {
     this.settings = settings;
     this.catalog = catalog;
     // Renderer port, used by every subsystem. NullRenderer's shop rendering
@@ -28,7 +28,12 @@ export class AutoGame {
     this.totalTurns = 0;
     this.buyAlways = new Set(buyAlways);
     this.buyOnce = buyOnce;
-    this.stopRefreshTurn = stopRefreshTurn;
+    // Refreshing the shop is only worthwhile while there's still time left
+    // to spend the offers it turns up -- this caps refreshing to the first
+    // `refreshTurns` turns of the game (this.totalTurns counts turns
+    // completed so far, starting at 0), instead of stopping based on turns
+    // remaining.
+    this.refreshTurns = refreshTurns;
     this.symbolLimit = 1000;
   }
   async over() {
@@ -113,7 +118,7 @@ export class AutoGame {
         } else {
           if (
             (this.buyOnce.length === 0 && this.buyAlways.size === 0) ||
-            this.inventory.getResource(Const.TURNS) <= this.stopRefreshTurn
+            this.totalTurns >= this.refreshTurns
           ) {
             // Nothing left on the want list, or too close to the end of the
             // game -- refreshing would just spend money hunting for offers

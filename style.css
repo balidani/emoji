@@ -1467,12 +1467,22 @@ button:disabled {
 }
 
 .sim-list-section {
+  display: flex;
+  flex-direction: column;
   flex: 1 1 260px;
   min-width: 220px;
 }
 
+.sim-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8pt;
+  margin-bottom: 2pt;
+}
+
 .sim-list-section h3 {
-  margin: 0 0 2pt 0;
+  margin: 0;
   font-size: 12pt;
 }
 
@@ -1485,11 +1495,12 @@ button:disabled {
 .sim-selected {
   display: flex;
   flex-wrap: wrap;
-  gap: 4pt;
+  align-content: flex-start;
+  gap: 2pt;
+  flex: 1;
   min-height: 28pt;
-  padding: 4pt;
+  padding: 2pt;
   border-radius: 6pt;
-  background: rgba(0, 0, 0, 0.04);
 }
 
 .sim-empty {
@@ -1525,18 +1536,16 @@ button:disabled {
   background: rgba(0, 0, 0, 0.15);
 }
 
-.sim-picker-controls {
-  display: flex;
-  gap: 16pt;
-  margin-bottom: 8pt;
-  font-size: 10pt;
+.sim-choose-btn {
+  padding: 3pt 10pt;
+  font-size: 9pt;
+  opacity: 0.4;
 }
 
-.sim-radio-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 3pt;
-  cursor: pointer;
+.sim-choose-btn.sim-choose-active {
+  background: #8fe3a0;
+  font-weight: bold;
+  opacity: 1;
 }
 
 .sim-picker {

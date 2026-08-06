@@ -32,7 +32,7 @@ function saveStrategy() {
     alwaysBuy,
     buyOnce,
     rounds: roundsInput.value,
-    stopRefreshTurn: stopRefreshInput.value,
+    refreshTurns: refreshTurnsInput.value,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
@@ -81,7 +81,7 @@ const buyOnceList = document.getElementById('buy-once-list');
 const startBtn = document.getElementById('sim-start');
 const stopBtn = document.getElementById('sim-stop');
 const roundsInput = document.getElementById('sim-rounds');
-const stopRefreshInput = document.getElementById('sim-stop-refresh');
+const refreshTurnsInput = document.getElementById('sim-refresh-turns');
 const progressSpan = document.getElementById('sim-progress');
 const resultsBody = document.getElementById('sim-results-body');
 const statAvg = document.getElementById('stat-avg');
@@ -97,21 +97,37 @@ if (saved) {
   alwaysBuy.push(...(saved.alwaysBuy || []).filter((e) => buyableEmoji.has(e)));
   buyOnce.push(...(saved.buyOnce || []).filter((e) => buyableEmoji.has(e)));
   if (saved.rounds) roundsInput.value = saved.rounds;
-  if (saved.stopRefreshTurn) stopRefreshInput.value = saved.stopRefreshTurn;
+  if (saved.refreshTurns) refreshTurnsInput.value = saved.refreshTurns;
 }
 
 // --- Emoji Picker ---
-function getAddTarget() {
-  return document.querySelector('input[name="add-target"]:checked').value;
+// "Choose" buttons pick which list (Always Buy / Buy Once) clicking an
+// emoji tile below adds to -- styled as a two-way toggle like the
+// Simulate/Stop button pair, active side green, inactive side faded.
+let addTarget = 'always';
+const chooseAlwaysBtn = document.getElementById('choose-always');
+const chooseOnceBtn = document.getElementById('choose-once');
+
+function renderChooseButtons() {
+  chooseAlwaysBtn.classList.toggle('sim-choose-active', addTarget === 'always');
+  chooseOnceBtn.classList.toggle('sim-choose-active', addTarget === 'once');
 }
+
+chooseAlwaysBtn.addEventListener('click', () => {
+  addTarget = 'always';
+  renderChooseButtons();
+});
+chooseOnceBtn.addEventListener('click', () => {
+  addTarget = 'once';
+  renderChooseButtons();
+});
 
 for (const { emoji, symbol } of allSymbols) {
   const tile = document.createElement('div');
   tile.className = 'sim-picker-tile';
   tile.innerHTML = `<span class="sim-picker-emoji">${emoji}</span><span class="sim-picker-name">${symbol.constructor.name}</span>`;
   tile.addEventListener('click', () => {
-    const target = getAddTarget();
-    if (target === 'always') {
+    if (addTarget === 'always') {
       if (!alwaysBuy.includes(emoji)) {
         alwaysBuy.push(emoji);
       }
@@ -250,7 +266,7 @@ async function runSimulation() {
   const scores = [];
   const alwaysBuyStr = alwaysBuy.join('');
   const buyOnceStr = buyOnce.join('');
-  const stopRefreshTurn = parseInt(stopRefreshInput.value) || 10;
+  const refreshTurns = parseInt(refreshTurnsInput.value) || 30;
 
   for (let i = 0; i < rounds; i++) {
     if (stopRequested) break;
@@ -268,7 +284,7 @@ async function runSimulation() {
       cat,
       cat.symbolsFromString(alwaysBuyStr),
       cat.symbolsFromString(buyOnceStr),
-      stopRefreshTurn
+      refreshTurns
     );
     await game.simulate();
 
@@ -289,7 +305,7 @@ async function runSimulation() {
 
     // Add result row
     const row = document.createElement('tr');
-    row.innerHTML = `<td>${i + 1}</td><td>${Util.formatBigNumber(score)}</td><td>${trophy}</td><td class="sim-inv-cell">${invStr}</td>`;
+    row.innerHTML = `<td>${i + 1}</td><td>${Const.MONEY} ${Util.formatBigNumber(score)}</td><td>${trophy}</td><td class="sim-inv-cell">${invStr}</td>`;
     resultsBody.appendChild(row);
 
     updateStats(scores);
@@ -315,4 +331,4 @@ stopBtn.addEventListener('click', () => {
 });
 
 roundsInput.addEventListener('change', saveStrategy);
-stopRefreshInput.addEventListener('change', saveStrategy);
+refreshTurnsInput.addEventListener('change', saveStrategy);

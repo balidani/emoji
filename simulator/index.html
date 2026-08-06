@@ -59,29 +59,31 @@
         <section class="sim-strategy">
           <div class="sim-lists">
             <div class="sim-list-section">
-              <h3>Always Buy</h3>
+              <div class="sim-list-header">
+                <h3>Always Buy</h3>
+                <button
+                  id="choose-always"
+                  class="sim-btn sim-choose-btn sim-choose-active"
+                >
+                  Choose
+                </button>
+              </div>
               <p class="sim-hint">Bought every time they appear in shop</p>
               <div class="sim-selected" id="always-buy-list"></div>
             </div>
             <div class="sim-list-section">
-              <h3>Buy Once</h3>
+              <div class="sim-list-header">
+                <h3>Buy Once</h3>
+                <button id="choose-once" class="sim-btn sim-choose-btn">
+                  Choose
+                </button>
+              </div>
               <p class="sim-hint">
                 Bought once then removed from list (click emoji multiple times
                 for duplicates)
               </p>
               <div class="sim-selected" id="buy-once-list"></div>
             </div>
-          </div>
-
-          <div class="sim-picker-controls">
-            <label class="sim-radio-label">
-              <input type="radio" name="add-target" value="always" checked />
-              Add to Always Buy
-            </label>
-            <label class="sim-radio-label">
-              <input type="radio" name="add-target" value="once" /> Add to Buy
-              Once
-            </label>
           </div>
 
           <div class="sim-picker" id="emoji-picker"></div>
@@ -100,11 +102,11 @@
             />
           </label>
           <label>
-            Stop refreshing at turn:
+            Refresh for this many turns:
             <input
               type="number"
-              id="sim-stop-refresh"
-              value="10"
+              id="sim-refresh-turns"
+              value="30"
               min="0"
               max="50"
             />
@@ -144,7 +146,7 @@
               <tr>
                 <th>#</th>
                 <th>Score</th>
-                <th>Trophy</th>
+                <th></th>
                 <th>Inventory</th>
               </tr>
             </thead>
