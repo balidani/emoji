@@ -391,9 +391,10 @@ function initSidebar(getGame, setGame, progression, onGameOver) {
   // (PROGRESSION_DESIGN.md section 1). Switching does not wipe unlock
   // progress, just restarts the current game under the new mode's catalog --
   // reuses the same `reload` callback (loadSettings) Progression was
-  // constructed with, matching how level-select (jumpTo) reloads. In
-  // Sandbox (and before a first-run mode pick) there's no progression state
-  // to show or reset, so only the switch option appears.
+  // constructed with, matching how level-select (jumpTo) reloads. Current
+  // mode and the switch always show; reset progression is Progression-only,
+  // since Sandbox (and before a first-run mode pick) has no progression
+  // state to reset.
   const gameSettingsBtn = document.getElementById('view-game-settings');
   const gameSettingsPanelDiv = document.querySelector(
     '.sidebar-content .game-settings-panel'
@@ -404,11 +405,12 @@ function initSidebar(getGame, setGame, progression, onGameOver) {
     gameSettingsPanelDiv.replaceChildren();
     const isProgression = progression.mode === 'progression';
 
-    if (isProgression) {
-      gameSettingsPanelDiv.appendChild(
-        Util.createDiv('current mode: ▶️ progression', 'game-settings-row')
-      );
-    }
+    gameSettingsPanelDiv.appendChild(
+      Util.createDiv(
+        `current mode: ${isProgression ? '▶️ progression' : '🧪 sandbox'}`,
+        'game-settings-row'
+      )
+    );
 
     const switchRow = Util.createDiv('', 'game-settings-row');
     const switchLink = document.createElement('a');
