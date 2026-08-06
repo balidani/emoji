@@ -429,6 +429,47 @@ function initSidebar(getGame, setGame, progression, onGameOver) {
     switchRow.appendChild(switchLink);
     gameSettingsPanelDiv.appendChild(switchRow);
 
+    // Turn count is only player-adjustable in Sandbox -- Progression levels
+    // (Tutorial, standard) have their turn count as part of the level's
+    // design, same reasoning as symbol sources/starting set staying
+    // dev-settings-only there.
+    if (!isProgression) {
+      const activeSettings = progression.levelData[progression.activeLevel];
+      const turnsRow = Util.createDiv('', 'game-settings-row');
+      turnsRow.appendChild(document.createTextNode('turns: '));
+      const turnsInput = document.createElement('input');
+      turnsInput.type = 'number';
+      turnsInput.min = '1';
+      turnsInput.value = activeSettings.gameLength;
+      turnsInput.classList.add('game-settings-turns-input');
+      turnsRow.appendChild(turnsInput);
+      turnsRow.appendChild(document.createTextNode(' '));
+      const setLink = document.createElement('a');
+      setLink.href = '#';
+      setLink.textContent = 'set';
+      const applyTurns = async (e) => {
+        e.preventDefault();
+        const value = parseInt(turnsInput.value, 10);
+        if (!Number.isInteger(value) || value < 1) {
+          return;
+        }
+        activeSettings.gameLength = value;
+        progression.save();
+        await progression.reload(activeSettings);
+        initGridScaling();
+        refreshSymbolListIfVisible();
+        renderGameSettingsPanel();
+      };
+      setLink.addEventListener('click', applyTurns);
+      turnsInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          applyTurns(e);
+        }
+      });
+      turnsRow.appendChild(setLink);
+      gameSettingsPanelDiv.appendChild(turnsRow);
+    }
+
     if (isProgression) {
       const resetRow = Util.createDiv('', 'game-settings-row');
       const resetLink = document.createElement('a');
