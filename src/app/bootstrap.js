@@ -453,8 +453,7 @@ function initSidebar(getGame, setGame, progression, onGameOver) {
         if (!Number.isInteger(value) || value < 1) {
           return;
         }
-        activeSettings.gameLength = value;
-        progression.save();
+        progression.setSandboxTurns(value);
         await progression.reload(activeSettings);
         initGridScaling();
         refreshSymbolListIfVisible();

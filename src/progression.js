@@ -25,6 +25,10 @@ const PROGRESSION_LEVEL_RESULTS = 'ProgressionLevelResults';
 const PROGRESSION_MODE = 'ProgressionMode';
 const UNLOCKED_BAGS = 'UnlockedBags';
 const PENDING_BAG_OFFER = 'PendingBagOffer';
+// Sandbox's player-chosen turn count (app/bootstrap.js's game settings
+// panel), independent of a level's own gameLength/defaultGameLength -- null
+// until the player customizes it, meaning "use the level's default".
+const SANDBOX_GAME_LENGTH = 'SandboxGameLength';
 
 // Achievements/profile stats survive both a version-bump wipe and the manual
 // "wipe progress" button (see ACHIEVEMENTS_DESIGN.md, section 8).
@@ -66,6 +70,7 @@ export class Progression {
     this.mode = null;
     this.unlockedBags = [];
     this.pendingBagOffer = [];
+    this.sandboxGameLength = null;
   }
   load() {
     if (!window.localStorage.getItem(CURRENT_VERSION_KEY)) {
@@ -99,6 +104,10 @@ export class Progression {
     if (pendingBagOffer !== null) {
       this.pendingBagOffer = JSON.parse(pendingBagOffer);
     }
+    const sandboxGameLength = window.localStorage.getItem(SANDBOX_GAME_LENGTH);
+    if (sandboxGameLength !== null) {
+      this.sandboxGameLength = JSON.parse(sandboxGameLength);
+    }
   }
   save() {
     window.localStorage.setItem(
@@ -121,9 +130,32 @@ export class Progression {
       PENDING_BAG_OFFER,
       JSON.stringify(this.pendingBagOffer)
     );
+    window.localStorage.setItem(
+      SANDBOX_GAME_LENGTH,
+      JSON.stringify(this.sandboxGameLength)
+    );
   }
+  // Switching into Progression always lands on each level's designed turn
+  // count, discarding any Sandbox turn customization for the session --
+  // switching back into Sandbox restores it. Keeps the two modes' turn
+  // counts independent despite sharing the same GameSettings instances.
   setMode(mode) {
+    if (mode === 'progression') {
+      for (const settings of this.levelData) {
+        settings.gameLength = settings.defaultGameLength;
+      }
+    } else if (this.sandboxGameLength !== null) {
+      this.levelData[this.activeLevel].gameLength = this.sandboxGameLength;
+    }
     this.mode = mode;
+    this.save();
+  }
+  // Sandbox-only turn override (app/bootstrap.js's game settings panel).
+  // Persisted separately from the level's own gameLength so it survives a
+  // round-trip through Progression mode -- see setMode().
+  setSandboxTurns(gameLength) {
+    this.levelData[this.activeLevel].gameLength = gameLength;
+    this.sandboxGameLength = gameLength;
     this.save();
   }
   // Manual "reset progression" (game settings menu + the dev-only level

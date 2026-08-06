@@ -39,6 +39,11 @@ export class GameSettings {
     this.boardX = boardX || 5;
     this.boardY = boardY || 5;
     this.gameLength = gameLength || 50;
+    // The level's designed turn count, untouched by Sandbox's player-facing
+    // turn override (app/bootstrap.js) -- Progression.setMode() resets
+    // gameLength back to this whenever the player switches into Progression
+    // mode, so a Sandbox customization never leaks into a level's design.
+    this.defaultGameLength = this.gameLength;
     // '🎈🏦🔔💼🐛🎯🧈🍾🍒🐣🐔🍀🍹🪙🌽💳🔮💃💎🎲🐉🥁🥚💸🥠🦊🧊🫙🪄💰🌝❎🍍🍿📀🔀🪨🚀🎰🧵🌳🌋👷📮'
     this.startingSet = startingSetString || '🍒🍒🍒🪙🍀🔀';
     this.initiallyLockedCells =
