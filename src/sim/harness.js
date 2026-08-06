@@ -11,8 +11,8 @@ import { NullRenderer } from '../render/NullRenderer.js';
 // NullRenderer for balancing runs -- and doubles as the substrate the
 // golden-master trace harness (test/run-trace.mjs) drives via
 // window.simulate.
-class AutoGame {
-  constructor(settings, catalog, buyAlways, buyOnce) {
+export class AutoGame {
+  constructor(settings, catalog, buyAlways, buyOnce, stopRefreshTurn = 10) {
     this.settings = settings;
     this.catalog = catalog;
     // Renderer port, used by every subsystem. NullRenderer's shop rendering
@@ -28,6 +28,7 @@ class AutoGame {
     this.totalTurns = 0;
     this.buyAlways = new Set(buyAlways);
     this.buyOnce = buyOnce;
+    this.stopRefreshTurn = stopRefreshTurn;
     this.symbolLimit = 1000;
   }
   async over() {
@@ -72,7 +73,12 @@ class AutoGame {
         const tryBuy = (sym) => {
           for (const button of buttons) {
             if (button.disabled) {
-              return true;
+              // Just this offer is unaffordable/already bought this turn --
+              // keep scanning, a later offer may still match and be
+              // affordable. (Bailing out here used to make one expensive
+              // offer earlier in shop order block every cheaper purchase
+              // for the rest of the turn.)
+              continue;
             }
             if (
               button.parentElement.parentElement.children[0].innerText ===
@@ -105,8 +111,13 @@ class AutoGame {
         if (tryOnce()) {
           buys--;
         } else {
-          if (this.inventory.getResource(Const.TURNS) <= 10) {
-            // No more refresh.
+          if (
+            (this.buyOnce.length === 0 && this.buyAlways.size === 0) ||
+            this.inventory.getResource(Const.TURNS) <= this.stopRefreshTurn
+          ) {
+            // Nothing left on the want list, or too close to the end of the
+            // game -- refreshing would just spend money hunting for offers
+            // we're never going to buy.
             break;
           }
           const buttons = Array.from(

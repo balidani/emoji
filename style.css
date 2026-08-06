@@ -1411,3 +1411,274 @@ button:disabled {
   background: #fff6d8;
   cursor: default;
 }
+
+/* Simulator (simulator.html) */
+
+.sim-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 12pt;
+  box-sizing: border-box;
+}
+
+.sim-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8pt;
+  margin-bottom: 12pt;
+}
+
+.sim-header h1 {
+  font-size: 18pt;
+  margin: 0;
+}
+
+.sim-back-link {
+  font-size: 10pt;
+  color: inherit;
+}
+
+.sim-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 12pt;
+}
+
+.sim-strategy,
+.sim-controls,
+.sim-stats,
+.sim-results {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 2px 4px,
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px,
+    rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
+  border-radius: 8pt;
+  padding: 10pt 12pt;
+}
+
+.sim-lists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16pt;
+  margin-bottom: 8pt;
+}
+
+.sim-list-section {
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.sim-list-section h3 {
+  margin: 0 0 2pt 0;
+  font-size: 12pt;
+}
+
+.sim-hint {
+  margin: 0 0 4pt 0;
+  font-size: 9pt;
+  opacity: 0.7;
+}
+
+.sim-selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4pt;
+  min-height: 28pt;
+  padding: 4pt;
+  border-radius: 6pt;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.sim-empty {
+  font-size: 9pt;
+  opacity: 0.6;
+  align-self: center;
+}
+
+.sim-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-size: 16pt;
+  padding: 2pt 6pt;
+  border-radius: 6pt;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 2px 4px,
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px;
+  cursor: pointer;
+}
+
+.sim-chip:hover {
+  background: #ffe0e0;
+}
+
+.sim-chip-badge {
+  font-size: 8pt;
+  font-weight: bold;
+  margin-left: 3pt;
+  padding: 0pt 3pt;
+  border-radius: 8pt;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.sim-picker-controls {
+  display: flex;
+  gap: 16pt;
+  margin-bottom: 8pt;
+  font-size: 10pt;
+}
+
+.sim-radio-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3pt;
+  cursor: pointer;
+}
+
+.sim-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4pt;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 4pt;
+  border-radius: 6pt;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.sim-picker-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 56pt;
+  padding: 4pt 2pt;
+  border-radius: 6pt;
+  cursor: pointer;
+  text-align: center;
+}
+
+.sim-picker-tile:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.sim-picker-emoji {
+  font-size: 18pt;
+}
+
+.sim-picker-name {
+  font-size: 6.5pt;
+  opacity: 0.7;
+  word-break: break-word;
+}
+
+.sim-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12pt;
+  font-size: 10pt;
+}
+
+.sim-controls input[type='number'] {
+  width: 4.5em;
+  font-family: monospace;
+}
+
+.sim-btn {
+  font-family: monospace;
+  font-size: 10pt;
+  padding: 5pt 12pt;
+  border: none;
+  border-radius: 6pt;
+  cursor: pointer;
+  background: #eee;
+}
+
+.sim-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sim-btn-primary {
+  background: #ffd76a;
+  font-weight: bold;
+}
+
+.sim-btn-primary:hover:not(:disabled) {
+  background: #ffcb3d;
+}
+
+#sim-progress {
+  font-size: 10pt;
+  opacity: 0.75;
+}
+
+.sim-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18pt;
+}
+
+.sim-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sim-stat-label {
+  font-size: 8pt;
+  opacity: 0.6;
+}
+
+.sim-stat-value {
+  font-size: 14pt;
+  font-weight: bold;
+}
+
+.sim-stat-trophies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8pt;
+  font-size: 10pt;
+}
+
+.sim-trophy-stat {
+  padding: 2pt 6pt;
+  border-radius: 6pt;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.sim-results {
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.sim-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+}
+
+.sim-table th {
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+  text-align: left;
+  padding: 4pt 6pt;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+}
+
+.sim-table td {
+  padding: 3pt 6pt;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  vertical-align: top;
+}
+
+.sim-inv-cell {
+  letter-spacing: 1pt;
+}

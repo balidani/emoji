@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emoji Slots — Simulator</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎰</text></svg>"
+    />
+  </head>
+  <body class="simulator">
+    <!-- Hidden game DOM the headless AutoGame drives (src/sim/harness.js). -->
+    <div
+      class="game"
+      style="
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        pointer-events: none;
+      "
+    >
+      <div class="container">
+        <div class="ui"></div>
+        <div class="inventory"></div>
+        <div class="event-log">
+          <div class="event-log-inner"></div>
+        </div>
+        <div class="game-layout">
+          <div class="wrapper board-column">
+            <div class="grid-scaler">
+              <div class="grid-scaler-content">
+                <div id="grid" class="grid"></div>
+                <div class="grid-overlay"></div>
+              </div>
+            </div>
+            <div class="progression-bar hidden"></div>
+          </div>
+          <div class="shop-wrapper">
+            <div class="info"></div>
+            <div class="shop hidden"></div>
+          </div>
+        </div>
+        <div class="wrapper">
+          <div class="settings"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sim-page">
+      <header class="sim-header">
+        <h1>🎰 Emoji Slots Simulator</h1>
+        <a href="index.html" class="sim-back-link">← Back to Game</a>
+      </header>
+
+      <div class="sim-layout">
+        <!-- Strategy Config -->
+        <section class="sim-strategy">
+          <div class="sim-lists">
+            <div class="sim-list-section">
+              <h3>Always Buy</h3>
+              <p class="sim-hint">Bought every time they appear in shop</p>
+              <div class="sim-selected" id="always-buy-list"></div>
+            </div>
+            <div class="sim-list-section">
+              <h3>Buy Once</h3>
+              <p class="sim-hint">
+                Bought once then removed from list (click emoji multiple times
+                for duplicates)
+              </p>
+              <div class="sim-selected" id="buy-once-list"></div>
+            </div>
+          </div>
+
+          <div class="sim-picker-controls">
+            <label class="sim-radio-label">
+              <input type="radio" name="add-target" value="always" checked />
+              Add to Always Buy
+            </label>
+            <label class="sim-radio-label">
+              <input type="radio" name="add-target" value="once" /> Add to Buy
+              Once
+            </label>
+          </div>
+
+          <div class="sim-picker" id="emoji-picker"></div>
+        </section>
+
+        <!-- Controls -->
+        <section class="sim-controls">
+          <label>
+            Rounds:
+            <input
+              type="number"
+              id="sim-rounds"
+              value="100"
+              min="1"
+              max="10000"
+            />
+          </label>
+          <label>
+            Stop refreshing at turn:
+            <input
+              type="number"
+              id="sim-stop-refresh"
+              value="10"
+              min="0"
+              max="50"
+            />
+          </label>
+          <button id="sim-start" class="sim-btn sim-btn-primary">
+            Simulate
+          </button>
+          <button id="sim-stop" class="sim-btn" disabled>Stop</button>
+          <span id="sim-progress"></span>
+        </section>
+
+        <!-- Stats -->
+        <section class="sim-stats" id="sim-stats">
+          <div class="sim-stat">
+            <span class="sim-stat-label">Avg</span
+            ><span class="sim-stat-value" id="stat-avg">—</span>
+          </div>
+          <div class="sim-stat">
+            <span class="sim-stat-label">Min</span
+            ><span class="sim-stat-value" id="stat-min">—</span>
+          </div>
+          <div class="sim-stat">
+            <span class="sim-stat-label">Max</span
+            ><span class="sim-stat-value" id="stat-max">—</span>
+          </div>
+          <div class="sim-stat">
+            <span class="sim-stat-label">Median</span
+            ><span class="sim-stat-value" id="stat-median">—</span>
+          </div>
+          <div class="sim-stat-trophies" id="stat-trophies"></div>
+        </section>
+
+        <!-- Results Table -->
+        <section class="sim-results">
+          <table class="sim-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Score</th>
+                <th>Trophy</th>
+                <th>Inventory</th>
+              </tr>
+            </thead>
+            <tbody id="sim-results-body"></tbody>
+          </table>
+        </section>
+      </div>
+    </div>
+
+    <script type="module" src="simulator.js"></script>
+  </body>
+</html>
