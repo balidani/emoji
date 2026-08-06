@@ -57,37 +57,147 @@
       <div class="sim-layout">
         <!-- Strategy Config -->
         <section class="sim-strategy">
-          <div class="sim-lists">
-            <div class="sim-list-section">
-              <div class="sim-list-header">
-                <h3>Always Buy</h3>
-                <button
-                  id="choose-always"
-                  class="sim-btn sim-choose-btn sim-choose-active"
-                >
-                  Choose
-                </button>
-              </div>
-              <p class="sim-hint">Bought every time they appear in shop</p>
-              <div class="sim-selected" id="always-buy-list"></div>
+          <div class="sim-category" data-category="shopping">
+            <div class="sim-category-header">
+              <h3>Shopping</h3>
+              <span class="sim-category-role">acquisition</span>
             </div>
-            <div class="sim-list-section">
-              <div class="sim-list-header">
-                <h3>Buy Once</h3>
-                <button id="choose-once" class="sim-btn sim-choose-btn">
-                  Choose
+            <div class="sim-slot-cols">
+              <div class="sim-slot-col">
+                <div class="sim-slot-col-header">Always</div>
+                <div
+                  class="sim-slot-chips"
+                  data-category="shopping"
+                  data-mode="always"
+                ></div>
+                <button
+                  type="button"
+                  class="sim-btn sim-add-btn"
+                  data-category="shopping"
+                  data-mode="always"
+                >
+                  + Add
                 </button>
               </div>
-              <p class="sim-hint">
-                Bought once then removed from list (click emoji multiple times
-                for duplicates)
-              </p>
-              <div class="sim-selected" id="buy-once-list"></div>
+              <div class="sim-slot-col">
+                <div class="sim-slot-col-header">Repeat</div>
+                <div
+                  class="sim-slot-chips"
+                  data-category="shopping"
+                  data-mode="repeat"
+                ></div>
+                <button
+                  type="button"
+                  class="sim-btn sim-add-btn"
+                  data-category="shopping"
+                  data-mode="repeat"
+                >
+                  + Add
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="sim-picker" id="emoji-picker"></div>
+          <div class="sim-category" data-category="eye">
+            <div class="sim-category-header">
+              <h3>Eye <span class="sim-category-emoji">🧿</span></h3>
+              <span class="sim-category-role">targeting</span>
+            </div>
+            <div class="sim-slot-cols">
+              <div class="sim-slot-col">
+                <div class="sim-slot-col-header">Always</div>
+                <div
+                  class="sim-slot-chips"
+                  data-category="eye"
+                  data-mode="always"
+                ></div>
+                <button
+                  type="button"
+                  class="sim-btn sim-add-btn"
+                  data-category="eye"
+                  data-mode="always"
+                >
+                  + Add
+                </button>
+              </div>
+              <div class="sim-slot-col">
+                <div class="sim-slot-col-header">Repeat</div>
+                <div
+                  class="sim-slot-chips"
+                  data-category="eye"
+                  data-mode="repeat"
+                ></div>
+                <button
+                  type="button"
+                  class="sim-btn sim-add-btn"
+                  data-category="eye"
+                  data-mode="repeat"
+                >
+                  + Add
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-category" data-category="axe">
+            <div class="sim-category-header">
+              <h3>Axe <span class="sim-category-emoji">🪓</span></h3>
+              <span class="sim-category-role">targeting</span>
+            </div>
+            <div class="sim-slot-cols">
+              <div class="sim-slot-col">
+                <div class="sim-slot-col-header">Always</div>
+                <div
+                  class="sim-slot-chips"
+                  data-category="axe"
+                  data-mode="always"
+                ></div>
+                <button
+                  type="button"
+                  class="sim-btn sim-add-btn"
+                  data-category="axe"
+                  data-mode="always"
+                >
+                  + Add
+                </button>
+              </div>
+              <div class="sim-slot-col">
+                <div class="sim-slot-col-header">Repeat</div>
+                <div
+                  class="sim-slot-chips"
+                  data-category="axe"
+                  data-mode="repeat"
+                ></div>
+                <button
+                  type="button"
+                  class="sim-btn sim-add-btn"
+                  data-category="axe"
+                  data-mode="repeat"
+                >
+                  + Add
+                </button>
+              </div>
+            </div>
+          </div>
         </section>
+
+        <!-- Emoji picker overlay, opened by a slot's "+ Add" button -->
+        <div class="sim-picker-overlay hidden" id="sim-picker-overlay">
+          <div class="sim-picker-panel">
+            <div class="sim-picker-panel-header">
+              <span id="sim-picker-title"></span>
+              <button
+                type="button"
+                class="sim-picker-close"
+                id="sim-picker-close"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div class="sim-picker-tiles" id="sim-picker-tiles"></div>
+          </div>
+        </div>
 
         <!-- Controls -->
         <section class="sim-controls">

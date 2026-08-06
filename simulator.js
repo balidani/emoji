@@ -26,11 +26,12 @@ await Util.setRandomSeed();
 
 // --- Local storage persistence ---
 const STORAGE_KEY = 'emoji-sim-strategy';
+const STORAGE_VERSION = 2;
 
 function saveStrategy() {
   const data = {
-    alwaysBuy,
-    buyOnce,
+    v: STORAGE_VERSION,
+    strategy,
     rounds: roundsInput.value,
     refreshTurns: refreshTurnsInput.value,
   };
@@ -47,9 +48,53 @@ function loadStrategy() {
   }
 }
 
-// --- State ---
-const alwaysBuy = []; // array of emoji strings
-const buyOnce = []; // array of emoji strings (duplicates allowed)
+// --- Strategy data model (see SIMULATOR_TOOLS_DESIGN.md §3) ---
+// Shopping decides what to buy (tools included); Eye/Axe decide what a
+// bought tool acts on. Each slot's `always` is an ordered de-duplicated
+// emoji list; `repeat` is an ordered {emoji, count} list.
+function emptySlot() {
+  return { always: [], repeat: [] };
+}
+function emptyStrategy() {
+  return { shopping: emptySlot(), eye: emptySlot(), axe: emptySlot() };
+}
+
+// Merges duplicate {emoji, count} entries (defensive -- the UI never
+// creates duplicates, but loaded/migrated data might) and drops non-
+// positive counts.
+function mergeRepeat(entries) {
+  const counts = new Map();
+  for (const { emoji, count } of entries) {
+    if (count > 0) {
+      counts.set(emoji, (counts.get(emoji) || 0) + count);
+    }
+  }
+  return [...counts].map(([emoji, count]) => ({ emoji, count }));
+}
+
+function migrateLegacyStrategy(saved) {
+  const strategy = emptyStrategy();
+  strategy.shopping.always = [...new Set(saved.alwaysBuy || [])];
+  const counts = new Map();
+  for (const e of saved.buyOnce || []) {
+    counts.set(e, (counts.get(e) || 0) + 1);
+  }
+  strategy.shopping.repeat = [...counts].map(([emoji, count]) => ({
+    emoji,
+    count,
+  }));
+  return strategy;
+}
+
+function filterSlot(slot, validSet) {
+  return {
+    always: [...new Set((slot?.always || []).filter((e) => validSet.has(e)))],
+    repeat: mergeRepeat(
+      (slot?.repeat || []).filter((r) => validSet.has(r.emoji))
+    ),
+  };
+}
+
 let running = false;
 let stopRequested = false;
 
@@ -58,26 +103,48 @@ let stopRequested = false;
 const catalog = new Catalog([...settings.symbolSources]);
 await catalog.updateSymbols();
 
-// Collect all buyable symbols. Tools (Pin/Axe/Eye) are excluded -- they
-// need a board-cell click to resolve (pickCellForTool), which the headless
-// NullRenderer can't script, so buying one in a simulated game just spends
-// the money for no effect.
-const allSymbols = [];
+// Every buyable symbol (shop pickers below further narrow this).
+const allBuyable = [];
 for (const [emoji, symbol] of catalog.symbols) {
-  const categories = symbol.categories();
-  if (categories.includes(CATEGORY_UNBUYABLE)) continue;
-  if (categories.includes(CATEGORY_TOOL)) continue;
-  allSymbols.push({ emoji, symbol });
+  if (symbol.categories().includes(CATEGORY_UNBUYABLE)) continue;
+  allBuyable.push({ emoji, symbol });
 }
-const buyableEmoji = new Set(allSymbols.map((s) => s.emoji));
-allSymbols.sort((a, b) =>
+allBuyable.sort((a, b) =>
   a.symbol.constructor.name.localeCompare(b.symbol.constructor.name)
 );
 
+// Shopping picker: every buyable symbol, tools (🧿/🪓) included -- that's
+// the only way to acquire a tool. 📌 Pin has no targeting slot in this
+// design, so it's left out for now (see design doc §4.4/§7).
+const PIN_EMOJI = '📌';
+const shoppingTiles = allBuyable.filter(({ emoji }) => emoji !== PIN_EMOJI);
+// Eye/Axe picker: sensible tool *targets* -- any ownable symbol, excluding
+// the tools themselves.
+const targetTiles = allBuyable.filter(
+  ({ symbol }) => !symbol.categories().includes(CATEGORY_TOOL)
+);
+
+const shoppingEmojiSet = new Set(shoppingTiles.map((t) => t.emoji));
+const targetEmojiSet = new Set(targetTiles.map((t) => t.emoji));
+
+const SLOTS = [
+  ['shopping', 'always'],
+  ['shopping', 'repeat'],
+  ['eye', 'always'],
+  ['eye', 'repeat'],
+  ['axe', 'always'],
+  ['axe', 'repeat'],
+];
+const VALID_SETS = {
+  shopping: shoppingEmojiSet,
+  eye: targetEmojiSet,
+  axe: targetEmojiSet,
+};
+
+// --- State ---
+const strategy = emptyStrategy();
+
 // --- DOM refs ---
-const pickerDiv = document.getElementById('emoji-picker');
-const alwaysBuyList = document.getElementById('always-buy-list');
-const buyOnceList = document.getElementById('buy-once-list');
 const startBtn = document.getElementById('sim-start');
 const stopBtn = document.getElementById('sim-stop');
 const roundsInput = document.getElementById('sim-rounds');
@@ -90,116 +157,204 @@ const statMax = document.getElementById('stat-max');
 const statMedian = document.getElementById('stat-median');
 const statTrophies = document.getElementById('stat-trophies');
 
-// Restore saved strategy. Filtered against buyableEmoji so a strategy saved
-// before tools were excluded from the picker doesn't keep buying them.
+const pickerOverlay = document.getElementById('sim-picker-overlay');
+const pickerTitle = document.getElementById('sim-picker-title');
+const pickerTiles = document.getElementById('sim-picker-tiles');
+const pickerClose = document.getElementById('sim-picker-close');
+
+// Restore saved strategy. Every emoji is filtered through the current
+// picker's valid set, so a stale emoji from an old save (no longer
+// buyable/targetable) is dropped instead of silently mis-buying/targeting.
 const saved = loadStrategy();
 if (saved) {
-  alwaysBuy.push(...(saved.alwaysBuy || []).filter((e) => buyableEmoji.has(e)));
-  buyOnce.push(...(saved.buyOnce || []).filter((e) => buyableEmoji.has(e)));
+  const rawStrategy =
+    saved.v === STORAGE_VERSION && saved.strategy
+      ? saved.strategy
+      : migrateLegacyStrategy(saved);
+  for (const category of ['shopping', 'eye', 'axe']) {
+    strategy[category] = filterSlot(
+      rawStrategy[category],
+      VALID_SETS[category]
+    );
+  }
   if (saved.rounds) roundsInput.value = saved.rounds;
   if (saved.refreshTurns) refreshTurnsInput.value = saved.refreshTurns;
 }
 
-// --- Emoji Picker ---
-// "Choose" buttons pick which list (Always Buy / Buy Once) clicking an
-// emoji tile below adds to -- styled as a two-way toggle like the
-// Simulate/Stop button pair, active side green, inactive side faded.
-let addTarget = 'always';
-const chooseAlwaysBtn = document.getElementById('choose-always');
-const chooseOnceBtn = document.getElementById('choose-once');
-
-function renderChooseButtons() {
-  chooseAlwaysBtn.classList.toggle('sim-choose-active', addTarget === 'always');
-  chooseOnceBtn.classList.toggle('sim-choose-active', addTarget === 'once');
-}
-
-chooseAlwaysBtn.addEventListener('click', () => {
-  addTarget = 'always';
-  renderChooseButtons();
-});
-chooseOnceBtn.addEventListener('click', () => {
-  addTarget = 'once';
-  renderChooseButtons();
-});
-
-for (const { emoji, symbol } of allSymbols) {
-  const tile = document.createElement('div');
-  tile.className = 'sim-picker-tile';
-  tile.innerHTML = `<span class="sim-picker-emoji">${emoji}</span><span class="sim-picker-name">${symbol.constructor.name}</span>`;
-  tile.addEventListener('click', () => {
-    if (addTarget === 'always') {
-      if (!alwaysBuy.includes(emoji)) {
-        alwaysBuy.push(emoji);
-      }
-    } else {
-      buyOnce.push(emoji);
+// --- Strategy mutation ---
+function addToSlot(category, mode, emoji) {
+  const slot = strategy[category];
+  if (mode === 'always') {
+    if (!slot.always.includes(emoji)) {
+      slot.always.push(emoji);
     }
-    renderLists();
-  });
-  pickerDiv.appendChild(tile);
+  } else {
+    const entry = slot.repeat.find((r) => r.emoji === emoji);
+    if (entry) {
+      entry.count++;
+    } else {
+      slot.repeat.push({ emoji, count: 1 });
+    }
+  }
+  renderStrategy();
 }
 
-// --- Render selected lists ---
-function renderLists() {
-  renderAlwaysBuy();
-  renderBuyOnce();
+function removeAlways(category, emoji) {
+  const slot = strategy[category];
+  slot.always = slot.always.filter((e) => e !== emoji);
+  renderStrategy();
+}
+
+function incRepeat(category, emoji) {
+  const entry = strategy[category].repeat.find((r) => r.emoji === emoji);
+  if (entry) {
+    entry.count++;
+    renderStrategy();
+  }
+}
+
+function decRepeat(category, emoji) {
+  const slot = strategy[category];
+  const entry = slot.repeat.find((r) => r.emoji === emoji);
+  if (!entry) return;
+  entry.count--;
+  if (entry.count <= 0) {
+    slot.repeat = slot.repeat.filter((r) => r !== entry);
+  }
+  renderStrategy();
+}
+
+// --- Rendering ---
+function makeAlwaysChip(category, emoji) {
+  const chip = document.createElement('span');
+  chip.className = 'sim-chip sim-chip-always';
+  const emojiSpan = document.createElement('span');
+  emojiSpan.className = 'sim-chip-emoji';
+  emojiSpan.textContent = emoji;
+  chip.appendChild(emojiSpan);
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'sim-chip-btn sim-chip-x';
+  removeBtn.setAttribute('aria-label', 'Remove');
+  removeBtn.textContent = '✕';
+  removeBtn.addEventListener('click', () => removeAlways(category, emoji));
+  chip.appendChild(removeBtn);
+  return chip;
+}
+
+function makeRepeatChip(category, emoji, count) {
+  const chip = document.createElement('span');
+  chip.className = 'sim-chip sim-chip-repeat';
+  const emojiSpan = document.createElement('span');
+  emojiSpan.className = 'sim-chip-emoji';
+  emojiSpan.textContent = emoji;
+  chip.appendChild(emojiSpan);
+  const minusBtn = document.createElement('button');
+  minusBtn.type = 'button';
+  minusBtn.className = 'sim-chip-btn sim-chip-minus';
+  minusBtn.setAttribute('aria-label', 'Decrease');
+  minusBtn.textContent = '−';
+  minusBtn.addEventListener('click', () => decRepeat(category, emoji));
+  chip.appendChild(minusBtn);
+  const countSpan = document.createElement('span');
+  countSpan.className = 'sim-chip-count';
+  countSpan.textContent = count;
+  chip.appendChild(countSpan);
+  const plusBtn = document.createElement('button');
+  plusBtn.type = 'button';
+  plusBtn.className = 'sim-chip-btn sim-chip-plus';
+  plusBtn.setAttribute('aria-label', 'Increase');
+  plusBtn.textContent = '+';
+  plusBtn.addEventListener('click', () => incRepeat(category, emoji));
+  chip.appendChild(plusBtn);
+  return chip;
+}
+
+function renderSlot(category, mode) {
+  const container = document.querySelector(
+    `.sim-slot-chips[data-category="${category}"][data-mode="${mode}"]`
+  );
+  if (!container) return;
+  container.innerHTML = '';
+  const slot = strategy[category];
+  const entries = mode === 'always' ? slot.always : slot.repeat;
+  if (entries.length === 0) {
+    container.innerHTML = '<span class="sim-empty">None</span>';
+    return;
+  }
+  if (mode === 'always') {
+    for (const emoji of entries) {
+      container.appendChild(makeAlwaysChip(category, emoji));
+    }
+  } else {
+    for (const { emoji, count } of entries) {
+      container.appendChild(makeRepeatChip(category, emoji, count));
+    }
+  }
+}
+
+function renderStrategy() {
+  for (const [category, mode] of SLOTS) {
+    renderSlot(category, mode);
+  }
   saveStrategy();
 }
 
-function renderAlwaysBuy() {
-  alwaysBuyList.innerHTML = '';
-  if (alwaysBuy.length === 0) {
-    alwaysBuyList.innerHTML =
-      '<span class="sim-empty">Click emoji below to add</span>';
-    return;
-  }
-  for (let i = 0; i < alwaysBuy.length; i++) {
-    const chip = document.createElement('span');
-    chip.className = 'sim-chip';
-    chip.textContent = alwaysBuy[i];
-    chip.title = 'Click to remove';
-    const idx = i;
-    chip.addEventListener('click', () => {
-      alwaysBuy.splice(idx, 1);
-      renderLists();
-    });
-    alwaysBuyList.appendChild(chip);
-  }
+// --- Emoji picker overlay ---
+const CATEGORY_TITLES = { shopping: 'Shopping', eye: 'Eye', axe: 'Axe' };
+const MODE_TITLES = { always: 'Always', repeat: 'Repeat' };
+let pickerCategory = null;
+let pickerMode = null;
+
+function tilesForCategory(category) {
+  return category === 'shopping' ? shoppingTiles : targetTiles;
 }
 
-function renderBuyOnce() {
-  buyOnceList.innerHTML = '';
-  if (buyOnce.length === 0) {
-    buyOnceList.innerHTML =
-      '<span class="sim-empty">Click emoji below to add</span>';
-    return;
-  }
-  // Group by emoji with counts
-  const counts = new Map();
-  for (const e of buyOnce) {
-    counts.set(e, (counts.get(e) || 0) + 1);
-  }
-  for (const [emoji, count] of counts) {
-    const chip = document.createElement('span');
-    chip.className = 'sim-chip';
-    chip.textContent = emoji;
-    if (count > 1) {
-      const badge = document.createElement('span');
-      badge.className = 'sim-chip-badge';
-      badge.textContent = count;
-      chip.appendChild(badge);
-    }
-    chip.title = 'Click to remove one';
-    chip.addEventListener('click', () => {
-      const idx = buyOnce.indexOf(emoji);
-      if (idx !== -1) buyOnce.splice(idx, 1);
-      renderLists();
+function openPicker(category, mode) {
+  pickerCategory = category;
+  pickerMode = mode;
+  pickerTitle.textContent = `Add to ${CATEGORY_TITLES[category]} · ${MODE_TITLES[mode]}`;
+  pickerTiles.innerHTML = '';
+  for (const { emoji, symbol } of tilesForCategory(category)) {
+    const tile = document.createElement('div');
+    tile.className = 'sim-picker-tile';
+    tile.innerHTML = `<span class="sim-picker-emoji">${emoji}</span><span class="sim-picker-name">${symbol.constructor.name}</span>`;
+    tile.addEventListener('click', () => {
+      addToSlot(pickerCategory, pickerMode, emoji);
     });
-    buyOnceList.appendChild(chip);
+    pickerTiles.appendChild(tile);
   }
+  pickerOverlay.classList.remove('hidden');
 }
 
-renderLists();
+function closePicker() {
+  pickerOverlay.classList.add('hidden');
+  pickerCategory = null;
+  pickerMode = null;
+}
+
+pickerClose.addEventListener('click', closePicker);
+pickerOverlay.addEventListener('click', (e) => {
+  if (e.target === pickerOverlay) closePicker();
+});
+
+document.querySelectorAll('.sim-add-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    openPicker(btn.dataset.category, btn.dataset.mode);
+  });
+});
+
+renderStrategy();
+
+// Bridges the explicit-count Repeat model to the "duplicate emoji in a
+// string" contract Catalog.symbolsFromString expects.
+function expandRepeat(entries) {
+  let result = '';
+  for (const { emoji, count } of entries) {
+    result += emoji.repeat(count);
+  }
+  return result;
+}
 
 // --- Trophy calculation (thresholds come from the real game's trophy tiers,
 // see GameSettings' resultLookup) ---
@@ -264,9 +419,13 @@ async function runSimulation() {
   statTrophies.innerHTML = '';
 
   const scores = [];
-  const alwaysBuyStr = alwaysBuy.join('');
-  const buyOnceStr = buyOnce.join('');
+  const shoppingAlwaysStr = strategy.shopping.always.join('');
+  const shoppingRepeatStr = expandRepeat(strategy.shopping.repeat);
   const refreshTurns = parseInt(refreshTurnsInput.value) || 30;
+  const targeting = {
+    '🧿': { always: strategy.eye.always, repeat: strategy.eye.repeat },
+    '🪓': { always: strategy.axe.always, repeat: strategy.axe.repeat },
+  };
 
   for (let i = 0; i < rounds; i++) {
     if (stopRequested) break;
@@ -282,9 +441,10 @@ async function runSimulation() {
     const game = new AutoGame(
       settings,
       cat,
-      cat.symbolsFromString(alwaysBuyStr),
-      cat.symbolsFromString(buyOnceStr),
-      refreshTurns
+      cat.symbolsFromString(shoppingAlwaysStr),
+      cat.symbolsFromString(shoppingRepeatStr),
+      refreshTurns,
+      targeting
     );
     await game.simulate();
 
