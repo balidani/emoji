@@ -2,6 +2,7 @@ import * as Const from './src/consts.js';
 import * as Util from './src/util.js';
 import { Catalog } from './src/catalog.js';
 import { CATEGORY_UNBUYABLE } from './src/symbol.js';
+import { CATEGORY_TOOL } from './src/symbols/tools.js';
 import { GameSettings } from './src/game_settings.js';
 import { AutoGame } from './src/sim/harness.js';
 
@@ -57,12 +58,18 @@ let stopRequested = false;
 const catalog = new Catalog([...settings.symbolSources]);
 await catalog.updateSymbols();
 
-// Collect all buyable symbols
+// Collect all buyable symbols. Tools (Pin/Axe/Eye) are excluded -- they
+// need a board-cell click to resolve (pickCellForTool), which the headless
+// NullRenderer can't script, so buying one in a simulated game just spends
+// the money for no effect.
 const allSymbols = [];
 for (const [emoji, symbol] of catalog.symbols) {
-  if (symbol.categories().includes(CATEGORY_UNBUYABLE)) continue;
+  const categories = symbol.categories();
+  if (categories.includes(CATEGORY_UNBUYABLE)) continue;
+  if (categories.includes(CATEGORY_TOOL)) continue;
   allSymbols.push({ emoji, symbol });
 }
+const buyableEmoji = new Set(allSymbols.map((s) => s.emoji));
 allSymbols.sort((a, b) =>
   a.symbol.constructor.name.localeCompare(b.symbol.constructor.name)
 );
@@ -83,11 +90,12 @@ const statMax = document.getElementById('stat-max');
 const statMedian = document.getElementById('stat-median');
 const statTrophies = document.getElementById('stat-trophies');
 
-// Restore saved strategy
+// Restore saved strategy. Filtered against buyableEmoji so a strategy saved
+// before tools were excluded from the picker doesn't keep buying them.
 const saved = loadStrategy();
 if (saved) {
-  alwaysBuy.push(...(saved.alwaysBuy || []));
-  buyOnce.push(...(saved.buyOnce || []));
+  alwaysBuy.push(...(saved.alwaysBuy || []).filter((e) => buyableEmoji.has(e)));
+  buyOnce.push(...(saved.buyOnce || []).filter((e) => buyableEmoji.has(e)));
   if (saved.rounds) roundsInput.value = saved.rounds;
   if (saved.stopRefreshTurn) stopRefreshInput.value = saved.stopRefreshTurn;
 }

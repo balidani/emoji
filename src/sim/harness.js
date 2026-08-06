@@ -123,7 +123,14 @@ export class AutoGame {
           const buttons = Array.from(
             document.getElementsByClassName('buyButton')
           );
-          const refreshButton = buttons.splice(3, 1)[0];
+          // The refresh button is always the last one rendered, right after
+          // the offers -- but PostBox (game.shop.buyLines++) can grow the
+          // shop past 3 offers, so a hardcoded index 3 would grab a real
+          // offer instead and "refresh" would silently buy it.
+          const refreshButton = buttons.splice(
+            this.shop.currentOffers.length,
+            1
+          )[0];
           if (refreshButton !== undefined && !refreshButton.disabled) {
             if (
               (this.shop.refreshCost >=
