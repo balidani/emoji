@@ -1589,6 +1589,11 @@ button:disabled {
 }
 
 .sim-btn {
+  /* Overrides the global `button` reset (style.css "Misc" section), which
+     forces every button to a 32pt square for the game's icon buttons --
+     that squashed these text buttons down to a truncated square. */
+  width: auto;
+  height: auto;
   font-family: monospace;
   font-size: 10pt;
   padding: 5pt 12pt;
@@ -1604,12 +1609,12 @@ button:disabled {
 }
 
 .sim-btn-primary {
-  background: #ffd76a;
+  background: #8fe3a0;
   font-weight: bold;
 }
 
 .sim-btn-primary:hover:not(:disabled) {
-  background: #ffcb3d;
+  background: #6cd684;
 }
 
 #sim-progress {
