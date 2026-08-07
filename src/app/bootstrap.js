@@ -15,6 +15,8 @@ import { ReplayRecorder, runReplay } from '../replay.js';
 import { FULL_ROSTER, BAGS, nextGate } from '../progression-roster.js';
 import { renderProgressionBar } from '../render/progressionBar.js';
 import * as Const from '../consts.js';
+import { DAILY_SETTINGS, dailyAllowedEmoji } from '../daily.js';
+import { fetchDailySeed, DailyApiError } from '../daily-api.js';
 
 // The composition root: seeds the RNG, builds Progression/GameSettings and
 // their views, and loads the first game. main.js is just "on DOM ready,
@@ -106,6 +108,12 @@ export async function bootstrap() {
     // restricts, matching "today's game unchanged".
     if (PROGRESSION.mode === 'progression') {
       catalog.restrictTo(PROGRESSION.unlockedEmoji());
+    } else if (PROGRESSION.mode === 'daily') {
+      // Daily Challenge: same lever, different pool -- excludes the 🎟️
+      // ticket from every daily board so the RNG-affecting exclusion
+      // matches at record, playback, and server-validation time (see
+      // src/daily.js, DAILY_CHALLENGE_DESIGN.md #5).
+      catalog.restrictTo(dailyAllowedEmoji(catalog));
     }
     // In-game progression bar, underneath the board: visible from the
     // moment this round's board appears until the first roll (game.js
@@ -179,6 +187,15 @@ export async function bootstrap() {
     const scoreDiv = document.querySelector('.game .scoreContainer .score');
     await Util.animate(scoreDiv, 'scoreOut', 0.65);
     document.querySelector('.game').removeChild(scoreContainer);
+    // A Daily Challenge run is the first and only game of a session seeded
+    // from the daily phrase (DAILY_CHALLENGE_DESIGN.md #4) -- a second round
+    // from here on would start from a different RNG position than
+    // setSeed(S_D), so it could never validate as another daily submission.
+    // Fall back to Sandbox instead of silently reloading into an
+    // already-invalid "daily" round.
+    if (PROGRESSION.mode === 'daily') {
+      PROGRESSION.setMode('sandbox');
+    }
     loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
 
     // On reload, re-apply scaling (and re-observe the fresh
@@ -218,6 +235,8 @@ export async function bootstrap() {
           PROGRESSION.levelData[PROGRESSION.activeLevel]
         );
         initGridScaling();
+      } else if (mode === 'daily') {
+        await enterDailyChallenge(PROGRESSION);
       }
       sidebarApi?.refreshSymbolListIfVisible();
       sidebarApi?.refreshGameSettingsPanelIfVisible();
@@ -225,7 +244,9 @@ export async function bootstrap() {
   }
 
   const game = await loadSettings(
-    PROGRESSION.levelData[PROGRESSION.activeLevel]
+    PROGRESSION.mode === 'daily'
+      ? DAILY_SETTINGS
+      : PROGRESSION.levelData[PROGRESSION.activeLevel]
   );
 
   sidebarApi = initSidebar(
@@ -305,7 +326,33 @@ function showModeSelectOverlay(progression) {
     document
       .getElementById('mode-select-sandbox')
       .addEventListener('click', () => pick('sandbox'), { once: true });
+    document
+      .getElementById('mode-select-daily')
+      .addEventListener('click', () => pick('daily'), { once: true });
   });
+}
+
+// Fetches today's server-generated seed and reloads the page seeded from it,
+// so the Daily Challenge round is the first game of a fresh session -- the
+// same property runReplay()/validateReplay() rely on to reconstruct its
+// start state from the seed alone (DAILY_CHALLENGE_DESIGN.md #3-4). Reuses
+// the existing hash-seeding path (see the top of bootstrap()) rather than
+// adding a second one. If the backend is unreachable, falls back to Sandbox
+// instead of leaving the player stuck mid-pick.
+async function enterDailyChallenge(progression) {
+  try {
+    const { seed } = await fetchDailySeed();
+    window.location.hash = seed;
+    window.location.reload();
+  } catch (err) {
+    console.error(err);
+    const message =
+      err instanceof DailyApiError
+        ? err.message
+        : "Couldn't reach the Daily Challenge server. Try again later.";
+    alert(message);
+    progression.setMode('sandbox');
+  }
 }
 
 // Post-win unlock draft: up to three cards, one per still-locked bag in the
@@ -461,8 +508,11 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
   const gameSettingsPanelDiv = document.querySelector(
     '.sidebar-content .game-settings-panel'
   );
-  const modeLabel = (mode) =>
-    mode === 'progression' ? '▶️ progression' : '🧪 sandbox';
+  const modeLabels = {
+    progression: '▶️ progression',
+    sandbox: '🧪 sandbox',
+    daily: '📅 daily challenge',
+  };
   // Collapsed state for the game-mode picker below, kept outside
   // renderGameSettingsPanel() since that function rebuilds the panel (and
   // would otherwise reset to collapsed) on every mode switch / turns edit /
@@ -542,6 +592,14 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
         if (mode === progression.mode) {
           return;
         }
+        if (mode === 'daily') {
+          // Reload-based, not a reuse of `reload`/loadSettings in place --
+          // see enterDailyChallenge()'s comment for why a fresh page load is
+          // required.
+          progression.setMode(mode);
+          await enterDailyChallenge(progression);
+          return;
+        }
         progression.setMode(mode);
         await progression.reload(
           progression.levelData[progression.activeLevel]
@@ -553,8 +611,9 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
       optionRow.appendChild(optionLink);
       gameModeOptionsDiv.appendChild(optionRow);
     };
-    addModeOption('progression', modeLabel('progression'));
-    addModeOption('sandbox', modeLabel('sandbox'));
+    addModeOption('progression', modeLabels.progression);
+    addModeOption('sandbox', modeLabels.sandbox);
+    addModeOption('daily', modeLabels.daily);
 
     // Simulator is endgame-only content: hidden entirely until Progression
     // has been completed (every bag unlocked, see Progression.isComplete()),
@@ -580,8 +639,11 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     // Turn count is only player-adjustable in Sandbox -- Progression levels
     // (Tutorial, standard) have their turn count as part of the level's
     // design, same reasoning as symbol sources/starting set staying
-    // dev-settings-only there.
-    if (!isProgression) {
+    // dev-settings-only there. Daily Challenge is locked to the canonical
+    // board for everyone (DAILY_CHALLENGE_DESIGN.md #4) -- any deviation
+    // would fail server validation, so this is hidden there too, not just
+    // disabled.
+    if (progression.mode === 'sandbox') {
       const activeSettings = progression.levelData[progression.activeLevel];
       const turnsRow = Util.createDiv('', 'game-settings-row');
       turnsRow.appendChild(document.createTextNode('turns: '));

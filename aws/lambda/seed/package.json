@@ -1,0 +1,7 @@
+{
+  "name": "emoji-daily-seed",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Daily Challenge seed Lambda -- GET /daily/seed"
+}

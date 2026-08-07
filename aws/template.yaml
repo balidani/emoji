@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Emoji daily challenge backend
+
+# Path B (SAM) deploy -- see DAILY_CHALLENGE_AWS_SETUP.md #12. Same names as
+# Path A (the AWS CLI runbook, §0), except the HTTP API's physical name is
+# stack-derived rather than exactly "emoji-daily-api" -- use Path A, or swap
+# DailyApi below for an explicit AWS::ApiGatewayV2::Api, if that exact name
+# matters.
+#
+# Before `sam build`: run `bash lambda/validate/copy-src.sh` to copy the
+# repo's src/ and index.html into lambda/validate/ (sam build then does its
+# own per-function `npm install`).
+
+Parameters:
+  AllowedOrigin:
+    Type: String
+    Description: The exact Amplify site origin, e.g. https://<branch>.<appid>.amplifyapp.com
+  AppVersion:
+    Type: String
+    Default: '1.0.4'
+    Description: Must equal src/progression.js's CURRENT_VERSION at deploy time.
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Handler: index.handler
+    MemorySize: 128
+    Timeout: 5
+
+Resources:
+  SeedsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: emoji-daily-seeds
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: date
+          AttributeType: S
+      KeySchema:
+        - AttributeName: date
+          KeyType: HASH
+
+  ScoresTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: emoji-daily-scores
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+  DailyApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref AllowedOrigin
+        AllowMethods:
+          - GET
+          - POST
+        AllowHeaders:
+          - content-type
+      Tags:
+        Name: emoji-daily-api
+
+  SeedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: emoji-daily-seed
+      CodeUri: lambda/seed/
+      Environment:
+        Variables:
+          SEEDS_TABLE: !Ref SeedsTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SeedsTable
+      Events:
+        Get:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref DailyApi
+            Method: GET
+            Path: /daily/seed
+
+  ValidateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: emoji-daily-validate
+      CodeUri: lambda/validate/
+      MemorySize: 1024
+      Timeout: 30
+      Environment:
+        Variables:
+          SEEDS_TABLE: !Ref SeedsTable
+          SCORES_TABLE: !Ref ScoresTable
+          APP_VERSION: !Ref AppVersion
+          SCORE_PAD_WIDTH: '30'
+          ALLOWED_ORIGIN: !Ref AllowedOrigin
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref SeedsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ScoresTable
+      Events:
+        Post:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref DailyApi
+            Method: POST
+            Path: /daily/submit
+
+  LeaderboardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: emoji-daily-leaderboard
+      CodeUri: lambda/leaderboard/
+      Environment:
+        Variables:
+          SCORES_TABLE: !Ref ScoresTable
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ScoresTable
+      Events:
+        Get:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref DailyApi
+            Method: GET
+            Path: /daily/leaderboard
+
+Outputs:
+  ApiUrl:
+    Description: Base URL for the client's DAILY_API_BASE (src/config.js)
+    Value: !Sub 'https://${DailyApi}.execute-api.${AWS::Region}.amazonaws.com'

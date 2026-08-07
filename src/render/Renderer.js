@@ -187,4 +187,22 @@ export class Renderer {
   }
   /** Optional transient toast when an achievement unlocks; default no-op. */
   notifyAchievement(_def) {}
+
+  // --- Daily Challenge (game-over screen) ---
+
+  /** Prompts for a player name to submit the just-finished Daily Challenge
+   * run under. Resolves with the trimmed name, or null if the player
+   * declines/cancels -- the caller (Game.over()) still shows a read-only
+   * leaderboard in that case. Purely a UI prompt: it does not submit
+   * anything itself. */
+  async promptDailyName() {
+    notImplemented('promptDailyName');
+  }
+  /** Renders the day's leaderboard rows into the game-over screen. `rows` is
+   * [{name, score, rank}] (already server-computed/ranked -- top 100).
+   * `you` is {name, score, rank} to highlight the just-submitted entry, or
+   * null for a read-only view (declined submission, or submission failed). */
+  async renderDailyLeaderboard(_rows, _you) {
+    notImplemented('renderDailyLeaderboard');
+  }
 }

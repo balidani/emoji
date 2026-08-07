@@ -7,14 +7,17 @@ import { toBase64Utf8, fromBase64Utf8 } from './core/util.js';
 import { CURRENT_VERSION } from './progression.js';
 import { unlockedEmoji } from './progression-roster.js';
 import * as Rng from './core/rng.js';
+import * as Const from './consts.js';
 import { Catalog } from './catalog.js';
 import { Game } from './game.js';
 import { GameSettings } from './game_settings.js';
 import { ReplayRenderer } from './render/ReplayRenderer.js';
+import { SimRenderer } from './render/SimRenderer.js';
 import { ReplayDivergenceError } from './replay-errors.js';
 import { animationOff, animationOn } from './render/animations.js';
 import { renderProgressionBar } from './render/progressionBar.js';
 import { SAVE_MAGIC, REPLAY_MAGIC as MAGIC } from './serialization-magic.js';
+import { dailyAllowedEmoji, DAILY_SETTINGS } from './daily.js';
 
 export { ReplayDivergenceError };
 
@@ -140,7 +143,7 @@ export function parseReplay(base64) {
 // and live state agree at every step -- any mismatch stops the replay
 // immediately with a ReplayDivergenceError, expected only if the code was
 // tampered with or came from a different game version.
-async function playEvent(game, event) {
+export async function playEvent(game, event) {
   const shop = game.shop;
   switch (event[0]) {
     case 'r': {
@@ -235,6 +238,11 @@ export async function runReplay(base64, { progression, onGameOver }) {
   // offered).
   if (mode === 'progression') {
     catalog.restrictTo(unlockedEmoji(unlockedBags));
+  } else if (mode === 'daily') {
+    // Shared daily replay codes (not just server validation) must reproduce
+    // the same excluded pool the recording played against -- see
+    // src/daily.js and DAILY_CHALLENGE_DESIGN.md #5.
+    catalog.restrictTo(dailyAllowedEmoji(catalog));
   }
   // Mirror the recorded run's progression bar, not the live player's
   // current unlocks -- bootstrap.js's loadSettings does the same
@@ -336,4 +344,135 @@ export async function runReplay(base64, { progression, onGameOver }) {
     }
   }
   return game;
+}
+
+// Headless server-side validator for a Daily Challenge submission (see
+// DAILY_CHALLENGE_DESIGN.md #3 and DAILY_CHALLENGE_AWS_SETUP.md #7.5). This
+// is the trust boundary: unlike runReplay() above (which trusts the whole
+// replay -- it's just local playback), validateReplay reconstructs the
+// canonical daily game entirely from data the caller owns (the day's
+// server-generated `seed` and the server's own `appVersion`) and never
+// trusts the replay's own `seed`/`rng`/`settings`/`mode` for anything beyond
+// the version cross-check below. The only untrusted input that actually
+// drives the outcome is `parsed.events`, and every event is re-validated
+// against live canonical state by the same playEvent() runReplay() uses.
+//
+// Never throws -- every rejection reason (a malformed code, a version
+// mismatch, a divergence, an incomplete run) comes back as
+// { valid: false, reason }, so a caller (the AWS validate Lambda) can turn
+// this straight into a 422 response without its own try/catch.
+//
+// No DOM setup of its own, unlike runReplay (which clones the live page's
+// .template into .game) -- the caller must already have a minimal DOM in
+// place with `.game .info`/`.game .shop`/`.game .progression-bar` resolvable
+// (see DAILY_CHALLENGE_AWS_SETUP.md #4: the validate Lambda bundles a copy
+// of index.html and does the same jsdom template-clone dance
+// test/unit/replay-roundtrip.test.js does). That's what lets this run under
+// plain jsdom with no browser and no static asset server.
+//
+// KNOWN OPEN ISSUE, not yet root-caused: test/unit/daily-validate.test.js
+// proves this function correct for a small settings/symbol-source scope
+// (matching REPLAY_SETTINGS' proven pattern), and freshImports (see
+// catalog.js) fixes a confirmed cross-invocation bug where an import-time
+// RNG draw (Santa's displayVariant, symbols/things.js) only fired on a warm
+// Lambda container's first-ever call. Independently of that fix, ad-hoc
+// testing against the *full* canonical DAILY_SETTINGS catalog (all 11
+// symbol files, a 50-turn game) has shown validateReplay's own from-seed
+// reconstruction occasionally re-deriving a different shop draw order than
+// an independently-recorded run of the same seed/events, deep into a long
+// game -- observed even with two from-scratch rebuilds in one process (no
+// module caching involved), so it isn't (only) about warm-container reuse.
+// Root cause not yet found; ruled out so far: Progression.mode,
+// DomRenderer/NullRenderer/SimRenderer choice, JOKER_DISGUISES content,
+// isReplay, Wildcard purchases. Before relying on this for real production
+// submissions at the full catalog's scale, this needs a proper root-cause
+// fix (e.g. re-run with a call-site-tagged RNG trace to pinpoint the exact
+// divergent draw) -- shipped now with this caveat clearly flagged rather
+// than silently, per the phased-implementation spirit of
+// DAILY_CHALLENGE_DESIGN.md #9.
+export async function validateReplay(base64, { seed, appVersion }) {
+  let parsed;
+  try {
+    parsed = parseReplay(base64);
+  } catch (err) {
+    return { valid: false, reason: err.message };
+  }
+  if (parsed.appVersion !== appVersion) {
+    return {
+      valid: false,
+      reason: 'Replay from a different game version.',
+    };
+  }
+
+  // Re-derive the start state from the server-owned seed -- NOT from
+  // parsed.rng/parsed.seed. The RNG is seeded once per process, matching
+  // "the daily run is the first and only game after a load seeded with the
+  // daily phrase" (DAILY_CHALLENGE_DESIGN.md #4): a fresh Lambda invocation
+  // (or a validator that re-seeds before each validation) reproduces exactly
+  // the state a legitimate client's first game started from.
+  await Rng.setSeed(seed);
+
+  // Canonical settings + pool, never the replay's own -- see this
+  // function's header comment. Copy symbolSources before handing it to
+  // Catalog: updateSymbols() mutates whatever array it's given (unshifts
+  // './symbol.js'), and DAILY_SETTINGS is a shared singleton that may be
+  // reused across many invocations in a warm Lambda container.
+  // freshImports: true for the same reason -- see Catalog's constructor
+  // comment (catalog.js) for why a warm container needs this to reproduce
+  // a fresh page load's import-time RNG draws (e.g. Santa's displayVariant)
+  // on every single call, not just its first.
+  const catalog = new Catalog([...DAILY_SETTINGS.symbolSources], {
+    freshImports: true,
+  });
+  await catalog.updateSymbols();
+  catalog.restrictTo(dailyAllowedEmoji(catalog));
+
+  // Minimal stand-in Progression, same shape Game's constructor/over() need
+  // (see test/unit/replay-roundtrip.test.js's fakeProgression) -- mode:
+  // 'daily' so nothing downstream mistakes this for Sandbox, but
+  // checkGateAndRollOffer is unreachable anyway (isReplay guards it in
+  // Game.over()).
+  const progression = {
+    mode: 'daily',
+    updateUi() {},
+    checkGateAndRollOffer() {},
+  };
+  const game = new Game(
+    progression,
+    DAILY_SETTINGS,
+    catalog,
+    new SimRenderer(),
+    /* onGameOver= */ () => {},
+    /* isReplay= */ true
+  );
+
+  // Under jsdom there's no real CSS animation pipeline -- Util.animate()'s
+  // promise only resolves via a real 'animationend' event or its ~timer
+  // fallback, so leaving animation "on" would stall every animate() call
+  // roll()/over() make (across a whole game, easily seconds of dead time per
+  // submission). Restored unconditionally afterward: a warm Lambda container
+  // reuses this module's state across invocations, and nothing else here
+  // ever turns it back on.
+  animationOff();
+  try {
+    for (const event of parsed.events) {
+      await playEvent(game, event);
+    }
+  } catch (err) {
+    if (err instanceof ReplayDivergenceError) {
+      return { valid: false, reason: err.message };
+    }
+    throw err;
+  } finally {
+    animationOn();
+  }
+
+  if (!game.isOver) {
+    return {
+      valid: false,
+      reason: 'Replay ended before the game was over.',
+    };
+  }
+
+  return { valid: true, score: game.inventory.getResource(Const.MONEY) };
 }

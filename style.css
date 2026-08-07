@@ -527,6 +527,51 @@ body {
   font-size: 1.3em;
 }
 
+.daily-submit-panel,
+.daily-leaderboard-panel {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6pt;
+  margin-top: 8pt;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8pt;
+  padding: 8pt 12pt;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px;
+  font-size: 12pt;
+}
+
+.daily-submit-row {
+  display: flex;
+  gap: 6pt;
+  align-items: center;
+}
+
+.daily-submit-input {
+  font-size: 12pt;
+  padding: 2pt 6pt;
+}
+
+.daily-leaderboard-list {
+  max-height: 220pt;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.daily-leaderboard-entry {
+  display: flex;
+  gap: 8pt;
+  justify-content: space-between;
+  padding: 2pt 4pt;
+}
+
+.daily-leaderboard-entry.you {
+  font-weight: 700;
+  background: rgba(255, 215, 0, 0.35);
+  border-radius: 4pt;
+}
+
 .score {
   padding: 4pt;
   font-size: 56pt;

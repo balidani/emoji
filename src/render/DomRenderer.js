@@ -6,6 +6,7 @@ import { ShopView } from './ShopView.js';
 import { AchievementsView } from './AchievementsView.js';
 import { SaveStateView } from './SaveStateView.js';
 import { ReplayView } from './ReplayView.js';
+import { DailyView } from './DailyView.js';
 import { drawText, createButton } from './animations.js';
 
 // The real renderer -- backs the interactive game in a browser. Every
@@ -22,6 +23,7 @@ export class DomRenderer extends Renderer {
     this.achievementsView = new AchievementsView();
     this.saveStateView = new SaveStateView();
     this.replayView = new ReplayView();
+    this.dailyView = new DailyView();
   }
 
   async logResourceChange(key, value, source, direction) {
@@ -166,5 +168,12 @@ export class DomRenderer extends Renderer {
   }
   notifyAchievement(def) {
     return this.achievementsView.notifyAchievement(def);
+  }
+
+  async promptDailyName() {
+    return this.dailyView.promptDailyName();
+  }
+  async renderDailyLeaderboard(rows, you) {
+    return this.dailyView.renderDailyLeaderboard(rows, you);
   }
 }

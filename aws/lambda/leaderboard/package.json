@@ -1,0 +1,7 @@
+{
+  "name": "emoji-daily-leaderboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Daily Challenge leaderboard Lambda -- GET /daily/leaderboard"
+}

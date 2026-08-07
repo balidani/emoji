@@ -1,0 +1,10 @@
+{
+  "name": "emoji-daily-validate",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Daily Challenge validate Lambda -- POST /daily/submit. Bundles a copy of the repo's src/ + index.html (see build.sh) and jsdom.",
+  "dependencies": {
+    "jsdom": "^30.0.1"
+  }
+}

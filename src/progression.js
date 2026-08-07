@@ -143,12 +143,15 @@ export class Progression {
   // count, discarding any Sandbox turn customization for the session --
   // switching back into Sandbox restores it. Keeps the two modes' turn
   // counts independent despite sharing the same GameSettings instances.
+  // Daily Challenge touches neither -- it plays from its own fixed
+  // GameSettings instance (src/daily.js's DAILY_SETTINGS), never
+  // this.levelData.
   setMode(mode) {
     if (mode === 'progression') {
       for (const settings of this.levelData) {
         settings.gameLength = settings.defaultGameLength;
       }
-    } else if (this.sandboxGameLength !== null) {
+    } else if (mode === 'sandbox' && this.sandboxGameLength !== null) {
       this.levelData[this.activeLevel].gameLength = this.sandboxGameLength;
     }
     this.mode = mode;

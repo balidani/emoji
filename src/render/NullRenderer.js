@@ -86,4 +86,14 @@ export class NullRenderer extends Renderer {
   async renderSaveState(_props) {}
   async renderReplay(_props) {}
   notifyAchievement(_def) {}
+
+  // Headless play (tests, the balancing simulator, and the server-side
+  // replay validator -- see replay.js's validateReplay) never has a human to
+  // prompt, and never submits: Game.over()'s daily-flow guard (isReplay)
+  // already keeps validateReplay from calling either of these, but they're
+  // no-ops regardless, same as every other renderer-port method here.
+  async promptDailyName() {
+    return null;
+  }
+  async renderDailyLeaderboard(_rows, _you) {}
 }

@@ -9,6 +9,8 @@ import { DomRenderer } from './render/DomRenderer.js';
 import { Stats, ProfileStats } from './stats.js';
 import { Achievements } from './achievements.js';
 import { loadProfile, saveProfile } from './achievements-store.js';
+import { submitDailyRun, fetchDailyLeaderboard } from './daily-api.js';
+import { todayUTC } from './daily.js';
 
 export class Game {
   // onGameOver: called (as a body click listener) once the final-score
@@ -163,8 +165,49 @@ export class Game {
       await Util.animate(achievementPopup, 'achievementPopIn', 0.5);
     }
 
+    // Daily Challenge: prompt for a name, submit the replay for server-side
+    // scoring, and show the leaderboard -- guarded by isReplay so replaying
+    // a shared daily replay code never re-submits (see replay.js's
+    // runReplay, which always constructs its Game with isReplay = true).
+    if (!this.isReplay && this.progression?.mode === 'daily') {
+      await this.runDailyChallengeFlow();
+    }
+
     // TODO: Remove onGameOver and reset the board without having to recreate `Game`.
     document.querySelector('body').addEventListener('click', this.onGameOver);
+  }
+  // Orchestrates the game-over Daily Challenge UI: prompts for a name (via
+  // the renderer port -- no DOM here), submits the replay for the server to
+  // re-derive and score (never trusting a client-computed score -- see
+  // DAILY_CHALLENGE_DESIGN.md #3), and renders whatever leaderboard rows it
+  // ends up with. Declining to submit (or a submission failing) still shows
+  // a read-only leaderboard rather than nothing.
+  async runDailyChallengeFlow() {
+    const name = await this.view.promptDailyName();
+    let top = null;
+    let you = null;
+    if (name) {
+      try {
+        const result = await submitDailyRun(
+          todayUTC(),
+          name,
+          this.recorder.serialize()
+        );
+        top = result.top;
+        you = { name, score: result.score, rank: result.rank };
+      } catch (err) {
+        console.error('Daily Challenge submission failed:', err);
+      }
+    }
+    if (top === null) {
+      try {
+        top = (await fetchDailyLeaderboard(todayUTC())).top;
+      } catch (err) {
+        console.error('Daily Challenge leaderboard unavailable:', err);
+        top = [];
+      }
+    }
+    await this.view.renderDailyLeaderboard(top, you);
   }
   async roll() {
     if (this.isOver) {
