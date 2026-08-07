@@ -5,6 +5,7 @@ import { CATEGORY_UNBUYABLE } from './src/symbol.js';
 import { CATEGORY_TOOL } from './src/symbols/tools.js';
 import { GameSettings } from './src/game_settings.js';
 import { AutoGame } from './src/sim/harness.js';
+import { STARTING_POOL, BAGS } from './src/progression-roster.js';
 
 // Disable animations for simulation
 Util.animationOff();
@@ -26,7 +27,7 @@ await Util.setRandomSeed();
 
 // --- Local storage persistence ---
 const STORAGE_KEY = 'emoji-sim-strategy';
-const STORAGE_VERSION = 2;
+const STORAGE_VERSION = 3;
 
 function saveStrategy() {
   const data = {
@@ -34,6 +35,8 @@ function saveStrategy() {
     strategy,
     rounds: roundsInput.value,
     refreshTurns: refreshTurnsInput.value,
+    progressionMode,
+    enabledBags,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
@@ -135,11 +138,32 @@ const SLOTS = [
   ['axe', 'always'],
   ['axe', 'repeat'],
 ];
-const VALID_SETS = {
-  shopping: shoppingEmojiSet,
-  eye: targetEmojiSet,
-  axe: targetEmojiSet,
-};
+
+// --- Progression mode: when on, restricts the buyable pool (and this
+// picker's tiles) to the starting pool plus whichever upgrade bags are
+// ticked on, mirroring the real game's Catalog.restrictTo(). Off by
+// default, matching Sandbox's unrestricted catalog. ---
+let progressionMode = false;
+let enabledBags = BAGS.map(() => true);
+
+// null = unrestricted (Sandbox-equivalent).
+function computeAllowedEmoji() {
+  if (!progressionMode) return null;
+  const allowed = new Set(STARTING_POOL);
+  BAGS.forEach((bag, i) => {
+    if (enabledBags[i]) {
+      for (const emoji of bag) allowed.add(emoji);
+    }
+  });
+  return allowed;
+}
+
+function validSetFor(category) {
+  const emojiSet = category === 'shopping' ? shoppingEmojiSet : targetEmojiSet;
+  const allowed = computeAllowedEmoji();
+  if (allowed === null) return emojiSet;
+  return new Set([...emojiSet].filter((e) => allowed.has(e)));
+}
 
 // --- State ---
 const strategy = emptyStrategy();
@@ -162,11 +186,26 @@ const pickerTitle = document.getElementById('sim-picker-title');
 const pickerTiles = document.getElementById('sim-picker-tiles');
 const pickerClose = document.getElementById('sim-picker-close');
 
-// Restore saved strategy. Every emoji is filtered through the current
-// picker's valid set, so a stale emoji from an old save (no longer
-// buyable/targetable) is dropped instead of silently mis-buying/targeting.
+const progressionModeCheckbox = document.getElementById('sim-progression-mode');
+const progressionBagsContainer = document.getElementById(
+  'sim-progression-bags'
+);
+
+// Restore saved strategy. Progression mode/bags are restored first since
+// the strategy filter below depends on them. Every emoji is then filtered
+// through the current picker's valid set, so a stale emoji from an old
+// save (no longer buyable/targetable/unlocked) is dropped instead of
+// silently mis-buying/targeting.
 const saved = loadStrategy();
 if (saved) {
+  if (saved.v === STORAGE_VERSION) {
+    progressionMode = !!saved.progressionMode;
+    enabledBags =
+      Array.isArray(saved.enabledBags) &&
+      saved.enabledBags.length === BAGS.length
+        ? saved.enabledBags.map((v) => !!v)
+        : BAGS.map(() => true);
+  }
   const rawStrategy =
     saved.v === STORAGE_VERSION && saved.strategy
       ? saved.strategy
@@ -174,7 +213,7 @@ if (saved) {
   for (const category of ['shopping', 'eye', 'axe']) {
     strategy[category] = filterSlot(
       rawStrategy[category],
-      VALID_SETS[category]
+      validSetFor(category)
     );
   }
   if (saved.rounds) roundsInput.value = saved.rounds;
@@ -307,7 +346,10 @@ let pickerCategory = null;
 let pickerMode = null;
 
 function tilesForCategory(category) {
-  return category === 'shopping' ? shoppingTiles : targetTiles;
+  const base = category === 'shopping' ? shoppingTiles : targetTiles;
+  const allowed = computeAllowedEmoji();
+  if (allowed === null) return base;
+  return base.filter(({ emoji }) => allowed.has(emoji));
 }
 
 function openPicker(category, mode) {
@@ -343,6 +385,51 @@ document.querySelectorAll('.sim-add-btn').forEach((btn) => {
     openPicker(btn.dataset.category, btn.dataset.mode);
   });
 });
+
+// --- Progression mode toggle + per-bag checkboxes ---
+function renderProgressionBags() {
+  progressionBagsContainer.innerHTML = '';
+  BAGS.forEach((bag, i) => {
+    const label = document.createElement('label');
+    label.className = 'sim-bag-toggle';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = enabledBags[i];
+    checkbox.addEventListener('change', () => {
+      enabledBags[i] = checkbox.checked;
+      onProgressionSettingsChanged();
+    });
+    label.appendChild(checkbox);
+    const glyphs = document.createElement('span');
+    glyphs.textContent = bag.join('');
+    label.appendChild(glyphs);
+    progressionBagsContainer.appendChild(label);
+  });
+}
+
+function updateProgressionVisibility() {
+  progressionBagsContainer.classList.toggle('hidden', !progressionMode);
+}
+
+// Re-filters the strategy against the newly (un)locked emoji, so a chip
+// for an emoji outside the current allowed set doesn't silently sit in the
+// list while never actually being bought/targeted during simulation.
+function onProgressionSettingsChanged() {
+  for (const category of ['shopping', 'eye', 'axe']) {
+    strategy[category] = filterSlot(strategy[category], validSetFor(category));
+  }
+  renderStrategy();
+}
+
+progressionModeCheckbox.addEventListener('change', () => {
+  progressionMode = progressionModeCheckbox.checked;
+  updateProgressionVisibility();
+  onProgressionSettingsChanged();
+});
+
+progressionModeCheckbox.checked = progressionMode;
+renderProgressionBags();
+updateProgressionVisibility();
 
 renderStrategy();
 
@@ -437,6 +524,12 @@ async function runSimulation() {
     await Util.setRandomSeed();
     const cat = new Catalog([...settings.symbolSources]);
     await cat.updateSymbols();
+    // Progression mode's only mechanical difference from Sandbox: narrow
+    // the buyable pool to the ticked-on bags, same as the real game (see
+    // bootstrap.js's loadSettings()).
+    if (progressionMode) {
+      cat.restrictTo(computeAllowedEmoji());
+    }
 
     const game = new AutoGame(
       settings,

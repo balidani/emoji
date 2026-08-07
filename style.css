@@ -1709,6 +1709,46 @@ button:disabled {
   opacity: 0.75;
 }
 
+.sim-progression {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10pt;
+  font-size: 10pt;
+}
+
+.sim-progression-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5pt;
+  cursor: pointer;
+}
+
+.sim-progression-bags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6pt;
+}
+
+.sim-progression-bags.hidden {
+  display: none;
+}
+
+.sim-bag-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4pt;
+  padding: 3pt 8pt;
+  border-radius: 6pt;
+  background: rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  font-size: 13pt;
+}
+
+.sim-bag-toggle input {
+  cursor: pointer;
+}
+
 .sim-stats {
   display: flex;
   flex-wrap: wrap;
