@@ -391,19 +391,24 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     });
   });
 
-  // Game settings panel: current mode + mode switch + reset progression.
-  // Switching does not wipe unlock progress, just restarts the current game
-  // under the new mode's catalog -- reuses the same `reload` callback
-  // (loadSettings) Progression was constructed with, matching how
-  // level-select (jumpTo) reloads. Current mode and the switch always show;
-  // reset progression is Progression-only, since Sandbox (and before a
-  // first-run mode pick) has no progression state to reset.
+  // Game settings panel: game mode picker (progression/sandbox/simulator) +
+  // reset progression. Switching mode does not wipe unlock progress, just
+  // restarts the current game under the new mode's catalog -- reuses the
+  // same `reload` callback (loadSettings) Progression was constructed with,
+  // matching how level-select (jumpTo) reloads. The game mode picker always
+  // shows; reset progression is Progression-only, since Sandbox (and before
+  // a first-run mode pick) has no progression state to reset.
   const gameSettingsBtn = document.getElementById('view-game-settings');
   const gameSettingsPanelDiv = document.querySelector(
     '.sidebar-content .game-settings-panel'
   );
-  const otherMode = () =>
-    progression.mode === 'progression' ? 'sandbox' : 'progression';
+  const modeLabel = (mode) =>
+    mode === 'progression' ? '▶️ progression' : '🧪 sandbox';
+  // Collapsed state for the game-mode picker below, kept outside
+  // renderGameSettingsPanel() since that function rebuilds the panel (and
+  // would otherwise reset to collapsed) on every mode switch / turns edit /
+  // reset.
+  let gameModeExpanded = false;
   const renderGameSettingsPanel = () => {
     gameSettingsPanelDiv.replaceChildren();
     const isProgression = progression.mode === 'progression';
@@ -415,42 +420,74 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     seedRow.appendChild(seedLink);
     gameSettingsPanelDiv.appendChild(seedRow);
 
-    gameSettingsPanelDiv.appendChild(
-      Util.createDiv(
-        `current mode: ${isProgression ? '▶️ progression' : '🧪 sandbox'}`,
-        'game-settings-row'
-      )
-    );
+    // Game mode: tucked behind a "game mode" link instead of a bare
+    // current-mode readout + one-tap "switch to" link, so the simulator can
+    // sit alongside progression/sandbox as a third pickable option once
+    // unlocked, rather than living in its own separate row.
+    const gameModeRow = Util.createDiv('', 'game-settings-row');
+    const gameModeToggle = document.createElement('a');
+    gameModeToggle.href = '#';
+    gameModeToggle.textContent = `🎮 game mode: ${modeLabel(progression.mode)}`;
+    gameModeRow.appendChild(gameModeToggle);
+    gameSettingsPanelDiv.appendChild(gameModeRow);
 
-    const switchRow = Util.createDiv('', 'game-settings-row');
-    const switchLink = document.createElement('a');
-    switchLink.href = '#';
-    switchLink.textContent = `switch to ${
-      otherMode() === 'progression' ? '▶️ progression' : '🧪 sandbox'
-    }`;
-    switchLink.addEventListener('click', async (e) => {
-      e.preventDefault();
-      progression.setMode(otherMode());
-      await progression.reload(progression.levelData[progression.activeLevel]);
-      initGridScaling();
-      refreshSymbolListIfVisible();
-      renderGameSettingsPanel();
-    });
-    switchRow.appendChild(switchLink);
-    gameSettingsPanelDiv.appendChild(switchRow);
+    const gameModeOptionsDiv = Util.createDiv(
+      '',
+      'game-settings-row',
+      'game-mode-options'
+    );
+    if (!gameModeExpanded) {
+      gameModeOptionsDiv.classList.add('hidden');
+    }
+
+    const addModeOption = (mode, label) => {
+      const optionRow = Util.createDiv('', 'game-mode-option');
+      const optionLink = document.createElement('a');
+      optionLink.href = '#';
+      const isCurrent = mode === progression.mode;
+      optionLink.textContent = isCurrent ? `${label} (current)` : label;
+      if (isCurrent) {
+        optionLink.classList.add('game-mode-option-current');
+      }
+      optionLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (mode === progression.mode) {
+          return;
+        }
+        progression.setMode(mode);
+        await progression.reload(
+          progression.levelData[progression.activeLevel]
+        );
+        initGridScaling();
+        refreshSymbolListIfVisible();
+        renderGameSettingsPanel();
+      });
+      optionRow.appendChild(optionLink);
+      gameModeOptionsDiv.appendChild(optionRow);
+    };
+    addModeOption('progression', modeLabel('progression'));
+    addModeOption('sandbox', modeLabel('sandbox'));
 
     // Simulator is endgame-only content: hidden entirely until Progression
     // has been completed (every bag unlocked, see Progression.isComplete()),
     // rather than shown greyed-out -- matches "before that it should not be
     // shown in the menu".
     if (progression.isComplete()) {
-      const simulatorRow = Util.createDiv('', 'game-settings-row');
+      const simulatorOptionRow = Util.createDiv('', 'game-mode-option');
       const simulatorLink = document.createElement('a');
       simulatorLink.href = '/simulator/index.html';
       simulatorLink.textContent = '🧮 simulator';
-      simulatorRow.appendChild(simulatorLink);
-      gameSettingsPanelDiv.appendChild(simulatorRow);
+      simulatorOptionRow.appendChild(simulatorLink);
+      gameModeOptionsDiv.appendChild(simulatorOptionRow);
     }
+
+    gameModeToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      gameModeExpanded = !gameModeExpanded;
+      gameModeOptionsDiv.classList.toggle('hidden', !gameModeExpanded);
+    });
+
+    gameSettingsPanelDiv.appendChild(gameModeOptionsDiv);
 
     // Turn count is only player-adjustable in Sandbox -- Progression levels
     // (Tutorial, standard) have their turn count as part of the level's

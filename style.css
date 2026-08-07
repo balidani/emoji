@@ -707,6 +707,18 @@ body {
   color: #c00;
 }
 
+.game-mode-options {
+  display: flex;
+  flex-direction: column;
+  padding-left: 1em;
+  gap: 0.4em;
+}
+
+.game-mode-option-current {
+  font-weight: bold;
+  pointer-events: none;
+}
+
 .game-settings-turns-input {
   width: 4em;
   box-sizing: border-box;
