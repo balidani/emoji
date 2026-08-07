@@ -1,0 +1,23 @@
+{
+  "name": "Emoji Slots",
+  "short_name": "Emoji Slots",
+  "description": "free roguelike deckbuilder slot machine game using emoji for graphics",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/thumb.png",
+      "sizes": "720x400",
+      "type": "image/png"
+    }
+  ]
+}

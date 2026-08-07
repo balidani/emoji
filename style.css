@@ -539,6 +539,16 @@ body {
   top: 0;
   right: 0;
   margin: 4pt;
+  display: flex;
+  align-items: center;
+  gap: 4pt;
+}
+
+/* Cosmetic-only (OFFLINE_DESIGN.md Phase 3) -- reflects navigator.onLine,
+   never gates anything. */
+.connectivity-indicator {
+  font-size: 14pt;
+  line-height: 1;
 }
 
 #sidebar-menu {
@@ -1821,4 +1831,66 @@ button:disabled {
 
 .sim-inv-cell {
   letter-spacing: 1pt;
+}
+
+/* Boot error panel (OFFLINE_DESIGN.md Phase 1) -- shown in place of the game
+   when the catalog can't load, e.g. offline with nothing cached yet. */
+.boot-error-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12pt;
+  max-width: 320pt;
+  margin: 15vh auto 0;
+  padding: 16pt;
+  text-align: center;
+}
+
+.boot-error-message {
+  font-size: 12pt;
+}
+
+.boot-error-panel button {
+  width: auto;
+  height: auto;
+  font-size: 12pt;
+  padding: 8pt 14pt;
+  border-radius: 8pt;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Update-available banner (OFFLINE_DESIGN.md Phase 3) -- non-blocking, sits
+   underneath the still-playable game rather than covering it. */
+.update-notice {
+  position: fixed;
+  left: 50%;
+  bottom: 12pt;
+  transform: translateX(-50%);
+  z-index: 15000;
+  display: flex;
+  align-items: center;
+  gap: 10pt;
+  background: #222;
+  color: #fff;
+  border-radius: 10pt;
+  padding: 8pt 10pt 8pt 14pt;
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 2px 4px,
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px;
+  font-size: 10.5pt;
+}
+
+.update-notice button {
+  width: auto;
+  height: auto;
+  font-size: 10.5pt;
+  padding: 4pt 10pt;
+  border-radius: 6pt;
+  background: rgba(255, 255, 255, 0.15);
+  color: inherit;
+}
+
+.update-notice-dismiss {
+  padding: 4pt 8pt !important;
+  background: transparent !important;
 }

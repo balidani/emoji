@@ -73,14 +73,29 @@ export async function bootstrap() {
   // loadSettings/loadListener close over PROGRESSION, which is fine since
   // neither is invoked until after PROGRESSION is constructed below.
   const loadSettings = async (settings = GameSettings.instance()) => {
-    const template = document.querySelector('.template');
     const gameDiv = document.querySelector('.game');
+    const catalog = new Catalog(settings.symbolSources);
+    await catalog.updateSymbols();
+    // Offline (or otherwise interrupted) module loads leave
+    // Catalog.loadSymbolSource() returning empty maps for whatever failed to
+    // import (see catalog.js) rather than throwing -- so a broken load can
+    // produce an empty or partial catalog with no error surfaced yet. Check
+    // before constructing Game: an unresolved starting-set symbol throws
+    // deep inside Board/Inventory construction, and an empty catalog spins
+    // generateShop's loop the moment the shop first opens (guarded in
+    // catalog.js, but better to never get there). Catch it here instead and
+    // show a retryable message rather than a doomed game.
+    if (!catalogIsUsable(catalog, settings.startingSet)) {
+      gameDiv.replaceChildren();
+      renderBootErrorPanel(gameDiv);
+      currentGame = null;
+      return null;
+    }
+    const template = document.querySelector('.template');
     gameDiv.replaceChildren();
     const templateClone = template.cloneNode(true);
     templateClone.classList.remove('hidden');
     gameDiv.appendChild(templateClone.children[0]);
-    const catalog = new Catalog(settings.symbolSources);
-    await catalog.updateSymbols();
     // Progression mode's only mechanical difference from Sandbox: narrow the
     // buyable pool to what's unlocked so far. Non-destructive by contract --
     // sets catalog.shopAllowed, which generateShop() consults, rather than
@@ -223,9 +238,53 @@ export async function bootstrap() {
     loadListener,
     seedPhrase
   );
-  initGridScaling();
+  // No board/shop DOM exists to scale when loadSettings bailed out into the
+  // boot-error panel instead of building a game.
+  if (game) {
+    initGridScaling();
+  }
 
   return game;
+}
+
+// Checked right after catalog.updateSymbols(), before constructing Game --
+// an offline (or otherwise interrupted) module load can leave
+// Catalog.loadSymbolSource() silently returning an empty map for whatever
+// failed to import (see catalog.js), so the catalog can come back empty or
+// missing exactly the symbols the starting set needs. Symbols outside the
+// starting set that failed to load aren't checked here; generateShop()'s own
+// guard (catalog.js) covers those once the player reaches the shop.
+function catalogIsUsable(catalog, startingSet) {
+  if (catalog.symbols.size === 0) {
+    return false;
+  }
+  for (const emoji of Util.parseEmojiString(startingSet)) {
+    try {
+      catalog.symbol(emoji);
+    } catch {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Rendered into the `.game` mount in place of a doomed game -- either
+// loadSettings() catching an unusable catalog before ever constructing Game,
+// or main.js catching an unhandled boot rejection it couldn't have
+// anticipated (see main.js). Exported so both call sites share one
+// message/markup.
+export function renderBootErrorPanel(mount) {
+  const panel = Util.createDiv('', 'boot-error-panel');
+  panel.appendChild(
+    Util.createDiv(
+      "Couldn't load game assets — check your connection and reload.",
+      'boot-error-message'
+    )
+  );
+  panel.appendChild(
+    Util.createButton('🔄 reload', () => window.location.reload())
+  );
+  mount.replaceChildren(panel);
 }
 
 // Resolves with the picked mode ('progression'|'sandbox') once the player

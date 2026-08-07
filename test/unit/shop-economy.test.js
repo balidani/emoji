@@ -6,6 +6,7 @@ import { setSeed } from '../../src/core/rng.js';
 import * as Const from '../../src/consts.js';
 import { CATEGORY_UNBUYABLE } from '../../src/symbol.js';
 import { CATEGORY_TOOL } from '../../src/symbols/tools.js';
+import { CatalogUnusableError } from '../../src/catalog-errors.js';
 import { buildRealGame } from './helpers/realGame.js';
 
 describe('Shop economy (Tier 2)', () => {
@@ -126,5 +127,22 @@ describe('Shop economy (Tier 2)', () => {
       expect(item.categories()).not.toContain(CATEGORY_TOOL);
       expect(item.categories()).not.toContain(CATEGORY_UNBUYABLE);
     }
+  });
+
+  // OFFLINE_DESIGN.md Phase 1 -- an empty catalog (e.g. from a failed
+  // offline module load) used to spin generateShop's while loop forever,
+  // which would hang this very test instead of failing it. It must throw
+  // instead.
+  it('generateShop throws CatalogUnusableError instead of looping forever on an empty catalog', async () => {
+    const { catalog } = await buildRealGame();
+    catalog.symbols = new Map();
+    catalog.categories = new Map();
+    expect(() => catalog.generateShop(3, 1)).toThrow(CatalogUnusableError);
+  });
+
+  it('generateShop throws CatalogUnusableError when restrictTo() leaves nothing offerable', async () => {
+    const { catalog } = await buildRealGame();
+    catalog.restrictTo(new Set()); // nothing unlocked
+    expect(() => catalog.generateShop(3, 1)).toThrow(CatalogUnusableError);
   });
 });

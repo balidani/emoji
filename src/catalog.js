@@ -1,5 +1,6 @@
 import { CATEGORY_UNBUYABLE, Symb } from './symbol.js';
 import * as Util from './util.js';
+import { CatalogUnusableError } from './catalog-errors.js';
 
 export class Catalog {
   constructor(symbolSources) {
@@ -104,6 +105,24 @@ export class Catalog {
         }
       }
       return bag;
+    }
+    // isOffered() has no randomness, so if nothing in the catalog passes it,
+    // no pass of the while loop below -- however many -- can ever add
+    // anything either, and it would spin forever (e.g. an empty catalog from
+    // a failed offline module load, or an over-narrow shopAllowed). A full
+    // catalog always has offerable symbols, so this never fires on any
+    // golden-trace path (Sandbox, unrestricted) and consumes no RNG draws.
+    let anyOfferable = false;
+    for (const [_, item] of this.symbols) {
+      if (isOffered(item)) {
+        anyOfferable = true;
+        break;
+      }
+    }
+    if (!anyOfferable) {
+      throw new CatalogUnusableError(
+        'generateShop: no symbols available to offer (empty or fully-restricted catalog)'
+      );
     }
     while (bag.length <= minCount) {
       for (const [_, item] of this.symbols) {

@@ -1,9 +1,29 @@
 import * as Util from './util.js';
-import { bootstrap } from './app/bootstrap.js';
+import { bootstrap, renderBootErrorPanel } from './app/bootstrap.js';
 import { installSimulationHarness } from './sim/harness.js';
+import {
+  registerServiceWorker,
+  initConnectivityIndicator,
+} from './app/offline.js';
 
-await bootstrap();
+// bootstrap() already guards the one failure it can anticipate (an unusable
+// catalog -- see catalogIsUsable in bootstrap.js) with the same panel this
+// catches. This is the backstop for everything else that could go wrong
+// during boot, so an unhandled rejection here becomes a visible, retryable
+// message instead of a blank, frozen tab (see OFFLINE_DESIGN.md Phase 1).
+try {
+  await bootstrap();
+} catch (error) {
+  console.error('Boot failed:', error);
+  renderBootErrorPanel(document.querySelector('.game'));
+}
 installSimulationHarness();
+
+// After the game is already up, not before: registration is what actually
+// warms the offline cache (see sw.js), and must never sit on the boot path
+// (OFFLINE_DESIGN.md Phase 2).
+registerServiceWorker();
+initConnectivityIndicator();
 
 // Kept in scope for the commented-out debug calls below to reference as a
 // bare identifier.

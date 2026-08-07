@@ -9,6 +9,8 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎰</text></svg>"
     />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="canonical" href="https://unicode.fun" />
     <meta
       name="description"
@@ -97,6 +99,11 @@
       </div>
     </div>
     <div class="top-right">
+      <span
+        id="connectivity-indicator"
+        class="connectivity-indicator"
+        title="Online"
+      ></span>
       <a id="hamburger" href="#">
         <?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
         <svg
@@ -191,6 +198,38 @@
       </div>
     </div>
     <div class="open-settings dev-hidden">Settings</div>
-    <script type="module" src="src/main.js"></script>
+    <script type="module" src="src/main.js" id="main-module"></script>
+    <script>
+      // Backstop for the one boot failure src/main.js's own try/catch
+      // (OFFLINE_DESIGN.md Phase 1) can't observe: if any *static* import
+      // anywhere in its dependency graph fails to fetch -- e.g. a symbol
+      // file evicted from the HTTP cache while offline -- the module never
+      // starts executing at all, so nothing inside it ever gets a chance to
+      // render an error. This listens for that one case (this script tag's
+      // own load failure) and paints a minimal, dependency-free copy of the
+      // same panel main.js renders for every other boot failure (see
+      // renderBootErrorPanel in src/app/bootstrap.js) -- duplicated here
+      // because the module that defines it is exactly what failed to load.
+      // Safe to attach after the module tag: module scripts execute
+      // deferred, so this always runs first.
+      document.getElementById('main-module').addEventListener('error', () => {
+        const mount = document.querySelector('.game');
+        if (!mount || mount.hasChildNodes()) {
+          return; // main.js already rendered something of its own.
+        }
+        const panel = document.createElement('div');
+        panel.className = 'boot-error-panel';
+        const message = document.createElement('div');
+        message.className = 'boot-error-message';
+        message.textContent =
+          "Couldn't load game assets — check your connection and reload.";
+        panel.appendChild(message);
+        const button = document.createElement('button');
+        button.textContent = '🔄 reload';
+        button.addEventListener('click', () => window.location.reload());
+        panel.appendChild(button);
+        mount.replaceChildren(panel);
+      });
+    </script>
   </body>
 </html>
