@@ -427,7 +427,7 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     const gameModeRow = Util.createDiv('', 'game-settings-row');
     const gameModeToggle = document.createElement('a');
     gameModeToggle.href = '#';
-    gameModeToggle.textContent = `🎮 game mode: ${modeLabel(progression.mode)}`;
+    gameModeToggle.textContent = '🎮 game mode';
     gameModeRow.appendChild(gameModeToggle);
     gameSettingsPanelDiv.appendChild(gameModeRow);
 
