@@ -1,10 +1,7 @@
 import * as Util from './util.js';
 import { bootstrap, renderBootErrorPanel } from './app/bootstrap.js';
 import { installSimulationHarness } from './sim/harness.js';
-import {
-  registerServiceWorker,
-  initConnectivityIndicator,
-} from './app/offline.js';
+import { registerServiceWorker } from './app/offline.js';
 
 // bootstrap() already guards the one failure it can anticipate (an unusable
 // catalog -- see catalogIsUsable in bootstrap.js) with the same panel this
@@ -23,7 +20,6 @@ installSimulationHarness();
 // warms the offline cache (see sw.js), and must never sit on the boot path
 // (OFFLINE_DESIGN.md Phase 2).
 registerServiceWorker();
-initConnectivityIndicator();
 
 // Kept in scope for the commented-out debug calls below to reference as a
 // bare identifier.

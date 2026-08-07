@@ -539,16 +539,6 @@ body {
   top: 0;
   right: 0;
   margin: 4pt;
-  display: flex;
-  align-items: center;
-  gap: 4pt;
-}
-
-/* Cosmetic-only (OFFLINE_DESIGN.md Phase 3) -- reflects navigator.onLine,
-   never gates anything. */
-.connectivity-indicator {
-  font-size: 14pt;
-  line-height: 1;
 }
 
 #sidebar-menu {

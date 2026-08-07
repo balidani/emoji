@@ -1,8 +1,7 @@
 // Phase 2 (offline caching) + Phase 3 (reconnect UX) of OFFLINE_DESIGN.md.
 // Browser-only and additive: every export here is safe to call even where
 // its target DOM/API is missing (older browsers, the simulator page), and
-// none of it ever touches gameplay state -- see initConnectivityIndicator's
-// note below in particular.
+// none of it ever touches gameplay state.
 
 // Set only by the update-notice's own "Reload" click (see showUpdateNotice)
 // -- the one legitimate reason to reload for the player. sw.js's activate
@@ -111,23 +110,4 @@ function showUpdateNotice(waitingWorker) {
   dismissButton.addEventListener('click', () => banner.remove());
   banner.appendChild(dismissButton);
   document.body.appendChild(banner);
-}
-
-// Cosmetic-only connectivity glyph. Gameplay must never branch on
-// connectivity -- "always work" (OFFLINE_DESIGN.md) means offline play is
-// first-class, not a degraded mode -- so this only ever paints a status
-// icon, nothing else observes it. A no-op wherever #connectivity-indicator
-// doesn't exist (e.g. the simulator page).
-export function initConnectivityIndicator() {
-  const indicator = document.getElementById('connectivity-indicator');
-  if (!indicator) {
-    return;
-  }
-  const render = () => {
-    indicator.textContent = navigator.onLine ? '📶' : '📴';
-    indicator.title = navigator.onLine ? 'Online' : 'Offline';
-  };
-  window.addEventListener('online', render);
-  window.addEventListener('offline', render);
-  render();
 }
