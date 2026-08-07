@@ -703,10 +703,6 @@ body {
   margin-bottom: 0.5em;
 }
 
-.game-settings-reset-link {
-  color: #c00;
-}
-
 .game-mode-options {
   display: flex;
   flex-direction: column;

@@ -12,7 +12,7 @@ import { CATEGORY_UNBUYABLE } from '../symbol.js';
 import { KEYWORDS } from '../keywords.js';
 import { exportSave, importSave } from '../save_state.js';
 import { ReplayRecorder, runReplay } from '../replay.js';
-import { FULL_ROSTER, BAGS } from '../progression-roster.js';
+import { FULL_ROSTER, BAGS, nextGate } from '../progression-roster.js';
 import { renderProgressionBar } from '../render/progressionBar.js';
 import * as Const from '../consts.js';
 
@@ -533,8 +533,7 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
       const resetRow = Util.createDiv('', 'game-settings-row');
       const resetLink = document.createElement('a');
       resetLink.href = '#';
-      resetLink.textContent = 'reset progression';
-      resetLink.classList.add('game-settings-reset-link');
+      resetLink.textContent = '♻️ reset progression';
       resetRow.appendChild(resetLink);
       gameSettingsPanelDiv.appendChild(resetRow);
 
@@ -607,11 +606,12 @@ function renderSandboxSymbolList(symbolListDiv, game) {
 // index order).
 function renderProgressionSymbolList(symbolListDiv, game, progression) {
   const unlocked = progression.unlockedEmoji();
+  const gate = nextGate(progression.unlockedBags);
   for (const emoji of FULL_ROSTER) {
     if (unlocked.has(emoji)) {
       symbolListDiv.appendChild(buildSymbolEntry(game.catalog.symbol(emoji)));
     } else {
-      symbolListDiv.appendChild(buildLockedSymbolEntry());
+      symbolListDiv.appendChild(buildLockedSymbolEntry(gate));
     }
   }
 }
@@ -633,13 +633,15 @@ function buildSymbolEntry(symbol) {
   return symbolDiv;
 }
 
-function buildLockedSymbolEntry() {
+// gate: the medal/trophy class (see symbols/ui.js) required to unlock the
+// next bag, from progression-roster.js's nextGate() -- null only once every
+// bag is unlocked, in which case there are no locked entries left to render.
+function buildLockedSymbolEntry(gate) {
   const symbolDiv = Util.createDiv('', 'symbol-info-entry', 'locked');
   symbolDiv.appendChild(Util.createSpan(Const.UNKNOWN, 'symbol-info-icon'));
   const body = Util.createDiv('', 'symbol-info-body');
-  body.appendChild(
-    Util.createSpan('Locked -- win more to unlock', 'symbol-info-desc')
-  );
+  const lockedText = gate ? `Locked. Earn ${gate.emoji} to unlock` : 'Locked';
+  body.appendChild(Util.createSpan(lockedText, 'symbol-info-desc'));
   symbolDiv.appendChild(body);
   return symbolDiv;
 }
