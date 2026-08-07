@@ -1511,9 +1511,14 @@ button:disabled {
   align-content: flex-start;
   gap: 4pt;
   min-height: 28pt;
-  padding: 2pt;
+  padding: 6pt 8pt;
   margin-bottom: 4pt;
-  border-radius: 6pt;
+  border-radius: 8pt;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 2px 4px,
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px,
+    rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
 }
 
 .sim-empty {

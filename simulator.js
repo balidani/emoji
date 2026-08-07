@@ -463,9 +463,23 @@ async function runSimulation() {
       invStr += c > 1 ? `${e}${c} ` : `${e} `;
     }
 
+    // Build passives string. Passives (symbols the Eye tool converted, see
+    // board.js makePassive) live in board.passiveCells, not
+    // inventory.symbols -- they're removed from the deck when converted, so
+    // they need their own tally separate from the Inventory column above.
+    const passiveMap = new Map();
+    for (const sym of game.board.passiveCells) {
+      const e = sym.emoji();
+      passiveMap.set(e, (passiveMap.get(e) || 0) + 1);
+    }
+    let passiveStr = '';
+    for (const [e, c] of passiveMap) {
+      passiveStr += c > 1 ? `${e}${c} ` : `${e} `;
+    }
+
     // Add result row
     const row = document.createElement('tr');
-    row.innerHTML = `<td>${i + 1}</td><td>${Const.MONEY} ${Util.formatBigNumber(score)}</td><td>${trophy}</td><td class="sim-inv-cell">${invStr}</td>`;
+    row.innerHTML = `<td>${i + 1}</td><td>${Const.MONEY} ${Util.formatBigNumber(score)}</td><td>${trophy}</td><td class="sim-inv-cell">${invStr}</td><td class="sim-inv-cell">${passiveStr}</td>`;
     resultsBody.appendChild(row);
 
     updateStats(scores);
