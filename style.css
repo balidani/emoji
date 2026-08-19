@@ -1,7 +1,19 @@
+:root {
+  --page-bg: #ffffff;
+  --page-text: #1a1a1a;
+}
+
+html[data-theme='dark'] {
+  --page-bg: #1c1c1e;
+  --page-text: #f5f5f7;
+}
+
 body {
   font-family: monospace;
   user-select: none;
   margin: 0;
+  background: var(--page-bg);
+  color: var(--page-text);
 }
 
 html,
@@ -1883,4 +1895,115 @@ button:disabled {
 .update-notice-dismiss {
   padding: 4pt 8pt !important;
   background: transparent !important;
+}
+
+html[data-theme='dark'] .info,
+html[data-theme='dark'] .shop,
+html[data-theme='dark'] .mode-select-option,
+html[data-theme='dark'] .bag-draft-card,
+html[data-theme='dark'] .sim-strategy,
+html[data-theme='dark'] .sim-controls,
+html[data-theme='dark'] .sim-stats,
+html[data-theme='dark'] .sim-results,
+html[data-theme='dark'] .sim-picker-panel,
+html[data-theme='dark'] .sim-picker-tiles {
+  background: #2c2c2e;
+}
+
+html[data-theme='dark'] .mode-select-option:hover,
+html[data-theme='dark'] .bag-draft-card:hover {
+  background: #3a3a3c;
+}
+
+html[data-theme='dark'] #sidebar-menu,
+html[data-theme='dark'] .settings-box,
+html[data-theme='dark'] .level {
+  background: #2c2c2e;
+}
+
+html[data-theme='dark'] .top-right {
+  background: transparent;
+}
+
+html[data-theme='dark'] #hamburger svg path {
+  stroke: #f5f5f7;
+}
+
+html[data-theme='dark'] .event-log-line,
+html[data-theme='dark'] .money-earned-line,
+html[data-theme='dark'] .achievementPopupEntry,
+html[data-theme='dark'] .sim-chip,
+html[data-theme='dark'] .progression-bar-track,
+html[data-theme='dark'] .sim-btn {
+  background: #3a3a3c;
+}
+
+html[data-theme='dark'] .mode-select-overlay {
+  background: rgba(28, 28, 30, 0.94);
+}
+
+html[data-theme='dark'] .sim-chip-btn,
+html[data-theme='dark'] .sim-bag-toggle,
+html[data-theme='dark'] .sim-trophy-stat,
+html[data-theme='dark'] .sim-picker-close,
+html[data-theme='dark'] .boot-error-panel button {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme='dark'] .sim-chip-btn:hover,
+html[data-theme='dark'] .sim-picker-close:hover,
+html[data-theme='dark'] .sim-picker-tile:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+html[data-theme='dark'] .sim-picker-panel-header {
+  border-bottom-color: rgba(255, 255, 255, 0.14);
+}
+
+html[data-theme='dark'] .sim-table th {
+  background: #2c2c2e;
+}
+
+html[data-theme='dark'] .bag-draft-card.picked {
+  background: #4a411f;
+}
+
+html[data-theme='dark'] #sidebar-menu {
+  border-left-color: rgba(255, 255, 255, 0.14);
+}
+
+html[data-theme='dark'] .progression-bar-track {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+html[data-theme='dark'] .sim-category + .sim-category {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme='dark'] .sim-table th {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+html[data-theme='dark'] .sim-table td {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme='dark'] input,
+html[data-theme='dark'] textarea,
+html[data-theme='dark'] select {
+  background: #1c1c1e;
+  color: var(--page-text);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+html[data-theme='dark'] a {
+  color: #6cb6ff;
+}
+
+html[data-theme='dark'] a:visited {
+  color: #c9a2ff;
+}
+
+html[data-theme='dark'] a:active {
+  color: #ff8a8a;
 }

@@ -13,6 +13,10 @@ export class FreeTurn extends Symb {
   copy() {
     return new FreeTurn();
   }
+  cost(game) {
+    const bought = game?.stats?.run?.boughtByEmoji?.[FreeTurn.emoji] ?? 0;
+    return { '💵': 100 + bought * 100 };
+  }
   // NOTE: this used to be a dead `evaluate(game, x, y)` hook that Board never
   // calls (only evaluateConsume/evaluateProduce/finalScore/score exist) --
   // the ticket never actually fired. evaluateConsume matches the "disappears
@@ -35,7 +39,7 @@ export class FreeTurn extends Symb {
     await game.board.removeSymbol(game, x, y);
   }
   description() {
-    return '10% [Chance](chance) to gain one more ⏰, then disappears. Voids all achievements';
+    return '10% [Chance](chance) to gain +1 ⏰, then disappears. Increases 🎟️ cost by 💵100. Voids all achievements';
   }
 }
 

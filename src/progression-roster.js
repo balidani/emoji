@@ -1,6 +1,6 @@
-// Progression-mode roster: the 53-symbol playable catalog, divided into a
-// 17-symbol starting pool and six 6-symbol bags unlocked one at a time. Pure
-// data -- no DOM, no RNG.
+// Progression-mode roster: the 54-symbol playable catalog, divided into a
+// 17-symbol starting pool and six bags unlocked one at a time (bag 1 has 7
+// symbols, the rest have 6). Pure data -- no DOM, no RNG.
 import { BronzeMedal, SilverMedal, GoldMedal, Trophy } from './symbols/ui.js';
 import { formatBigNumber } from './core/util.js';
 
@@ -26,7 +26,7 @@ export const STARTING_POOL = [
 
 export const BAGS = [
   ['🐉', '🌋', '💼', '🥠', '🧵', '📌'], // bag 0
-  ['🦊', '👷', '🔮', '🃏', '🚀', '🏴‍☠️'], // bag 1
+  ['🦊', '👷', '🔮', '🃏', '🚀', '🏴‍☠️', '🤑'], // bag 1
   ['💳', '🎯', '🧑‍🎄', '☁️', '🎰', '🪓'], // bag 2
   ['🐛', '🍹', '🫙', '🪄', '🎁', '🧿'], // bag 3
   ['🍍', '🎲', '📀', '🧊', '🛍️', '🍾'], // bag 4
@@ -45,7 +45,7 @@ export const GATES = [
   Trophy,
 ];
 
-// The full 53-symbol roster in a stable, deterministic order: starting pool
+// The full 54-symbol roster in a stable, deterministic order: starting pool
 // first, then each bag in index order. Used to drive the sidebar's
 // full-roster listing (locked entries greyed out).
 export const FULL_ROSTER = [...STARTING_POOL, ...BAGS.flat()];
@@ -76,7 +76,7 @@ export function remainingBags(unlockedBags) {
   return BAGS.map((_, i) => i).filter((i) => !unlocked.has(i));
 }
 
-// True once every bag has been unlocked (the full 53-symbol roster is
+// True once every bag has been unlocked (the full 54-symbol roster is
 // buyable) -- Progression mode's completion condition, used to gate
 // endgame-only surfaces like the Simulator link (see app/bootstrap.js).
 export function isProgressionComplete(unlockedBags) {

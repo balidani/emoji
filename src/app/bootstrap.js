@@ -479,6 +479,35 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     seedRow.appendChild(seedLink);
     gameSettingsPanelDiv.appendChild(seedRow);
 
+    const themeRow = Util.createDiv('', 'game-settings-row');
+    const themeLink = document.createElement('a');
+    themeLink.href = '#';
+    const isDarkTheme = () =>
+      document.documentElement.getAttribute('data-theme') === 'dark';
+    const renderThemeLabel = () => {
+      themeLink.textContent = isDarkTheme()
+        ? '🌙 dark mode: on'
+        : '🌙 dark mode: off';
+    };
+    renderThemeLabel();
+    themeLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      const next = isDarkTheme() ? 'light' : 'dark';
+      if (next === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+      localStorage.setItem('emoji-theme', next);
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) {
+        meta.setAttribute('content', next === 'dark' ? '#1c1c1e' : '#ffffff');
+      }
+      renderThemeLabel();
+    });
+    themeRow.appendChild(themeLink);
+    gameSettingsPanelDiv.appendChild(themeRow);
+
     // Game mode: tucked behind a "game mode" link instead of a bare
     // current-mode readout + one-tap "switch to" link, so the simulator can
     // sit alongside progression/sandbox as a third pickable option once
@@ -534,7 +563,7 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     if (progression.isComplete()) {
       const simulatorOptionRow = Util.createDiv('', 'game-mode-option');
       const simulatorLink = document.createElement('a');
-      simulatorLink.href = '/simulator/index.html';
+      simulatorLink.href = 'simulator/index.html';
       simulatorLink.textContent = '🧮 simulator';
       simulatorOptionRow.appendChild(simulatorLink);
       gameModeOptionsDiv.appendChild(simulatorOptionRow);

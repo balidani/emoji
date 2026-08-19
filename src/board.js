@@ -314,14 +314,14 @@ export class Board {
     }
     this.redrawCell(game, x, y);
   }
-  async removeSymbol(game, x, y) {
+  async removeSymbol(game, x, y, { toGraveyard = true } = {}) {
     if (x === -1 || y === -1) {
       return;
     }
     if (this.lockedCells[`${x},${y}`] !== undefined) {
       delete this.lockedCells[`${x},${y}`];
     }
-    game.inventory.remove(this.cells[y][x]);
+    game.inventory.remove(this.cells[y][x], { toGraveyard });
     this.clearCell(x, y);
     await this.view.shakeAndRemove(
       x,
@@ -489,7 +489,7 @@ export class Board {
 
   async makePassive(game, x, y) {
     const passiveCopy = this.cells[y][x].copy();
-    await this.removeSymbol(game, x, y);
+    await this.removeSymbol(game, x, y, { toGraveyard: false });
     this.passiveCells.push(passiveCopy);
     game.inventory.addResource(passiveCopy.emoji(), 1);
   }

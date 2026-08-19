@@ -40,13 +40,15 @@ export class Inventory {
     }));
     this.renderer.renderInventory(entries);
   }
-  remove(symbol) {
+  remove(symbol, { toGraveyard = true } = {}) {
     const index = this.symbols.indexOf(symbol);
     if (index >= 0) {
       this.symbols.splice(index, 1);
     }
     this.update();
-    this.graveyard.push(symbol);
+    if (toGraveyard) {
+      this.graveyard.push(symbol);
+    }
   }
   add(symbol) {
     this.symbols.push(symbol);

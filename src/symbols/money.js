@@ -232,3 +232,41 @@ export class FlyingMoney extends Symb {
     return 'Each 🪙 you own [Pays](pays) 💵1 more';
   }
 }
+
+export class Gambler extends Symb {
+  static emoji = '🤑';
+  constructor() {
+    super();
+    this.rarity = 0;
+  }
+  copy() {
+    return new Gambler();
+  }
+  async evaluateConsume(game, x, y) {
+    const coords = game.board.nextToSymbol(x, y, '💳');
+    for (const coord of coords) {
+      const [deleteX, deleteY] = coord;
+      await game.eventlog.logResourceChange(
+        game.board.getEmoji(deleteX, deleteY),
+        '',
+        this.emoji(),
+        'lost'
+      );
+      await game.board.removeSymbol(game, deleteX, deleteY);
+    }
+  }
+  async evaluateProduce(game, x, y) {
+    game.inventory.addLuck(-2);
+    const coords = game.board.nextToSymbol(x, y, '🎲');
+    for (const coord of coords) {
+      const [neighborX, neighborY] = coord;
+      game.board.cells[neighborY][neighborX].multiplier *= 3;
+    }
+  }
+  categories() {
+    return [CATEGORY_GAMBLING];
+  }
+  description() {
+    return '-2% [Luck](luck). x3 [Multiplier](multiplier) to neighboring 🎲. [Consumes](consume) 💳';
+  }
+}

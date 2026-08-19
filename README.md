@@ -1,9 +1,31 @@
 # Emoji Slot Machine Game
 Slot machine game using emojis, https://unicode.fun/
 
+**Play this fork:** https://babakoban.github.io/emoji-slots/
+
 ## Discord
 https://discord.com/invite/wyCDHsuk
 
+
+# Changelog (fork of balidani/emoji)
+
+### New Items
+
+| Item | Description |
+|------|-------------|
+| Gambler 🤑 | -2% Luck. Triples neighboring 🎲 payouts. Removes adjacent 💳 |
+
+### Changes to Existing Items
+
+| Item | Change |
+|------|--------|
+| Ticket 🎟️ | Now costs 💵100, +💵100 per ticket bought this run (was a flat cost) |
+| Eye 🧿 | Passived symbols no longer count as removed, so Grave 🪦 won't spawn them back |
+
+### Other Changes
+- Added a dark mode toggle (⚙️ game settings)
+
+---
 
 # Development
 
