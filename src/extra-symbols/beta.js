@@ -39,7 +39,7 @@ export class FreeTurn extends Symb {
     await game.board.removeSymbol(game, x, y);
   }
   description() {
-    return '10% [Chance](chance) to gain +1 ⏰, then disappears. Increases 🎟️ cost by 💵100. Voids all achievements';
+    return '10% [Chance](chance) to +1 ⏰, then disappears. +💵100 🎟️ cost per purchase. Voids achievements';
   }
 }
 

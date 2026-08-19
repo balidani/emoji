@@ -253,10 +253,11 @@ export class Gambler extends Symb {
         'lost'
       );
       await game.board.removeSymbol(game, deleteX, deleteY);
+      await this.addMoney(game, -500, x, y);
     }
   }
   async evaluateProduce(game, x, y) {
-    game.inventory.addLuck(-2);
+    game.inventory.addLuck(-1);
     const coords = game.board.nextToSymbol(x, y, '🎲');
     for (const coord of coords) {
       const [neighborX, neighborY] = coord;
@@ -267,6 +268,6 @@ export class Gambler extends Symb {
     return [CATEGORY_GAMBLING];
   }
   description() {
-    return '-2% [Luck](luck). x3 [Multiplier](multiplier) to neighboring 🎲. [Consumes](consume) 💳';
+    return '-1% [Luck](luck). x3 [Multiplier](multiplier) to neighboring 🎲. [Consumes](consume) neighboring 💳 for 💵-500';
   }
 }

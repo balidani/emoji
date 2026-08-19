@@ -13,7 +13,7 @@ https://discord.com/invite/wyCDHsuk
 
 | Item | Description |
 |------|-------------|
-| Gambler 🤑 | -2% Luck. Triples neighboring 🎲 payouts. Removes adjacent 💳 |
+| Gambler 🤑 | -1% Luck. Triples neighboring 🎲 payouts. Consumes neighboring 💳 for 💵-500 |
 
 ### Changes to Existing Items
 

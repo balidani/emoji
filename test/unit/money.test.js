@@ -236,10 +236,10 @@ describe('money.js', () => {
   });
 
   describe('Gambler 🤑', () => {
-    it('lowers luck by 2%', async () => {
+    it('lowers luck by 1%', async () => {
       const { game, board, inventory } = buildGame({ grid: ['🤑 ⬜'] });
       await board.cells[0][0].evaluateProduce(game, 0, 0);
-      expect(inventory.tempLuckBonus).toBe(-2);
+      expect(inventory.tempLuckBonus).toBe(-1);
     });
 
     it('triples the multiplier on a neighboring 🎲', async () => {
@@ -254,14 +254,25 @@ describe('money.js', () => {
       expect(board.cells[0][1].multiplier).toBe(1);
     });
 
-    it('consumes adjacent 💳 credit cards', async () => {
+    it('consumes neighboring 💳 for 💵-500 each', async () => {
       const { game, board } = buildGame({
         grid: ['💳 🤑 💳'],
-        startingMoney: 0,
+        startingMoney: 1000,
       });
       await board.cells[0][1].evaluateConsume(game, 1, 0);
       expect(board.cells[0][0].emoji()).toBe('⬜');
       expect(board.cells[0][2].emoji()).toBe('⬜');
+      expectMoney(game, 1000 - 500 - 500);
+    });
+
+    it('does not consume neighboring 🎯', async () => {
+      const { game, board } = buildGame({
+        grid: ['🤑 🎯'],
+        startingMoney: 0,
+      });
+      await board.cells[0][0].evaluateConsume(game, 0, 0);
+      expect(board.cells[0][1].emoji()).toBe('🎯');
+      expectMoney(game, 0);
     });
   });
 });
