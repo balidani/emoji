@@ -7,6 +7,7 @@ import * as Const from '../../src/consts.js';
 import { CATEGORY_UNBUYABLE } from '../../src/symbol.js';
 import { CATEGORY_TOOL } from '../../src/symbols/tools.js';
 import { CatalogUnusableError } from '../../src/catalog-errors.js';
+import { FreeTurn } from '../../src/extra-symbols/beta.js';
 import { buildRealGame } from './helpers/realGame.js';
 
 describe('Shop economy (Tier 2)', () => {
@@ -51,6 +52,30 @@ describe('Shop economy (Tier 2)', () => {
     await shop.attemptPurchase(game, 0);
 
     expect(game.inventory.getResource(Const.MONEY)).toBe(1 + 100 - 77);
+  });
+
+  it("FreeTurn's 🎟️ ticket starts at 💵100 and is charged on purchase", async () => {
+    const { game, shop } = await buildRealGame();
+    await game.inventory.addResource(Const.MONEY, 1000);
+    const ticket = new FreeTurn();
+    expect(ticket.cost(game)).toEqual({ '💵': 100 });
+    const before = game.inventory.getResource(Const.MONEY);
+    shop.currentOffers = [{ symbol: ticket, cost: ticket.cost(game) }];
+    shop.isOpen = true;
+    shop.buyCount = 1;
+
+    await shop.attemptPurchase(game, 0);
+
+    expect(game.inventory.getResource(Const.MONEY)).toBe(before - 100);
+  });
+
+  it('each 🎟️ bought this run raises the next ticket price by 💵100', () => {
+    const ticket = new FreeTurn();
+    expect(ticket.cost()).toEqual({ '💵': 100 });
+    const game = { stats: { run: { boughtByEmoji: { '🎟️': 1 } } } };
+    expect(ticket.cost(game)).toEqual({ '💵': 200 });
+    game.stats.run.boughtByEmoji['🎟️'] = 3;
+    expect(ticket.cost(game)).toEqual({ '💵': 400 });
   });
 
   it('attemptPurchase disables the offer instead of buying when unaffordable', async () => {

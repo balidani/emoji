@@ -20,14 +20,12 @@ import { CATEGORY_UNBUYABLE } from '../../src/symbol.js';
 import { buildRealCatalog } from './helpers/realGame.js';
 
 describe('progression roster data', () => {
-  it('is 17 starting + 6 bags of 6 = 53 unique symbols', () => {
+  it('is 17 starting + 6 bags (one with 7) = 54 unique symbols', () => {
     expect(STARTING_POOL).toHaveLength(17);
     expect(BAGS).toHaveLength(6);
-    for (const bag of BAGS) {
-      expect(bag).toHaveLength(6);
-    }
-    expect(FULL_ROSTER).toHaveLength(53);
-    expect(new Set(FULL_ROSTER).size).toBe(53);
+    expect(BAGS.map((bag) => bag.length)).toEqual([6, 7, 6, 6, 6, 6]);
+    expect(FULL_ROSTER).toHaveLength(54);
+    expect(new Set(FULL_ROSTER).size).toBe(54);
   });
 
   it('matches the real buyable catalog exactly', async () => {

@@ -104,11 +104,13 @@ describe('tools.js', () => {
       inventory.symbols.push(board.cells[0][0]);
       const before = inventory.symbols.length;
 
+      const axed = board.cells[0][0];
       spy.pickCellForToolResult = [0, 0];
       await new Axe().onBuy(game);
 
       expect(board.cells[0][0].emoji()).toBe('⬜');
       expect(inventory.symbols.length).toBe(before - 1);
+      expect(inventory.graveyard).toContain(axed);
     });
 
     it('no-ops (never prompts) when inventory is empty', async () => {
@@ -138,7 +140,8 @@ describe('tools.js', () => {
         grid: ['🪨 ⬜'],
         inventorySymbols: [],
       });
-      inventory.symbols.push(board.cells[0][0]);
+      const rock = board.cells[0][0];
+      inventory.symbols.push(rock);
 
       spy.pickCellForToolResult = [0, 0];
       await new Eye().onBuy(game);
@@ -147,6 +150,21 @@ describe('tools.js', () => {
       expect(board.passiveCells.length).toBe(1);
       expect(board.passiveCells[0].emoji()).toBe('🪨');
       expect(inventory.getResource('🪨')).toBe(1);
+    });
+
+    it('does not add the passived symbol to the graveyard', async () => {
+      const { game, board, spy, inventory } = buildGame({
+        grid: ['🪨 ⬜'],
+        inventorySymbols: [],
+      });
+      const rock = board.cells[0][0];
+      inventory.symbols.push(rock);
+
+      spy.pickCellForToolResult = [0, 0];
+      await new Eye().onBuy(game);
+
+      expect(inventory.graveyard).not.toContain(rock);
+      expect(inventory.graveyard.length).toBe(0);
     });
 
     it('no-ops (never prompts) when inventory is empty', async () => {

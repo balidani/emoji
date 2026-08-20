@@ -54,7 +54,7 @@ export class Shop {
       }
       const symbol = Util.randomRemove(catalog, /* shop= */ true);
       // Support for dynamically generated cost -- report the same value that is subtracted later.
-      const cost = symbol.cost();
+      const cost = symbol.cost(game);
       const id = this.currentOffers.length;
       this.currentOffers.push({ symbol, cost });
       offers.push({

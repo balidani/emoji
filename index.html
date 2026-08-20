@@ -11,6 +11,17 @@
     />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('emoji-theme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            var meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', '#1c1c1e');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="canonical" href="https://unicode.fun" />
     <meta
       name="description"

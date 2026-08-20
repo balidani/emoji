@@ -107,7 +107,7 @@ describe('Progression gate evaluation + draft', () => {
       p.commitBagChoice(p.pendingBagOffer[0]);
     }
     expect(new Set(p.unlockedBags)).toEqual(new Set([0, 1, 2, 3, 4, 5]));
-    expect(p.unlockedEmoji().size).toBe(53);
+    expect(p.unlockedEmoji().size).toBe(54);
   });
 
   it('isComplete is false until every bag is unlocked', () => {

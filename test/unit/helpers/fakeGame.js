@@ -175,12 +175,14 @@ export function buildGame({
     add(symbol) {
       this.symbols.push(symbol);
     },
-    remove(symbol) {
+    remove(symbol, { toGraveyard = true } = {}) {
       const index = this.symbols.indexOf(symbol);
       if (index >= 0) {
         this.symbols.splice(index, 1);
       }
-      this.graveyard.push(symbol);
+      if (toGraveyard) {
+        this.graveyard.push(symbol);
+      }
     },
     getRandomOwnedEmoji() {
       if (this.symbols.length === 0) {
