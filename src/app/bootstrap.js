@@ -563,7 +563,7 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     if (progression.isComplete()) {
       const simulatorOptionRow = Util.createDiv('', 'game-mode-option');
       const simulatorLink = document.createElement('a');
-      simulatorLink.href = 'simulator/index.html';
+      simulatorLink.href = '/simulator/index.html';
       simulatorLink.textContent = '🧮 simulator';
       simulatorOptionRow.appendChild(simulatorLink);
       gameModeOptionsDiv.appendChild(simulatorOptionRow);

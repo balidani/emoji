@@ -21,7 +21,7 @@ export function registerServiceWorker() {
   }
   const register = async () => {
     try {
-      const registration = await navigator.serviceWorker.register('sw.js');
+      const registration = await navigator.serviceWorker.register('/sw.js');
       watchForUpdate(registration);
     } catch (error) {
       // A cold first visit while offline (nothing cached yet) can fail
