@@ -5,7 +5,7 @@
 // in at boot too, so a single online session already requests the entire
 // runtime module graph -- cache-on-fetch below warms all of it in one go.
 // Bump CACHE_VERSION to invalidate everything cached under a previous one.
-const CACHE_VERSION = 2;
+const CACHE_VERSION = 3;
 const CACHE_NAME = `emoji-v${CACHE_VERSION}`;
 
 self.addEventListener('activate', (event) => {
