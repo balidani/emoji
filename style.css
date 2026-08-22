@@ -1976,6 +1976,18 @@ html[data-theme='dark'] .progression-bar-track {
   border-color: rgba(255, 255, 255, 0.14);
 }
 
+/* The light pastel fill stays legible against the dark track, but the
+   light-on-light text color from light mode disappears against the dark
+   track's background outside the fill -- darken the fill and lighten the
+   text so it reads against both. */
+html[data-theme='dark'] .progression-bar-fill {
+  background: linear-gradient(180deg, #2f6b3a, #234f2b);
+}
+
+html[data-theme='dark'] .progression-bar-text {
+  color: #eafcec;
+}
+
 html[data-theme='dark'] .sim-category + .sim-category {
   border-top-color: rgba(255, 255, 255, 0.12);
 }
