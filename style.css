@@ -715,6 +715,13 @@ body {
   margin-bottom: 0.5em;
 }
 
+/* #sidebar-menu a bumps links to 1.2em for the main nav list; override it
+   back to the row's own size so a row's link (e.g. the seed permalink)
+   matches the plain text next to it instead of appearing larger. */
+#sidebar-menu .game-settings-row a {
+  font-size: inherit;
+}
+
 .game-mode-options {
   display: flex;
   flex-direction: column;
