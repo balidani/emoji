@@ -548,6 +548,23 @@ body {
   align-items: center;
 }
 
+.daily-submit-row button {
+  /* Overrides the global `button` reset (style.css "Misc" section), which
+     forces every button to a 32pt icon square -- these are text buttons
+     ("submit"/"skip"), and at 32pt square their labels ran into each
+     other with no visible gap between the two. */
+  width: auto;
+  height: auto;
+  font-size: 12pt;
+  padding: 4pt 10pt;
+  border-radius: 6pt;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.daily-submit-row button + button {
+  margin-left: 6pt;
+}
+
 .daily-submit-input {
   font-size: 12pt;
   padding: 2pt 6pt;
