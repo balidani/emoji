@@ -2,7 +2,10 @@ import * as Const from '../consts.js';
 
 import { Symb } from '../symbol.js';
 
-export const CATEGORY_TOOL = Symbol('Tool');
+// Plain string, not Symbol() -- see symbol.js's CATEGORY_EMPTY_SPACE
+// comment for why: this is imported cross-file (things.js), and
+// freshImports loads each symbol source as a separate module instance.
+export const CATEGORY_TOOL = 'category:Tool';
 
 const onToolBuy = async (game, prompt, effect) => {
   if (game.inventory.symbols.length === 0) {

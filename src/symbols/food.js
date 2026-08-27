@@ -5,9 +5,12 @@ import { Empty } from './ui.js';
 
 // Symbols in this file are related to food, beverages, or ingredients
 
-export const CATEGORY_FOOD = Symbol('Food');
-export const CATEGORY_FRUIT = Symbol('Fruit');
-export const CATEGORY_VEGETABLES = Symbol('Vegetables');
+// Plain strings, not Symbol() -- see symbol.js's CATEGORY_EMPTY_SPACE
+// comment for why: these are imported cross-file (animals.js, advanced.js),
+// and freshImports loads each symbol source as a separate module instance.
+export const CATEGORY_FOOD = 'category:Food';
+export const CATEGORY_FRUIT = 'category:Fruit';
+export const CATEGORY_VEGETABLES = 'category:Vegetables';
 
 export class Butter extends Symb {
   static emoji = '🧈';

@@ -4,8 +4,20 @@ import * as Util from './util.js';
 /* Since we aren't using typescript, relax the patterns somewhat for autocomplete */
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_.*$", "varsIgnorePattern": "^_.*$" }] */
 
-export const CATEGORY_EMPTY_SPACE = Symbol('Empty Space');
-export const CATEGORY_UNBUYABLE = Symbol('Unbuyable');
+// Plain strings, not Symbol() -- a category defined in one symbol source
+// file and imported by another (e.g. animals.js importing CATEGORY_FOOD
+// from food.js) must compare equal even when the two files were loaded as
+// separate module instances. That happens for every Daily Challenge server
+// validation: Catalog's freshImports (see catalog.js) cache-busts each
+// symbol source independently to force Santa's import-time RNG draw
+// (symbols/things.js) to refire on a warm Lambda container, and a nested
+// static import inside a busted file resolves to yet another instance, not
+// necessarily the one Catalog itself loaded. A Symbol() would silently
+// stop matching across that boundary -- .includes() would just always
+// return false, with no error -- so every CATEGORY_* in this codebase must
+// stay a string.
+export const CATEGORY_EMPTY_SPACE = 'category:Empty Space';
+export const CATEGORY_UNBUYABLE = 'category:Unbuyable';
 
 export const chance = (game, percent, x, y) => {
   let luckyChance = 0;

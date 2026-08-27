@@ -4,8 +4,10 @@ import { badChance, Symb } from '../symbol.js';
 
 // Most symbols in here are related to Coin (🪙), with some gambling related stuff thrown in for good measure.
 
-export const CATEGORY_GAMBLING = Symbol('Gambling');
-export const CATEGORY_BUSINESS = Symbol('Business');
+// Plain strings, not Symbol() -- see symbol.js's CATEGORY_EMPTY_SPACE
+// comment for why.
+export const CATEGORY_GAMBLING = 'category:Gambling';
+export const CATEGORY_BUSINESS = 'category:Business';
 
 export class Coin extends Symb {
   static emoji = '🪙';

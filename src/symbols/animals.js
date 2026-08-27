@@ -5,7 +5,9 @@ import { CATEGORY_FOOD } from './food.js';
 
 // This file is for animal-related symbols.
 
-export const CATEGORY_ANIMAL = Symbol('Animal');
+// Plain string, not Symbol() -- see symbol.js's CATEGORY_EMPTY_SPACE
+// comment for why.
+export const CATEGORY_ANIMAL = 'category:Animal';
 
 export class Chick extends Symb {
   static emoji = '🐣';

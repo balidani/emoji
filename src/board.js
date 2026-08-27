@@ -220,8 +220,16 @@ export class Board {
         }
         this.cells[y][x] = this.empty.copy();
         await Util.delay(16);
-        Util.animate(this.getSymbolDiv(x, y), 'fadeOutHalf', 0.3).then(() => {
-          this.getSymbolDiv(x, y).style.opacity = '0.5';
+        const div = this.getSymbolDiv(x, y);
+        // animate() resolves cleanly even with no element (see
+        // render/animations.js) -- a renderer with no real per-cell DOM
+        // (SimRenderer/NullRenderer, used by the Daily Challenge server
+        // validator and the simulator) has no div here at all, so this
+        // must stay a no-op rather than dereferencing it.
+        Util.animate(div, 'fadeOutHalf', 0.3).then(() => {
+          if (div) {
+            div.style.opacity = '0.5';
+          }
         });
       }
     }
