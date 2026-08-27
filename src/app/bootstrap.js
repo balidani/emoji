@@ -277,9 +277,16 @@ export async function bootstrap() {
   // for a human -- this is what keeps the golden-trace harness (which never
   // touches the overlay) from hanging. The overlay is purely a full-screen
   // visual in front of that first game until a real player picks one;
-  // picking Progression reloads to actually narrow the catalog. Skipped
-  // entirely once ProgressionMode is persisted from a previous run.
-  if (PROGRESSION.mode === null) {
+  // picking Progression reloads to actually narrow the catalog.
+  //
+  // Also shown (once) to a returning player who already has a mode
+  // persisted from before Daily Challenge existed -- hasSeenDailyChallenge
+  // is false for them too, so they get the same introduction a brand-new
+  // player does, then switch modes via the sidebar's "game mode" menu from
+  // then on same as everyone else. Marked seen immediately (not gated on
+  // the player actually picking something below), so it never shows twice.
+  if (PROGRESSION.mode === null || !PROGRESSION.hasSeenDailyChallenge) {
+    PROGRESSION.markDailyChallengeSeen();
     showModeSelectOverlay(PROGRESSION).then(async (mode) => {
       if (mode === 'progression') {
         await PROGRESSION.reload(

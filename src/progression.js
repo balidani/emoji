@@ -37,6 +37,13 @@ const PENDING_BAG_OFFER = 'PendingBagOffer';
 // panel), independent of a level's own gameLength/defaultGameLength -- null
 // until the player customizes it, meaning "use the level's default".
 const SANDBOX_GAME_LENGTH = 'SandboxGameLength';
+// Unset (absent from localStorage) until the player has been shown the
+// mode-select overlay at least once. bootstrap.js shows that overlay again
+// on load whenever this is false -- even for a returning player who
+// already has a mode picked from before Daily Challenge existed -- so
+// everyone gets one look at it, then switches modes via the sidebar's
+// "game mode" menu from then on.
+const HAS_SEEN_DAILY_CHALLENGE = 'HasSeenDailyChallenge';
 
 // Achievements/profile stats survive both a version-bump wipe and the manual
 // "wipe progress" button.
@@ -78,6 +85,7 @@ export class Progression {
     this.unlockedBags = [];
     this.pendingBagOffer = [];
     this.sandboxGameLength = null;
+    this.hasSeenDailyChallenge = false;
   }
   load() {
     if (!window.localStorage.getItem(CURRENT_VERSION_KEY)) {
@@ -115,6 +123,8 @@ export class Progression {
     if (sandboxGameLength !== null) {
       this.sandboxGameLength = JSON.parse(sandboxGameLength);
     }
+    this.hasSeenDailyChallenge =
+      window.localStorage.getItem(HAS_SEEN_DAILY_CHALLENGE) === 'true';
   }
   save() {
     window.localStorage.setItem(
@@ -141,6 +151,11 @@ export class Progression {
       SANDBOX_GAME_LENGTH,
       JSON.stringify(this.sandboxGameLength)
     );
+    // Only ever written once true -- stays genuinely absent (not just
+    // 'false') until then, matching "unset by default".
+    if (this.hasSeenDailyChallenge) {
+      window.localStorage.setItem(HAS_SEEN_DAILY_CHALLENGE, 'true');
+    }
   }
   // Switching into Progression always lands on each level's designed turn
   // count, discarding any Sandbox turn customization for the session --
@@ -166,6 +181,14 @@ export class Progression {
   setSandboxTurns(gameLength) {
     this.levelData[this.activeLevel].gameLength = gameLength;
     this.sandboxGameLength = gameLength;
+    this.save();
+  }
+  // Called once, the moment app/bootstrap.js decides to show the
+  // mode-select overlay -- whether that's a true first run or a returning
+  // player who's never seen Daily Challenge -- so it never shows again
+  // after this session.
+  markDailyChallengeSeen() {
+    this.hasSeenDailyChallenge = true;
     this.save();
   }
   // Manual "reset progression" (game settings menu + the dev-only level
