@@ -110,7 +110,24 @@ export async function bootstrap() {
   // neither is invoked until after PROGRESSION is constructed below.
   const loadSettings = async (settings = GameSettings.instance()) => {
     const gameDiv = document.querySelector('.game');
-    const catalog = new Catalog(settings.symbolSources);
+    // Daily Challenge can be replayed any number of times in one session --
+    // mode stays 'daily' across a game-over instead of falling back to
+    // Sandbox (see loadListener) -- so every daily round, not just the
+    // first, must start from the exact same canonical state the validate
+    // Lambda reconstructs: reseed from the day's phrase right before
+    // building the catalog (matching bootstrap()'s own top-of-function
+    // seeding), and force freshImports so Santa's import-time draw
+    // (symbols/things.js) actually refires on a second round in the same
+    // tab -- without it, the module stays cached from the first round and
+    // silently skips that draw, desyncing this round's RNG stream from
+    // what the server (which always reimports fresh) expects from turn one.
+    const isDaily = PROGRESSION.mode === 'daily';
+    if (isDaily) {
+      await Rng.setSeed(seedPhrase);
+    }
+    const catalog = new Catalog(settings.symbolSources, {
+      freshImports: isDaily,
+    });
     await catalog.updateSymbols();
     // Offline (or otherwise interrupted) module loads leave
     // Catalog.loadSymbolSource() returning empty maps for whatever failed to
@@ -206,6 +223,7 @@ export async function bootstrap() {
         // defensive.
         sidebarApi?.refreshSymbolListIfVisible();
         sidebarApi?.refreshGameSettingsPanelIfVisible();
+        sidebarApi?.refreshGameModePanelIfVisible();
       });
     }
 
@@ -221,16 +239,15 @@ export async function bootstrap() {
     const scoreDiv = document.querySelector('.game .scoreContainer .score');
     await Util.animate(scoreDiv, 'scoreOut', 0.65);
     document.querySelector('.game').removeChild(scoreContainer);
-    // A Daily Challenge run is the first and only game of a session seeded
-    // from the daily phrase (DAILY_CHALLENGE_DESIGN.md #4) -- a second round
-    // from here on would start from a different RNG position than
-    // setSeed(S_D), so it could never validate as another daily submission.
-    // Fall back to Sandbox instead of silently reloading into an
-    // already-invalid "daily" round.
-    if (PROGRESSION.mode === 'daily') {
-      PROGRESSION.setMode('sandbox');
-    }
-    loadSettings(PROGRESSION.levelData[PROGRESSION.activeLevel]);
+    // Daily Challenge stays in daily mode across a game-over -- there's no
+    // account system to gate a second attempt on anyway, so loadSettings
+    // reseeds from the day's phrase (see above) and reloads another
+    // canonical daily round rather than falling back to Sandbox.
+    loadSettings(
+      PROGRESSION.mode === 'daily'
+        ? DAILY_SETTINGS
+        : PROGRESSION.levelData[PROGRESSION.activeLevel]
+    );
 
     // On reload, re-apply scaling (and re-observe the fresh
     // .grid-scaler-content node loadSettings just created).
@@ -274,6 +291,7 @@ export async function bootstrap() {
       }
       sidebarApi?.refreshSymbolListIfVisible();
       sidebarApi?.refreshGameSettingsPanelIfVisible();
+      sidebarApi?.refreshGameModePanelIfVisible();
     });
   }
 
@@ -453,6 +471,84 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     sidebar.classList.remove('active');
   });
 
+  const modeLabels = {
+    progression: '▶️ progression',
+    sandbox: '🧪 sandbox',
+    daily: '📅 daily challenge',
+  };
+  const gameModeBtn = document.getElementById('view-game-mode');
+  const gameModePanelDiv = document.querySelector(
+    '.sidebar-content .game-mode-panel'
+  );
+  // Its own top-level sidebar section (not tucked inside Game Settings) --
+  // mode is switched often enough (and is central enough to what's being
+  // played) to deserve a peer of emojipedia/achievements/save/replay
+  // rather than a second click-through inside another panel.
+  const renderGameModePanel = () => {
+    gameModePanelDiv.replaceChildren();
+    const optionsDiv = Util.createDiv('', 'game-mode-options');
+    const addModeOption = (mode, label) => {
+      const optionRow = Util.createDiv('', 'game-mode-option');
+      const optionLink = document.createElement('a');
+      optionLink.href = '#';
+      const isCurrent = mode === progression.mode;
+      optionLink.textContent = isCurrent ? `${label} (current)` : label;
+      if (isCurrent) {
+        optionLink.classList.add('game-mode-option-current');
+      }
+      optionLink.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if (mode === progression.mode) {
+          return;
+        }
+        if (mode === 'daily') {
+          // Reload-based, not a reuse of `reload`/loadSettings in place --
+          // see enterDailyChallenge()'s comment for why a fresh page load
+          // is required.
+          progression.setMode(mode);
+          await enterDailyChallenge(progression);
+          return;
+        }
+        progression.setMode(mode);
+        await progression.reload(
+          progression.levelData[progression.activeLevel]
+        );
+        initGridScaling();
+        refreshSymbolListIfVisible();
+        renderGameModePanel();
+        refreshGameSettingsPanelIfVisible();
+      });
+      optionRow.appendChild(optionLink);
+      optionsDiv.appendChild(optionRow);
+    };
+    addModeOption('progression', modeLabels.progression);
+    addModeOption('sandbox', modeLabels.sandbox);
+    addModeOption('daily', modeLabels.daily);
+
+    // Simulator is endgame-only content: hidden entirely until Progression
+    // has been completed (every bag unlocked, see Progression.isComplete()),
+    // rather than shown greyed-out -- matches "before that it should not be
+    // shown in the menu".
+    if (progression.isComplete()) {
+      const simulatorOptionRow = Util.createDiv('', 'game-mode-option');
+      const simulatorLink = document.createElement('a');
+      simulatorLink.href = '/simulator/index.html';
+      simulatorLink.textContent = '🧮 simulator';
+      simulatorOptionRow.appendChild(simulatorLink);
+      optionsDiv.appendChild(simulatorOptionRow);
+    }
+    gameModePanelDiv.appendChild(optionsDiv);
+  };
+  const refreshGameModePanelIfVisible = () => {
+    if (!gameModePanelDiv.classList.contains('hidden')) {
+      renderGameModePanel();
+    }
+  };
+  gameModeBtn.addEventListener('click', () => {
+    gameModePanelDiv.classList.toggle('hidden');
+    renderGameModePanel();
+  });
+
   const viewSymbolsButton = document.getElementById('view-symbols');
   const symbolListDiv = document.querySelector('.sidebar-content .symbol-list');
   // Rebuilt on every open (not cached from sidebar-init time) so it always
@@ -531,27 +627,13 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     });
   });
 
-  // Game settings panel: game mode picker (progression/sandbox/simulator) +
-  // reset progression. Switching mode does not wipe unlock progress, just
-  // restarts the current game under the new mode's catalog -- reuses the
-  // same `reload` callback (loadSettings) Progression was constructed with,
-  // matching how level-select (jumpTo) reloads. The game mode picker always
-  // shows; reset progression is Progression-only, since Sandbox (and before
-  // a first-run mode pick) has no progression state to reset.
+  // Game settings panel: theme/seed/turns + reset progression. Game mode
+  // itself lives in its own top-level sidebar section now (see
+  // renderGameModePanel above), not here.
   const gameSettingsBtn = document.getElementById('view-game-settings');
   const gameSettingsPanelDiv = document.querySelector(
     '.sidebar-content .game-settings-panel'
   );
-  const modeLabels = {
-    progression: '▶️ progression',
-    sandbox: '🧪 sandbox',
-    daily: '📅 daily challenge',
-  };
-  // Collapsed state for the game-mode picker below, kept outside
-  // renderGameSettingsPanel() since that function rebuilds the panel (and
-  // would otherwise reset to collapsed) on every mode switch / turns edit /
-  // reset.
-  let gameModeExpanded = false;
   const renderGameSettingsPanel = () => {
     gameSettingsPanelDiv.replaceChildren();
     const isProgression = progression.mode === 'progression';
@@ -591,84 +673,6 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     });
     themeRow.appendChild(themeLink);
     gameSettingsPanelDiv.appendChild(themeRow);
-
-    // Game mode: tucked behind a "game mode" link instead of a bare
-    // current-mode readout + one-tap "switch to" link, so the simulator can
-    // sit alongside progression/sandbox as a third pickable option once
-    // unlocked, rather than living in its own separate row.
-    const gameModeRow = Util.createDiv('', 'game-settings-row');
-    const gameModeToggle = document.createElement('a');
-    gameModeToggle.href = '#';
-    gameModeToggle.textContent = '🎮 game mode';
-    gameModeRow.appendChild(gameModeToggle);
-    gameSettingsPanelDiv.appendChild(gameModeRow);
-
-    const gameModeOptionsDiv = Util.createDiv(
-      '',
-      'game-settings-row',
-      'game-mode-options'
-    );
-    if (!gameModeExpanded) {
-      gameModeOptionsDiv.classList.add('hidden');
-    }
-
-    const addModeOption = (mode, label) => {
-      const optionRow = Util.createDiv('', 'game-mode-option');
-      const optionLink = document.createElement('a');
-      optionLink.href = '#';
-      const isCurrent = mode === progression.mode;
-      optionLink.textContent = isCurrent ? `${label} (current)` : label;
-      if (isCurrent) {
-        optionLink.classList.add('game-mode-option-current');
-      }
-      optionLink.addEventListener('click', async (e) => {
-        e.preventDefault();
-        if (mode === progression.mode) {
-          return;
-        }
-        if (mode === 'daily') {
-          // Reload-based, not a reuse of `reload`/loadSettings in place --
-          // see enterDailyChallenge()'s comment for why a fresh page load is
-          // required.
-          progression.setMode(mode);
-          await enterDailyChallenge(progression);
-          return;
-        }
-        progression.setMode(mode);
-        await progression.reload(
-          progression.levelData[progression.activeLevel]
-        );
-        initGridScaling();
-        refreshSymbolListIfVisible();
-        renderGameSettingsPanel();
-      });
-      optionRow.appendChild(optionLink);
-      gameModeOptionsDiv.appendChild(optionRow);
-    };
-    addModeOption('progression', modeLabels.progression);
-    addModeOption('sandbox', modeLabels.sandbox);
-    addModeOption('daily', modeLabels.daily);
-
-    // Simulator is endgame-only content: hidden entirely until Progression
-    // has been completed (every bag unlocked, see Progression.isComplete()),
-    // rather than shown greyed-out -- matches "before that it should not be
-    // shown in the menu".
-    if (progression.isComplete()) {
-      const simulatorOptionRow = Util.createDiv('', 'game-mode-option');
-      const simulatorLink = document.createElement('a');
-      simulatorLink.href = '/simulator/index.html';
-      simulatorLink.textContent = '🧮 simulator';
-      simulatorOptionRow.appendChild(simulatorLink);
-      gameModeOptionsDiv.appendChild(simulatorOptionRow);
-    }
-
-    gameModeToggle.addEventListener('click', (e) => {
-      e.preventDefault();
-      gameModeExpanded = !gameModeExpanded;
-      gameModeOptionsDiv.classList.toggle('hidden', !gameModeExpanded);
-    });
-
-    gameSettingsPanelDiv.appendChild(gameModeOptionsDiv);
 
     // Turn count is only player-adjustable in Sandbox -- Progression levels
     // (Tutorial, standard) have their turn count as part of the level's
@@ -758,7 +762,11 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     renderGameSettingsPanel();
   });
 
-  return { refreshSymbolListIfVisible, refreshGameSettingsPanelIfVisible };
+  return {
+    refreshSymbolListIfVisible,
+    refreshGameSettingsPanelIfVisible,
+    refreshGameModePanelIfVisible,
+  };
 }
 
 // Sandbox (and mode-not-chosen-yet): today's behavior, unchanged -- every

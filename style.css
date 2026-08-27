@@ -794,10 +794,15 @@ body {
   font-size: inherit;
 }
 
+.game-mode-panel {
+  display: flex;
+  flex-direction: column;
+  padding-top: 1em;
+}
+
 .game-mode-options {
   display: flex;
   flex-direction: column;
-  padding-left: 1em;
   gap: 0.4em;
 }
 
