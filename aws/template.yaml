@@ -13,9 +13,18 @@ Description: Emoji daily challenge backend
 # own per-function `npm install`).
 
 Parameters:
-  AllowedOrigin:
+  ProductionOrigin:
     Type: String
-    Description: The exact Amplify site origin, e.g. https://<branch>.<appid>.amplifyapp.com
+    Description: The production site origin, e.g. https://unicode.fun
+  DryRunOrigin:
+    Type: String
+    Default: ''
+    Description: >-
+      Optional preview/testing origin (e.g. an Amplify branch's
+      https://<branch>.<appid>.amplifyapp.com) whose submissions are
+      validated and scored but never written to ScoresTable -- see
+      DRY_RUN_ORIGINS in aws/lambda/validate/index.mjs. Leave blank to
+      disable (an empty string never matches a real request's Origin).
   AppVersion:
     Type: String
     Default: '1.0.4'
@@ -63,7 +72,8 @@ Resources:
       StageName: $default
       CorsConfiguration:
         AllowOrigins:
-          - !Ref AllowedOrigin
+          - !Ref ProductionOrigin
+          - !Ref DryRunOrigin
         AllowMethods:
           - GET
           - POST
@@ -104,7 +114,8 @@ Resources:
           SCORES_TABLE: !Ref ScoresTable
           APP_VERSION: !Ref AppVersion
           SCORE_PAD_WIDTH: '30'
-          ALLOWED_ORIGIN: !Ref AllowedOrigin
+          ALLOWED_ORIGINS: !Sub '${ProductionOrigin},${DryRunOrigin}'
+          DRY_RUN_ORIGINS: !Ref DryRunOrigin
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref SeedsTable

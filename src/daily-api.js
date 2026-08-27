@@ -36,7 +36,9 @@ export async function fetchDailySeed() {
 }
 
 // replay: the base64 EMOJIRPLY1 code from recorder.serialize().
-// -> { score, rank, top: [{ name, score, rank }, ...] }
+// -> { score, rank, top: [{ name, score, rank }, ...], dryRun }
+// dryRun: true from a testing origin the server never persists submissions
+// from -- validated and scored for real, but this run was never saved.
 export async function submitDailyRun(date, name, replay) {
   requireApiBase();
   const response = await fetch(`${DAILY_API_BASE}/daily/submit`, {

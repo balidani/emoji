@@ -64,6 +64,14 @@ export class DailyView {
     panel.appendChild(
       createDiv("Today's leaderboard", 'daily-leaderboard-title')
     );
+    if (you?.dryRun) {
+      panel.appendChild(
+        createDiv(
+          '🧪 Test mode -- this run was scored but not saved.',
+          'daily-dry-run-note'
+        )
+      );
+    }
     const list = createDiv('', 'daily-leaderboard-list');
     for (const row of rows) {
       const entry = createDiv('', 'daily-leaderboard-entry');

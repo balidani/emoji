@@ -574,6 +574,12 @@ body {
   padding: 2pt 6pt;
 }
 
+.daily-dry-run-note {
+  font-size: 10pt;
+  color: #8a5a00;
+  text-align: center;
+}
+
 .daily-leaderboard-list {
   max-height: 220pt;
   overflow-y: auto;
@@ -1988,6 +1994,10 @@ html[data-theme='dark'] .sim-picker-tiles {
 html[data-theme='dark'] .mode-select-option:hover,
 html[data-theme='dark'] .bag-draft-card:hover {
   background: #3a3a3c;
+}
+
+html[data-theme='dark'] .daily-dry-run-note {
+  color: #ffb84d;
 }
 
 html[data-theme='dark'] #sidebar-menu,

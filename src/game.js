@@ -194,7 +194,12 @@ export class Game {
           this.recorder.serialize()
         );
         top = result.top;
-        you = { name, score: result.score, rank: result.rank };
+        you = {
+          name,
+          score: result.score,
+          rank: result.rank,
+          dryRun: result.dryRun,
+        };
       } catch (err) {
         console.error('Daily Challenge submission failed:', err);
       }

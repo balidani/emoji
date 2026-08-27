@@ -29,9 +29,25 @@ const SEEDS_TABLE = process.env.SEEDS_TABLE;
 const SCORES_TABLE = process.env.SCORES_TABLE;
 const APP_VERSION = process.env.APP_VERSION;
 const SCORE_PAD_WIDTH = Number(process.env.SCORE_PAD_WIDTH || '30');
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN;
 
-const json = (statusCode, body) => ({
+// Comma-separated -- multiple frontends can call this API (e.g. the
+// production site and an Amplify preview branch used for testing). See
+// DRY_RUN_ORIGINS below for the preview-branch case specifically.
+const parseOriginList = (value) =>
+  (value || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+const ALLOWED_ORIGINS = parseOriginList(process.env.ALLOWED_ORIGINS);
+// Origins (a subset of ALLOWED_ORIGINS) whose submissions are validated and
+// scored normally but never written to SCORES_TABLE -- lets a preview
+// branch exercise the full validate/score path against real production
+// data for testing, without polluting the real leaderboard with test
+// entries. `rank`/`top` for these are computed read-only against the real
+// table, as if the submission had been added, without ever adding it.
+const DRY_RUN_ORIGINS = new Set(parseOriginList(process.env.DRY_RUN_ORIGINS));
+
+const json = (statusCode, body, origin) => ({
   statusCode,
   headers: {
     'content-type': 'application/json',
@@ -39,8 +55,12 @@ const json = (statusCode, body) => ({
     // response; set explicitly too so it's correct even if this function is
     // ever invoked outside that API (local testing, a future direct
     // invocation), matching the handler contract in
-    // DAILY_CHALLENGE_AWS_SETUP.md #4.
-    'access-control-allow-origin': ALLOWED_ORIGIN,
+    // DAILY_CHALLENGE_AWS_SETUP.md #4. Echoes the caller's own origin (not
+    // a single fixed value) now that more than one origin is allowed --
+    // falls back to the first configured origin for a request with no
+    // Origin header at all (e.g. a direct curl/test invocation).
+    'access-control-allow-origin':
+      origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
   },
   body: JSON.stringify(body),
 });
@@ -107,27 +127,28 @@ async function parseBody(event) {
 }
 
 export const handler = async (event) => {
+  const origin = event.headers?.origin ?? event.headers?.Origin;
   if (event.requestContext?.http?.method !== 'POST') {
-    return json(405, { reason: 'Method not allowed.' });
+    return json(405, { reason: 'Method not allowed.' }, origin);
   }
 
   let body;
   try {
     body = await parseBody(event);
   } catch {
-    return json(400, { reason: 'Malformed request body.' });
+    return json(400, { reason: 'Malformed request body.' }, origin);
   }
 
   const { date, replay } = body;
   if (date !== todayUTC()) {
-    return json(400, { reason: 'date must be the current UTC date.' });
+    return json(400, { reason: 'date must be the current UTC date.' }, origin);
   }
   const name = sanitizeName(body.name);
   if (!name) {
-    return json(400, { reason: 'name is required.' });
+    return json(400, { reason: 'name is required.' }, origin);
   }
   if (typeof replay !== 'string' || replay.length === 0) {
-    return json(400, { reason: 'replay is required.' });
+    return json(400, { reason: 'replay is required.' }, origin);
   }
 
   // The day's seed must already exist -- the client is expected to have
@@ -138,9 +159,14 @@ export const handler = async (event) => {
     new GetCommand({ TableName: SEEDS_TABLE, Key: { date } })
   );
   if (!seedItem) {
-    return json(409, {
-      reason: "Today's seed has not been generated yet -- fetch /daily/seed first.",
-    });
+    return json(
+      409,
+      {
+        reason:
+          "Today's seed has not been generated yet -- fetch /daily/seed first.",
+      },
+      origin
+    );
   }
 
   installDom();
@@ -149,7 +175,7 @@ export const handler = async (event) => {
     appVersion: APP_VERSION,
   });
   if (!result.valid) {
-    return json(422, { reason: result.reason });
+    return json(422, { reason: result.reason }, origin);
   }
 
   // Score is computed server-side, from the server's own reconstructed game
@@ -158,19 +184,26 @@ export const handler = async (event) => {
   const submissionId = randomUUID();
   const pad = String(score).padStart(SCORE_PAD_WIDTH, '0');
   const sk = `SCORE#${pad}#${submissionId}`;
-  await dynamo.send(
-    new PutCommand({
-      TableName: SCORES_TABLE,
-      Item: {
-        pk: `DATE#${date}`,
-        sk,
-        name,
-        score: String(score),
-        ts: new Date().toISOString(),
-        appVersion: APP_VERSION,
-      },
-    })
-  );
+  // A dry-run origin (e.g. a preview/testing branch) gets a fully validated
+  // and scored response, but this row is never written -- lets that branch
+  // exercise the real leaderboard for testing without ever polluting it
+  // with test entries. See DRY_RUN_ORIGINS above.
+  const dryRun = DRY_RUN_ORIGINS.has(origin);
+  if (!dryRun) {
+    await dynamo.send(
+      new PutCommand({
+        TableName: SCORES_TABLE,
+        Item: {
+          pk: `DATE#${date}`,
+          sk,
+          name,
+          score: String(score),
+          ts: new Date().toISOString(),
+          appVersion: APP_VERSION,
+        },
+      })
+    );
+  }
 
   const { Items } = await dynamo.send(
     new QueryCommand({
@@ -184,13 +217,31 @@ export const handler = async (event) => {
   // Rank by matching the row's own sk (unique per submission) rather than
   // re-comparing scores -- score can exceed Number.MAX_SAFE_INTEGER
   // (formatBigNumber territory), so it's stored as a string and a
-  // string->Number->string round trip isn't guaranteed lossless.
-  const rank = (Items ?? []).findIndex((item) => item.sk === sk) + 1;
-  const top = (Items ?? []).map((item, i) => ({
+  // string->Number->string round trip isn't guaranteed lossless. In dry
+  // run, the row was never written, so it's never in Items -- rank it by
+  // where its own (never-persisted) sk would sort among the real ones
+  // instead (the zero-padded score in the sk sorts correctly as a plain
+  // string, same as DynamoDB's own key comparison).
+  const rank = dryRun
+    ? (Items ?? []).filter((item) => item.sk > sk).length + 1
+    : (Items ?? []).findIndex((item) => item.sk === sk) + 1;
+  const realTop = (Items ?? []).map((item, i) => ({
     name: item.name,
     score: Number(item.score),
     rank: i + 1,
   }));
+  // Splice the never-written dry-run row into the real top-100 for display
+  // only, so a tester sees the same "here's where you'd land" response a
+  // real submission would produce -- renumbering everything after it,
+  // same as DynamoDB's own list would read once truncated back to 100.
+  const top =
+    dryRun && rank > 0 && rank <= 100
+      ? realTop
+          .slice(0, rank - 1)
+          .concat([{ name, score, rank }], realTop.slice(rank - 1))
+          .slice(0, 100)
+          .map((row, i) => ({ ...row, rank: i + 1 }))
+      : realTop;
 
-  return json(200, { score, rank: rank || null, top });
+  return json(200, { score, rank: rank || null, top, dryRun }, origin);
 };
