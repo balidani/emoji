@@ -854,7 +854,7 @@ body {
    surrounding text weight instead of rendering as its own glyph. */
 .menu-toggle::after {
   content: ' \25be';
-  font-size: 0.7em;
+  font-size: 1.4em;
   vertical-align: middle;
 }
 
