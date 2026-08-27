@@ -5,6 +5,9 @@
   "type": "module",
   "description": "Daily Challenge validate Lambda -- POST /daily/submit. Bundles a copy of the repo's src/ + index.html (see build.sh) and jsdom.",
   "dependencies": {
-    "jsdom": "^30.0.1"
+    "jsdom": "24.1.3"
+  },
+  "overrides": {
+    "cssstyle": "4.0.1"
   }
 }
