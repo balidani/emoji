@@ -788,9 +788,11 @@ body {
 }
 
 /* #sidebar-menu a bumps links to 1.2em for the main nav list; override it
-   back to the row's own size so a row's link (e.g. the seed permalink)
-   matches the plain text next to it instead of appearing larger. */
-#sidebar-menu .game-settings-row a {
+   back to the row's own size so a row's link (e.g. the seed permalink, or
+   a game-mode option) matches the plain text next to it instead of
+   appearing larger. */
+#sidebar-menu .game-settings-row a,
+#sidebar-menu .game-mode-option a {
   font-size: inherit;
 }
 
@@ -844,6 +846,20 @@ body {
 
 #sidebar-menu a:hover {
   text-decoration: underline;
+}
+
+/* Collapsed/expanded state for the toggleable menu sections (game mode,
+   game settings, emojipedia, achievements, save/load, replay) -- a plain
+   unicode arrow, not an emoji, so it stays small and matches the
+   surrounding text weight instead of rendering as its own glyph. */
+.menu-toggle::after {
+  content: ' \25be';
+  font-size: 0.7em;
+  vertical-align: middle;
+}
+
+.menu-toggle.expanded::after {
+  content: ' \25b4';
 }
 
 .progression {

@@ -467,6 +467,13 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
     sidebar.classList.toggle('active');
   });
 
+  // Drives the ▾/▴ indicator on a menu-toggle link (see style.css's
+  // .menu-toggle::after) from its panel's actual hidden state, rather than
+  // tracking expanded/collapsed separately -- can't drift out of sync.
+  const setToggleExpanded = (button, panel) => {
+    button.classList.toggle('expanded', !panel.classList.contains('hidden'));
+  };
+
   closeButton.addEventListener('click', () => {
     sidebar.classList.remove('active');
   });
@@ -546,6 +553,7 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
   };
   gameModeBtn.addEventListener('click', () => {
     gameModePanelDiv.classList.toggle('hidden');
+    setToggleExpanded(gameModeBtn, gameModePanelDiv);
     renderGameModePanel();
   });
 
@@ -575,9 +583,7 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
   };
   viewSymbolsButton.addEventListener('click', () => {
     symbolListDiv.classList.toggle('hidden');
-    viewSymbolsButton.innerText = symbolListDiv.classList.contains('hidden')
-      ? 'emojipedia'
-      : 'hide emojipedia';
+    setToggleExpanded(viewSymbolsButton, symbolListDiv);
     refreshSymbolListIfVisible();
   });
 
@@ -587,6 +593,7 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
   );
   achBtn.addEventListener('click', () => {
     achievementsListDiv.classList.toggle('hidden');
+    setToggleExpanded(achBtn, achievementsListDiv);
     getGame().achievements.renderPanel();
   });
 
@@ -596,6 +603,7 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
   );
   saveBtn.addEventListener('click', () => {
     savePanelDiv.classList.toggle('hidden');
+    setToggleExpanded(saveBtn, savePanelDiv);
     getGame().view.renderSaveState({
       code: exportSave(),
       onImport: (code) => importSave(code),
@@ -608,6 +616,7 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
   );
   replayBtn.addEventListener('click', () => {
     replayPanelDiv.classList.toggle('hidden');
+    setToggleExpanded(replayBtn, replayPanelDiv);
     getGame().view.renderReplay({
       code: getGame().recorder?.serialize() ?? '',
       onRun: async (code) => {
@@ -759,6 +768,7 @@ function initSidebar(getGame, setGame, progression, onGameOver, seedPhrase) {
   };
   gameSettingsBtn.addEventListener('click', () => {
     gameSettingsPanelDiv.classList.toggle('hidden');
+    setToggleExpanded(gameSettingsBtn, gameSettingsPanelDiv);
     renderGameSettingsPanel();
   });
 
