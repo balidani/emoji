@@ -535,10 +535,14 @@ body {
   align-items: center;
   gap: 6pt;
   margin-top: 8pt;
-  background: rgba(255, 255, 255, 0.9);
+  /* Same box style as .info/.shop -- the game's standard panel look. */
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    rgba(0, 0, 0, 0.3) 0px 2px 4px,
+    rgba(0, 0, 0, 0.2) 0px 5px 8px -3px,
+    rgba(0, 0, 0, 0.1) 0px -3px 0px inset;
   border-radius: 8pt;
   padding: 8pt 12pt;
-  box-shadow: rgba(0, 0, 0, 0.3) 0px 2px 4px;
   font-size: 12pt;
 }
 
@@ -1968,6 +1972,8 @@ button:disabled {
 
 html[data-theme='dark'] .info,
 html[data-theme='dark'] .shop,
+html[data-theme='dark'] .daily-submit-panel,
+html[data-theme='dark'] .daily-leaderboard-panel,
 html[data-theme='dark'] .mode-select-option,
 html[data-theme='dark'] .bag-draft-card,
 html[data-theme='dark'] .sim-strategy,
