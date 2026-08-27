@@ -3,7 +3,7 @@ import * as Rng from '../core/rng.js';
 import { GameSettings } from '../game_settings.js';
 import { Catalog } from '../catalog.js';
 import { Game } from '../game.js';
-import { Progression } from '../progression.js';
+import { Progression, PROGRESSION_MODE } from '../progression.js';
 import { DomRenderer } from '../render/DomRenderer.js';
 import { ProgressionView } from '../render/ProgressionView.js';
 import { SettingsView } from '../render/SettingsView.js';
@@ -27,11 +27,45 @@ export async function bootstrap() {
   // draw from the RNG at import time). core/rng.js itself has no DOM access;
   // this is the one place that reads the seed from the URL. Shown in the
   // game settings panel (see initSidebar's renderGameSettingsPanel).
-  let seedPhrase = window.location.hash.slice(1);
-  if (seedPhrase) {
-    await Rng.setSeed(seedPhrase);
+  //
+  // Daily Challenge never trusts the hash for this: it's checked straight
+  // from localStorage, before a Progression instance even exists, because a
+  // hand-edited hash or a stale bookmark from a previous day would silently
+  // seed a different RNG stream than the one the validate Lambda
+  // reconstructs from the day's real seed -- every draw from the very first
+  // roll onward would diverge, guaranteeing the submission gets rejected
+  // (DAILY_CHALLENGE_AWS_SETUP.md #4, #7.5). Re-fetching is idempotent and
+  // cheap (the seed Lambda just returns today's already-created row), so
+  // it's done unconditionally on every load while in daily mode rather than
+  // trusting whatever's already in the hash.
+  let seedPhrase;
+  if (window.localStorage.getItem(PROGRESSION_MODE) === 'daily') {
+    try {
+      ({ seed: seedPhrase } = await fetchDailySeed());
+      // Correct the address bar to match -- it's cosmetic here (RNG is
+      // already seeded from `seedPhrase`, not from re-reading the hash),
+      // but leaves a tampered/stale hash sitting in the URL otherwise.
+      if (window.location.hash.slice(1) !== seedPhrase) {
+        window.location.hash = seedPhrase;
+      }
+      await Rng.setSeed(seedPhrase);
+    } catch (err) {
+      // Backend unreachable on this reload -- fall back the same way
+      // enterDailyChallenge() does, rather than silently seeding an
+      // untrusted hash into what the player still thinks is a valid daily
+      // attempt. Written straight to localStorage (no Progression instance
+      // exists yet); PROGRESSION.load() below picks it up as 'sandbox'.
+      console.error(err);
+      window.localStorage.setItem(PROGRESSION_MODE, 'sandbox');
+      seedPhrase = await Rng.setRandomSeed();
+    }
   } else {
-    seedPhrase = await Rng.setRandomSeed();
+    seedPhrase = window.location.hash.slice(1);
+    if (seedPhrase) {
+      await Rng.setSeed(seedPhrase);
+    } else {
+      seedPhrase = await Rng.setRandomSeed();
+    }
   }
   window.seedPhrase = seedPhrase;
 

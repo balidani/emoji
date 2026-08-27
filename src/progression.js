@@ -27,7 +27,10 @@ const PROGRESSION_LEVEL_RESULTS = 'ProgressionLevelResults';
 // `mode` is null until the first-run overlay (showModeSelectOverlay in
 // app/bootstrap.js) sets it; `unlockedBags`/`pendingBagOffer` are only
 // meaningful once mode === 'progression'.
-const PROGRESSION_MODE = 'ProgressionMode';
+// Exported so app/bootstrap.js can check the persisted mode straight from
+// localStorage before a Progression instance exists yet -- it needs to know
+// whether to trust the URL hash for RNG seeding before anything else runs.
+export const PROGRESSION_MODE = 'ProgressionMode';
 const UNLOCKED_BAGS = 'UnlockedBags';
 const PENDING_BAG_OFFER = 'PendingBagOffer';
 // Sandbox's player-chosen turn count (app/bootstrap.js's game settings
