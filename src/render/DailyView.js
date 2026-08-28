@@ -1,4 +1,5 @@
 import { createDiv, createSpan, createButton } from './animations.js';
+import { formatBigNumber } from '../core/util.js';
 
 // Daily Challenge name-entry + leaderboard, appended into the game-over
 // screen's .scoreContainer (built entirely in JS by Game.over() -- there's
@@ -99,7 +100,7 @@ export class DailyView {
       entry.appendChild(createSpan(`#${row.rank}`, 'daily-leaderboard-rank'));
       entry.appendChild(createSpan(row.name, 'daily-leaderboard-name'));
       entry.appendChild(
-        createSpan(String(row.score), 'daily-leaderboard-score')
+        createSpan(formatBigNumber(row.score), 'daily-leaderboard-score')
       );
       list.appendChild(entry);
     }
