@@ -148,8 +148,16 @@ body {
   width: 100%;
   max-width: 256pt;
   opacity: 1;
-  max-height: 320pt;
+  max-height: 340pt;
   overflow: hidden;
+  /* .daily-leaderboard-panel's box-shadow (same as .info/.shop's) needs
+     room to render outside its own box -- without this padding, the panel
+     fills this wrapper edge-to-edge and the overflow: hidden below (needed
+     to collapse this wrapper smoothly on fade-out) clips the shadow flush
+     against the panel itself, leaving it with no visible edge unlike every
+     other panel in the game. */
+  padding: 6pt 8pt;
+  box-sizing: border-box;
   transition:
     opacity 0.8s ease,
     max-height 0.8s ease,
