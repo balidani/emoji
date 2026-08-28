@@ -14,9 +14,14 @@ import { exportSave, importSave } from '../save_state.js';
 import { ReplayRecorder, runReplay } from '../replay.js';
 import { FULL_ROSTER, BAGS, nextGate } from '../progression-roster.js';
 import { renderProgressionBar } from '../render/progressionBar.js';
+import { renderDailyLeaderboardPreview } from '../render/dailyLeaderboardPreview.js';
 import * as Const from '../consts.js';
-import { DAILY_SETTINGS, dailyAllowedEmoji } from '../daily.js';
-import { fetchDailySeed, DailyApiError } from '../daily-api.js';
+import { DAILY_SETTINGS, dailyAllowedEmoji, todayUTC } from '../daily.js';
+import {
+  fetchDailySeed,
+  fetchDailyLeaderboard,
+  DailyApiError,
+} from '../daily-api.js';
 
 // The composition root: seeds the RNG, builds Progression/GameSettings and
 // their views, and loads the first game. main.js is just "on DOM ready,
@@ -179,6 +184,36 @@ export async function bootstrap() {
     } else {
       statusBarMount.replaceChildren();
       statusBarMount.classList.add('hidden');
+    }
+    // Pre-roll leaderboard preview, underneath the board: shows today's
+    // standings by default, before the round's first roll (game.js fades it
+    // out then -- see roll() -- same as the progression bar above). Hidden
+    // entirely outside Daily Challenge. Fetched without blocking the board
+    // from appearing -- unlike the day's seed (already fetched, blocking, at
+    // the top of bootstrap()), a slow/offline leaderboard fetch shouldn't
+    // hold up play, so this mount just stays hidden/empty until it resolves.
+    // Each round load clones a brand-new .daily-leaderboard-preview node
+    // (see gameDiv.replaceChildren() above), so a fetch that resolves after
+    // the player has moved on to another round harmlessly updates a
+    // detached node instead of the live one.
+    const leaderboardPreviewMount = document.querySelector(
+      '.game .daily-leaderboard-preview'
+    );
+    if (isDaily) {
+      fetchDailyLeaderboard(todayUTC())
+        .then(({ top }) => {
+          renderDailyLeaderboardPreview(leaderboardPreviewMount, top);
+          leaderboardPreviewMount.classList.remove('hidden');
+        })
+        .catch((err) => {
+          console.error(
+            'Daily Challenge leaderboard preview unavailable:',
+            err
+          );
+        });
+    } else {
+      leaderboardPreviewMount.replaceChildren();
+      leaderboardPreviewMount.classList.add('hidden');
     }
     // Snapshot the RNG position immediately before constructing Game (i.e.
     // before the starting-set Egg draws and the first Board construction),

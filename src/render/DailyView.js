@@ -1,5 +1,5 @@
-import { createDiv, createSpan, createButton } from './animations.js';
-import { formatBigNumber } from '../core/util.js';
+import { createDiv, createButton } from './animations.js';
+import { buildDailyLeaderboardList } from './dailyLeaderboardList.js';
 
 // Daily Challenge name-entry + leaderboard, appended into the game-over
 // screen's .scoreContainer (built entirely in JS by Game.over() -- there's
@@ -91,31 +91,7 @@ export class DailyView {
         )
       );
     }
-    const list = createDiv('', 'daily-leaderboard-list');
-    for (const row of rows) {
-      const entry = createDiv('', 'daily-leaderboard-entry');
-      if (you && row.rank === you.rank && row.name === you.name) {
-        entry.classList.add('you');
-      }
-      entry.appendChild(createSpan(`#${row.rank}`, 'daily-leaderboard-rank'));
-      entry.appendChild(createSpan(row.name, 'daily-leaderboard-name'));
-      entry.appendChild(
-        createSpan(formatBigNumber(row.score), 'daily-leaderboard-score')
-      );
-      // Missing/empty for rows submitted before this existed, or a run that
-      // never had a single symbol earn money -- just omit the badge rather
-      // than rendering an empty one.
-      if (row.topEmoji?.length > 0) {
-        entry.appendChild(
-          createSpan(
-            row.topEmoji.map((e) => e.emoji).join(''),
-            'daily-leaderboard-top-emoji'
-          )
-        );
-      }
-      list.appendChild(entry);
-    }
-    panel.appendChild(list);
+    panel.appendChild(buildDailyLeaderboardList(rows, you));
     container.appendChild(panel);
   }
 }

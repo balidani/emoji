@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 import { CURRENT_VERSION } from '../../src/progression.js';
-import { fetchDailySeed } from '../../src/daily-api.js';
+import { fetchDailySeed, fetchDailyLeaderboard } from '../../src/daily-api.js';
 import { bootstrap } from '../../src/app/bootstrap.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -42,7 +42,7 @@ class FakeResizeObserver {
 
 vi.mock('../../src/daily-api.js', async (importOriginal) => {
   const actual = await importOriginal();
-  return { ...actual, fetchDailySeed: vi.fn() };
+  return { ...actual, fetchDailySeed: vi.fn(), fetchDailyLeaderboard: vi.fn() };
 });
 
 describe('Daily Challenge boot-time RNG seeding', () => {
@@ -56,6 +56,11 @@ describe('Daily Challenge boot-time RNG seeding', () => {
     window.localStorage.setItem('CurrentVersion', CURRENT_VERSION);
     window.ResizeObserver = FakeResizeObserver;
     fetchDailySeed.mockReset();
+    // Not under test here (see daily-leaderboard-preview.test.js) -- just
+    // needs to resolve so loadSettings' pre-roll leaderboard fetch (fired,
+    // not awaited, whenever mode is 'daily') never reaches the real network
+    // during this suite.
+    fetchDailyLeaderboard.mockReset().mockResolvedValue({ top: [] });
   });
 
   it('ignores a tampered/stale hash and reseeds from the server, correcting the hash', async () => {

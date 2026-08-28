@@ -138,6 +138,31 @@ body {
   pointer-events: none;
 }
 
+/* Daily Challenge's pre-roll leaderboard preview: shown by default
+   underneath the board before the round's first roll (render/
+   dailyLeaderboardPreview.js, mounted by app/bootstrap.js), same
+   fade-and-collapse treatment as .progression-bar above (toggled by
+   game.js on first roll) -- the two are mutually exclusive (Progression vs.
+   Daily Challenge mode) but share this slot's declutter-on-play behavior. */
+.daily-leaderboard-preview {
+  width: 100%;
+  max-width: 256pt;
+  opacity: 1;
+  max-height: 320pt;
+  overflow: hidden;
+  transition:
+    opacity 0.8s ease,
+    max-height 0.8s ease,
+    margin-top 0.8s ease;
+}
+
+.daily-leaderboard-preview.faded {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  pointer-events: none;
+}
+
 .progression-bar-steps {
   position: relative;
   height: 13pt;
@@ -578,6 +603,12 @@ body {
 .daily-dry-run-note {
   font-size: 10pt;
   color: #8a5a00;
+  text-align: center;
+}
+
+.daily-leaderboard-empty {
+  font-size: 10pt;
+  color: rgba(0, 0, 0, 0.55);
   text-align: center;
 }
 
@@ -2053,6 +2084,10 @@ html[data-theme='dark'] .bag-draft-card:hover {
 
 html[data-theme='dark'] .daily-dry-run-note {
   color: #ffb84d;
+}
+
+html[data-theme='dark'] .daily-leaderboard-empty {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 html[data-theme='dark'] .daily-validating-panel {

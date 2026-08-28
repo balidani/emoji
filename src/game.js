@@ -241,6 +241,13 @@ export class Game {
       // reappears fresh on the game-over screen and the next round's own
       // (freshly built, unfaded) element.
       document.querySelector('.game .progression-bar')?.classList.add('faded');
+      // Same declutter for Daily Challenge's pre-roll leaderboard preview
+      // (app/bootstrap.js) -- it already did its job showing today's
+      // standings before this roll; the game-over leaderboard (DailyView)
+      // takes over once the round ends.
+      document
+        .querySelector('.game .daily-leaderboard-preview')
+        ?.classList.add('faded');
     }
     Util.deleteText(this.info);
     const textToDraw =
