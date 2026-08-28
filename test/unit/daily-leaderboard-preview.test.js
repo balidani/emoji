@@ -62,6 +62,22 @@ describe('renderDailyLeaderboardPreview', () => {
     expect(container.querySelector('.daily-leaderboard-list')).toBeNull();
     expect(container.querySelector('.daily-leaderboard-empty')).not.toBeNull();
   });
+
+  it('shows the time left until the next seed under the entries, with or without rows', () => {
+    const withRows = document.createElement('div');
+    renderDailyLeaderboardPreview(withRows, [
+      { rank: 1, name: 'dan', score: 100 },
+    ]);
+    expect(
+      withRows.querySelector('.daily-leaderboard-countdown').textContent
+    ).toMatch(/^Next challenge in \d+h \d+m$/);
+
+    const empty = document.createElement('div');
+    renderDailyLeaderboardPreview(empty, []);
+    expect(
+      empty.querySelector('.daily-leaderboard-countdown').textContent
+    ).toMatch(/^Next challenge in \d+h \d+m$/);
+  });
 });
 
 // game.js's roll() -- verifies the mount app/bootstrap.js populates gets

@@ -1,5 +1,8 @@
 import { createDiv, createButton } from './animations.js';
-import { buildDailyLeaderboardList } from './dailyLeaderboardList.js';
+import {
+  buildDailyLeaderboardList,
+  buildDailyCountdownNote,
+} from './dailyLeaderboardList.js';
 
 // Daily Challenge name-entry + leaderboard, appended into the game-over
 // screen's .scoreContainer (built entirely in JS by Game.over() -- there's
@@ -92,6 +95,7 @@ export class DailyView {
       );
     }
     panel.appendChild(buildDailyLeaderboardList(rows, you));
+    panel.appendChild(buildDailyCountdownNote());
     container.appendChild(panel);
   }
 }

@@ -1,5 +1,8 @@
 import { createDiv } from './animations.js';
-import { buildDailyLeaderboardList } from './dailyLeaderboardList.js';
+import {
+  buildDailyLeaderboardList,
+  buildDailyCountdownNote,
+} from './dailyLeaderboardList.js';
 
 // Daily Challenge: shows today's leaderboard by default, before the day's
 // first roll -- mounted underneath the board (app/bootstrap.js's
@@ -25,5 +28,6 @@ export function renderDailyLeaderboardPreview(container, rows) {
   } else {
     panel.appendChild(buildDailyLeaderboardList(rows, null));
   }
+  panel.appendChild(buildDailyCountdownNote());
   container.appendChild(panel);
 }

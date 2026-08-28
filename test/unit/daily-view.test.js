@@ -51,4 +51,15 @@ describe('DailyView.renderDailyLeaderboard', () => {
     );
     expect(document.querySelector('.daily-leaderboard-top-emoji')).toBeNull();
   });
+
+  it('shows the time left until the next seed under the entries', async () => {
+    const view = new DailyView();
+    await view.renderDailyLeaderboard(
+      [{ rank: 1, name: 'dan', score: 100 }],
+      null
+    );
+    const note = document.querySelector('.daily-leaderboard-countdown');
+    expect(note).not.toBeNull();
+    expect(note.textContent).toMatch(/^Next challenge in \d+h \d+m$/);
+  });
 });

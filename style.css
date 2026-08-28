@@ -620,6 +620,13 @@ body {
   text-align: center;
 }
 
+.daily-leaderboard-countdown {
+  font-size: 9pt;
+  color: rgba(0, 0, 0, 0.5);
+  text-align: center;
+  margin-top: 2pt;
+}
+
 .daily-validating-panel {
   color: rgba(0, 0, 0, 0.6);
   animation: daily-validating-pulse 1.2s ease-in-out infinite;
@@ -2096,6 +2103,10 @@ html[data-theme='dark'] .daily-dry-run-note {
 
 html[data-theme='dark'] .daily-leaderboard-empty {
   color: rgba(255, 255, 255, 0.6);
+}
+
+html[data-theme='dark'] .daily-leaderboard-countdown {
+  color: rgba(255, 255, 255, 0.55);
 }
 
 html[data-theme='dark'] .daily-validating-panel {

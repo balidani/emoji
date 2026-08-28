@@ -41,3 +41,25 @@ export const DAILY_SETTINGS = new GameSettings('Daily Challenge');
 export function todayUTC() {
   return new Date().toISOString().slice(0, 10);
 }
+
+// The instant the next seed takes effect: the next UTC midnight after `now`
+// -- the Daily Challenge day boundary todayUTC() itself is derived from.
+export function nextSeedTime(now = new Date()) {
+  return new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)
+  );
+}
+
+// Player-facing "time left" label shown under the leaderboard
+// (render/dailyLeaderboardList.js) -- takes `now` as a parameter (rather
+// than reading Date.now() itself) so it's trivial to test at a fixed
+// instant without faking the global clock.
+export function formatTimeUntilNextSeed(now = new Date()) {
+  const totalSeconds = Math.max(
+    0,
+    Math.floor((nextSeedTime(now).getTime() - now.getTime()) / 1000)
+  );
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  return `Next challenge in ${hours}h ${minutes}m`;
+}

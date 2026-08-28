@@ -1,5 +1,6 @@
 import { createDiv, createSpan } from './animations.js';
 import { formatBigNumber } from '../core/util.js';
+import { formatTimeUntilNextSeed } from '../daily.js';
 
 // Shared leaderboard-row rendering: used both by the game-over leaderboard
 // (render/DailyView.js's renderDailyLeaderboard) and the pre-roll preview
@@ -32,4 +33,12 @@ export function buildDailyLeaderboardList(rows, you) {
     list.appendChild(entry);
   }
   return list;
+}
+
+// Countdown note shown under the entries, in both the game-over leaderboard
+// and the pre-roll preview: tells the player how long today's board (and
+// this leaderboard) has left before the next UTC-midnight reseed (see
+// daily.js's todayUTC()/nextSeedTime()).
+export function buildDailyCountdownNote() {
+  return createDiv(formatTimeUntilNextSeed(), 'daily-leaderboard-countdown');
 }
