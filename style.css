@@ -528,7 +528,8 @@ body {
 }
 
 .daily-submit-panel,
-.daily-leaderboard-panel {
+.daily-leaderboard-panel,
+.daily-validating-panel {
   pointer-events: auto;
   display: flex;
   flex-direction: column;
@@ -578,6 +579,21 @@ body {
   font-size: 10pt;
   color: #8a5a00;
   text-align: center;
+}
+
+.daily-validating-panel {
+  color: rgba(0, 0, 0, 0.6);
+  animation: daily-validating-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes daily-validating-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .daily-leaderboard-list {
@@ -2001,6 +2017,7 @@ html[data-theme='dark'] .info,
 html[data-theme='dark'] .shop,
 html[data-theme='dark'] .daily-submit-panel,
 html[data-theme='dark'] .daily-leaderboard-panel,
+html[data-theme='dark'] .daily-validating-panel,
 html[data-theme='dark'] .mode-select-option,
 html[data-theme='dark'] .bag-draft-card,
 html[data-theme='dark'] .sim-strategy,
@@ -2019,6 +2036,10 @@ html[data-theme='dark'] .bag-draft-card:hover {
 
 html[data-theme='dark'] .daily-dry-run-note {
   color: #ffb84d;
+}
+
+html[data-theme='dark'] .daily-validating-panel {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 html[data-theme='dark'] #sidebar-menu,

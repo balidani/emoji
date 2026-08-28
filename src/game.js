@@ -187,6 +187,7 @@ export class Game {
     let top = null;
     let you = null;
     if (name) {
+      await this.view.showDailySubmitting();
       try {
         const result = await submitDailyRun(
           todayUTC(),
@@ -202,6 +203,8 @@ export class Game {
         };
       } catch (err) {
         console.error('Daily Challenge submission failed:', err);
+      } finally {
+        await this.view.hideDailySubmitting();
       }
     }
     if (top === null) {

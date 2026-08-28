@@ -173,6 +173,12 @@ export class DomRenderer extends Renderer {
   async promptDailyName() {
     return this.dailyView.promptDailyName();
   }
+  async showDailySubmitting() {
+    return this.dailyView.showDailySubmitting();
+  }
+  async hideDailySubmitting() {
+    return this.dailyView.hideDailySubmitting();
+  }
   async renderDailyLeaderboard(rows, you) {
     return this.dailyView.renderDailyLeaderboard(rows, you);
   }

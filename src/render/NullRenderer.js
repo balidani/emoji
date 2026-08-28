@@ -95,5 +95,7 @@ export class NullRenderer extends Renderer {
   async promptDailyName() {
     return null;
   }
+  async showDailySubmitting() {}
+  async hideDailySubmitting() {}
   async renderDailyLeaderboard(_rows, _you) {}
 }

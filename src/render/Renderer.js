@@ -198,6 +198,15 @@ export class Renderer {
   async promptDailyName() {
     notImplemented('promptDailyName');
   }
+  /** Shown while the submitted replay is being validated/scored server-side
+   * (a few seconds -- it replays the whole run headlessly). Paired with
+   * hideDailySubmitting(), always called afterward regardless of outcome. */
+  async showDailySubmitting() {
+    notImplemented('showDailySubmitting');
+  }
+  async hideDailySubmitting() {
+    notImplemented('hideDailySubmitting');
+  }
   /** Renders the day's leaderboard rows into the game-over screen. `rows` is
    * [{name, score, rank}] (already server-computed/ranked -- top 100).
    * `you` is {name, score, rank} to highlight the just-submitted entry, or
