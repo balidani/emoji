@@ -15,9 +15,10 @@ cp "$REPO_ROOT/index.html" ./index.html
 # to 4.0.1), not the ^30.x the repo's root devDependency uses -- two of
 # jsdom's transitive deps ship pure-ESM code that jsdom's own CJS internals
 # require() directly: html-encoding-sniffer@6+ (via @exodus/bytes) and
-# cssstyle@4.1.0+ (via @asamuzakjp/css-color). Node 20's CJS loader can't
-# require() an ES module, so every Lambda invocation crashed at import time
-# with ERR_REQUIRE_ESM. jsdom 24.1.3 + cssstyle 4.0.1 predate both.
+# cssstyle@4.1.0+ (via @asamuzakjp/css-color). Node's CJS loader can't
+# require() an ES module (still true on Node 22 -- not a Node-20 quirk), so
+# every Lambda invocation crashed at import time with ERR_REQUIRE_ESM.
+# jsdom 24.1.3 + cssstyle 4.0.1 predate both.
 npm install --omit=dev
 zip -qr function.zip index.mjs package.json index.html src node_modules
 echo "Wrote $(pwd)/function.zip"

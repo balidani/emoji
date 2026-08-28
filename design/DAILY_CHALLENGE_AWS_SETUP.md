@@ -56,7 +56,7 @@ handler env-var reads, client config). Prefix is `emoji-daily`.
 - An AWS account and the **AWS CLI v2** installed and configured
   (`aws configure`) with credentials that can create IAM/Lambda/DynamoDB/API
   Gateway resources.
-- **Node 20** locally (matches the Lambda runtime) for packaging the
+- **Node 22** locally (matches the Lambda runtime) for packaging the
   validator.
 - The repo checked out at the commit you intend to validate against. The
   validator ships a **copy of `src/`** from that commit; the seed the site
@@ -203,7 +203,7 @@ Rules:
 - **ESM handlers.** Each function's `package.json` has `"type": "module"` and
   the handler exports `export const handler = async (event) => {...}`
   (`--handler index.handler`).
-- **AWS SDK v3 is in the Node 20 runtime** — import `@aws-sdk/client-dynamodb`
+- **AWS SDK v3 is in the Node 22 runtime** — import `@aws-sdk/client-dynamodb`
   / `@aws-sdk/lib-dynamodb` (and `@aws-sdk/client-s3` if archiving) **without
   bundling** them.
 - **`seed` and `leaderboard` are tiny** — no third-party deps, just the SDK
@@ -270,12 +270,13 @@ All responses set `Access-Control-Allow-Origin: $ALLOWED_ORIGIN` and JSON
   - `GetItem` the day's seed from `emoji-daily-seeds` (`404`/`409` if missing —
     shouldn't happen if the client fetched a seed first).
   - Set up jsdom globals (`window`, `document`) from the bundled `index.html`;
-    ensure `globalThis.crypto` (Node 20 webcrypto), `TextEncoder`,
-    `Intl.Segmenter` are present (all native in Node 20 except the DOM).
+    ensure `globalThis.crypto` (Node 22 webcrypto), `TextEncoder`,
+    `Intl.Segmenter` are present (all native in Node 22 except the DOM).
   - Call the design doc's headless `validateReplay(replay, { seed, appVersion:
     process.env.APP_VERSION })` from the bundled `src/replay.js`. That function:
     rejects on `appVersion` mismatch; `setSeed(seed)` **before** building the
-    catalog (so import-time draws match — see `rng.js`/`bootstrap.js`); builds
+    catalog (so cosmetic RNG draws match — see `catalog.js`'s `rollCosmetics()`
+    and `bootstrap.js`); builds
     the canonical daily catalog + `restrictTo(dailyAllowedEmoji(...))`;
     constructs the canonical daily `Game`; drives the recorded `events`; and
     returns `{ valid, score, reason? }`. Invalid → `422 { reason }`.
@@ -294,7 +295,7 @@ All responses set `Access-Control-Allow-Origin: $ALLOWED_ORIGIN` and JSON
 ```bash
 # seed
 aws lambda create-function --function-name emoji-daily-seed \
-  --runtime nodejs20.x --handler index.handler \
+  --runtime nodejs22.x --handler index.handler \
   --role "arn:aws:iam::${ACCOUNT_ID}:role/emoji-daily-seed-role" \
   --timeout 5 --memory-size 128 \
   --environment "Variables={SEEDS_TABLE=emoji-daily-seeds}" \
@@ -302,7 +303,7 @@ aws lambda create-function --function-name emoji-daily-seed \
 
 # leaderboard
 aws lambda create-function --function-name emoji-daily-leaderboard \
-  --runtime nodejs20.x --handler index.handler \
+  --runtime nodejs22.x --handler index.handler \
   --role "arn:aws:iam::${ACCOUNT_ID}:role/emoji-daily-leaderboard-role" \
   --timeout 5 --memory-size 128 \
   --environment "Variables={SCORES_TABLE=emoji-daily-scores}" \
@@ -310,7 +311,7 @@ aws lambda create-function --function-name emoji-daily-leaderboard \
 
 # validate (more memory + time for jsdom + full replay)
 aws lambda create-function --function-name emoji-daily-validate \
-  --runtime nodejs20.x --handler index.handler \
+  --runtime nodejs22.x --handler index.handler \
   --role "arn:aws:iam::${ACCOUNT_ID}:role/emoji-daily-validate-role" \
   --timeout 30 --memory-size 1024 \
   --environment "Variables={SEEDS_TABLE=emoji-daily-seeds,SCORES_TABLE=emoji-daily-scores,APP_VERSION=${APP_VERSION},SCORE_PAD_WIDTH=30,ALLOWED_ORIGIN=${ALLOWED_ORIGIN}}" \
@@ -506,7 +507,7 @@ Parameters:
 
 Globals:
   Function:
-    Runtime: nodejs20.x
+    Runtime: nodejs22.x
     Handler: index.handler
     MemorySize: 128
     Timeout: 5

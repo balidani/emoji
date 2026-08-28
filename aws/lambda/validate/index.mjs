@@ -92,7 +92,7 @@ function sanitizeName(raw) {
 
 // Fresh jsdom document per invocation (not reused across a warm container's
 // invocations) -- cheap relative to the game itself, and avoids any chance
-// of DOM/listener state leaking between two players' submissions. Node 20's
+// of DOM/listener state leaking between two players' submissions. Node 22's
 // native crypto/TextEncoder/Intl.Segmenter are already global and more
 // complete than jsdom's shims, so only `window`/`document` are installed
 // (DAILY_CHALLENGE_AWS_SETUP.md #4).

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Packages the seed Lambda -- no third-party deps, just the AWS SDK v3
-# already present in the Node 20 runtime (see DAILY_CHALLENGE_AWS_SETUP.md
+# already present in the Node 22 runtime (see DAILY_CHALLENGE_AWS_SETUP.md
 # #4). Run from anywhere; always operates relative to this script.
 set -euo pipefail
 cd "$(dirname "$0")"
