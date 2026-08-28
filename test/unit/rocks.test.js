@@ -54,6 +54,30 @@ describe('rocks.js', () => {
         2
       );
     });
+
+    // Regression test: Board.score() scores passive (inventory, e.g. via
+    // 👁️ Eye) symbols as `symbol.score(game, -1, i)` (board.js) -- x === -1
+    // is the established "not actually on the board" sentinel every other
+    // coordinate-taking Board method (nextToSymbol, redrawCell, addSymbol)
+    // already guards against. allSameInRow/allSameInColumn didn't, so a
+    // passive 💎 crashed with "Cannot read properties of undefined (reading
+    // 'emoji')" the moment it scored (board.js's this.cells[y][x] with
+    // x === -1 reads past the row array). Even with a board that, if the
+    // diamond WERE placed there, would give the full row+column bonus, a
+    // passive diamond gets neither -- it isn't really in that row/column.
+    it('a passive (off-board) diamond scores without crashing, with no row/col bonus', async () => {
+      const { game, board } = buildGame({
+        grid: ['💎 💎 💎', '💎 💎 💎', '💎 💎 💎'],
+        startingMoney: 0,
+      });
+      // Matches Board.makePassive(): a copy lives in passiveCells, and
+      // Board.score() drives it as `.score(game, -1, i)`.
+      board.passiveCells.push(board.cells[1][1].copy());
+      await board.passiveCells[0].score(game, -1, 0);
+      // No neighbors (nextToSymbol also returns [] for x === -1) and no
+      // row/col bonus -> flat 7.
+      expectMoney(game, 7);
+    });
   });
 
   describe('Rock 🪨', () => {

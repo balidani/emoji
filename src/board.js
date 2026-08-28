@@ -468,6 +468,12 @@ export class Board {
   }
 
   allSameInRow(x, y) {
+    // x === -1 (or y === -1) marks a passive/inventory symbol (see
+    // Board.score()'s passiveCells loop) -- it has no row to compare
+    // against, same as nextToSymbol()'s guard above.
+    if (x === -1 || y === -1) {
+      return false;
+    }
     const emoji = this.cells[y][x].emoji();
     for (let i = 0; i < this.settings.boardX; ++i) {
       if (this.cells[y][i].emoji() !== emoji) {
@@ -477,6 +483,9 @@ export class Board {
     return true;
   }
   allSameInColumn(x, y) {
+    if (x === -1 || y === -1) {
+      return false;
+    }
     const emoji = this.cells[y][x].emoji();
     for (let i = 0; i < this.currentRows; ++i) {
       if (this.cells[i][x].emoji() !== emoji) {
