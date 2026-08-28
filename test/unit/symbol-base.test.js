@@ -91,6 +91,27 @@ describe('Symb base class', () => {
       await board.cells[0][0].addResource(game, 0, 0, Const.LUCK, 3);
       expectCallCount(spy, 'moneyEarned', 0);
     });
+
+    it('records 💵 earned into game.stats.run.moneyByEmoji, keyed by the source emoji', async () => {
+      const { game, board } = buildGame({ grid: ['🪙 ⬜'] });
+      await board.cells[0][0].addResource(game, 0, 0, Const.MONEY, 5);
+      expect(game.stats.run.moneyByEmoji).toEqual({ '🪙': 5 });
+    });
+
+    it('sums repeated earnings from the same emoji', async () => {
+      const { game, board } = buildGame({ grid: ['🪙 ⬜'] });
+      await board.cells[0][0].addResource(game, 0, 0, Const.MONEY, 5);
+      await board.cells[0][0].addResource(game, 0, 0, Const.MONEY, 3);
+      expect(game.stats.run.moneyByEmoji).toEqual({ '🪙': 8 });
+    });
+
+    it('does not record non-💵 resources or non-positive amounts', async () => {
+      const { game, board } = buildGame({ grid: ['🪙 ⬜'] });
+      await board.cells[0][0].addResource(game, 0, 0, Const.LUCK, 5);
+      await board.cells[0][0].addResource(game, 0, 0, Const.MONEY, 0);
+      await board.cells[0][0].addResource(game, 0, 0, Const.MONEY, -5);
+      expect(game.stats.run.moneyByEmoji).toEqual({});
+    });
   });
 
   describe('addMoney (multiplier pathway)', () => {

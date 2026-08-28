@@ -183,6 +183,15 @@ describe('validateReplay (Daily Challenge server validator)', () => {
 
     expect(result.valid).toBe(true);
     expect(result.score).toBe(game.inventory.getResource(Const.MONEY));
+    // Server-computed from the same reconstructed game the score itself
+    // comes from -- matches what the client's own (real) run tracked.
+    expect(result.topEmoji).toEqual(game.stats.run.topMoneyEmoji(3));
+    expect(result.topEmoji.length).toBeGreaterThan(0);
+    for (let i = 1; i < result.topEmoji.length; i++) {
+      expect(result.topEmoji[i - 1].money).toBeGreaterThanOrEqual(
+        result.topEmoji[i].money
+      );
+    }
   });
 
   it('rejects a replay from a different app version', async () => {

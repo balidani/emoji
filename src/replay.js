@@ -478,5 +478,12 @@ export async function validateReplay(base64, { seed, appVersion }) {
     };
   }
 
-  return { valid: true, score: game.inventory.getResource(Const.MONEY) };
+  return {
+    valid: true,
+    score: game.inventory.getResource(Const.MONEY),
+    // Server-computed from the same reconstructed game the score itself
+    // comes from -- never trusted from the client, same trust boundary as
+    // score (DAILY_CHALLENGE_DESIGN.md #3). [{emoji, money}, ...], up to 3.
+    topEmoji: game.stats.run.topMoneyEmoji(3),
+  };
 }

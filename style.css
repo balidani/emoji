@@ -604,9 +604,26 @@ body {
 
 .daily-leaderboard-entry {
   display: flex;
+  align-items: center;
   gap: 8pt;
-  justify-content: space-between;
   padding: 2pt 4pt;
+}
+
+.daily-leaderboard-rank,
+.daily-leaderboard-score,
+.daily-leaderboard-top-emoji {
+  flex-shrink: 0;
+}
+
+.daily-leaderboard-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.daily-leaderboard-top-emoji {
+  font-size: 0.85em;
 }
 
 .daily-leaderboard-entry.you {

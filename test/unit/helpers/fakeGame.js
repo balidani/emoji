@@ -21,6 +21,7 @@ import * as Const from '../../../src/consts.js';
 import * as Util from '../../../src/util.js';
 import { Board } from '../../../src/board.js';
 import { CATEGORY_UNBUYABLE, Symb } from '../../../src/symbol.js';
+import { Stats, ProfileStats } from '../../../src/stats.js';
 
 import * as MoneySymbols from '../../../src/symbols/money.js';
 import * as AnimalSymbols from '../../../src/symbols/animals.js';
@@ -219,7 +220,19 @@ export function buildGame({
     initiallyLockedCells: {},
   };
 
-  const game = { settings, catalog, view: spy, inventory, shop, eventlog };
+  // Real Stats (same construction Game's own constructor does), not a stub
+  // -- Symb.addResource records into it via `game.stats?.`, and existing
+  // tests never look at it, so this is purely additive.
+  const stats = new Stats(new ProfileStats());
+  const game = {
+    settings,
+    catalog,
+    view: spy,
+    inventory,
+    shop,
+    eventlog,
+    stats,
+  };
 
   // Board's constructor self-assigns `game.board = this` and builds a
   // default (padded) grid of Empty (plus a center PlayButton) -- we

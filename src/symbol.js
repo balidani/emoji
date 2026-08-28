@@ -66,6 +66,9 @@ export class Symb {
   }
   async addResource(game, x, y, key, value) {
     const source = game.board.getEmoji(x, y) || '❓';
+    if (key === Const.MONEY && value > 0) {
+      game.stats?.recordMoneySourced(source, value);
+    }
     await Promise.all([
       game.eventlog.logResourceChange(key, value, source, 'earned'),
       game.inventory.addResource(key, value),

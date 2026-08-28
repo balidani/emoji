@@ -40,6 +40,10 @@ export const handler = async (event) => {
   const top = (Items ?? []).map((item, i) => ({
     name: item.name,
     score: Number(item.score),
+    topEmoji: (item.topEmoji ?? []).map(({ emoji, money }) => ({
+      emoji,
+      money: Number(money),
+    })),
     rank: i + 1,
   }));
 

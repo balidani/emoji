@@ -102,6 +102,17 @@ export class DailyView {
       entry.appendChild(
         createSpan(formatBigNumber(row.score), 'daily-leaderboard-score')
       );
+      // Missing/empty for rows submitted before this existed, or a run that
+      // never had a single symbol earn money -- just omit the badge rather
+      // than rendering an empty one.
+      if (row.topEmoji?.length > 0) {
+        entry.appendChild(
+          createSpan(
+            row.topEmoji.map((e) => e.emoji).join(''),
+            'daily-leaderboard-top-emoji'
+          )
+        );
+      }
       list.appendChild(entry);
     }
     panel.appendChild(list);

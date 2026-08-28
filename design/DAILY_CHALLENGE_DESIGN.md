@@ -233,7 +233,11 @@ cheaper/simpler API Gateway flavor and is sufficient.
   until its day.
 - `POST /daily/submit` → body `{ date, name, replay }` (`replay` is the
   base64 `EMOJIRPLY1` code from `recorder.serialize()`). Validates (§7.5) and
-  on success returns `{ score, rank, top: [ { name, score, rank }, ... ] }`.
+  on success returns
+  `{ score, rank, top: [ { name, score, topEmoji, rank }, ... ] }`
+  (`topEmoji`: up to 3 `{emoji, money}`, descending by money earned that run,
+  computed server-side from the same reconstructed game as `score` -- see
+  §7.5).
 - `GET /daily/leaderboard?date=YYYY-MM-DD` → `{ date, top: [...] }` (top 100),
   for viewing without submitting.
 
@@ -269,8 +273,10 @@ any secret.
     integer score as a **fixed-width, zero-padded decimal string** so
     lexicographic SK order == numeric score order; `submissionId` (a uuid)
     breaks ties and keeps rows unique.
-  - Attributes: `name`, `score` (numeric, for display), `ts`, `appVersion`,
-    optional `replayKey` (S3) for audit.
+  - Attributes: `name`, `score` (numeric, for display), `topEmoji` (up to 3
+    `{emoji, money}`, descending by money earned that run -- server-computed,
+    same trust boundary as `score`), `ts`, `appVersion`, optional `replayKey`
+    (S3) for audit.
   - Top-100 query: `Query(PK = "DATE#"+date, ScanIndexForward=false,
     Limit=100)`. Rank is the row index.
   - Money can grow large (`formatBigNumber`); store `score` as a string too if
@@ -293,7 +299,8 @@ any secret.
   `restrictTo(dailyAllowedEmoji(...))` → construct daily `Game` with
   `SimRenderer`, `isReplay = true`, a no-op `onGameOver`, and a stub
   progression → run each event through the shared `playEvent` → require
-  `game.isOver` afterward → read score.
+  `game.isOver` afterward → read score and topEmoji
+  (`game.stats.run.topMoneyEmoji(3)`).
 - Refactor `replay.js` to **export the shared drive loop** (`playEvent`, or a
   `driveEvents(game, events)` helper) and add a headless
   `validateReplay(base64, { deriveStart })`. `runReplay` (browser) and

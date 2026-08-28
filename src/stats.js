@@ -9,6 +9,7 @@ export class RunStats {
   constructor() {
     this.boughtByEmoji = {}; // emoji -> count bought this run
     this.generatedByEmoji = {}; // emoji -> count spawned onto the board this run
+    this.moneyByEmoji = {}; // emoji -> summed 💵 earned by that emoji this run
     this.transforms = {}; // 'from>to' -> count this run
     this.moneyEarned = 0; // sum of positive 💵 deltas this run
     this.turnsPlayed = 0; // turns actually consumed this run
@@ -22,6 +23,18 @@ export class RunStats {
   }
   get totalBought() {
     return Object.values(this.boughtByEmoji).reduce((a, b) => a + b, 0);
+  }
+  // Descending by money earned this run, ties broken by whichever emoji
+  // earned first (Object.entries preserves insertion order for string keys,
+  // and Array.prototype.sort is stable) -- deterministic, though nothing
+  // here is RNG-sensitive, so it wouldn't matter for replay validation
+  // either way. Returns fewer than n entries if fewer than n distinct
+  // emoji ever earned money this run.
+  topMoneyEmoji(n = 3) {
+    return Object.entries(this.moneyByEmoji)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, n)
+      .map(([emoji, money]) => ({ emoji, money }));
   }
 }
 
@@ -76,6 +89,9 @@ export class Stats {
     if (amount <= 0) return;
     this.run.moneyEarned += amount;
     this.profile.lifetimeMoneyEarned += amount;
+  }
+  recordMoneySourced(emoji, amount) {
+    this.run.moneyByEmoji[emoji] = (this.run.moneyByEmoji[emoji] ?? 0) + amount;
   }
   recordTurn() {
     this.run.turnsPlayed += 1;

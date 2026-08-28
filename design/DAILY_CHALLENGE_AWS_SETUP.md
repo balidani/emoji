@@ -113,11 +113,21 @@ descending query yields the top 100.
   "sk": "SCORE#000...0004210#<submissionId>",     // "SCORE#" + zeroPad(score, SCORE_PAD_WIDTH) + "#" + uuid
   "name": "dan",                                   // sanitized player name
   "score": "4210",                                 // exact integer as a string (may exceed JS safe int)
+  "topEmoji": [                                     // up to 3, descending by money earned this run
+    { "emoji": "💎", "money": "48302" },
+    { "emoji": "🎁", "money": "12105" },
+    { "emoji": "🐔", "money": "3006" }
+  ],
   "ts": "2026-08-07T13:02:44Z",
   "appVersion": "1.0.4",
   "replayKey": "2026-08-07/<submissionId>.txt"     // optional, only if archiving to S3
 }
 ```
+
+`topEmoji` is computed server-side by `validateReplay()` (`src/replay.js`, `game.stats.run.topMoneyEmoji(3)`) from the same
+reconstructed game the score itself comes from -- never trusted from the
+client, same as score (DAILY_CHALLENGE_DESIGN.md #3). `money` is a string
+per entry for the same reason as `score`.
 
 Top-100 query the leaderboard handler runs:
 `Query(pk = "DATE#"+date, ScanIndexForward=false, Limit=100)`. Rank = index.
@@ -279,11 +289,13 @@ All responses set `Access-Control-Allow-Origin: $ALLOWED_ORIGIN` and JSON
     and `bootstrap.js`); builds
     the canonical daily catalog + `restrictTo(dailyAllowedEmoji(...))`;
     constructs the canonical daily `Game`; drives the recorded `events`; and
-    returns `{ valid, score, reason? }`. Invalid → `422 { reason }`.
-  - On valid: write the `emoji-daily-scores` row (§2 shape; `score` computed
-    server-side, never from the client), optionally archive the raw replay to
-    S3, then run the top-100 query.
-  - Response `200 { "score", "rank", "top": [ { "name","score","rank" }, ... ] }`.
+    returns `{ valid, score, topEmoji, reason? }` (`topEmoji`:
+    `game.stats.run.topMoneyEmoji(3)`, up to 3 `{emoji, money}` entries
+    descending by money earned this run). Invalid → `422 { reason }`.
+  - On valid: write the `emoji-daily-scores` row (§2 shape; `score`/`topEmoji`
+    computed server-side, never from the client), optionally archive the raw
+    replay to S3, then run the top-100 query.
+  - Response `200 { "score", "rank", "top": [ { "name","score","topEmoji","rank" }, ... ] }`.
 
 - **`emoji-daily-leaderboard`** — `GET /daily/leaderboard?date=YYYY-MM-DD`
   - Query top 100 for the date (§2). Response `200 { "date", "top": [...] }`.

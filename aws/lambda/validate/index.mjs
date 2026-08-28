@@ -178,9 +178,16 @@ export const handler = async (event) => {
     return json(422, { reason: result.reason }, origin);
   }
 
-  // Score is computed server-side, from the server's own reconstructed game
-  // -- never trusted from the client (DAILY_CHALLENGE_DESIGN.md #3).
+  // Score (and topEmoji, below) are computed server-side, from the server's
+  // own reconstructed game -- never trusted from the client
+  // (DAILY_CHALLENGE_DESIGN.md #3).
   const score = result.score;
+  // money as a string per entry, same reason as score itself: it can exceed
+  // Number.MAX_SAFE_INTEGER.
+  const topEmoji = result.topEmoji.map(({ emoji, money }) => ({
+    emoji,
+    money: String(money),
+  }));
   const submissionId = randomUUID();
   const pad = String(score).padStart(SCORE_PAD_WIDTH, '0');
   const sk = `SCORE#${pad}#${submissionId}`;
@@ -198,6 +205,7 @@ export const handler = async (event) => {
           sk,
           name,
           score: String(score),
+          topEmoji,
           ts: new Date().toISOString(),
           appVersion: APP_VERSION,
         },
@@ -228,6 +236,10 @@ export const handler = async (event) => {
   const realTop = (Items ?? []).map((item, i) => ({
     name: item.name,
     score: Number(item.score),
+    topEmoji: (item.topEmoji ?? []).map(({ emoji, money }) => ({
+      emoji,
+      money: Number(money),
+    })),
     rank: i + 1,
   }));
   // Splice the never-written dry-run row into the real top-100 for display
@@ -238,7 +250,10 @@ export const handler = async (event) => {
     dryRun && rank > 0 && rank <= 100
       ? realTop
           .slice(0, rank - 1)
-          .concat([{ name, score, rank }], realTop.slice(rank - 1))
+          .concat(
+            [{ name, score, topEmoji: result.topEmoji, rank }],
+            realTop.slice(rank - 1)
+          )
           .slice(0, 100)
           .map((row, i) => ({ ...row, rank: i + 1 }))
       : realTop;
