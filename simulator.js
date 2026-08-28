@@ -16,13 +16,13 @@ Util.animationOff();
 const settings = GameSettings.instance();
 
 // Seed the RNG before anything else runs, in particular before the first
-// catalog load dynamically imports symbol sources -- some (e.g. Santa in
-// things.js) draw from the RNG at import time via a static class field. A
-// module that throws during evaluation is permanently unloadable for the
-// rest of the page's life (ES modules cache failed evaluations), so seeding
-// late doesn't just desync one round -- it silently drops that whole symbol
-// file from every round for the entire session. See bootstrap.js for the
-// same requirement in the real game.
+// catalog build -- some symbols (e.g. Santa in things.js) draw a purely
+// cosmetic value from the RNG the first time Catalog builds them, via
+// rollCosmetics() (see catalog.js). loadSymbolSource() swallows any error a
+// symbol source throws while loading, so seeding late doesn't just desync
+// one round -- it silently drops that whole symbol file from every round
+// for the entire session. See bootstrap.js for the same requirement in the
+// real game.
 await Util.setRandomSeed();
 
 // --- Local storage persistence ---

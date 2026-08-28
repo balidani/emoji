@@ -3,23 +3,29 @@ import * as Util from './util.js';
 import { CatalogUnusableError } from './catalog-errors.js';
 
 export class Catalog {
-  // freshImports (default false, preserves existing behavior everywhere
-  // else): forces every symbol source to be re-imported as a brand-new ES
-  // module instance instead of reusing Node's module cache. Exists for
-  // src/replay.js's validateReplay() only -- a few symbols draw from the
-  // seeded RNG at *module import time*, not construction time (e.g.
-  // Santa's displayVariant in symbols/things.js), which a real browser
-  // session only ever evaluates once per (always-fresh) page load. A
-  // warm-reused Lambda container's module cache would otherwise make that
-  // one-time draw fire on only the *first* validateReplay() call it ever
-  // handles, silently desyncing every submission after it from what a
-  // client's fresh page load actually recorded. `./symbol.js` itself is
-  // deliberately never busted -- every symbol source's own `import { Symb }
-  // from '../symbol.js'` must keep resolving to the one shared (cached)
-  // base class, or `instanceof Symb` below stops recognizing them.
-  constructor(symbolSources, { freshImports = false } = {}) {
+  // forceCosmeticReroll (default false, preserves existing behavior
+  // everywhere else): re-rolls every symbol class's cosmetics (see
+  // rollCosmetics() below) on *every* call to updateSymbols(), even if this
+  // process already rolled them once before.
+  //
+  // A handful of symbols carry a purely cosmetic, RNG-drawn trait that isn't
+  // part of their gameplay identity (e.g. Santa's displayVariant skin-tone
+  // glyph in symbols/things.js) but does consume a slot in the seeded
+  // stream, so it must be drawn exactly once per canonical game build to
+  // keep every later draw (shop generation, etc.) lined up. A symbol class
+  // exposes this via a static `rollCosmetics()` method; loadSymbolSource()
+  // below calls it at most once per class per process by default (matching
+  // a browser tab, which only ever loads a symbol module once and reuses it
+  // for every game in that tab), but Daily Challenge's validate Lambda and
+  // its client-side "play another round" flow both need every catalog build
+  // to look like an independent fresh page load -- see
+  // src/replay.js/validateReplay() and src/app/bootstrap.js's loadSettings
+  // -- so they pass forceCosmeticReroll: true to redraw on every build
+  // regardless of what a previous build in this same process already
+  // rolled.
+  constructor(symbolSources, { forceCosmeticReroll = false } = {}) {
     this.symbolSources = symbolSources || [];
-    this.freshImports = freshImports;
+    this.forceCosmeticReroll = forceCosmeticReroll;
   }
   async updateSymbols() {
     this.symbols = new Map();
@@ -45,14 +51,22 @@ export class Catalog {
     const newCategories = new Map();
 
     try {
-      const specifier =
-        this.freshImports && source !== './symbol.js'
-          ? `${source}?fresh=${Date.now()}-${Math.random().toString(36).slice(2)}`
-          : source;
-      let symModule = await import(specifier);
+      // Plain, uncached-busted import: every symbol source is a normal,
+      // process-wide-cached ES module, so a warm Lambda container (or a
+      // second game in the same browser tab) pays for parsing/evaluating
+      // these only once, not once per catalog build.
+      let symModule = await import(source);
       for (const [_, value] of Object.entries(symModule)) {
         if (!(value.prototype instanceof Symb)) {
           continue;
+        }
+
+        if (
+          typeof value.rollCosmetics === 'function' &&
+          (this.forceCosmeticReroll || !value.__cosmeticsRolled)
+        ) {
+          value.rollCosmetics();
+          value.__cosmeticsRolled = true;
         }
 
         let sym = new value();

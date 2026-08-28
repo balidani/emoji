@@ -3,8 +3,7 @@ import * as Const from '../consts.js';
 import { Symb } from '../symbol.js';
 
 // Plain string, not Symbol() -- see symbol.js's CATEGORY_EMPTY_SPACE
-// comment for why: this is imported cross-file (things.js), and
-// freshImports loads each symbol source as a separate module instance.
+// comment for why: this is imported cross-file (things.js).
 export const CATEGORY_TOOL = 'category:Tool';
 
 const onToolBuy = async (game, prompt, effect) => {

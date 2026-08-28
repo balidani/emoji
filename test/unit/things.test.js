@@ -1,6 +1,7 @@
 // UNIT_TEST_PLAN.md section 7.7
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setSeed } from '../../src/core/rng.js';
+import { Catalog } from '../../src/catalog.js';
 import { CATEGORY_UNBUYABLE } from '../../src/symbol.js';
 import { CATEGORY_TOOL } from '../../src/symbols/tools.js';
 import { Bomb, Firefighter, Moon, Santa } from '../../src/symbols/things.js';
@@ -154,6 +155,35 @@ describe('things.js', () => {
 
     it('displayEmoji() is a skin-tone Santa variant', () => {
       expect(new Santa().displayEmoji().startsWith('🎅')).toBe(true);
+    });
+
+    it('rollCosmetics() draws a valid skin-tone variant', () => {
+      Santa.rollCosmetics();
+      expect(['🎅🏻', '🎅🏼', '🎅🏽', '🎅🏾', '🎅🏿']).toContain(Santa.displayVariant);
+    });
+
+    // Regression coverage for the Catalog.rollCosmetics() mechanism
+    // (catalog.js) that replaced Catalog's old freshImports cache-busting:
+    // a catalog build should roll Santa's cosmetic variant once per process
+    // by default (matching a browser tab, which only ever loads things.js
+    // once), and only redraw on every build when forceCosmeticReroll is set
+    // (what Daily Challenge needs -- every submission/round must look like
+    // an independent fresh page load).
+    it('Catalog rolls the cosmetic once per process unless forceCosmeticReroll is set', async () => {
+      const catalog1 = new Catalog(['./symbols/things.js']);
+      await catalog1.updateSymbols();
+
+      Santa.displayVariant = '__sentinel__';
+      const catalog2 = new Catalog(['./symbols/things.js']);
+      await catalog2.updateSymbols();
+      expect(Santa.displayVariant).toBe('__sentinel__');
+
+      const catalog3 = new Catalog(['./symbols/things.js'], {
+        forceCosmeticReroll: true,
+      });
+      await catalog3.updateSymbols();
+      expect(Santa.displayVariant).not.toBe('__sentinel__');
+      expect(['🎅🏻', '🎅🏼', '🎅🏽', '🎅🏾', '🎅🏿']).toContain(Santa.displayVariant);
     });
 
     it('pays 💵25 per 🎁 opened this run', async () => {

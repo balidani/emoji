@@ -6,16 +6,14 @@ import * as Util from './util.js';
 
 // Plain strings, not Symbol() -- a category defined in one symbol source
 // file and imported by another (e.g. animals.js importing CATEGORY_FOOD
-// from food.js) must compare equal even when the two files were loaded as
-// separate module instances. That happens for every Daily Challenge server
-// validation: Catalog's freshImports (see catalog.js) cache-busts each
-// symbol source independently to force Santa's import-time RNG draw
-// (symbols/things.js) to refire on a warm Lambda container, and a nested
-// static import inside a busted file resolves to yet another instance, not
-// necessarily the one Catalog itself loaded. A Symbol() would silently
-// stop matching across that boundary -- .includes() would just always
-// return false, with no error -- so every CATEGORY_* in this codebase must
-// stay a string.
+// from food.js) must compare equal wherever it's checked. Symbol source
+// files are always loaded through Node/the browser's normal module cache
+// (Catalog never busts it -- see catalog.js), so in practice a Symbol()
+// would work today too; kept as a plain string anyway since there's no
+// upside to the extra type and a future change to how symbol sources are
+// loaded shouldn't silently reintroduce a cross-module-instance mismatch
+// (a Symbol() would fail closed but silently -- .includes() just always
+// returns false, with no error).
 export const CATEGORY_EMPTY_SPACE = 'category:Empty Space';
 export const CATEGORY_UNBUYABLE = 'category:Unbuyable';
 

@@ -23,8 +23,9 @@ import { fetchDailySeed, DailyApiError } from '../daily-api.js';
 // bootstrap()".
 export async function bootstrap() {
   // Seed the RNG before anything else runs (in particular, before the first
-  // catalog load dynamically imports symbol sources -- some, like Santa,
-  // draw from the RNG at import time). core/rng.js itself has no DOM access;
+  // catalog build -- some symbols, like Santa, draw a purely cosmetic value
+  // from the RNG the first time Catalog builds them, via rollCosmetics(),
+  // see catalog.js). core/rng.js itself has no DOM access;
   // this is the one place that reads the seed from the URL. Shown in the
   // game settings panel (see initSidebar's renderGameSettingsPanel).
   //
@@ -116,17 +117,18 @@ export async function bootstrap() {
     // first, must start from the exact same canonical state the validate
     // Lambda reconstructs: reseed from the day's phrase right before
     // building the catalog (matching bootstrap()'s own top-of-function
-    // seeding), and force freshImports so Santa's import-time draw
-    // (symbols/things.js) actually refires on a second round in the same
-    // tab -- without it, the module stays cached from the first round and
-    // silently skips that draw, desyncing this round's RNG stream from
-    // what the server (which always reimports fresh) expects from turn one.
+    // seeding), and force a cosmetic reroll so Santa's displayVariant
+    // (symbols/things.js) actually redraws on a second round in the same
+    // tab -- without it, Catalog only rolls it once per process by default
+    // (see catalog.js's rollCosmetics()) and would silently skip that draw
+    // on round two, desyncing this round's RNG stream from what the server
+    // (which always reconstructs fresh) expects from turn one.
     const isDaily = PROGRESSION.mode === 'daily';
     if (isDaily) {
       await Rng.setSeed(seedPhrase);
     }
     const catalog = new Catalog(settings.symbolSources, {
-      freshImports: isDaily,
+      forceCosmeticReroll: isDaily,
     });
     await catalog.updateSymbols();
     // Offline (or otherwise interrupted) module loads leave

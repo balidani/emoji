@@ -197,10 +197,25 @@ export class Lootbox extends Symb {
 
 export class Santa extends Symb {
   static emoji = '🧑‍🎄';
-  // Cosmetic only, drawn once from the seeded stream at import time (same
-  // position as before the refactor, so gameplay is unaffected). Never
-  // leaks into identity -- see displayEmoji().
-  static displayVariant = Util.randomChoose(['🎅🏻', '🎅🏼', '🎅🏽', '🎅🏾', '🎅🏿']);
+  // Cosmetic only -- never leaks into identity, see displayEmoji(). Set by
+  // rollCosmetics() below, not drawn here: a static field initializer runs
+  // once at module-evaluation time, which is at the mercy of the JS engine's
+  // module cache (fine in a browser, wrong in a warm Lambda container or a
+  // second Catalog build in the same tab -- see Catalog.rollCosmetics()'s
+  // comment in catalog.js for the full story). This default is only ever
+  // seen if something reads displayEmoji() before any Catalog has loaded
+  // things.js, which shouldn't happen in practice.
+  static displayVariant = '🎅🏻';
+  // Catalog's cosmetic-reroll hook (catalog.js): called once per catalog
+  // build normally, or once per build unconditionally when the caller needs
+  // every build to look like an independent fresh page load (Daily
+  // Challenge, both client and server -- see replay.js/bootstrap.js). Drawn
+  // from the same seeded stream, in the same relative position (before any
+  // gameplay draw), as the old import-time field -- so gameplay and every
+  // rng: trace line are unaffected.
+  static rollCosmetics() {
+    Santa.displayVariant = Util.randomChoose(['🎅🏻', '🎅🏼', '🎅🏽', '🎅🏾', '🎅🏿']);
+  }
   constructor() {
     super();
     this.rarity = 0.07;

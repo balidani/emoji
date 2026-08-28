@@ -372,11 +372,11 @@ export async function runReplay(base64, { progression, onGameOver }) {
 //
 // KNOWN OPEN ISSUE, not yet root-caused: test/unit/daily-validate.test.js
 // proves this function correct for a small settings/symbol-source scope
-// (matching REPLAY_SETTINGS' proven pattern), and freshImports (see
-// catalog.js) fixes a confirmed cross-invocation bug where an import-time
-// RNG draw (Santa's displayVariant, symbols/things.js) only fired on a warm
-// Lambda container's first-ever call. Independently of that fix, ad-hoc
-// testing against the *full* canonical DAILY_SETTINGS catalog (all 11
+// (matching REPLAY_SETTINGS' proven pattern), and Catalog's cosmetic-reroll
+// hook (see catalog.js's rollCosmetics()) fixes a confirmed cross-invocation
+// bug where a cosmetic RNG draw (Santa's displayVariant, symbols/things.js)
+// only fired on a warm Lambda container's first-ever call. Independently of
+// that fix, ad-hoc testing against the *full* canonical DAILY_SETTINGS catalog (all 11
 // symbol files, a 50-turn game) has shown validateReplay's own from-seed
 // reconstruction occasionally re-deriving a different shop draw order than
 // an independently-recorded run of the same seed/events, deep into a long
@@ -417,12 +417,16 @@ export async function validateReplay(base64, { seed, appVersion }) {
   // Catalog: updateSymbols() mutates whatever array it's given (unshifts
   // './symbol.js'), and DAILY_SETTINGS is a shared singleton that may be
   // reused across many invocations in a warm Lambda container.
-  // freshImports: true for the same reason -- see Catalog's constructor
-  // comment (catalog.js) for why a warm container needs this to reproduce
-  // a fresh page load's import-time RNG draws (e.g. Santa's displayVariant)
-  // on every single call, not just its first.
+  // forceCosmeticReroll: true for the same reason -- see Catalog's
+  // constructor comment (catalog.js) for why a warm container needs this to
+  // reproduce a fresh page load's cosmetic RNG draws (e.g. Santa's
+  // displayVariant) on every single call, not just its first. Unlike the
+  // old freshImports mechanism this replaced, symbol modules are loaded
+  // from Node's normal module cache -- only the cosmetic draw itself is
+  // forced to redo -- so a warm container no longer re-parses every symbol
+  // source on every submission.
   const catalog = new Catalog([...DAILY_SETTINGS.symbolSources], {
-    freshImports: true,
+    forceCosmeticReroll: true,
   });
   await catalog.updateSymbols();
   catalog.restrictTo(dailyAllowedEmoji(catalog));
