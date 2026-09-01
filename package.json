@@ -9,7 +9,8 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:trace": "node test/run-trace.mjs",
-    "test": "npm run test:unit && npm run test:trace"
+    "test": "npm run test:unit && npm run test:trace",
+    "playtest:cocktail": "vitest run --config vitest.playtest.config.mjs"
   },
   "author": "balidani",
   "license": "ISC",
