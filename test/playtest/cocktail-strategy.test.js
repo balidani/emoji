@@ -954,7 +954,21 @@ async function playOneGame(seedPhrase, policy) {
     .concat(game.inventory.symbols)
     .filter((s) => s.emoji() === CHAMPAGNE).length;
   const score = game.inventory.getResource(Const.MONEY);
-  return { score, diag };
+  // Snapshot of what's actually left in the pool at game end (still-owned
+  // inventory + anything converted to passive) -- consumed feed items
+  // (Cherry/Pineapple/Champagne eaten by Cocktail) are removed from the
+  // pool entirely by removeSymbol, so they won't show up here; this
+  // reflects the "leftover" composition, not everything ever acquired.
+  const finalInventory = {};
+  for (const s of game.inventory.symbols) {
+    const e = s.emoji();
+    finalInventory[e] = (finalInventory[e] || 0) + 1;
+  }
+  for (const s of game.board.passiveCells) {
+    const e = s.emoji();
+    finalInventory[e] = (finalInventory[e] || 0) + 1;
+  }
+  return { score, diag, finalInventory };
 }
 
 function getTrophy(settings, score) {
@@ -1045,4 +1059,131 @@ describe('scratch: cocktail strategy playtest', () => {
       `min=${scores[0]} max=${scores[scores.length - 1]} avg=${avg} median=${median}`
     );
   }, 120000);
+
+  // Large-N run (1000 games) for a statistically stabler read than the
+  // N=60 run above, plus a per-game final-inventory export: what's still in
+  // the pool (owned + passive) the moment the game ends, per playOneGame's
+  // finalInventory field. Written to disk as raw data, then correlated
+  // (Pearson, against log(score+1) to avoid a few outlier runs dominating
+  // the coefficient the way they would against raw score) with score to see
+  // which leftover symbols/diagnostics actually track a good outcome versus
+  // just being along for the ride.
+  it('plays 1000 games and exports final-inventory stats', async () => {
+    const N = 1000;
+    const results = [];
+    for (let i = 0; i < N; i++) {
+      const r = await playOneGame(`cocktail-1000-${i}`, cocktailPolicy);
+      results.push(r);
+    }
+    const settings = GameSettings.instance();
+
+    const scores = results.map((r) => r.score);
+    const sorted = [...scores].sort((a, b) => a - b);
+    const sum = sorted.reduce((a, b) => a + b, 0);
+    const avg = Math.round(sum / sorted.length);
+    const pct = (p) =>
+      sorted[
+        Math.min(sorted.length - 1, Math.floor((p / 100) * sorted.length))
+      ];
+    const median = pct(50);
+
+    console.log('\n=== 1000-game stats ===');
+    console.log(
+      `min=${sorted[0]} max=${sorted[sorted.length - 1]} avg=${avg} median=${median}`
+    );
+    console.log(
+      `p10=${pct(10)} p25=${pct(25)} p75=${pct(75)} p90=${pct(90)} p99=${pct(99)}`
+    );
+
+    const trophyCounts = {};
+    for (const r of results) {
+      const t = getTrophy(settings, r.score);
+      trophyCounts[t] = (trophyCounts[t] || 0) + 1;
+    }
+    console.log('trophy distribution:', JSON.stringify(trophyCounts));
+
+    // Raw export for the record -- one row per game: score, trophy, key
+    // diagnostics, and the final-inventory snapshot.
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const outDir =
+      '/tmp/claude-0/-home-user-emoji/9b042324-b56c-5bfd-af53-2ef72423641c/scratchpad';
+    fs.mkdirSync(outDir, { recursive: true });
+    const outPath = path.join(outDir, 'cocktail-1000-results.json');
+    fs.writeFileSync(
+      outPath,
+      JSON.stringify(
+        results.map((r, i) => ({
+          i,
+          score: r.score,
+          trophy: getTrophy(settings, r.score),
+          diag: r.diag,
+          finalInventory: r.finalInventory,
+        }))
+      )
+    );
+    console.log(`raw data written to ${outPath}`);
+
+    function pearson(xs, ys) {
+      const n = xs.length;
+      const meanX = xs.reduce((a, b) => a + b, 0) / n;
+      const meanY = ys.reduce((a, b) => a + b, 0) / n;
+      let num = 0;
+      let denX = 0;
+      let denY = 0;
+      for (let i = 0; i < n; i++) {
+        const dx = xs[i] - meanX;
+        const dy = ys[i] - meanY;
+        num += dx * dy;
+        denX += dx * dx;
+        denY += dy * dy;
+      }
+      if (denX === 0 || denY === 0) return 0;
+      return num / Math.sqrt(denX * denY);
+    }
+
+    const logScores = scores.map((s) => Math.log(s + 1));
+
+    const emojiSet = new Set();
+    for (const r of results) {
+      for (const e of Object.keys(r.finalInventory)) emojiSet.add(e);
+    }
+    const emojiCorrelations = [...emojiSet].map((e) => {
+      const counts = results.map((r) => r.finalInventory[e] || 0);
+      const avgCount = counts.reduce((a, b) => a + b, 0) / counts.length;
+      return { emoji: e, avgCount, corr: pearson(counts, logScores) };
+    });
+    emojiCorrelations.sort((a, b) => b.corr - a.corr);
+    console.log(
+      '\nfinal-inventory emoji correlation with log(score) (top 15):'
+    );
+    for (const { emoji, avgCount, corr } of emojiCorrelations.slice(0, 15)) {
+      console.log(
+        `  ${emoji}  avgCount=${avgCount.toFixed(2)}  corr=${corr.toFixed(3)}`
+      );
+    }
+    console.log('bottom 5:');
+    for (const { emoji, avgCount, corr } of emojiCorrelations.slice(-5)) {
+      console.log(
+        `  ${emoji}  avgCount=${avgCount.toFixed(2)}  corr=${corr.toFixed(3)}`
+      );
+    }
+
+    const diagKeys = [
+      'pinCount',
+      'multiplierLocks',
+      'coveragePins',
+      'axeCount',
+      'refreshCount',
+      'champagneOffered',
+      'champagneBought',
+      'cocktailBoughtTurn',
+      'pinTurn',
+    ];
+    console.log('\ndiagnostic correlation with log(score):');
+    for (const key of diagKeys) {
+      const xs = results.map((r) => r.diag[key] ?? 0);
+      console.log(`  ${key}: corr=${pearson(xs, logScores).toFixed(3)}`);
+    }
+  }, 1_800_000);
 });
