@@ -58,19 +58,17 @@ import { SimRenderer } from '../../src/render/SimRenderer.js';
 const COCKTAIL = '🍹';
 const CHAMPAGNE = '🍾';
 const PINEAPPLE = '🍍';
-const CHERRY = '🍒';
 const MULT = '❎';
-const TREE = '🌳';
 const ICE = '🧊';
 const PIN = '📌';
 const EYE = '🧿';
 const REFRESH = '🔀';
 const BAG = '🛍️';
 const POSTBOX = '📮';
-// Clover (🍀) has no constant -- it's never actively bought or targeted;
-// it's simply left out of KEEP_SET so findJunkTarget prunes it like any
-// other non-essential symbol (see KEEP_SET's comment). The one from the
-// starting set gets Axed once the pool needs the space.
+// Never actively bought or targeted -- only removed, once there's enough
+// Crystal Ball to not miss its tiny Luck contribution (see findJunkTarget's
+// CLOVER_REMOVAL_CRYSTAL_THRESHOLD check).
+const CLOVER = '🍀';
 const CRYSTAL = '🔮';
 
 const AXE = '🪓';
@@ -97,6 +95,10 @@ const SHOPPING_BAG_CAP = 4;
 // many of them end up permanently *pinned* -- this is just having enough
 // in the pool to pin from).
 const ICE_OWN_TARGET = 4;
+// Minimum buyCount for the Tier-2 Pineapple fallback to kick in at all --
+// see its comment for why "many buys" specifically (not just any buy) is
+// the condition, per the player.
+const PINEAPPLE_MIN_BUY_COUNT = 2;
 // CrystalBall is deliberately uncapped -- "super important" per the
 // player, at *least* 6 copies but no ceiling. Each is +3% Luck (stacking
 // additively -- see catalog.js's generateShop, which adds Luck/100 to
@@ -146,62 +148,44 @@ const POOL_SPACE_MARGIN = 3;
 
 const COIN = '🪙';
 
-const FEED_PRIORITY = [CHAMPAGNE, MULT, PINEAPPLE, CHERRY, TREE, ICE];
-// Tier-2 fallback once Champagne/Multiplier/Pineapple/Ice are all already
-// handled by their own dedicated checks -- just the plain remainder.
-const FEED_FALLBACK = [CHERRY, TREE];
+// Tree and Cherry are both deliberately absent -- "do not buy tree, this is
+// too slow once we have a better money generator" and "cherries can also be
+// ignored entirely" per the player. Neither is bought, fed, pinned, or
+// protected from Axe any more; Pineapple/Multiplier/Ice/Champagne are the
+// whole feed list now.
+const FEED_PRIORITY = [CHAMPAGNE, MULT, PINEAPPLE, ICE];
 const UTILITY_SET = new Set([REFRESH, BAG, POSTBOX]);
-// Clover deliberately excluded -- the player wants it Axed for space, not
-// kept as a (much weaker than CrystalBall) passive, see KEEP_SET's comment.
 const EYE_TARGET_PRIORITY = [REFRESH, POSTBOX, BAG, CRYSTAL];
-// Explicitly named as the priority early bootstrap by the player this bot
-// is modeling, ahead of generic feeding: Jar (pays 💵8 per *unique* emoji
+// The exact five the player named, in this order -- "for money engines do
+// not get bank or money bag or corn or popcorn or butter. Get fortune
+// cookie, jar, briefcase, dragon, cloud": Jar (💵8 per *unique* emoji
 // owned -- highest early, when the inventory is still small and every new
 // symbol counts), Dragon (💵42 flat, just very rare -- 1% base rarity, grab
-// it on sight), Briefcase ("usually good", 💵5 per 4 symbols owned), Cloud
-// ("very good in the beginning", 💵6 per *empty* board cell -- with a
-// mostly-empty board and a tiny starting pool, that's a lot of empty cells
-// early on), FortuneCookie (💵5 per point of Luck -- directly rewards the
-// Crystal Ball stacking this whole strategy leans on), and Santa+Lootbox
-// (Lootbox transforms into a random symbol for free, bypassing the shop
-// entirely, and Santa pays 💵25 per Lootbox opened -- "we can deal with
-// any unwanted symbols produced later" per the player, i.e. via Axe).
-// These are meant to be picked up *and later removed* (Axe, once Cocktail
-// is running and every inventory slot should be feeding it instead)
-// rather than kept all game, unlike FEED_PRIORITY/KEEP_SET.
+// it on sight), Briefcase (💵5 per 4 symbols owned), Cloud (💵6 per *empty*
+// board cell -- with a mostly-empty board and a tiny starting pool, that's
+// a lot of empty cells early on), and FortuneCookie (💵5 per point of Luck
+// -- directly rewards the Crystal Ball stacking this whole strategy leans
+// on). Meant to be picked up *and later removed* (Axe, once Cocktail is
+// running and every inventory slot should be feeding it instead) rather
+// than kept all game, unlike FEED_PRIORITY/KEEP_SET -- capped in total by
+// EARLY_BOOTSTRAP_TOTAL_CAP (4), tracked across all five combined.
 const EARLY_BOOTSTRAP_PRIORITY = [
-  JAR,
-  DRAGON,
-  BRIEFCASE,
-  CLOUD,
   FORTUNE_COOKIE,
-  SANTA,
-  LOOTBOX,
-  CREDIT_CARD,
-];
-// Balloon (🎈, 💵20/turn, 50% pop chance) -- present in the recorded human
-// run's early buys but not named explicitly by the player like the above,
-// so it's a lower-priority fallback rather than part of the actively
-// hunted bootstrap set.
-const MONEY_ENGINES = new Set([
-  COIN,
-  '🏦',
-  BRIEFCASE,
-  '💰',
   JAR,
-  '🌽',
-  '🍿',
-  '🧈',
-  LOOTBOX,
-  SANTA,
-  '🎈',
+  BRIEFCASE,
+  DRAGON,
   CLOUD,
-]);
-// Away from Cocktail's own (self-protected) neighborhood: Ice first, Tree
-// second (Tree spawns Cherry onto empty neighbors every 3 turns -- pinning
-// it somewhere with open neighbors keeps that supply flowing without
-// depending on it re-landing in a useful spot).
-const COVERAGE_PIN_PRIORITY = [ICE, TREE];
+];
+// Lower-priority generic fallback -- Bank/MoneyBag/Corn/Popcorn/Butter are
+// explicitly excluded per the player; Coin/Lootbox/Santa/Balloon are left
+// in as low-priority filler, not part of the actively hunted bootstrap set
+// above (Briefcase/Jar/Cloud stay out of this set too, to avoid double
+// counting against EARLY_BOOTSTRAP_TOTAL_CAP -- the exclusion filter where
+// this is used only guards against that for the ones still listed here).
+const MONEY_ENGINES = new Set([COIN, LOOTBOX, SANTA, '🎈']);
+// Ice is the only coverage-pin candidate now that Tree is gone (see
+// FEED_PRIORITY's comment).
+const COVERAGE_PIN_PRIORITY = [ICE];
 // Everything worth keeping in the inventory pool once Cocktail is running --
 // anything else drawn onto the board is Axe bait: a real recorded human run
 // (see notes below) used Axe 11 times, with several targets landing on
@@ -210,10 +194,13 @@ const COVERAGE_PIN_PRIORITY = [ICE, TREE];
 // cleared cell itself gets refilled next roll regardless, so Axe can't be
 // "fixing" a bad roll, only shrinking the pool so what's left is denser in
 // the stuff we want landing next to Cocktail).
-// Clover is deliberately NOT kept -- the player explicitly wants it Axed
-// (along with Coin) once it's served its tiny early-Luck purpose, freeing
-// the space for CrystalBall (3x the Luck per copy) and Champagne/
-// Multiplier/etc. instead.
+// Clover is deliberately NOT kept -- Axed once there's enough CrystalBall
+// to not miss its tiny Luck contribution (see findJunkTarget's
+// CLOVER_REMOVAL_CRYSTAL_THRESHOLD check) -- "not a priority to do so"
+// per the player, so it's still only reached via the same low-priority
+// Tier-2 pruning as everything else here, just conditionally skipped
+// before that threshold.
+const CLOVER_REMOVAL_CRYSTAL_THRESHOLD = 2;
 const KEEP_SET = new Set([COCKTAIL, ...FEED_PRIORITY, ...UTILITY_SET, CRYSTAL]);
 
 function ensureShopDom() {
@@ -412,13 +399,19 @@ function findSpaceRelieverTarget(game, pinnedAt) {
 // KEEP_SET -- an *unpaid* one axed by generic pruning loses its 💵1000
 // before it ever scores; findPaidCreditCardTarget (checked first, above)
 // is the only thing allowed to remove it, and only after it's paid.
+// Clover is also conditionally excluded -- "clover can be removed entirely
+// once we have 1-2 crystal balls" per the player, i.e. not before, so its
+// tiny +1% Luck isn't lost with nothing yet replacing it.
 function findJunkTarget(game) {
+  const cloverRemovable =
+    countOwned(game, CRYSTAL) >= CLOVER_REMOVAL_CRYSTAL_THRESHOLD;
   let found = null;
   game.board.forAllCells((cell, x, y) => {
     if (found) return;
     if (game.board.lockedAt(x, y)) return;
     const emoji = cell.emoji();
     if (emoji === '⬜' || emoji === COCKTAIL || emoji === CREDIT_CARD) return;
+    if (emoji === CLOVER && !cloverRemovable) return;
     if (!KEEP_SET.has(emoji)) found = [x, y];
   });
   return found;
@@ -808,10 +801,17 @@ async function cocktailPolicy(game, diag, turn) {
       if (hit) chosenId = hit.id;
     }
 
-    // Pineapple feeds Cocktail's stockpile directly and is worth taking
-    // even before the Champagne ramp turn -- "more useful than champagne
-    // in the first ~4-5 iterations" per the player.
-    if (chosenId === -1) {
+    // Pineapple is a last resort: only worth it when there's a surplus buy
+    // to spend that would otherwise go to waste (buyCount >= 2, i.e.
+    // ShoppingBag stacking is active) with little or no refresh budget
+    // left to look for anything better -- "a last resort buy where we have
+    // very few or no more refreshes left and many buys" per the player.
+    // With just the baseline one buy a turn, skipping it and ending the
+    // turn here is better than spending that one buy on a middling feed
+    // item. Still feeds Cocktail's stockpile even before the Champagne
+    // ramp turn when it does apply -- "more useful than champagne in the
+    // first ~4-5 iterations".
+    if (chosenId === -1 && game.shop.buyCount >= PINEAPPLE_MIN_BUY_COUNT) {
       const hit = available.find((o) => o.symbol.emoji() === PINEAPPLE);
       if (hit) chosenId = hit.id;
     }
@@ -839,16 +839,6 @@ async function cocktailPolicy(game, diag, turn) {
         if (target) {
           chosenId = hit.id;
           toolTarget = target;
-        }
-      }
-    }
-
-    if (chosenId === -1 && !huntingIdealPin) {
-      for (const want of FEED_FALLBACK) {
-        const hit = available.find((o) => o.symbol.emoji() === want);
-        if (hit) {
-          chosenId = hit.id;
-          break;
         }
       }
     }
