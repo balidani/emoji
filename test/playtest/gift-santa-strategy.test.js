@@ -64,6 +64,19 @@
 //     a row EVERY turn it's on the board, not just once -- leaving one
 //     permanently in the pool/on the board risks unbounded board growth,
 //     which is exactly the "overboard" the player warned against).
+//   - 🪦 Grave (1-2 copies, GRAVE_CAP) is bought too: 10% chance/turn to
+//     pull a random previously-removed symbol out of the graveyard back
+//     onto the board -- including a Lootbox, since an opened one always
+//     goes to the graveyard via its own self-removal. See the Tier-0
+//     "catch and convert" block for the payoff: Eye-converting that
+//     grave-caught Lootbox to passive before it can transform away turns
+//     it into a permanent, free, once-per-turn gift generator. Prioritized
+//     above even converting Refresh to passive, since the window to catch
+//     it is exactly one turn wide.
+//   - Santa purchases are capped at SANTA_POOL_SHARE (33%) of the pool --
+//     "be more conservative... the rest should be kept for helpful symbols
+//     we haven't made passive yet and ultimately multipliers" per the
+//     player.
 // Prints per-game diagnostics and summary stats via console.log rather than
 // asserting anything -- a measurement tool for tuning, not a pass/fail
 // regression test. A naive "buy first affordable thing" baseline runs
@@ -97,6 +110,7 @@ const VOLCANO = '🌋';
 const GAMBLER = '🤑';
 const DICE = '🎲';
 const CREDIT_CARD = '💳';
+const GRAVE = '🪦';
 
 // Lighter ramp than the cocktail strategy's (which left CrystalBall/PostBox
 // uncapped) -- this engine doesn't need as much throughput, just enough
@@ -104,6 +118,11 @@ const CREDIT_CARD = '💳';
 const CRYSTAL_CAP = 5;
 const POSTBOX_CAP = 4;
 const SHOPPING_BAG_CAP = 3;
+// 1-2 Graves: extra copies are wasted (10% chance/turn each is already
+// plenty relative to how fast the graveyard fills), and every copy takes
+// pool space away from CrystalBall/PostBox/ShoppingBag/Multiplier -- see
+// its Tier-0 conversion comment for what having one actually buys us.
+const GRAVE_CAP = 2;
 
 // How close pool size can get to the effective refresh-symbol-reliability
 // limit before shifting to space relief -- same idea as the cocktail
@@ -146,15 +165,12 @@ const GIFT_MESS_PRIORITY = [VOLCANO, GAMBLER, DICE];
 // Everything worth keeping in the pool -- anything else drawn onto the
 // board is Axe bait (see findJunkTarget). Rows is deliberately NOT in here
 // -- see the header comment on why it needs pruning once its job is done.
-const KEEP_SET = new Set([
-  LOOTBOX,
-  SANTA,
-  MULT,
-  CRYSTAL,
-  POSTBOX,
-  BAG,
-  REFRESH,
-]);
+// Refresh is deliberately NOT in here either -- per the player, we only
+// ever hold the one starting copy and convert it to passive immediately
+// (Tier 0), so KEEP_SET's protection against Axe would be redundant by
+// the time any Tier-2 cleanup could ever run; it still can't actually be
+// lost, though -- see findGiftMessTarget's explicit guard below.
+const KEEP_SET = new Set([LOOTBOX, SANTA, MULT, CRYSTAL, POSTBOX, BAG, GRAVE]);
 
 function ensureShopDom() {
   document.body.innerHTML = '';
@@ -251,7 +267,10 @@ function findGiftMessTarget(game) {
     if (found) return;
     if (game.board.lockedAt(x, y)) return;
     const emoji = cell.emoji();
-    if (emoji === '⬜' || emoji === CREDIT_CARD) return;
+    // CreditCard: findPaidCreditCardTarget is the only thing allowed to
+    // remove it. Refresh: never Axe-able at all -- see KEEP_SET's comment
+    // on why this is a standalone guard rather than KEEP_SET membership.
+    if (emoji === '⬜' || emoji === CREDIT_CARD || emoji === REFRESH) return;
     if (!KEEP_SET.has(emoji)) found = [x, y];
   });
   return found;
@@ -308,11 +327,19 @@ async function giftSantaPolicy(game, diag) {
           if (targetEmoji === VOLCANO)
             diag.volcanoAxed = (diag.volcanoAxed || 0) + 1;
         }
+        if (boughtEmoji === EYE) {
+          const targetEmoji = game.board
+            .getSymbol(toolTarget[0], toolTarget[1])
+            .emoji();
+          if (targetEmoji === LOOTBOX)
+            diag.graveGiftsCaught = (diag.graveGiftsCaught || 0) + 1;
+        }
       }
       if (boughtEmoji === LOOTBOX)
         diag.lootboxBought = (diag.lootboxBought || 0) + 1;
       if (boughtEmoji === SANTA) diag.santaBought = (diag.santaBought || 0) + 1;
       if (boughtEmoji === ROWS) diag.rowsBought = (diag.rowsBought || 0) + 1;
+      if (boughtEmoji === GRAVE) diag.graveBought = (diag.graveBought || 0) + 1;
       await game.shop.attemptPurchase(game, chosenId);
     };
 
@@ -323,6 +350,34 @@ async function giftSantaPolicy(game, diag) {
       const hit = available.find((o) => o.symbol.emoji() === AXE);
       if (hit) {
         const target = findEmojiTarget(game, VOLCANO);
+        if (target) {
+          chosenId = hit.id;
+          toolTarget = target;
+        }
+      }
+    }
+
+    // A Lootbox that Grave just spawned this turn never got a chance to
+    // open (transform away) -- Board.evaluate() snapshots which cells to
+    // evaluate before Grave's own evaluateProduce runs, so a symbol Grave
+    // adds mid-evaluate is skipped until NEXT turn's evaluate pass (see
+    // board.js). Any Lootbox we see unlocked on the board by the time the
+    // shop opens is necessarily one of these -- one drawn onto the board by
+    // this turn's roll() would already have opened by now, since roll()
+    // finishes before evaluate() starts. Eye-converting it to passive RIGHT
+    // NOW, before it transforms next turn, is a one-turn-only window: once
+    // passive, its evaluateProduce still fires every turn from x=-1,y=-1,
+    // where Board.removeSymbol/addSymbol both no-op the "remove old self"
+    // half but still run the "add the new random symbol" half -- so it
+    // never transforms away, and instead adds a fresh pool symbol plus
+    // +1 giftsOpened every turn, forever, for free. Prioritized above even
+    // the Refresh conversion below -- per the player, this window is far
+    // more fragile (miss it and it's gone) than Refresh, which doesn't
+    // self-transform and can safely wait a turn or two.
+    if (chosenId === -1) {
+      const hit = available.find((o) => o.symbol.emoji() === EYE);
+      if (hit) {
+        const target = findEmojiTarget(game, LOOTBOX);
         if (target) {
           chosenId = hit.id;
           toolTarget = target;
@@ -448,6 +503,19 @@ async function giftSantaPolicy(game, diag) {
     // no point pinning without limit if purchases are capped.
     if (chosenId === -1 && !nearPoolLimit) {
       const hit = available.find((o) => o.symbol.emoji() === MULT);
+      if (hit) chosenId = hit.id;
+    }
+    // Grave: 1-2 copies (GRAVE_CAP) -- each one is a standing 10%/turn
+    // chance to pull something back out of the graveyard, including a
+    // previously-opened Lootbox (every opened Lootbox goes to the graveyard
+    // via its own self-removal) -- see the Tier-0 catch-and-convert comment
+    // for why that's worth having.
+    if (
+      chosenId === -1 &&
+      !nearPoolLimit &&
+      countOwned(game, GRAVE) < GRAVE_CAP
+    ) {
+      const hit = available.find((o) => o.symbol.emoji() === GRAVE);
       if (hit) chosenId = hit.id;
     }
     // Rows: grow the board toward the pool size, not past it (see header
@@ -591,6 +659,8 @@ async function playOneGame(seedPhrase, policy) {
     lootboxBought: 0,
     santaBought: 0,
     rowsBought: 0,
+    graveBought: 0,
+    graveGiftsCaught: 0,
     refreshCount: 0,
     lateRefreshCount: 0,
   };
@@ -618,7 +688,7 @@ function getTrophy(settings, score) {
 
 describe('scratch: gift-santa strategy playtest', () => {
   it('plays N full games with the adaptive gift-santa policy', async () => {
-    const N = 60;
+    const N = 100;
     const results = [];
     for (let i = 0; i < N; i++) {
       const r = await playOneGame(`gift-santa-playtest-${i}`, giftSantaPolicy);
@@ -636,7 +706,7 @@ describe('scratch: gift-santa strategy playtest', () => {
     console.log('\n=== Gift-Santa strategy results ===');
     results.forEach((r, i) => {
       console.log(
-        `game ${i}\tscore ${r.score}\tgifts=${r.diag.giftsOpened}\tsantaBought=${r.diag.santaBought}\tsantaPins=${r.diag.santaPins}\tmultLocks=${r.diag.multiplierLocksOnSanta}\tlootboxBought=${r.diag.lootboxBought}\trowsBought=${r.diag.rowsBought}\tvolcanoAxed=${r.diag.volcanoAxed}\taxe=${r.diag.axeCount}\tboard=${r.diag.finalBoardArea}\tpool=${r.diag.finalPoolSize}\ttrophy=${getTrophy(settings, r.score)}`
+        `game ${i}\tscore ${r.score}\tgifts=${r.diag.giftsOpened}\tsantaBought=${r.diag.santaBought}\tsantaPins=${r.diag.santaPins}\tmultLocks=${r.diag.multiplierLocksOnSanta}\tlootboxBought=${r.diag.lootboxBought}\trowsBought=${r.diag.rowsBought}\tgraveBought=${r.diag.graveBought}\tgraveGiftsCaught=${r.diag.graveGiftsCaught}\tvolcanoAxed=${r.diag.volcanoAxed}\taxe=${r.diag.axeCount}\tboard=${r.diag.finalBoardArea}\tpool=${r.diag.finalPoolSize}\ttrophy=${getTrophy(settings, r.score)}`
       );
     });
     console.log(
@@ -658,6 +728,10 @@ describe('scratch: gift-santa strategy playtest', () => {
       results.reduce((s, r) => s + r.diag.volcanoAxed, 0) / results.length;
     const avgRows =
       results.reduce((s, r) => s + r.diag.rowsBought, 0) / results.length;
+    const avgGraveBought =
+      results.reduce((s, r) => s + r.diag.graveBought, 0) / results.length;
+    const avgGraveGiftsCaught =
+      results.reduce((s, r) => s + r.diag.graveGiftsCaught, 0) / results.length;
     const avgLateRefresh =
       results.reduce((s, r) => s + r.diag.lateRefreshCount, 0) / results.length;
     console.log(
@@ -669,6 +743,9 @@ describe('scratch: gift-santa strategy playtest', () => {
     );
     console.log(
       `avg volcano axed/game: ${avgVolcanoAxed.toFixed(2)}, avg rows bought/game: ${avgRows.toFixed(1)}`
+    );
+    console.log(
+      `avg grave bought/game: ${avgGraveBought.toFixed(1)}, avg grave-caught unopened gifts made passive/game: ${avgGraveGiftsCaught.toFixed(2)}`
     );
 
     const byLocks = new Map();
