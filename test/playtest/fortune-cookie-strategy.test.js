@@ -58,10 +58,26 @@
 //     the refresh budget is already tight -- i.e. the policy has already
 //     given up hunting for something better -- so it can only ever fire
 //     when it isn't competing with the Luck ramp.
-//   - PostBox/ShoppingBag/Rows: same capped "ramp, then prune once no
-//     longer needed" treatment as the other two strategies (POSTBOX_CAP/
-//     SHOPPING_BAG_CAP/ROWS_MARGIN) -- "same strategy... within a limit"
-//     per the player.
+//   - PostBox/ShoppingBag: same capped "ramp, then prune once no longer
+//     needed" treatment as the other two strategies (POSTBOX_CAP/
+//     SHOPPING_BAG_CAP). Rows is deliberately NOT bought at all right now --
+//     "extra rows is a red herring, you can get to 1M+ without any extra
+//     rows... it also dilutes the multipliers" per the player: growing the
+//     board raises boardArea (and so the pool-space ceiling, see
+//     nearPoolLimit) but a bigger board means the pinned cookie's own
+//     Multiplier neighbors are a smaller fraction of the total, working
+//     against the "surround one cookie with 8" concentration this strategy
+//     wants. May be worth revisiting once the no-Rows ceiling is understood.
+//   - Caps (CRYSTAL_CAP/POSTBOX_CAP/SHOPPING_BAG_CAP/FORTUNE_COOKIE_CAP) and
+//     the pool-space ceiling (nearPoolLimit) only count copies still
+//     in the active pool (game.inventory.symbols) -- NOT ones already
+//     converted to passive. A passive CrystalBall/PostBox/ShoppingBag is
+//     never drawn by board.roll() (which samples only from
+//     inventory.symbols -- see poolSize's comment) and so can't dilute
+//     anything or compete for a board cell; counting it against its own
+//     cap or the shared pool ceiling anyway was throttling the whole ramp
+//     far too early (this was the actual cause of the "can't reliably reach
+//     10+ CrystalBall" problem investigated with the player -- not Rows).
 //   - Same gift-mess-style hazard cleanup as gift-santa (Volcano first,
 //     unconditionally; then Gambler/Dice; then generic junk) -- Volcano/
 //     Gambler/Dice are universal hazards, not specific to any one engine.
@@ -95,7 +111,6 @@ const CRYSTAL = '🔮';
 const POSTBOX = '📮';
 const BAG = '🛍️';
 const REFRESH = '🔀';
-const ROWS = '🎰';
 const PIN = '📌';
 const EYE = '🧿';
 const AXE = '🪓';
@@ -145,14 +160,15 @@ const EARLY_MONEY_TOTAL_CAP = 3;
 // strategies) since every extra passive copy is a permanent, guaranteed
 // addition to literally every turn's Luck -- and Luck converts directly to
 // money every turn via FortuneCookie, unlike in the other strategies where
-// it only nudges shop odds. Bumped further (6 -> 10) per the player's
-// "more priority to ramp building (luck especially, buy lines and some
-// shopping bags)" -- PostBox (buy lines) and ShoppingBag (buy count) bumped
-// alongside it for the same reason, since more buy throughput is what lets
-// the policy actually spend on all this Luck/ramp supply once it's found.
-const CRYSTAL_CAP = 10;
-const POSTBOX_CAP = 6;
-const SHOPPING_BAG_CAP = 5;
+// it only nudges shop odds. Lowered back down (10 -> 6, PostBox 6 -> 5,
+// ShoppingBag 5 -> 4) now that passive copies no longer count against
+// either their own cap or the shared pool ceiling (see countOwned/poolSize)
+// -- these caps were raised earlier purely to fight a throttling bug that's
+// now fixed at the root, so a lower cap should still reach the same (or a
+// higher) effective count of active-pool + passive copies combined.
+const CRYSTAL_CAP = 6;
+const POSTBOX_CAP = 5;
+const SHOPPING_BAG_CAP = 4;
 // Multiplier: enough for all 8 pins on the one target cookie plus some
 // floating spares that occasionally land next to it or another cookie
 // copy for a one-turn boost.
@@ -165,7 +181,6 @@ const MULTIPLIER_OWN_CAP = 12;
 const FORTUNE_MULTIPLIER_LOCK_CAP = 8;
 
 const POOL_SPACE_MARGIN = 3;
-const ROWS_MARGIN = 2;
 const REFRESH_TIGHT_RATIO = 0.5;
 
 const LATE_GAME_WINDOW = 10;
@@ -202,22 +217,26 @@ async function buildGame(settings, catalog) {
   return game;
 }
 
+// Counts only copies still in the active pool (game.inventory.symbols) --
+// NOT ones already converted to passive. See the header comment: a passive
+// copy is never drawn by board.roll() and so doesn't compete for a board
+// cell or dilute anything, so it shouldn't count against its own buy cap.
 function countOwned(game, emoji) {
-  const inInventory = game.inventory.symbols.filter(
-    (s) => s.emoji() === emoji
-  ).length;
-  const passive = game.board.passiveCells.filter(
-    (s) => s.emoji() === emoji
-  ).length;
-  return inInventory + passive;
+  return game.inventory.symbols.filter((s) => s.emoji() === emoji).length;
 }
 
 function boardArea(game) {
   return game.settings.boardX * game.inventory.rowCount;
 }
 
+// Only the active pool -- board.roll() samples min(poolSize, boardCells)
+// symbols WITHOUT replacement from game.inventory.symbols specifically
+// (see board.js); passiveCells is a wholly separate list that's never
+// drawn from, so including it here would overstate how diluted the actual
+// on-board draw is (see the header comment -- this was the real cause of
+// the CrystalBall-ramp bottleneck, not Rows).
 function poolSize(game) {
-  return game.inventory.symbols.length + game.board.passiveCells.length;
+  return game.inventory.symbols.length;
 }
 
 function findEmojiTarget(game, emoji) {
@@ -402,7 +421,6 @@ async function fortuneCookiePolicy(game, diag, turn) {
         diag.cloverBought = (diag.cloverBought || 0) + 1;
       if (boughtEmoji === CRYSTAL)
         diag.crystalBought = (diag.crystalBought || 0) + 1;
-      if (boughtEmoji === ROWS) diag.rowsBought = (diag.rowsBought || 0) + 1;
       if (EARLY_MONEY_PRIORITY.includes(boughtEmoji))
         diag.earlyMoneyBought = (diag.earlyMoneyBought || 0) + 1;
       await game.shop.attemptPurchase(game, chosenId);
@@ -604,11 +622,6 @@ async function fortuneCookiePolicy(game, diag, turn) {
       const hit = available.find((o) => o.symbol.emoji() === FORTUNE_COOKIE);
       if (hit) chosenId = hit.id;
     }
-    // Rows: grow the board toward the pool size, not past it.
-    if (chosenId === -1 && boardArea(game) < poolSize(game) - ROWS_MARGIN) {
-      const hit = available.find((o) => o.symbol.emoji() === ROWS);
-      if (hit) chosenId = hit.id;
-    }
     if (chosenId !== -1) {
       await commitBuy();
       continue;
@@ -764,7 +777,6 @@ async function playOneGame(seedPhrase, policy) {
     cloverBought: 0,
     cloverAxed: 0,
     crystalBought: 0,
-    rowsBought: 0,
     earlyMoneyBought: 0,
     earlyMoneyAxed: 0,
     axeCount: 0,
@@ -778,7 +790,6 @@ async function playOneGame(seedPhrase, policy) {
     await playTurn(game, policy, diag, turn);
   }
   const score = game.inventory.getResource(Const.MONEY);
-  diag.finalBoardArea = boardArea(game);
   diag.finalPoolSize = poolSize(game);
   return { score, diag };
 }
@@ -816,7 +827,7 @@ describe('scratch: fortune-cookie strategy playtest', () => {
     console.log('\n=== Fortune-cookie strategy results ===');
     results.forEach((r, i) => {
       console.log(
-        `game ${i}\tscore ${r.score}\tcookieTurn=${r.diag.cookieBoughtTurn}\tpinTurn=${r.diag.cookiePinTurn}\tmultLocks=${r.diag.multiplierLocksOnCookie}\tcookieBought=${r.diag.cookieBought}\tcocktailBought=${r.diag.cocktailBought}\tcocktailAxed=${r.diag.cocktailAxed}\tcloverBought=${r.diag.cloverBought}\tcloverAxed=${r.diag.cloverAxed}\tcrystalBought=${r.diag.crystalBought}\trowsBought=${r.diag.rowsBought}\tearlyMoneyBought=${r.diag.earlyMoneyBought}\tearlyMoneyAxed=${r.diag.earlyMoneyAxed}\tvolcanoAxed=${r.diag.volcanoAxed}\taxe=${r.diag.axeCount}\tboard=${r.diag.finalBoardArea}\tpool=${r.diag.finalPoolSize}\ttrophy=${getTrophy(settings, r.score)}`
+        `game ${i}\tscore ${r.score}\tcookieTurn=${r.diag.cookieBoughtTurn}\tpinTurn=${r.diag.cookiePinTurn}\tmultLocks=${r.diag.multiplierLocksOnCookie}\tcookieBought=${r.diag.cookieBought}\tcocktailBought=${r.diag.cocktailBought}\tcocktailAxed=${r.diag.cocktailAxed}\tcloverBought=${r.diag.cloverBought}\tcloverAxed=${r.diag.cloverAxed}\tcrystalBought=${r.diag.crystalBought}\tearlyMoneyBought=${r.diag.earlyMoneyBought}\tearlyMoneyAxed=${r.diag.earlyMoneyAxed}\tvolcanoAxed=${r.diag.volcanoAxed}\taxe=${r.diag.axeCount}\tpool=${r.diag.finalPoolSize}\ttrophy=${getTrophy(settings, r.score)}`
       );
     });
     console.log(
