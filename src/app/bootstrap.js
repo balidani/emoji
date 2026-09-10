@@ -14,7 +14,10 @@ import { exportSave, importSave } from '../save_state.js';
 import { ReplayRecorder, runReplay } from '../replay.js';
 import { FULL_ROSTER, BAGS, nextGate } from '../progression-roster.js';
 import { renderProgressionBar } from '../render/progressionBar.js';
-import { renderDailyLeaderboardPreview } from '../render/dailyLeaderboardPreview.js';
+import {
+  renderDailyLeaderboardPreview,
+  renderDailyOfflineNotice,
+} from '../render/dailyLeaderboardPreview.js';
 import * as Const from '../consts.js';
 import { DAILY_SETTINGS, dailyAllowedEmoji, todayUTC } from '../daily.js';
 import {
@@ -45,6 +48,10 @@ export async function bootstrap() {
   // it's done unconditionally on every load while in daily mode rather than
   // trusting whatever's already in the hash.
   let seedPhrase;
+  // Set below if a Daily Challenge reload's seed fetch fails -- applied to
+  // PROGRESSION once it exists (see PROGRESSION.dailyOffline's own comment
+  // for what that flag actually gates).
+  let dailyOffline = false;
   if (window.localStorage.getItem(PROGRESSION_MODE) === 'daily') {
     try {
       ({ seed: seedPhrase } = await fetchDailySeed());
@@ -56,13 +63,17 @@ export async function bootstrap() {
       }
       await Rng.setSeed(seedPhrase);
     } catch (err) {
-      // Backend unreachable on this reload -- fall back the same way
-      // enterDailyChallenge() does, rather than silently seeding an
-      // untrusted hash into what the player still thinks is a valid daily
-      // attempt. Written straight to localStorage (no Progression instance
-      // exists yet); PROGRESSION.load() below picks it up as 'sandbox'.
+      // Backend unreachable on this reload -- rather than silently
+      // demoting the player out of the mode they chose (that used to
+      // happen here, and looked indistinguishable from the game randomly
+      // switching itself to Sandbox), stay in Daily Challenge and play this
+      // one round as an unranked, locally-seeded fallback instead: same
+      // buyable pool (dailyAllowedEmoji below still excludes the 🎟️
+      // ticket), just no server seed to reconstruct and no game-over
+      // submission (see PROGRESSION.dailyOffline). The next reopen tries
+      // the real thing again from scratch.
       console.error(err);
-      window.localStorage.setItem(PROGRESSION_MODE, 'sandbox');
+      dailyOffline = true;
       seedPhrase = await Rng.setRandomSeed();
     }
   } else {
@@ -199,7 +210,13 @@ export async function bootstrap() {
     const leaderboardPreviewMount = document.querySelector(
       '.game .daily-leaderboard-preview'
     );
-    if (isDaily) {
+    if (isDaily && PROGRESSION.dailyOffline) {
+      // This round's own seed fetch already failed at boot -- don't also
+      // hit the leaderboard endpoint, and don't pretend there's a ranked
+      // board to show for a round that will never be submitted.
+      renderDailyOfflineNotice(leaderboardPreviewMount);
+      leaderboardPreviewMount.classList.remove('hidden');
+    } else if (isDaily) {
       fetchDailyLeaderboard(todayUTC())
         .then(({ top }) => {
           renderDailyLeaderboardPreview(leaderboardPreviewMount, top);
@@ -300,6 +317,7 @@ export async function bootstrap() {
     loadSettings
   );
   PROGRESSION.load();
+  PROGRESSION.dailyOffline = dailyOffline;
 
   if (window.location.hash === '#dev') {
     document.querySelectorAll('.dev-hidden').forEach((e) => {

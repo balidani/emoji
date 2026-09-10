@@ -14,7 +14,10 @@ import { Catalog } from '../../src/catalog.js';
 import { Progression } from '../../src/progression.js';
 import { DomRenderer } from '../../src/render/DomRenderer.js';
 import { animationOff, animationOn } from '../../src/render/animations.js';
-import { renderDailyLeaderboardPreview } from '../../src/render/dailyLeaderboardPreview.js';
+import {
+  renderDailyLeaderboardPreview,
+  renderDailyOfflineNotice,
+} from '../../src/render/dailyLeaderboardPreview.js';
 
 describe('renderDailyLeaderboardPreview', () => {
   it('fills a given container with a titled panel, replacing prior content', () => {
@@ -77,6 +80,24 @@ describe('renderDailyLeaderboardPreview', () => {
     expect(
       empty.querySelector('.daily-leaderboard-countdown').textContent
     ).toMatch(/^Next challenge in \d+h \d+m$/);
+  });
+});
+
+describe('renderDailyOfflineNotice', () => {
+  it('fills the mount with a titled panel and an unavailable message, replacing prior content', () => {
+    const container = document.createElement('div');
+    container.appendChild(document.createElement('span')); // stale content
+    renderDailyOfflineNotice(container);
+
+    expect(container.children).toHaveLength(1); // .daily-leaderboard-panel
+    const panel = container.querySelector('.daily-leaderboard-panel');
+    expect(panel).not.toBeNull();
+    expect(panel.querySelector('.daily-leaderboard-title').textContent).toBe(
+      "Today's leaderboard"
+    );
+    expect(panel.querySelector('.daily-leaderboard-empty').textContent).toMatch(
+      /unavailable/i
+    );
   });
 });
 

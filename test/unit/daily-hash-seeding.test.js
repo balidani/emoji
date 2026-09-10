@@ -79,7 +79,7 @@ describe('Daily Challenge boot-time RNG seeding', () => {
     expect(window.localStorage.getItem('ProgressionMode')).toBe('daily');
   });
 
-  it('falls back to Sandbox with a fresh random seed if the backend is unreachable, instead of trusting the tampered hash', async () => {
+  it('stays in Daily Challenge mode with a fresh random seed if the backend is unreachable, instead of trusting the tampered hash or silently demoting to Sandbox', async () => {
     fetchDailySeed.mockRejectedValue(new Error('network down'));
     window.localStorage.setItem('ProgressionMode', 'daily');
     window.location.hash = 'tamperedhash';
@@ -87,7 +87,13 @@ describe('Daily Challenge boot-time RNG seeding', () => {
     await bootstrap();
 
     expect(window.seedPhrase).not.toBe('tamperedhash');
-    expect(window.localStorage.getItem('ProgressionMode')).toBe('sandbox');
+    // The player's chosen mode survives a transient outage -- only the
+    // in-memory dailyOffline flag (never persisted) marks this one round as
+    // unranked, so the very next reopen retries the real thing.
+    expect(window.localStorage.getItem('ProgressionMode')).toBe('daily');
+    expect(fetchDailyLeaderboard).not.toHaveBeenCalled();
+    const preview = document.querySelector('.game .daily-leaderboard-preview');
+    expect(preview.textContent).toMatch(/unavailable/i);
   });
 
   it('still honors the hash for RNG seeding outside Daily Challenge mode', async () => {

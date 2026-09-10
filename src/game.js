@@ -168,8 +168,16 @@ export class Game {
     // Daily Challenge: prompt for a name, submit the replay for server-side
     // scoring, and show the leaderboard -- guarded by isReplay so replaying
     // a shared daily replay code never re-submits (see replay.js's
-    // runReplay, which always constructs its Game with isReplay = true).
-    if (!this.isReplay && this.progression?.mode === 'daily') {
+    // runReplay, which always constructs its Game with isReplay = true), and
+    // by dailyOffline so a round whose seed fetch failed at boot (see
+    // app/bootstrap.js) never prompts for a name or submits -- it was never
+    // seeded from the server, so the server couldn't validate it even if
+    // it's reachable again by now.
+    if (
+      !this.isReplay &&
+      this.progression?.mode === 'daily' &&
+      !this.progression?.dailyOffline
+    ) {
       await this.runDailyChallengeFlow();
     }
 

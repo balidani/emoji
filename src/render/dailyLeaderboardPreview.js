@@ -31,3 +31,24 @@ export function renderDailyLeaderboardPreview(container, rows) {
   panel.appendChild(buildDailyCountdownNote());
   container.appendChild(panel);
 }
+
+// Shown in the same mount instead of the above whenever this round's own
+// server seed fetch failed at boot (app/bootstrap.js) -- the round still
+// plays, locally seeded with the same buyable pool (still minus the 🎟️
+// ticket), it just isn't a ranked submission, so there's no board to show
+// and no point fetching one. Reuses the panel/empty-state styling rather
+// than adding new CSS.
+export function renderDailyOfflineNotice(container) {
+  container.replaceChildren();
+  const panel = createDiv('', 'daily-leaderboard-panel');
+  panel.appendChild(
+    createDiv("Today's leaderboard", 'daily-leaderboard-title')
+  );
+  panel.appendChild(
+    createDiv(
+      "Daily Challenge server unavailable -- this round won't be ranked or submitted.",
+      'daily-leaderboard-empty'
+    )
+  );
+  container.appendChild(panel);
+}

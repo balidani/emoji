@@ -86,6 +86,15 @@ export class Progression {
     this.pendingBagOffer = [];
     this.sandboxGameLength = null;
     this.hasSeenDailyChallenge = false;
+    // Set only by app/bootstrap.js, for exactly the one round loaded right
+    // after a Daily Challenge reload whose server seed fetch failed -- never
+    // persisted (unlike `mode`), so the very next reopen retries the real
+    // thing instead of getting stuck offline. True for that round means: no
+    // name prompt / no submission at game-over (game.js's Game.over()), and
+    // the pre-roll leaderboard mount shows an unavailable notice instead of
+    // fetching (app/bootstrap.js's loadSettings) -- even if the backend
+    // comes back before this round ends.
+    this.dailyOffline = false;
   }
   load() {
     if (!window.localStorage.getItem(CURRENT_VERSION_KEY)) {
